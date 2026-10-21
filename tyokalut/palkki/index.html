@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yksiaukkoinen palkki – Lastutec</title>
+  <meta name="description" content="Yksiaukkoisen vapaasti tuetun palkin rasitukset ja taipuma.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body data-root="../../" data-page="tyokalut">
+  <header data-site-header></header>
+
+  <main class="container">
+    <div class="page-head">
+      <div class="breadcrumb"><a href="../">Työkalut</a> / Palkit</div>
+      <h1>Yksiaukkoinen palkki</h1>
+      <p>Vapaasti tuettu palkki tasaisella kuormalla ja pistekuormalla. Laskee tukireaktiot, leikkausvoiman, taivutusmomentin ja taipuman.</p>
+    </div>
+
+    <div class="tool-layout">
+      <form class="panel" id="beam-form" novalidate>
+        <fieldset>
+          <legend>Geometria</legend>
+          <div class="field">
+            <label for="L">Jänneväli <small>L</small></label>
+            <div class="input-unit"><input id="L" type="number" step="any" min="0" value="6"><span>m</span></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Kuormat</legend>
+          <div class="field">
+            <label for="q">Tasainen kuorma <small>q</small></label>
+            <div class="input-unit"><input id="q" type="number" step="any" value="5"><span>kN/m</span></div>
+          </div>
+          <div class="field">
+            <label for="P">Pistekuorma <small>P</small></label>
+            <div class="input-unit"><input id="P" type="number" step="any" value="0"><span>kN</span></div>
+          </div>
+          <div class="field">
+            <label for="a">P:n etäisyys <small>a</small></label>
+            <div class="input-unit"><input id="a" type="number" step="any" min="0" value="3"><span>m</span></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Jäykkyys</legend>
+          <div class="field" style="grid-template-columns: 1fr;">
+            <select class="full" id="material" aria-label="Materiaali">
+              <option value="210">Teräs (E = 210 GPa)</option>
+              <option value="11">Sahatavara C24 (E = 11 GPa)</option>
+              <option value="11.5">Liimapuu GL30c (E = 11,5 GPa)</option>
+              <option value="33">Betoni C30/37 (E = 33 GPa)</option>
+              <option value="">Muu</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="E">Kimmomoduuli <small>E</small></label>
+            <div class="input-unit"><input id="E" type="number" step="any" min="0" value="210"><span>GPa</span></div>
+          </div>
+          <div class="field">
+            <label for="I">Jäyhyysmomentti <small>I</small></label>
+            <div class="input-unit"><input id="I" type="number" step="any" min="0" value="83.6"><span>10⁶mm⁴</span></div>
+          </div>
+          <div class="field">
+            <label for="limit">Taipumaraja <small>L/</small></label>
+            <div class="input-unit"><input id="limit" type="number" step="any" min="1" value="300"><span>–</span></div>
+          </div>
+        </fieldset>
+        <div class="error" id="error" role="alert"></div>
+      </form>
+
+      <div>
+        <section class="panel" aria-live="polite">
+          <h2>Tulokset</h2>
+          <div class="results" id="results"></div>
+          <div class="diagram"><h3>Kuormitus</h3><svg id="d-load" viewBox="0 0 600 90"></svg></div>
+          <div class="diagram"><h3>Leikkausvoima V [kN]</h3><svg id="d-V" viewBox="0 0 600 130"></svg></div>
+          <div class="diagram"><h3>Taivutusmomentti M [kNm]</h3><svg id="d-M" viewBox="0 0 600 130"></svg></div>
+          <div class="diagram"><h3>Taipuma δ [mm]</h3><svg id="d-d" viewBox="0 0 600 130"></svg></div>
+        </section>
+
+        <section class="panel formulas">
+          <h2>Laskentaperusteet</h2>
+          <p>Tasainen kuorma: <code>M<sub>max</sub> = qL²/8</code>, <code>δ<sub>max</sub> = 5qL⁴/(384EI)</code>. Pistekuorma kohdassa a (b = L − a): <code>R<sub>A</sub> = Pb/L</code>, <code>M = Pab/L</code>. Kuormitustapausten vaikutukset lasketaan yhteen superpositiolla, ja maksimiarvot haetaan numeerisesti palkin pituudelta.</p>
+          <p>Kuormat syötetään haluttuna yhdistelmänä: murtorajatilan mitoitusarvoina rasituksia varten tai käyttörajatilan arvoina taipumaa varten. Palkin omaa painoa ei lisätä automaattisesti.</p>
+          <div class="note">Työkalu on tarkoitettu suunnittelun apuvälineeksi ja tulosten tarkistamiseen. Suunnittelija vastaa tulosten oikeellisuudesta ja soveltuvuudesta kohteeseen.</div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer data-site-footer></footer>
+  <script src="../../assets/js/tools.js"></script>
+  <script src="../../assets/js/main.js"></script>
+  <script src="../../assets/js/tools/palkki.js"></script>
+</body>
+</html>

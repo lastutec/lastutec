@@ -3,78 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lastutec – Rakennesuunnittelu</title>
-  <meta name="description" content="Lastutec – rakennesuunnittelua ja selainpohjaisia laskentatyökaluja rakennesuunnittelijoille.">
+  <title>Lastutec</title>
+  <meta name="description" content="Lastutec – konstruktöörin työkaluja tulossa.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ecebe8;
+      --text: #3d3f42;
+      --shadow: rgba(0, 0, 0, .28);
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #17191b; --text: #b9bcc0; --shadow: rgba(0, 0, 0, .7); color-scheme: dark; }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+    }
+    main { width: 100%; max-width: 1100px; text-align: center; }
+    .logo { display: block; width: 100%; height: auto; filter: drop-shadow(0 10px 14px var(--shadow)); }
+    .logo text { font-family: "Archivo Black", "Arial Black", Impact, sans-serif; font-size: 230px; letter-spacing: -6px; }
+    h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    p { margin: 8px 0 0; font-size: clamp(1.05rem, 3.2vw, 1.75rem); font-weight: 500; letter-spacing: .02em; }
+  </style>
 </head>
-<body data-root="./" data-page="etusivu">
-  <header data-site-header></header>
-
+<body>
   <main>
-    <section class="hero">
-      <div class="container">
-        <span class="eyebrow">Rakennesuunnittelu</span>
-        <h1>Kantavia ratkaisuja ja<br>laskentatyökaluja suunnittelijoille</h1>
-        <p class="lead">Lastutec tekee rakennesuunnittelua ja kehittää selainpohjaisia työkaluja rakennesuunnittelun arkeen: nopeita tarkistuslaskelmia, mitoitusta ja havainnollisia kuvaajia.</p>
-        <div class="actions">
-          <a class="btn btn-primary" href="tyokalut/">Selaa työkaluja</a>
-          <a class="btn btn-secondary" href="#yhteystiedot">Ota yhteyttä</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="section-head">
-          <h2>Työkalut</h2>
-          <a href="tyokalut/">Kaikki työkalut →</a>
-        </div>
-        <div class="grid" data-tool-list data-limit="4"></div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="section-head"><h2>Palvelut</h2></div>
-        <div class="grid">
-          <div class="card">
-            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg></div>
-            <h3>Rakennesuunnittelu</h3>
-            <p>Uudis- ja korjausrakentamisen rakennesuunnittelu sekä kantavien rakenteiden mitoitus.</p>
-          </div>
-          <div class="card">
-            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h2M14 11h2M8 15h2M14 15h2"/></svg></div>
-            <h3>Laskelmat ja tarkistukset</h3>
-            <p>Rakenteiden lujuuslaskelmat, kuormitusselvitykset ja olemassa olevien rakenteiden tarkastelut.</p>
-          </div>
-          <div class="card">
-            <div class="card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg></div>
-            <h3>Laskentatyökalut</h3>
-            <p>Verkkotyökaluja, jotka nopeuttavat suunnittelijan rutiinilaskelmia – suoraan selaimessa.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="yhteystiedot">
-      <div class="container">
-        <div class="section-head"><h2>Yhteystiedot</h2></div>
-        <div class="card contact">
-          <dl>
-            <dt>Yritys</dt>
-            <dd>Lastutec</dd>
-            <dt>Sähköposti</dt>
-            <dd><a href="mailto:lastutec@gmail.com">lastutec@gmail.com</a></dd>
-          </dl>
-          <p>Kysy lisää rakennesuunnittelupalveluista tai ehdota uutta työkalua – palaute auttaa kehittämään työkaluja oikeaan suuntaan.</p>
-        </div>
-      </div>
-    </section>
+    <h1>Lastutec</h1>
+    <svg class="logo" viewBox="0 0 1100 300" role="img" aria-label="Lastutec">
+      <defs>
+        <filter id="concrete" x="-2%" y="-5%" width="104%" height="110%" color-interpolation-filters="sRGB">
+          <!-- Hienojakoinen pintakarheus valaistuna -->
+          <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" seed="4" result="grain"/>
+          <feDiffuseLighting in="grain" surfaceScale="1.4" lighting-color="#cfccc6" result="lit">
+            <feDistantLight azimuth="235" elevation="58"/>
+          </feDiffuseLighting>
+          <!-- Laajat sävyvaihtelut (valun laikut) -->
+          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="3" seed="11" result="blotch"/>
+          <feColorMatrix in="blotch" type="matrix" values="0 0 0 0 .78  0 0 0 0 .77  0 0 0 0 .75  .9 0 0 0 0" result="blotchTone"/>
+          <feBlend in="lit" in2="blotchTone" mode="multiply" result="tone"/>
+          <!-- Ilmahuokoset -->
+          <feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="1" seed="21" result="pits"/>
+          <feColorMatrix in="pits" type="matrix" values="0 0 0 0 .38  0 0 0 0 .37  0 0 0 0 .36  -45 0 0 0 14.2" result="pitMask"/>
+          <feComposite in="pitMask" in2="tone" operator="over" result="pitted"/>
+          <feComposite in="pitted" in2="SourceAlpha" operator="in" result="textured"/>
+          <!-- Viistetty reuna -->
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="soft"/>
+          <feSpecularLighting in="soft" surfaceScale="5" specularConstant=".55" specularExponent="14" lighting-color="#ffffff" result="spec">
+            <feDistantLight azimuth="235" elevation="35"/>
+          </feSpecularLighting>
+          <feComposite in="spec" in2="SourceAlpha" operator="in" result="specIn"/>
+          <feComposite in="textured" in2="specIn" operator="arithmetic" k2="1" k3=".7"/>
+        </filter>
+      </defs>
+      <text x="550" y="228" text-anchor="middle" fill="#9a9894" filter="url(#concrete)">lastutec</text>
+    </svg>
+    <p>Konstruktöörin työkaluja tulossa…</p>
   </main>
-
-  <footer data-site-footer></footer>
-  <script src="assets/js/tools.js"></script>
-  <script src="assets/js/main.js"></script>
 </body>
 </html>

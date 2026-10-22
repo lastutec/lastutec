@@ -58,21 +58,39 @@
       font-size: 22px;
       fill: var(--fg);
     }
-    .bar .scale line { stroke: var(--fg); stroke-width: 2; }
-    .bar .scale .limit line { stroke: var(--alarm); stroke-width: 4; }
-    .bar .scale .limit text { fill: var(--alarm); font-weight: 700; }
     .bar .limit-line {
       stroke: var(--alarm);
       stroke-width: 2;
       stroke-dasharray: 8 8;
       opacity: .5;
     }
-    .bar .marker { fill: var(--accent); }
-    .bar .readout { font-size: 26px; font-weight: 700; }
-    .bar.over .beam { stroke: var(--alarm); }
-    .bar.over .marker, .bar.over .readout { fill: var(--alarm); }
+    .gauge .face { fill: #1b1b1b; stroke: #333; stroke-width: 3; }
+    .gauge .dial { fill: none; stroke: var(--fg); stroke-width: 3; }
+    .gauge .redzone { fill: none; stroke: var(--alarm); stroke-width: 9; }
+    .gauge .tick { stroke: var(--fg); stroke-width: 3; }
+    .gauge .tick.minor { stroke-width: 1.5; opacity: .6; }
+    .gauge .label {
+      font-size: 15px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: central;
+    }
+    .gauge .label.limit { fill: var(--alarm); }
+    .gauge .needle {
+      stroke: var(--accent);
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+    .gauge .hub { fill: var(--fg); }
+    .gauge .readout {
+      font-size: 22px;
+      font-weight: 700;
+      text-anchor: middle;
+    }
+    .bar.over .beam, .bar.over .needle { stroke: var(--alarm); }
+    .bar.over .readout { fill: var(--alarm); }
     .alarm {
-      margin-top: 1.5vw;
+      margin-top: 2.5vw;
       padding: .4em 1em;
       border-radius: 6px;
       background: var(--alarm);
@@ -100,23 +118,20 @@
           font-size="168" font-weight="900" letter-spacing="-4"
           textLength="930" lengthAdjust="spacingAndGlyphs">LASTUTEC</text>
   </svg>
-  <svg class="bar" viewBox="-120 -100 1240 200" aria-label="Taivutettava palkki">
+  <svg class="bar" viewBox="-15 -100 1245 200" aria-label="Taivutettava palkki">
     <!-- Allowable midspan deflection L/300 (drawn 14× exaggerated) -->
     <line class="limit-line" x1="20" y1="45" x2="980" y2="45"/>
     <polygon class="support" points="20,11 -12,64 52,64"/>
     <polygon class="support" points="980,11 948,64 1012,64"/>
     <path class="beam" d="M 20 0 Q 500 0 980 0"/>
-    <text class="readout" x="-24" y="-30" text-anchor="end">L/∞</text>
-    <!-- Scale: y = 2 · deflection − 90, so L/300 lines up with the beam -->
-    <g class="scale">
-      <line x1="1040" y1="-90" x2="1040" y2="90"/>
-      <g><line x1="1032" y1="-90" x2="1048" y2="-90"/><text x="1060" y="-83">0</text></g>
-      <g><line x1="1032" y1="-63" x2="1048" y2="-63"/><text x="1060" y="-56">L/1000</text></g>
-      <g><line x1="1032" y1="-36" x2="1048" y2="-36"/><text x="1060" y="-29">L/500</text></g>
-      <g class="limit"><line x1="1028" y1="0" x2="1052" y2="0"/><text x="1060" y="7">L/300</text></g>
-      <g><line x1="1032" y1="45" x2="1048" y2="45"/><text x="1060" y="52">L/200</text></g>
-      <g><line x1="1032" y1="90" x2="1048" y2="90"/><text x="1060" y="97">L/150</text></g>
-      <polygon class="marker" points="1028,0 1012,-9 1012,9"/>
+    <g class="gauge">
+      <circle class="face" cx="1135" cy="5" r="104"/>
+      <path class="dial"/>
+      <path class="redzone"/>
+      <g class="ticks"></g>
+      <text class="readout" x="1135" y="62">L/1000</text>
+      <line class="needle" x1="1135" y1="5" x2="1135" y2="-77"/>
+      <circle class="hub" cx="1135" cy="5" r="8"/>
     </g>
   </svg>
   <div class="alarm" role="alert">⚠ TAIVUMA YLITTÄÄ L/300</div>
@@ -125,7 +140,7 @@
     (() => {
       const svg = document.querySelector('.bar');
       const path = svg.querySelector('.beam');
-      const marker = svg.querySelector('.marker');
+      const needle = svg.querySelector('.needle');
       const readout = svg.querySelector('.readout');
       const alarm = document.querySelector('.alarm');
       const A = 20, B = 980, LIMIT = 90;
@@ -134,6 +149,49 @@
       let bend = 0, vel = 0, dragging = false, raf = 0, over = false, audio = null;
 
       const clamp = (v, m) => Math.max(-m, Math.min(m, v));
+
+      // Speedometer-style gauge: evenly spaced L/n ticks, needle rests at L/1000.
+      const G = { cx: 1135, cy: 5, r: 92 };
+      const TICKS = [1000, 500, 400, 300, 200];
+      const A0 = -120, STEP = 52.5, A_MAX = 120;
+      const STOPS = [...TICKS.map((n, i) => [RATIO / n, A0 + i * STEP]), [LIMIT, A_MAX]];
+      const polar = (deg, r) => {
+        const a = deg * Math.PI / 180;
+        return [G.cx + r * Math.sin(a), G.cy - r * Math.cos(a)];
+      };
+      const arc = (from, to, r) => {
+        const [x0, y0] = polar(from, r), [x1, y1] = polar(to, r);
+        return `M ${x0} ${y0} A ${r} ${r} 0 ${to - from > 180 ? 1 : 0} 1 ${x1} ${y1}`;
+      };
+      const angleOf = d => {
+        if (d <= STOPS[0][0]) return A0;
+        for (let i = 1; i < STOPS.length; i++) {
+          const [d0, a0] = STOPS[i - 1], [d1, a1] = STOPS[i];
+          if (d <= d1) return a0 + (a1 - a0) * (d - d0) / (d1 - d0);
+        }
+        return A_MAX;
+      };
+
+      const limitAngle = A0 + TICKS.indexOf(300) * STEP;
+      svg.querySelector('.dial').setAttribute('d', arc(A0, limitAngle, G.r));
+      svg.querySelector('.redzone').setAttribute('d', arc(limitAngle, A_MAX, G.r - 3));
+      const ticks = svg.querySelector('.ticks');
+      const el = (tag, attrs, text) => {
+        const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (const k in attrs) node.setAttribute(k, attrs[k]);
+        if (text) node.textContent = text;
+        return ticks.appendChild(node);
+      };
+      for (let a = A0; a <= A_MAX; a += STEP / 2) {
+        const major = (a - A0) % STEP === 0 && a <= A0 + (TICKS.length - 1) * STEP;
+        const [x1, y1] = polar(a, G.r), [x2, y2] = polar(a, G.r - (major ? 16 : 8));
+        el('line', { class: major ? 'tick' : 'tick minor', x1, y1, x2, y2 });
+        if (major) {
+          const n = TICKS[(a - A0) / STEP];
+          const [x, y] = polar(a, G.r - 40);
+          el('text', { class: n === 300 ? 'label limit' : 'label', x, y }, `L/${n}`);
+        }
+      }
 
       const beep = () => {
         try {
@@ -153,9 +211,8 @@
       const draw = () => {
         path.setAttribute('d', `M ${A} 0 Q 500 ${bend * 2} ${B} 0`);
         const d = Math.abs(bend);
-        marker.setAttribute('transform', `translate(0 ${2 * Math.min(d, LIMIT) - 90})`);
-        const n = d < 0.5 ? '∞' : Math.round(RATIO / d);
-        readout.textContent = `L/${n}`;
+        needle.setAttribute('transform', `rotate(${angleOf(d)} ${G.cx} ${G.cy})`);
+        readout.textContent = `L/${Math.min(1000, Math.round(RATIO / Math.max(d, 1)))}`;
         const nowOver = d > ALLOWED;
         if (nowOver !== over) {
           over = nowOver;

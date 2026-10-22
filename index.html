@@ -14,15 +14,17 @@
       color-scheme: dark;
     }
     html, body {
-      height: 100%;
+      min-height: 100%;
       margin: 0;
     }
     body {
       display: grid;
       place-items: center;
+      min-height: 100vh;
       background: var(--bg);
       color: var(--fg);
-      overflow: hidden;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      overflow-x: hidden;
     }
     .stage {
       display: flex;
@@ -52,6 +54,36 @@
       stroke-width: 22;
       stroke-linecap: round;
     }
+    .topics {
+      list-style: none;
+      margin: 3rem 0 2rem;
+      padding: 0;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .topics li {
+      border-left: 6px solid var(--accent);
+      background: #181818;
+      padding: 1.1rem 1.25rem;
+      border-radius: 4px;
+    }
+    .topics h2 {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+    .topics span {
+      display: block;
+      margin-top: 0.35rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #8a8a8a;
+    }
     .logo .word { fill: var(--fg); }
     .logo .accent { fill: var(--accent); }
   </style>
@@ -71,6 +103,13 @@
     <polygon class="support" points="980,11 948,64 1012,64"/>
     <path d="M 20 0 Q 500 0 980 0"/>
   </svg>
+  <ul class="topics" aria-label="Tulevat työkalut">
+    <li><h2>Projektinhallinta</h2><span>Tulossa</span></li>
+    <li><h2>Statiikka ja mekaniikka</h2><span>Tulossa</span></li>
+    <li><h2>Betonirakenteet</h2><span>Tulossa</span></li>
+    <li><h2>Teräsrakenteet</h2><span>Tulossa</span></li>
+    <li><h2>Puurakenteet</h2><span>Tulossa</span></li>
+  </ul>
   </div>
   <script>
     (() => {

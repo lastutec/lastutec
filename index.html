@@ -84,6 +84,11 @@
       letter-spacing: 0.12em;
       color: #8a8a8a;
     }
+    .topics li.live { background: #221a0b; }
+    .topics li.live a { color: inherit; text-decoration: none; display: block; }
+    .topics li.live span { color: var(--accent); }
+    .topics li.live:hover { background: #2c210c; }
+    .topics li.live a:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 2px; }
     .logo .word { fill: var(--fg); }
     .logo .accent { fill: var(--accent); }
   </style>
@@ -105,7 +110,7 @@
   </svg>
   <ul class="topics" aria-label="Tulevat työkalut">
     <li><h2>Projektinhallinta</h2><span>Tulossa</span></li>
-    <li><h2>Statiikka ja mekaniikka</h2><span>Tulossa</span></li>
+    <li class="live"><a href="statiikka/"><h2>Statiikka ja mekaniikka</h2><span>Avaa laskuri →</span></a></li>
     <li><h2>Betonirakenteet</h2><span>Tulossa</span></li>
     <li><h2>Teräsrakenteet</h2><span>Tulossa</span></li>
     <li><h2>Puurakenteet</h2><span>Tulossa</span></li>

@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hitsitaulukko – Lastutec</title>
+<meta name="description" content="Hitsien kestävyydet kertoimilla √1, √2 ja √3 SFS-EN 1993-1-8 mukaan, valmiit taulukot a3–a15 ja laskenta välivaiheineen.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+/* ===== Lastutec-työkalut: kaikki tyylit rajattu .lt-tool-luokan sisään ===== */
+.lt-tool{--lt-bg:#ffffff;--lt-fg:#1d2329;--lt-muted:#5b6670;--lt-line:#d9dee3;--lt-soft:#f3f5f7;--lt-accent:#c8501e;--lt-accent-soft:#fbeee8;--lt-ok:#1f7a3f;--lt-bad:#b42318;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--lt-fg);background:var(--lt-bg);max-width:1100px;margin:0 auto;padding:16px;line-height:1.45;font-size:15px}
+.lt-tool *{box-sizing:border-box}
+.lt-tool h1{font-size:1.55rem;margin:0 0 4px;line-height:1.2}
+.lt-tool h2{font-size:1.15rem;margin:30px 0 8px}
+.lt-tool h3{font-size:1rem;margin:0 0 10px}
+.lt-tool p{margin:0 0 10px}
+.lt-crumb{font-size:.82rem;color:var(--lt-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.lt-sub{color:var(--lt-muted);margin:0 0 16px}
+.lt-card{border:1px solid var(--lt-line);border-radius:10px;padding:16px;background:var(--lt-bg);margin:12px 0}
+.lt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.lt-tool label{display:flex;flex-direction:column;justify-content:space-between;font-size:.84rem;color:var(--lt-muted);gap:4px}
+.lt-tool label.lt-chk{flex-direction:row;align-items:center;gap:8px;color:var(--lt-fg)}
+.lt-tool label.lt-chk input{width:auto}
+.lt-tool input,.lt-tool select{font:inherit;font-size:.95rem;color:var(--lt-fg);padding:8px 10px;border:1px solid var(--lt-line);border-radius:6px;background:var(--lt-bg);min-width:0;width:100%}
+.lt-tool input:focus,.lt-tool select:focus{outline:2px solid var(--lt-accent);outline-offset:1px}
+.lt-pills{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.lt-pill{border:1px solid var(--lt-line);background:var(--lt-soft);color:var(--lt-fg);padding:6px 14px;border-radius:999px;cursor:pointer;font:inherit;font-size:.9rem}
+.lt-pill[aria-pressed="true"]{background:var(--lt-accent);border-color:var(--lt-accent);color:#fff}
+.lt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--lt-line);border-radius:8px}
+.lt-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.9rem}
+.lt-table th,.lt-table td{padding:8px 10px;border-bottom:1px solid var(--lt-line);text-align:right;white-space:nowrap}
+.lt-table th:first-child,.lt-table td:first-child{text-align:left;position:sticky;left:0;background:inherit;font-weight:600}
+.lt-table thead tr{background:var(--lt-soft)}
+.lt-table thead th{font-weight:600;vertical-align:bottom;line-height:1.25}
+.lt-table thead th small{display:block;font-weight:400;color:var(--lt-muted)}
+.lt-table tbody tr{cursor:pointer;background:var(--lt-bg)}
+.lt-table tbody tr:hover,.lt-table tbody tr.sel{background:var(--lt-accent-soft)}
+.lt-table tbody tr:last-child td{border-bottom:0}
+.lt-table tfoot td{background:var(--lt-soft);font-size:.82rem;color:var(--lt-muted)}
+.lt-note{font-size:.84rem;color:var(--lt-muted)}
+.lt-cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:0 0 12px}
+.lt-case{background:var(--lt-soft);border-radius:8px;padding:12px}
+.lt-case b{font-size:1.05rem}
+.lt-case svg{display:block;margin:8px 0;width:100%;max-width:220px;height:auto}
+.lt-case p{font-size:.85rem;margin:0;color:var(--lt-muted)}
+.lt-steps{counter-reset:lts;list-style:none;padding:0;margin:0}
+.lt-step{border-left:3px solid var(--lt-line);padding:6px 0 8px 14px;margin:0 0 10px}
+.lt-step h4{margin:0 0 6px;font-size:.98rem}
+.lt-step h4::before{counter-increment:lts;content:counter(lts) ". ";color:var(--lt-accent)}
+.lt-f{font-family:"Cambria Math","Cambria","Times New Roman",serif;font-size:1.02rem;margin:3px 0;overflow-x:auto}
+.lt-f .lt-c{color:var(--lt-muted);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:.84rem}
+.lt-r{font-weight:700}
+.lt-ok{color:var(--lt-ok);font-weight:600}
+.lt-bad{color:var(--lt-bad);font-weight:600}
+.lt-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:0 0 16px}
+.lt-kpi{background:var(--lt-soft);border-radius:8px;padding:10px 12px}
+.lt-kpi span{display:block;font-size:.8rem;color:var(--lt-muted)}
+.lt-kpi b{font-size:1.25rem;font-variant-numeric:tabular-nums}
+.lt-bar{height:6px;background:var(--lt-line);border-radius:3px;margin-top:6px;overflow:hidden}
+.lt-bar i{display:block;height:100%;background:var(--lt-ok)}
+.lt-bar i.over{background:var(--lt-bad)}
+.lt-tool details{margin-top:8px}
+.lt-tool summary{cursor:pointer;font-weight:600}
+.lt-tool ul{margin:6px 0 0;padding-left:20px}
+.lt-disc{margin-top:24px;font-size:.8rem;color:var(--lt-muted);border-top:1px solid var(--lt-line);padding-top:10px}
+@media (max-width:520px){.lt-tool{padding:12px}.lt-grid{grid-template-columns:1fr 1fr}}
+
+
+
+/* Sivuston runko (sama kuin muissa Lastutecin työkaluissa) */
+:root{--bg:#000000;--paper:#141414;--ink:#f4f4f4;--muted:#9a9a9a;--line:#2e2e2e;--accent:#F74902;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:18px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+/* Työkalun tumma teema */
+.lt-tool{--lt-bg:#141414;--lt-fg:#f4f4f4;--lt-muted:#9a9a9a;--lt-line:#2e2e2e;--lt-soft:#1f1f1f;--lt-accent:#F74902;--lt-accent-soft:#3b1503;--lt-ok:#5cc58a;--lt-bad:#ff6b5a;
+  font-family:Arial,Helvetica,sans-serif!important;background:transparent!important;max-width:none!important;padding:0!important}
+.lt-tool .lt-pill[aria-pressed="true"]{color:#111!important}
+.lt-tool input[type=number]{background:#2a1206!important}
+.lt-tool select{background:#000!important}
+.lt-tool .lt-sub{max-width:85ch}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#c63a00;color-scheme:light}
+  .lt-tool{--lt-bg:#fff;--lt-fg:#000;--lt-muted:#444;--lt-line:#bbb;--lt-soft:#f1f1f1;--lt-accent:#c63a00;--lt-accent-soft:#fde2d5;--lt-ok:#1d6b3a;--lt-bad:#b3261e}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back,.lt-pills{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  .lt-tool input,.lt-tool select{background:#fff!important;color:#000!important}
+  .lt-card,tr{break-inside:avoid}
+  details.lt-card{display:block}
+}
+
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Teräsrakenteet</a><h1>Hitsitaulukko</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 2 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<div class="lt-tool" id="lt-hitsit">
+
+  <p class="lt-sub">Hitsien mitoituskestävyydet pituusyksikköä kohden SFS-EN 1993-1-8 kohdan 4.5.3.2 komponenttimenetelmällä. Kerroin √1, √2 tai √3 riippuu siitä, missä suunnassa voima rasittaa hitsiä.</p>
+
+  <div class="lt-cases">
+    <div class="lt-case">
+      <b>√3 – pitkittäinen</b>
+      <svg viewBox="0 0 220 70" aria-hidden="true"><rect x="10" y="30" width="200" height="14" fill="#8f8f8f"/><path d="M10 30 L210 30 L210 22 L10 22 Z" fill="#F74902" opacity=".85"/><path d="M40 12 H180" stroke="#f4f4f4" stroke-width="2.5" marker-end="url(#ah1)"/><defs><marker id="ah1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#f4f4f4"/></marker></defs></svg>
+      <p>Voima hitsin suuntaan (τ<sub>∥</sub>). Kylkihitsit, palkin uuma–laippa-hitsi. Sama kuin yksinkertaistettu menetelmä.</p>
+    </div>
+    <div class="lt-case">
+      <b>√2 – poikittainen pienahitsi</b>
+      <svg viewBox="0 0 220 70" aria-hidden="true"><rect x="10" y="40" width="200" height="14" fill="#8f8f8f"/><rect x="100" y="6" width="14" height="34" fill="#8f8f8f"/><path d="M114 40 L130 40 L114 24 Z" fill="#F74902"/><path d="M100 40 L84 40 L100 24 Z" fill="#F74902"/><path d="M160 30 V6" stroke="#f4f4f4" stroke-width="2.5" marker-end="url(#ah2)"/><defs><marker id="ah2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#f4f4f4"/></marker></defs><text x="168" y="22" font-size="11" fill="#9a9a9a">F</text></svg>
+      <p>Voima kohtisuoraan hitsin pituussuuntaa vastaan, 45° pienahitsi (σ<sub>⊥</sub> = τ<sub>⊥</sub>). T-liitos, otsahitsi.</p>
+    </div>
+    <div class="lt-case">
+      <b>√1 – kohtisuora a-tasoon</b>
+      <svg viewBox="0 0 220 70" aria-hidden="true"><rect x="10" y="40" width="200" height="14" fill="#8f8f8f"/><rect x="100" y="6" width="14" height="30" fill="#8f8f8f"/><rect x="100" y="36" width="14" height="4" fill="#F74902"/><path d="M114 40 L124 40 L114 30 Z" fill="#F74902"/><path d="M100 40 L90 40 L100 30 Z" fill="#F74902"/><path d="M160 30 V6" stroke="#f4f4f4" stroke-width="2.5" marker-end="url(#ah3)"/><defs><marker id="ah3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#f4f4f4"/></marker></defs><text x="168" y="22" font-size="11" fill="#9a9a9a">F</text></svg>
+      <p>Pelkkä normaalijännitys σ<sub>⊥</sub> laskentapoikkileikkauksessa, esim. osatunkeumainen päittäishitsi vedossa.</p>
+    </div>
+  </div>
+
+  <div class="lt-card">
+    <h3>Lähtötiedot</h3>
+    <div class="lt-grid">
+      <label><span>Perusaine (heikompi osa)</span>
+        <select id="w-steel">
+          <option value="S235">S235</option>
+          <option value="S275">S275</option>
+          <option value="S355" selected>S355</option>
+          <option value="S420">S420 M/ML</option>
+          <option value="S460">S460 M/ML</option>
+        </select>
+      </label>
+      <label><span>Levyn paksuus</span>
+        <select id="w-trange">
+          <option value="0">t ≤ 40 mm</option>
+          <option value="1">40 &lt; t ≤ 80 mm</option>
+        </select>
+      </label>
+      <label><span>γ<sub>M2</sub></span>
+        <input id="w-gm2" type="number" step="0.01" min="1" value="1.25">
+      </label>
+      <label><span>Taulukon yksikkö</span>
+        <select id="w-unit">
+          <option value="1">kN / mm</option>
+          <option value="100" selected>kN / 100 mm</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <h2>Lujuusarvot välivaiheineen</h2>
+  <div class="lt-card"><ol class="lt-steps" id="w-base"></ol></div>
+
+  <h2>Valmiiksi lasketut kestävyydet F<sub>w,Rd</sub> = f<sub>w,d</sub> · a</h2>
+  <div class="lt-scroll">
+    <table class="lt-table" id="w-table">
+      <thead>
+        <tr>
+          <th>a<small>mm</small></th>
+          <th>√1<small>kohtisuora</small></th>
+          <th>√2<small>poikittainen</small></th>
+          <th>√3<small>pitkittäinen</small></th>
+          <th>z ≈ a·√2<small>mm (pienahitsi)</small></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot><tr><td colspan="5" id="w-foot"></td></tr></tfoot>
+    </table>
+  </div>
+  <p class="lt-note" style="margin-top:8px">Arvot ovat yhtä hitsiä kohden. Kaksipuolisen pienahitsin kestävyys on kaksinkertainen. z on 90° pienahitsin kylkimitta. Valitse rivi, niin a siirtyy laskuriin.</p>
+
+  <h2 id="w-calc-h">Laskuri välivaiheineen</h2>
+  <div class="lt-card">
+    <div class="lt-grid">
+      <label><span>a-mitta (mm)</span><input id="c-a" type="number" min="1" step="0.5" value="5"></label>
+      <label><span>Hitsin pituus L (mm)</span><input id="c-L" type="number" min="1" step="1" value="150"></label>
+      <label><span>Hitsien lukumäärä n</span><input id="c-n" type="number" min="1" step="1" value="2"></label>
+      <label><span>Kuormitussuunta</span>
+        <select id="c-dir">
+          <option value="3">√3 pitkittäinen (θ = 0°)</option>
+          <option value="2">√2 poikittainen pienahitsi (θ = 90°)</option>
+          <option value="1">√1 kohtisuora a-tasoon</option>
+          <option value="th">Vino voima, kulma θ</option>
+        </select>
+      </label>
+      <label id="c-th-w"><span>Kulma θ hitsin akselista (°)</span><input id="c-th" type="number" min="0" max="90" step="1" value="45"></label>
+      <label><span>F<sub>Ed</sub> (kN), koko liitos</span><input id="c-F" type="number" min="0" step="0.1" value="250"></label>
+    </div>
+    <div class="lt-grid" style="margin-top:12px">
+      <label class="lt-chk"><input id="c-ends" type="checkbox"> <span>Vähennä päistä 2a (alku-/loppukraatteri)</span></label>
+      <label class="lt-chk"><input id="c-long" type="checkbox"> <span>Pitkä limiliitos (β<sub>Lw</sub>)</span></label>
+    </div>
+  </div>
+
+  <div class="lt-card">
+    <div class="lt-sum" id="c-sum"></div>
+    <ol class="lt-steps" id="c-steps"></ol>
+  </div>
+
+  <details class="lt-card">
+    <summary>Mistä kertoimet √1, √2 ja √3 tulevat?</summary>
+    <ul>
+      <li>Mitoitusehdot (4.1): √(σ<sub>⊥</sub>² + 3(τ<sub>⊥</sub>² + τ<sub>∥</sub>²)) ≤ f<sub>u</sub> / (β<sub>w</sub> · γ<sub>M2</sub>) ja σ<sub>⊥</sub> ≤ 0,9 · f<sub>u</sub> / γ<sub>M2</sub>.</li>
+      <li><b>√3:</b> vain τ<sub>∥</sub> = F/(a·L) → √(3τ<sub>∥</sub>²) = √3 · τ<sub>∥</sub>.</li>
+      <li><b>√2:</b> 45° pienahitsi, voima kohtisuoraan akselia vastaan → σ<sub>⊥</sub> = τ<sub>⊥</sub> = F/(√2·a·L) → √(σ<sub>⊥</sub>² + 3τ<sub>⊥</sub>²) = 2 · F/(√2·a·L) = √2 · F/(a·L).</li>
+      <li><b>√1:</b> vain σ<sub>⊥</sub> = F/(a·L) → √(σ<sub>⊥</sub>²) = 1 · σ<sub>⊥</sub>. Tällöin myös ehto σ<sub>⊥</sub> ≤ 0,9 f<sub>u</sub>/γ<sub>M2</sub> on tarkistettava – se määrää kaikilla teräslajeilla.</li>
+      <li><b>Vino voima θ:</b> kerroin k = √(3 − sin²θ), joka antaa θ = 0° → √3 ja θ = 90° → √2.</li>
+      <li>Läpihitsatun päittäishitsin kestävyys = heikomman liitettävän osan kestävyys (kohta 4.7.1), joten sitä ei mitoiteta tällä taulukolla.</li>
+      <li>Rajat: a ≥ 3 mm, tehollinen pituus ≥ max(30 mm; 6a), pienahitsin kylkikulma 60°–120°. Pitkässä limiliitoksessa (L<sub>j</sub> &gt; 150a) β<sub>Lw</sub> = 1,2 − 0,2 · L<sub>j</sub>/(150a) ≤ 1,0.</li>
+    </ul>
+  </details>
+
+  <p class="lt-disc">Laskenta SFS-EN 1993-1-8:2005 ja kansallisen liitteen (γ<sub>M2</sub> = 1,25) mukaan. Perusaineen f<sub>u</sub> SFS-EN 1993-1-1 taulukosta 3.1, β<sub>w</sub> taulukosta 4.1. Lisäaineen lujuuden oletetaan vastaavan vähintään perusainetta. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
+</div>
+
+<script>
+(function(){
+  var root=document.getElementById('lt-hitsit');
+  function $(s){return root.querySelector(s);}
+  var STEEL={
+    S235:{name:'S235',fu:[360,360],bw:0.80},
+    S275:{name:'S275',fu:[430,410],bw:0.85},
+    S355:{name:'S355',fu:[510,470],bw:0.90},
+    S420:{name:'S420 M/ML',fu:[520,500],bw:1.00},
+    S460:{name:'S460 M/ML',fu:[540,530],bw:1.00}
+  };
+  var A_LIST=[3,4,5,6,7,8,9,10,12,15];
+
+  function f(x,d){if(d===undefined)d=1;return isFinite(x)?x.toLocaleString('fi-FI',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';}
+  function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
+  function g(){var v=parseFloat($('#w-gm2').value);return v>0?v:1.25;}
+  function mat(){var s=STEEL[$('#w-steel').value];return {name:s.name,fu:s.fu[$('#w-trange').value==='1'?1:0],bw:s.bw};}
+  function step(title,lines){return '<li class="lt-step"><h4>'+title+'</h4>'+lines.map(function(l){return '<div class="lt-f">'+l+'</div>';}).join('')+'</li>';}
+  function c_(t){return ' <span class="lt-c">'+t+'</span>';}
+  function chk(ok){return ok?' <span class="lt-ok">✓ OK</span>':' <span class="lt-bad">✗ EI OK</span>';}
+
+  // Mitoituslujuudet (N/mm²)
+  function strengths(){
+    var m=mat(),gm=g();
+    var base=m.fu/(m.bw*gm);         // fu/(βw·γM2)
+    var lim=0.9*m.fu/gm;              // 0,9·fu/γM2
+    return {m:m,gm:gm,base:base,lim:lim,
+      s1:Math.min(base,lim),
+      s2:base/Math.SQRT2,
+      s3:base/Math.sqrt(3)};
+  }
+
+  function renderBase(){
+    var S=strengths(),m=S.m,gm=S.gm,s='';
+    s+=step('Perusaine ja korrelaatiokerroin',[
+      m.name+': f<sub>u</sub> = '+m.fu+' N/mm²'+c_('(SFS-EN 1993-1-1, taul. 3.1)'),
+      'β<sub>w</sub> = '+f(m.bw,2)+c_('(SFS-EN 1993-1-8, taul. 4.1)')+', γ<sub>M2</sub> = '+f(gm,2)
+    ]);
+    s+=step('Vertailujännityksen raja-arvot',[
+      'f<sub>u</sub> / (β<sub>w</sub> · γ<sub>M2</sub>) = '+m.fu+' / ('+f(m.bw,2)+' · '+f(gm,2)+') = <span class="lt-r">'+f(S.base,1)+' N/mm²</span>',
+      '0,9 · f<sub>u</sub> / γ<sub>M2</sub> = 0,9 · '+m.fu+' / '+f(gm,2)+' = <span class="lt-r">'+f(S.lim,1)+' N/mm²</span>'+c_('(raja σ⊥:lle)')
+    ]);
+    s+=step('Hitsin mitoituslujuus f<sub>w,d</sub> kuormitussuunnittain',[
+      '√1: f<sub>w,d</sub> = min('+f(S.base,1)+' / 1; '+f(S.lim,1)+') = <span class="lt-r">'+f(S.s1,1)+' N/mm²</span>'+c_(S.lim<S.base?'(0,9·fu/γM2 määrää)':'(vertailujännitys määrää)'),
+      '√2: f<sub>w,d</sub> = '+f(S.base,1)+' / √2 = <span class="lt-r">'+f(S.s2,1)+' N/mm²</span>'+c_('(tarkistus σ⊥ = f_w,d/√2 = '+f(S.s2/Math.SQRT2,1)+' ≤ '+f(S.lim,1)+' ✓)'),
+      '√3: f<sub>w,d</sub> = '+f(S.base,1)+' / √3 = <span class="lt-r">'+f(S.s3,1)+' N/mm²</span>'
+    ]);
+    $('#w-base').innerHTML=s;
+    return S;
+  }
+
+  function renderTable(S){
+    var u=+$('#w-unit').value,tb=$('#w-table tbody'),aSel=num('#c-a');
+    var d=u===1?3:1,unit=u===1?'kN/mm':'kN/100 mm';
+    root.querySelectorAll('#w-table thead th small')[1].textContent='kohtisuora, '+unit;
+    root.querySelectorAll('#w-table thead th small')[2].textContent='poikittainen, '+unit;
+    root.querySelectorAll('#w-table thead th small')[3].textContent='pitkittäinen, '+unit;
+    tb.innerHTML='';
+    A_LIST.forEach(function(a){
+      var tr=document.createElement('tr');
+      if(a===aSel)tr.className='sel';
+      tr.innerHTML='<td>a'+a+'</td><td>'+f(S.s1*a*u/1000,d)+'</td><td>'+f(S.s2*a*u/1000,d)+'</td><td>'+f(S.s3*a*u/1000,d)+'</td><td>'+f(a*Math.SQRT2,1)+'</td>';
+      tr.addEventListener('click',function(){$('#c-a').value=a;update();$('#w-calc-h').scrollIntoView({behavior:'smooth',block:'start'});});
+      tb.appendChild(tr);
+    });
+    $('#w-foot').innerHTML='Esimerkki: a5, √3 → F<sub>w,Rd</sub> = '+f(S.s3,1)+' N/mm² · 5 mm = '+f(S.s3*5,0)+' N/mm = '+f(S.s3*5*u/1000,d)+' '+unit;
+  }
+
+  function calc(S){
+    var m=S.m,gm=S.gm,a=num('#c-a'),L=num('#c-L'),n=Math.max(1,Math.round(num('#c-n')));
+    var dir=$('#c-dir').value,th=Math.min(90,Math.max(0,num('#c-th'))),F=num('#c-F');
+    $('#c-th-w').style.display=dir==='th'?'':'none';
+    var s='';
+
+    // 1. Tehollinen pituus
+    var ends=$('#c-ends').checked,Leff=ends?L-2*a:L,lmin=Math.max(30,6*a);
+    s+=step('Tehollinen pituus L<sub>eff</sub>',[
+      ends?'L<sub>eff</sub> = L − 2a = '+f(L,0)+' − 2 · '+f(a,1)+' = <span class="lt-r">'+f(Leff,0)+' mm</span>':'L<sub>eff</sub> = L = <span class="lt-r">'+f(Leff,0)+' mm</span>'+c_('(hitsi täysimittainen koko pituudelta)'),
+      'L<sub>eff</sub> ≥ max(30; 6a) = '+f(lmin,0)+' mm'+chk(Leff>=lmin),
+      'a = '+f(a,1)+' mm ≥ 3 mm'+chk(a>=3)
+    ]);
+
+    // 2. Jännityskomponentit
+    var k,lines=[],fwd,label;
+    if(dir==='3'){k=Math.sqrt(3);label='√3';
+      lines.push('τ<sub>∥</sub> = F / (a · L) , σ<sub>⊥</sub> = τ<sub>⊥</sub> = 0');
+      lines.push('√(3 · τ<sub>∥</sub>²) = √3 · τ<sub>∥</sub> ≤ f<sub>u</sub>/(β<sub>w</sub>γ<sub>M2</sub>)');
+      fwd=S.base/k;
+      lines.push('f<sub>w,d</sub> = '+f(S.base,1)+' / √3 = <span class="lt-r">'+f(fwd,1)+' N/mm²</span>');
+    }else if(dir==='2'){k=Math.SQRT2;label='√2';
+      lines.push('σ<sub>⊥</sub> = τ<sub>⊥</sub> = F / (√2 · a · L) , τ<sub>∥</sub> = 0');
+      lines.push('√(σ<sub>⊥</sub>² + 3τ<sub>⊥</sub>²) = √(4) · F/(√2·a·L) = √2 · F/(a·L) ≤ f<sub>u</sub>/(β<sub>w</sub>γ<sub>M2</sub>)');
+      fwd=S.base/k;
+      lines.push('f<sub>w,d</sub> = '+f(S.base,1)+' / √2 = <span class="lt-r">'+f(fwd,1)+' N/mm²</span>');
+      lines.push('Tarkistus: σ<sub>⊥</sub> = f<sub>w,d</sub>/√2 = '+f(fwd/Math.SQRT2,1)+' ≤ 0,9f<sub>u</sub>/γ<sub>M2</sub> = '+f(S.lim,1)+chk(fwd/Math.SQRT2<=S.lim));
+    }else if(dir==='1'){k=1;label='√1';
+      lines.push('σ<sub>⊥</sub> = F / (a · L) , τ<sub>⊥</sub> = τ<sub>∥</sub> = 0');
+      lines.push('Ehto 1: σ<sub>⊥</sub> ≤ f<sub>u</sub>/(β<sub>w</sub>γ<sub>M2</sub>) = '+f(S.base,1)+' N/mm²');
+      lines.push('Ehto 2: σ<sub>⊥</sub> ≤ 0,9f<sub>u</sub>/γ<sub>M2</sub> = '+f(S.lim,1)+' N/mm²');
+      fwd=S.s1;
+      lines.push('f<sub>w,d</sub> = min('+f(S.base,1)+'; '+f(S.lim,1)+') = <span class="lt-r">'+f(fwd,1)+' N/mm²</span>');
+    }else{
+      var r=th*Math.PI/180,sn=Math.sin(r);k=Math.sqrt(3-sn*sn);label='k';
+      lines.push('τ<sub>∥</sub> = F·cos θ / (a·L) , σ<sub>⊥</sub> = τ<sub>⊥</sub> = F·sin θ / (√2·a·L)');
+      lines.push('√(σ<sub>⊥</sub>² + 3(τ<sub>⊥</sub>² + τ<sub>∥</sub>²)) = F/(a·L) · √(3 − sin²θ)');
+      lines.push('k = √(3 − sin²'+f(th,0)+'°) = √(3 − '+f(sn*sn,3)+') = <span class="lt-r">'+f(k,3)+'</span>'+c_('(√2 = 1,414 … √3 = 1,732)'));
+      var f1=S.base/k,f2=sn>0?S.lim*Math.SQRT2/sn:Infinity;
+      lines.push('Vertailujännitys: f<sub>w,d</sub> = '+f(S.base,1)+' / '+f(k,3)+' = '+f(f1,1)+' N/mm²');
+      lines.push('σ<sub>⊥</sub>-ehto: f<sub>w,d</sub> ≤ √2 · 0,9f<sub>u</sub>/γ<sub>M2</sub> / sin θ = '+(isFinite(f2)?f(f2,1):'∞')+' N/mm²');
+      fwd=Math.min(f1,f2);
+      lines.push('f<sub>w,d</sub> = <span class="lt-r">'+f(fwd,1)+' N/mm²</span>');
+    }
+    s+=step('Jännityskomponentit ja mitoituslujuus ('+(dir==='th'?'θ = '+f(th,0)+'°':label)+')',lines);
+
+    // 3. Pitkä liitos
+    var bLw=1,lj=[];
+    if($('#c-long').checked){
+      var lim150=150*a;
+      if(L>lim150){bLw=Math.min(1,1.2-0.2*L/lim150);lj.push('L<sub>j</sub> = '+f(L,0)+' mm > 150a = '+f(lim150,0)+' mm');lj.push('β<sub>Lw</sub> = 1,2 − 0,2 · L<sub>j</sub>/(150a) = 1,2 − 0,2 · '+f(L,0)+'/'+f(lim150,0)+' = <span class="lt-r">'+f(bLw,3)+'</span>');}
+      else{lj.push('L<sub>j</sub> = '+f(L,0)+' mm ≤ 150a = '+f(lim150,0)+' mm → β<sub>Lw</sub> = 1,0');}
+      s+=step('Pitkän liitoksen pienennys',lj);
+    }
+
+    // 4. Kestävyys
+    var perMm=fwd*a/1000,FRd=perMm*Math.max(Leff,0)*n*bLw,u=FRd>0?F/FRd:Infinity;
+    s+=step('Hitsin kestävyys',[
+      'F<sub>w,Rd</sub> = f<sub>w,d</sub> · a = '+f(fwd,1)+' · '+f(a,1)+' = '+f(fwd*a,0)+' N/mm = <span class="lt-r">'+f(perMm,3)+' kN/mm</span>',
+      'F<sub>Rd</sub> = F<sub>w,Rd</sub> · L<sub>eff</sub> · n'+(bLw<1?' · β<sub>Lw</sub>':'')+' = '+f(perMm,3)+' · '+f(Leff,0)+' · '+n+(bLw<1?' · '+f(bLw,3):'')+' = <span class="lt-r">'+f(FRd,1)+' kN</span>'
+    ]);
+    s+=step('Mitoitustarkastelu',[
+      'F<sub>Ed</sub> / F<sub>Rd</sub> = '+f(F,1)+' / '+f(FRd,1)+' = <span class="lt-r">'+f(u,3)+'</span> ≤ 1,0'+chk(u<=1),
+      'Tarvittava a-mitta samalla pituudella: a<sub>req</sub> ≈ F<sub>Ed</sub> / (f<sub>w,d</sub> · L<sub>eff</sub> · n'+(bLw<1?' · β<sub>Lw</sub>':'')+') = '+f(Leff>0?F*1000/(fwd*Leff*n*bLw):Infinity,2)+' mm'+c_('(likiarvo, L_eff ja β_Lw nykyisellä a:lla)')
+    ]);
+    $('#c-steps').innerHTML=s;
+
+    var kp='<div class="lt-kpi"><span>f<sub>w,d</sub></span><b>'+f(fwd,1)+' N/mm²</b></div>'+
+      '<div class="lt-kpi"><span>F<sub>w,Rd</sub> / hitsi</span><b>'+f(perMm*100,1)+' kN/100 mm</b></div>'+
+      '<div class="lt-kpi"><span>Liitoksen F<sub>Rd</sub></span><b>'+f(FRd,1)+' kN</b>';
+    if(F>0)kp+='<div class="lt-bar"><i class="'+(u>1?'over':'')+'" style="width:'+Math.min(u*100,100)+'%"></i></div><span>Käyttöaste '+f(u*100,0)+' %</span>';
+    $('#c-sum').innerHTML=kp+'</div>';
+  }
+
+  function update(){var S=renderBase();renderTable(S);calc(S);}
+  root.querySelectorAll('input,select').forEach(function(el){el.addEventListener('input',update);el.addEventListener('change',update);});
+  update();
+})();
+</script>
+</div>
+</body>
+</html>

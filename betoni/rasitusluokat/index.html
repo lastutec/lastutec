@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rasitusluokka ja betonipeite – Lastutec</title>
+<meta name="description" content="Betonin rasitusluokan valinta ja vaadittu betonipeite SFS-EN 1992-1-1 ja Suomen kansallisen liitteen mukaan, käyttöikä 50 tai 100 vuotta.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23f5a623'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: vasemmalla valinnat (esimerkkirakenne, rasitusluokat, lähtötiedot), oikealla tarttuva tulos ja laskennan vaiheet */
+:root{
+  --bg:#0e0e0e; --paper:#181818; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e;
+  --accent:#f5a623; --accent-soft:#33270f; --ok:#5cc58a; --warn:#f5c86b; --bad:#ff6b5a;
+  --body:"Archivo",'Helvetica Neue',Arial,sans-serif; --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:800;margin:0}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.intro{margin:0 0 18px;max-width:75ch;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:20px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.hint{font-size:13px;color:var(--muted);margin:0}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{font:600 13px var(--body);padding:5px 12px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.presets button:hover{border-color:var(--accent)}
+.presets button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+.grp{display:flex;flex-direction:column;gap:6px;padding-top:10px;border-top:1px solid var(--line)}
+.grp:first-of-type{border-top:0;padding-top:0}
+.grp-h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.grp-h b{font-size:14px}
+.grp-h span{font-size:12px;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button{font:600 13px var(--mono);min-width:56px;padding:6px 10px;border-radius:4px;border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer}
+.seg button:hover{border-color:var(--accent);color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.desc{font-size:13px;color:var(--ink);margin:0;min-height:1.5em}
+.desc em{font-style:normal;color:var(--muted)}
+.inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px 14px}
+label{display:block;font-size:13px;color:var(--muted);min-width:0}
+select,input[type=number]{display:block;margin-top:3px;font-family:var(--mono);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input[type=number]{background:#2b2410}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--ink)}
+.check input{margin-top:3px;accent-color:var(--accent)}
+.result{position:sticky;top:calc(12px + env(safe-area-inset-top,0px))}
+.classes{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 13px var(--mono);padding:3px 9px;border-radius:99px;border:1px solid var(--accent);color:var(--accent)}
+.chip.gov{background:var(--accent);color:#111}
+.big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big .k{font-family:var(--mono);font-size:15px;color:var(--muted)}
+.big .v{font-family:var(--mono);font-size:44px;font-weight:600;line-height:1;color:var(--accent)}
+.big .u{font-family:var(--mono);font-size:16px;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:1px;min-width:0}
+.tile .k{font-size:11px;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.sec{font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin:4px 0 0;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.steps{display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:0 10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:0}
+.step .no{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:2px}
+.step h3{margin:0;font-size:14px;font-weight:600}
+.math{font-family:var(--mono);font-size:13px;overflow-x:auto;color:var(--muted)}
+.math b{color:var(--ink);font-weight:600}
+.math sub{font-size:.75em}
+.notes{display:flex;flex-direction:column;gap:6px}
+.note{font-size:13px;border-left:3px solid var(--line);padding:2px 0 2px 10px;color:var(--muted)}
+.note.warn{border-left-color:var(--warn);color:var(--warn)}
+.note.info{border-left-color:var(--accent);color:var(--ink)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 9px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font:600 11.5px var(--body);color:var(--muted)}
+th:first-child,td:first-child{text-align:left}
+tbody tr:last-child>*{border-bottom:0}
+tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.foot{font-size:12.5px;color:var(--muted);margin:20px 0 0;max-width:85ch}
+.foot p{margin:0 0 6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Betonirakenteet</a><h1>Rasitusluokka ja betonipeite</h1></div>
+  <span class="meta">Työkalu 2 · Laatinut: INS Atte Lastuvirta</span>
+</header>
+<p class="intro">Valitse rakenteen rasitusluokat ja suunniteltu käyttöikä. Työkalu laskee nimellisen betonipeitteen c<sub>nom</sub> standardin SFS-EN 1992-1-1 kohdan 4.4.1 ja Suomen kansallisen liitteen (YM 2019) taulukon 2 mukaan.</p>
+
+<div class="grid">
+<div class="col">
+
+  <section class="panel" aria-labelledby="h-pre">
+    <h2 id="h-pre">Tyypillinen rakenne</h2>
+    <p class="hint">Pikavalinta asettaa yleisesti käytetyt rasitusluokat. Tarkista ne aina kohteen todellisten olosuhteiden mukaan.</p>
+    <div class="presets" id="presets"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-cls">
+    <h2 id="h-cls">Rasitusluokat</h2>
+    <div id="groups"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-in">
+    <h2 id="h-in">Lähtötiedot</h2>
+    <div class="inputs">
+      <label for="life">Suunniteltu käyttöikä
+        <select id="life"><option value="50">50 vuotta</option><option value="100">100 vuotta</option><option value="200">Yli 100 vuotta</option></select></label>
+      <label for="steel">Teräs
+        <select id="steel"><option value="r">Betoniteräs</option><option value="p">Jänneteräs</option><option value="p400">Jänneteräs, σ ≤ 400 N/mm² (KRT)</option></select></label>
+      <label for="dia">Tangon Ø tai nipun Ø<sub>n</sub> [mm]
+        <select id="dia"><option>6</option><option>8</option><option>10</option><option selected>12</option><option>16</option><option>20</option><option>25</option><option>32</option><option>40</option></select></label>
+      <label for="dev">Mittapoikkeama Δc<sub>dev</sub> [mm]
+        <select id="dev"><option value="10" selected>10 – paikallavalu, yleensä</option><option value="5">5 – elementtitehdas, laadunvalvonta</option></select></label>
+      <label for="surf">Valupinta
+        <select id="surf"><option value="form" selected>Muottia vasten</option><option value="prep">Tasattua alustaa vasten (tasausbetoni)</option><option value="soil20">Suoraan maata vasten, +20 mm</option><option value="soil30">Suoraan maata vasten, +30 mm</option><option value="soil40">Suoraan maata vasten, +40 mm</option></select></label>
+      <label for="fck">Betonin lujuusluokka
+        <select id="fck"></select></label>
+      <label for="fmin">Säilyvyyden vaatima vähimmäislujuus
+        <select id="fmin"></select></label>
+    </div>
+    <label class="check"><input type="checkbox" id="dg"><span>Kiviaineksen maksimiraekoko yli 32 mm (c<sub>min,b</sub> + 5 mm)</span></label>
+    <p class="hint" id="fminHint"></p>
+  </section>
+
+</div>
+
+<aside class="col result" aria-labelledby="h-res">
+  <section class="panel">
+    <h2 id="h-res">Vaadittu betonipeite</h2>
+    <div class="classes" id="chips"></div>
+    <div class="big"><span class="v" id="cnom">–</span><span class="u">mm</span><span class="k">c<sub>nom</sub></span></div>
+    <div class="tiles">
+      <div class="tile"><span class="k">c<sub>min,dur</sub></span><span class="v" id="tDur">–</span></div>
+      <div class="tile"><span class="k">c<sub>min,b</sub></span><span class="v" id="tB">–</span></div>
+      <div class="tile"><span class="k">c<sub>min</sub></span><span class="v" id="tMin">–</span></div>
+    </div>
+    <div class="notes" id="notes"></div>
+    <div class="sec">Laskenta</div>
+    <div class="steps" id="steps"></div>
+    <div class="sec">Peite luokittain</div>
+    <div class="tablewrap"><table id="byClass"></table></div>
+  </section>
+</aside>
+</div>
+
+<div class="foot">
+  <p>Lähteet: SFS-EN 1992-1-1 kohta 4.4.1; Suomen kansallinen liite (Ympäristöministeriö, Betonirakenteet 16.12.2019), taulukko 2 ja huomautukset; betonin koostumusvaatimukset SFS 7022 ja SFS-EN 206.</p>
+  <p>Kansallisen liitteen taulukko koskee käyttöikiä 50 ja 100 vuotta. Pidemmälle käyttöiälle tai muille arvoille tarvitaan laskennallinen käyttöikämitoitus. XF- ja XA-luokat eivät muuta taulukon peitearvoja, vaan ne asettavat vaatimuksia betonin koostumukselle. Säilyvyyden vaatimat vähimmäislujuudet ovat ohjeellisia; tarkista ne voimassa olevasta SFS 7022:sta. Tulokset tarkastaa laatija.</p>
+</div>
+</div>
+
+<script>
+(() => {
+// Kansallinen liite, taulukko 2: cmin,dur [mm], käyttöikä 50 v. 100 v: +5 mm paitsi X0 ja XC1.
+const DUR = { X0:[10,10], XC1:[10,20], XC2:[20,30], XC3:[25,35], XC4:[25,35],
+  XD1:[30,40], XS1:[30,40], XD2:[35,45], XS2:[35,45], XD3:[40,50], XS3:[40,50] }; // [betoniteräs, jänneteräs]
+const NO_LIFE_ADD = new Set(['X0','XC1']);
+// Ohjeellinen säilyvyyden vaatima vähimmäislujuus (SFS 7022), tarkistettava.
+const FMIN = { X0:'C12/15', XC1:'C20/25', XC2:'C20/25', XC3:'C30/37', XC4:'C30/37', XS1:'C30/37', XS2:'C35/45', XS3:'C35/45',
+  XD1:'C30/37', XD2:'C30/37', XD3:'C35/45', XA1:'C30/37', XA2:'C35/45', XA3:'C40/50' };
+const STR = ['C12/15','C16/20','C20/25','C25/30','C30/37','C32/40','C35/45','C40/50','C45/55','C50/60','C55/67','C60/75'];
+const fckOf = s => +s.slice(1).split('/')[0];
+
+const GROUPS = [
+  {id:'XC', name:'Karbonatisoituminen', sub:'Raudoitteen korroosio', opts:{
+    XC1:'Kuiva tai pysyvästi märkä. <em>Esim. sisätilat, joissa ilman kosteus on alhainen; pysyvästi veden alla olevat osat.</em>',
+    XC2:'Märkä, harvoin kuiva. <em>Esim. useimmat perustukset; pitkäaikaisesti veden kanssa kosketuksissa olevat pinnat.</em>',
+    XC3:'Kohtalaisen kostea. <em>Esim. kosteat sisätilat, uimahallit, sateelta suojatut ulkorakenteet.</em>',
+    XC4:'Vaihtelevasti märkä ja kuiva. <em>Esim. sateelle alttiit julkisivut, parvekelaatat, sokkelit, siltojen reunapalkit.</em>'}},
+  {id:'XD', name:'Kloridit, muu kuin merivesi', sub:'Esim. jäänsulatussuolat', opts:{
+    XD1:'Kohtalaisen kostea. <em>Esim. ilman kuljettamille suoloille alttiit rakenteet, teiden meluseinät.</em>',
+    XD2:'Märkä, harvoin kuiva. <em>Esim. uima-altaat, kloridipitoiselle teollisuusvedelle alttiit rakenteet.</em>',
+    XD3:'Vaihtelevasti märkä ja kuiva. <em>Esim. suolaroiskeille alttiit siltojen osat, pysäköintitasot.</em>'}},
+  {id:'XS', name:'Merivesi', sub:'Meriveden kloridit', opts:{
+    XS1:'Ilman kuljettamat suolat, ei suoraa kosketusta. <em>Esim. avoimella merenrannalla olevat rakenteet.</em>',
+    XS2:'Pysyvästi meriveden alla. <em>Esim. meri- ja siltarakenteiden vedenalaiset osat.</em>',
+    XS3:'Vuorovesi-, roiske- ja pärskevyöhyke. <em>Esim. laiturit ja välituet vesirajassa.</em>'}},
+  {id:'XF', name:'Jäätymis-sulamisrasitus', sub:'Vaikuttaa betonin koostumukseen, ei peitteeseen', opts:{
+    XF1:'Kohtalainen vedellä kyllästyminen, ei jäänsulatusaineita. <em>Esim. sateelle alttiit pystypinnat, julkisivut.</em>',
+    XF2:'Kohtalainen vedellä kyllästyminen, jäänsulatusaineita. <em>Esim. teiden varsien sokkelit ja meluseinät.</em>',
+    XF3:'Suuri vedellä kyllästyminen, ei jäänsulatusaineita. <em>Esim. vaakapinnat, parvekkeet, makean veden vesiraja.</em>',
+    XF4:'Suuri vedellä kyllästyminen, jäänsulatusaineita. <em>Esim. suolattujen teiden siltakannet, pysäköintikannet.</em>'}},
+  {id:'XA', name:'Kemiallinen rasitus', sub:'SFS-EN 206 taulukko 2', opts:{
+    XA1:'Lievästi aggressiivinen kemiallinen ympäristö. <em>Esim. maatalousrakenteiden osat.</em>',
+    XA2:'Kohtalaisesti aggressiivinen ympäristö.',
+    XA3:'Voimakkaasti aggressiivinen ympäristö. <em>Esim. virtsalle, rehulle tai lannoitteille alttiit rakenteet.</em>'}}
+];
+
+const PRESETS = [
+  ['Kuiva sisätila', {XC:'XC1'}],
+  ['Perustus maan alla', {XC:'XC2'}],
+  ['Kostea sisätila', {XC:'XC3'}],
+  ['Julkisivu, sateelle altis', {XC:'XC4', XF:'XF1'}],
+  ['Parvekelaatta', {XC:'XC4', XF:'XF3'}],
+  ['Sokkeli suolatun tien varrella', {XC:'XC4', XD:'XD1', XF:'XF2'}],
+  ['Lämmitetty pysäköintihalli', {XC:'XC3', XD:'XD3'}],
+  ['Pysäköintikansi ulkona', {XC:'XC4', XD:'XD3', XF:'XF4'}],
+  ['Uima-allas', {XC:'XC2', XD:'XD2'}],
+  ['Siltakansi, suolattu tie', {XC:'XC4', XD:'XD3', XF:'XF4'}],
+  ['Merenrannan rakenne', {XC:'XC4', XS:'XS1', XF:'XF1'}],
+  ['Merilaituri, roiskevyöhyke', {XC:'XC4', XS:'XS3', XF:'XF4'}]
+];
+
+const sel = {XC:'XC3', XD:null, XS:null, XF:null, XA:null};
+let preset = 2;
+const $ = id => document.getElementById(id);
+
+// Esimerkkirakenteet
+$('presets').innerHTML = PRESETS.map((p,i)=>`<button type="button" data-i="${i}" aria-pressed="false">${p[0]}</button>`).join('');
+$('presets').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  preset = +b.dataset.i;
+  for (const g of GROUPS) sel[g.id] = PRESETS[preset][1][g.id] || null;
+  fminAuto = true; render();
+});
+
+// Rasitusluokkaryhmät
+$('groups').innerHTML = GROUPS.map(g => `
+  <div class="grp" data-g="${g.id}">
+    <div class="grp-h"><b>${g.name}</b><span>${g.sub}</span></div>
+    <div class="seg" role="group" aria-label="${g.name}">
+      <button type="button" data-v="">Ei</button>${Object.keys(g.opts).map(k=>`<button type="button" data-v="${k}">${k}</button>`).join('')}
+    </div>
+    <p class="desc" id="d-${g.id}"></p>
+  </div>`).join('');
+$('groups').addEventListener('click', e => {
+  const b = e.target.closest('.seg button'); if(!b) return;
+  sel[b.closest('.grp').dataset.g] = b.dataset.v || null;
+  preset = -1; fminAuto = true; render();
+});
+
+$('fck').innerHTML = STR.map(s=>`<option${s==='C30/37'?' selected':''}>${s}</option>`).join('');
+$('fmin').innerHTML = STR.map(s=>`<option>${s}</option>`).join('');
+let fminAuto = true;
+$('fmin').addEventListener('change', ()=>{ fminAuto = false; render(); });
+['life','steel','dia','dev','surf','fck','dg'].forEach(id => $(id).addEventListener('change', render));
+
+function render(){
+  // Valintojen tila
+  [...$('presets').children].forEach((b,i)=>b.setAttribute('aria-pressed', i===preset));
+  for (const g of GROUPS){
+    document.querySelectorAll(`.grp[data-g="${g.id}"] .seg button`).forEach(b=>b.setAttribute('aria-pressed', (b.dataset.v||null)===sel[g.id]));
+    $('d-'+g.id).innerHTML = sel[g.id] ? g.opts[sel[g.id]] : '<em>Ei tätä rasitusta.</em>';
+  }
+
+  const life = +$('life').value, steel = $('steel').value, dia = +$('dia').value, dev = +$('dev').value;
+  const surf = $('surf').value, dg = $('dg').checked;
+  const col = steel === 'p' ? 1 : 0;
+
+  // Peitteeseen vaikuttavat luokat
+  let cls = ['XC','XD','XS'].map(k=>sel[k]).filter(Boolean);
+  const all = GROUPS.map(g=>sel[g.id]).filter(Boolean);
+  const durClasses = cls.length ? cls : ['X0'];
+
+  // Säilyvyyden vähimmäislujuus: suurin valituista luokista
+  const fminList = (all.length ? all : ['X0']).map(c=>FMIN[c]).filter(Boolean);
+  const fminAutoVal = fminList.sort((a,b)=>fckOf(b)-fckOf(a))[0] || 'C12/15';
+  if (fminAuto) $('fmin').value = fminAutoVal;
+  const fmin = $('fmin').value, fck = $('fck').value;
+  $('fminHint').textContent = fminAuto
+    ? `Vähimmäislujuus ${fminAutoVal} on ohjeellinen arvo valituille luokille (SFS 7022). Voit muuttaa sen.`
+    : `Vähimmäislujuus asetettu käsin (ohjeellinen arvo ${fminAutoVal}).`;
+  const reduce = fckOf(fck) - fckOf(fmin) >= 10;
+
+  const rows = durClasses.map(c => {
+    const base = DUR[c][col];
+    const add = (life >= 100 && !NO_LIFE_ADD.has(c)) ? 5 : 0;
+    const red = reduce ? 5 : 0;
+    return {c, base, add, red, v: base + add - red};
+  });
+  const gov = rows.reduce((a,b)=> b.v > a.v ? b : a);
+  const cdur = gov.v;
+  const cb = dia + (dg ? 5 : 0);
+  const cmin = Math.max(cb, cdur, 10);
+  let cnom = cmin + dev, groundTxt = '';
+  if (surf === 'prep'){ const k1 = cmin + 10; if (k1 > cnom){ groundTxt = `k<sub>1</sub> = c<sub>min</sub> + 10 = ${k1} mm määrää`; } else groundTxt = `k<sub>1</sub> = c<sub>min</sub> + 10 = ${k1} mm ≤ ${cnom} mm`; cnom = Math.max(cnom, k1); }
+  if (surf.startsWith('soil')){ const add = +surf.slice(4), k2 = cmin + add; groundTxt = `k<sub>2</sub> = c<sub>min</sub> + ${add} = ${k2} mm`; cnom = Math.max(cnom, k2); }
+
+  // Tulos
+  const govSet = new Set([gov.c]);
+  $('chips').innerHTML = (all.length ? all : ['X0']).map(c=>`<span class="chip${govSet.has(c)?' gov':''}">${c}</span>`).join('');
+  $('cnom').textContent = cnom;
+  $('tDur').textContent = cdur; $('tB').textContent = cb; $('tMin').textContent = cmin;
+
+  const steelTxt = steel==='r' ? 'betoniteräs' : steel==='p' ? 'jänneteräs' : 'jänneteräs σ ≤ 400 N/mm², käsitellään kuten betoniterästä';
+  const lifeTxt = life===50 ? '50 v' : life===100 ? '100 v' : 'yli 100 v (taulukon 100 v arvot)';
+  const steps = [
+    ['Määräävä rasitusluokka', `${gov.c}, ${steelTxt}, käyttöikä ${lifeTxt}`],
+    ['Säilyvyys, c<sub>min,dur</sub>', `${gov.base}${gov.add?` + ${gov.add} (100 v)`:''}${gov.red?` − 5 (f<sub>ck</sub> ${fckOf(fck)} ≥ ${fckOf(fmin)} + 10 MPa)`:''} = <b>${cdur} mm</b>`],
+    ['Tartunta, c<sub>min,b</sub>', `Ø = ${dia}${dg?' + 5 (raekoko > 32 mm)':''} = <b>${cb} mm</b>`],
+    ['Vähimmäispeite', `c<sub>min</sub> = max(${cb}; ${cdur}; 10) = <b>${cmin} mm</b>`],
+    ['Nimellispeite', `c<sub>nom</sub> = c<sub>min</sub> + Δc<sub>dev</sub> = ${cmin} + ${dev} = ${cmin+dev} mm${groundTxt?`<br>${groundTxt}`:''}<br>→ <b>c<sub>nom</sub> = ${cnom} mm</b>`]
+  ];
+  $('steps').innerHTML = steps.map((s,i)=>`<div class="step"><span class="no">${i+1}</span><div><h3>${s[0]}</h3><div class="math">${s[1]}</div></div></div>`).join('');
+
+  $('byClass').innerHTML = `<thead><tr><th>Luokka</th><th>Taulukko</th><th>Käyttöikä</th><th>Lujuus</th><th>c<sub>min,dur</sub></th></tr></thead><tbody>` +
+    rows.map(r=>`<tr${r.c===gov.c?' class="hl"':''}><td>${r.c}</td><td>${r.base}</td><td>${r.add?'+'+r.add:'0'}</td><td>${r.red?'−'+r.red:'0'}</td><td>${r.v}</td></tr>`).join('') + '</tbody>';
+
+  // Huomautukset
+  const notes = [];
+  if (life > 100) notes.push(['warn','Yli 100 vuoden käyttöiälle kansallinen liite edellyttää laskennallista käyttöikämitoitusta. Esitetty arvo on 100 vuoden vähimmäisarvo.']);
+  if (!cls.length) notes.push(['info','Ei korroosiorasitusta valittu, joten peite lasketaan luokan X0 mukaan. Raudoitetulle rakenteelle valitaan yleensä vähintään XC1.']);
+  if (sel.XF) notes.push(['info', `${sel.XF}: betonin tulee olla pakkasenkestävää (SFS 7022)${/XF2|XF4/.test(sel.XF)?', vaaditaan P-lukumenettely':''}. Luokka ei muuta peitettä.`]);
+  if (sel.XA) notes.push(['warn', `${sel.XA}: kemiallinen rasitus hoidetaan betonin koostumuksella ja tarvittaessa pintasuojauksella. Taulukko ei anna sille peitettä; arvioi tarve tapauskohtaisesti.`]);
+  if (dev === 5) notes.push(['info','Δc<sub>dev</sub> = 5 mm edellyttää perusteltua tehtaan laadunvalvontaa (kansallinen liite: ei alle 5 mm).']);
+  if (reduce) notes.push(['info',`5 mm:n vähennys käytetty: ${fck} on vähintään 10 MPa lujempi kuin ${fmin}.`]);
+  else if (fckOf(fck) < fckOf(fmin)) notes.push(['warn',`Valittu ${fck} alittaa säilyvyyden vaatiman vähimmäislujuuden ${fmin}.`]);
+  notes.push(['', 'Peitevaatimus koskee myös jännepunosten ankkureita ja valettavia metalliosia, ellei niitä ole suojattu korroosiolta.']);
+  $('notes').innerHTML = notes.map(n=>`<div class="note ${n[0]}">${n[1]}</div>`).join('');
+}
+render();
+})();
+</script>
+</body>
+</html>

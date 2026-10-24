@@ -28,12 +28,14 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(22px,4vw,32px);mar
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px}
 .global{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;margin-bottom:16px}
-.global .hint{font-size:13px;color:var(--muted);flex:1 1 240px;min-width:0}
+.global .hint{font-size:13px;color:var(--muted);flex:1 1 100%;min-width:0;margin:0}
 label{display:block;font-size:13px;color:var(--muted);min-width:0}
 label input,label select{display:block;margin-top:3px}
 input[type=number]{font-family:var(--mono);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:#2b2410;color:var(--ink);width:100%;min-width:0}
 .global label{width:170px}
 .global label.wide{width:220px}
+.global label.check{width:auto;display:flex;gap:8px;align-items:center;color:var(--ink);font-size:13.5px;align-self:center}
+.global label.check input{accent-color:var(--accent);width:16px;height:16px;margin:0}
 select{font-family:var(--mono);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
 input[type=number]:disabled{background:var(--bg);color:var(--muted)}
 .libbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
@@ -147,6 +149,8 @@ h2{font-family:var(--display);font-size:20px;font-weight:800;margin:0;text-wrap:
     <label for="gE">Kimmokerroin E <span class="u">[N/mm²]</span><input type="number" id="gE" value="210000" step="1000"></label>
     <label for="gI">Jäyhyysmomentti I <span class="u">[mm⁴]</span><input type="number" id="gI" value="1800043.86" step="1000"></label>
     <label for="gN" class="wide">Taipumaraja (w<sub>max</sub>, KRT)<select id="gN"><optgroup label="SFS-EN 1993-1-1 + kansallinen liite, taulukko 3"><option value="300|150" selected>Pääkannattaja, katot ja katokset – L/300</option><option value="400|150">Pääkannattaja, välipohjat – L/400</option><option value="200|150">Katto-orret – L/200</option><option value="150|150">Seinäorret – L/150</option><option value="100|100">Muotolevy, katto (ei lammikoitumisriskiä) – L/100</option><option value="300|100">Muotolevy, välipohja – L/300</option><option value="100|100">Muotolevy, seinä – L/100</option></optgroup><optgroup label="Muu raja (uloke 2·L/n)"><option value="200|c">L/200</option><option value="250|c">L/250</option><option value="300|c">L/300</option><option value="400|c">L/400</option><option value="500|c">L/500</option></optgroup></select></label>
+    <label class="check sw" for="gSw"><input type="checkbox" id="gSw" checked><span>Huomioi palkin oma paino</span></label>
+    <label for="gSwv" id="wSwv" hidden>Oma paino g <span class="u">[kN/m]</span><input type="number" id="gSwv" value="0.5" step="0.05" min="0"></label>
     <p class="hint" id="matHint"></p>
     <p class="hint"><b>Laskuri on tarkoitettu alustavaan mitoitukseen taipuman perusteella.</b> Murtorajatilan kestävyys (taivutus, leikkaus, kiepahdus, stabiilius) on tarkistettava erikseen. Syötä kuormat ominaisarvoina; taipuma lasketaan ominaisyhdistelmällä (KRT). E, profiili ja raja-arvot ovat yhteisiä kaikille tapauksille. Teräksen taipumarajat koskevat lopullista taipumaa w<sub>max</sub> ominaisyhdistelmällä (SFS-EN 1993-1-1 kohta 7.2.1 ja kansallinen liite, taulukko 3). Ulokkeen raja L/150 (muotolevyillä L/100) lasketaan ulokkeen pituudesta. Esikorotus w<sub>c</sub> saa kompensoida pysyvien kuormien taipumaa.</p>
   </div>
@@ -248,6 +252,8 @@ function momentSVG(g,Mf){
   return o;
 }
 
+/* Oman painon perustapaus kullekin tuentatavalle */
+const UNIC={u1:'u2',u2:'u2',ua1:'ua2',ua2:'ua2',s1:'s5',s2:'s5',s3:'s5',s4:'s5',s5:'s5',j1:'j2',j2:'j2'};
 /* ---------- Kuvaajat: momentti, taipuma, tukireaktiot ---------- */
 const FIG={M:true,f:true,R:true};
 const FIGL={M:'Momentti',f:'Taipuma',R:'Tukireaktiot'};
@@ -479,7 +485,14 @@ function calcCase(){
   const g=c.geo(v);
   if(!(g.Lt>0&&E>0&&I>0)){$('warn').innerHTML='<div class="warnbox">Pituuksien, E:n ja I:n pitää olla positiivisia.</div>';$('steps').innerHTML='';$('sum').innerHTML='';return;}
   $('bfig').innerHTML=beamSVG(g,false);
-  drawFigs(g,p=>c.M(v,p),E,I);
+  // oma paino: tasainen kuorma koko palkille saman tuentatavan perustapauksesta (1 kN/m)
+  const mat=MAT(),pr=curProfile(),sw=$('gSw').checked;
+  $('wSwv').hidden=!(sw&&mat!=='betoni'&&!pr);
+  const gSelf=!sw?0:mat==='betoni'?(+$('gCb').value)*(+$('gCh').value)*25e-6:pr?pr.g*9.81/1000:Math.max(0,+$('gSwv').value||0);
+  const gSrc=mat==='betoni'?`b · h · 25 kN/m³ = ${n(+$('gCb').value/1e3,3)} · ${n(+$('gCh').value/1e3,3)} · 25`:pr?`${n(pr.g,1)} kg/m · 9,81 / 1000 (${pr.name})`:'syötetty arvo';
+  const cu=C.find(x=>x.id===UNIC[c.id]),vu={...vals[cu.id],L:v.L,a:v.a,q:1};
+  const Mload=x=>c.M(v,x),Mg=x=>cu.M(vu,x),Mtot=x=>Mload(x)+gSelf*Mg(x);
+  drawFigs(g,Mtot,E,I);
   const w=c.chk?c.chk(v):'';$('warn').innerHTML=w?`<div class="warnbox">${w}</div>`:'';
   const o=c.out(v,E,I);
   const sec=u=>u==='kNm'?'Momentit':u==='mm'?'Taipumat ja geometria':'Tukireaktiot';
@@ -498,9 +511,21 @@ function calcCase(){
   const p=curProfile(),nlim=+$('gN').value.split('|')[0],nu=$('gN').value.split('|')[1];
   const limf=(span,cant)=>!cant?{lim:span/nlim,f:'f<sub>lim</sub> = L / n',s:`f<sub>lim</sub> = ${n(span)} / ${nlim}`}:nu==='c'?{lim:2*span/nlim,f:'f<sub>lim</sub> = 2 · L<sub>u</sub> / n  (uloke)',s:`f<sub>lim</sub> = 2 · ${n(span)} / ${nlim}`}:{lim:span/+nu,f:`f<sub>lim</sub> = L<sub>u</sub> / ${nu}  (uloke, kansallinen liite)`,s:`f<sub>lim</sub> = ${n(span)} / ${nu}`};
   const util=[];
+  // oma paino ja yhdistetty taipuma (numeerinen taipumaviiva)
+  const yL=deflection(g,Mload,E,I),yU=deflection(g,Mg,E,I);
+  const region=sym=>(c.id==='ua1'||c.id==='ua2')?(/2/.test(sym)?'o':'f'):'all';
+  const inR=(rg,x)=>rg==='all'||(rg==='o'?x>=v.L-1e-9:x<=v.L+1e-9);
+  const fmaxR=(rg,gg,scale=1)=>{let m=0,xm=0;for(let i=0;i<yL.length;i++){const x=yL[i][0];if(!inR(rg,x))continue;const y=(yL[i][1]+gg*yU[i][1])*scale;if(Math.abs(y)>Math.abs(m)){m=y;xm=x;}}return [Math.abs(m),xm];};
+  let fRows=o.filter(r=>/^f/.test(r[1])).map(r=>({sym:r[1],val:Math.abs(r[4]),rg:region(r[1])}));
+  if(gSelf>0){const seen=new Set();fRows=fRows.filter(r=>!seen.has(r.rg)&&seen.add(r.rg)).map(r=>({...r,val:fmaxR(r.rg,gSelf)[0],x:fmaxR(r.rg,gSelf)[1],f0:fmaxR(r.rg,0)[0]}));
+    let Mm=0;for(let i=0;i<=400;i++){const x=g.Lt*i/400,m=Mtot(x);if(Math.abs(m)>Math.abs(Mm))Mm=m;}
+    h+=`<div class="sec">Oma paino</div>`;
+    h+=st('Palkin oma paino',[['f','g = '+(mat==='betoni'?'b · h · γ<sub>c</sub>':'m · 9,81 / 1000')],['s',`g = ${gSrc}`],['r',`g = ${n(gSelf,3)} kN/m`]],'Oma paino lisätään tasaisena kuormana koko palkin pituudelle.');
+    h+=st('Kuorma + oma paino',[['s','Momentti- ja taipumaviiva lasketaan yhdistetystä momenttipinnasta M = M<sub>kuorma</sub> + g · M<sub>g=1</sub>.'],['r',`max |M| = ${n(Math.abs(Mm))} kNm`],...fRows.map(r=>['r',`${r.sym==='f'?'f':r.sym} = ${n(r.f0)} + ${n(r.val-r.f0)} = ${n(r.val)} mm  (kohdassa x = ${n(r.x,0)} mm)`])]);
+  }
   // taipumat (KRT)
-  h+=`<div class="sec">Taipumamitoitus (KRT, ominaiskuormat)</div>`;
-  for(const r of o.filter(r=>/^f/.test(r[1]))){
+  h+=`<div class="sec">Taipumamitoitus (KRT, ominaiskuormat${gSelf>0?' + oma paino':''})</div>`;
+  for(const r0 of fRows){const r=[0,r0.sym,0,0,r0.val];
     const [span,cant]=fspan(c.id,r[1],v),L=limf(span,cant),lim=L.lim,u=Math.abs(r[4])/lim;util.push(['f',u]);
     h+=st(`Taipumaraja, ${r[1]}`,[
       ['f',L.f],
@@ -510,8 +535,12 @@ function calcCase(){
   }
   // vaadittava jäyhyysmomentti ja profiiliehdotukset
   let Ireq=0;
-  for(const r of o.filter(r=>/^f/.test(r[1]))){const [span,cant]=fspan(c.id,r[1],v),lim=limf(span,cant).lim;Ireq=Math.max(Ireq,I*Math.abs(r[4])/lim);}
-  const FAMS=FAMSF(),mat=MAT(),pick=FAMS.map(f=>LIB().filter(x=>x.fam===f&&x.Iy>=Ireq).sort((a,b)=>a.g-b.g)[0]||null);
+  for(const r of fRows){const [span,cant]=fspan(c.id,r.sym,v),lim=limf(span,cant).lim;Ireq=Math.max(Ireq,I*r.val/lim);}
+  // ehdokkaan käyttöaste: taipuma skaalataan jäykkyydellä E·I ja oma paino ehdokkaan mukaan
+  const regs=[...new Set(fRows.map(r=>r.rg))].map(rg=>{const r=fRows.find(x=>x.rg===rg),[span,cant]=fspan(c.id,r.sym,v);return {rg,lim:limf(span,cant).lim};});
+  const kd=+$('gKdef').value;
+  const uOf=q=>{const Eq=mat==='puu'?q.E/(1+kd):E,gq=sw?q.g*9.81/1000:0,sc=E*I/(Eq*q.Iy);return Math.max(...regs.map(R=>fmaxR(R.rg,gq,sc)[0]/R.lim));};
+  const FAMS=FAMSF(),pick=FAMS.map(f=>LIB().filter(x=>x.fam===f).sort((a,b)=>a.g-b.g).find(x=>uOf(x)<=1)||null);
   const lightest=pick.filter(Boolean).sort((a,b)=>a.g-b.g)[0]||null;
   h+=`<div class="sec">Profiilin valinta taipuman perusteella</div>`;
   h+=st('Vaadittava jäyhyysmomentti',[
@@ -519,29 +548,32 @@ function calcCase(){
     ['s',`I<sub>req</sub> = ${n(I)} · ${n(Ireq/I,3)}`],
     ['r',`I<sub>req</sub> = ${n(Ireq)} mm⁴ = ${n(Ireq/1e4,1)} cm⁴`]],
     'Taipuma on kääntäen verrannollinen jäyhyysmomenttiin, joten vaadittava I saadaan suoraan nykyisen I:n ja käyttöasteen tulona.');
+  let hreqC=null;
   if(mat==='betoni'){
-    const b=+$('gCb').value,hreq=Math.cbrt(12*Ireq/b);
-    h+=st('Vaadittava korkeus',[['f','h<sub>req</sub> = ∛( 12 · I<sub>req</sub> / b )'],['s',`h<sub>req</sub> = ∛( 12 · ${n(Ireq)} / ${n(b)} )`],['r',`h<sub>req</sub> = ${n(hreq,0)} mm  →  valittu h = ${n(+$('gCh').value,0)} mm`]],
+    const b=+$('gCb').value,Ec=+$('gE').value;let hreq=0;hreqC=0;
+    for(let hh=50;hh<=4000;hh+=1){const Ih=b*hh**3/12,gq=sw?b*hh*25e-6:0;if(Math.max(...regs.map(R=>fmaxR(R.rg,gq,E*I/(Ec*Ih))[0]/R.lim))<=1){hreq=hreqC=hh;break;}}
+    h+=st('Vaadittava korkeus',[['f',sw?'pienin h, jolla |f(h)| ≤ f<sub>lim</sub> (I = b · h³ / 12, oma paino b · h · 25 kN/m³)':'h<sub>req</sub> = ∛( 12 · I<sub>req</sub> / b )'],['s',sw?`b = ${n(b,0)} mm, haku 1 mm:n välein`:`h<sub>req</sub> = ∛( 12 · ${n(Ireq)} / ${n(b)} )`],['r',`h<sub>req</sub> = ${hreq?n(hreq,0):'> 4 000'} mm  →  valittu h = ${n(+$('gCh').value,0)} mm`]],
       `Leveydellä b = ${n(b,0)} mm. Taipuma on laskettu halkeilemattomalla bruttopoikkileikkauksella.`);
   }else{
   h+=`<div class="tablewrap" style="margin:6px 0 4px 52px"><table><thead><tr><th>Sarja</th><th>Kevein riittävä</th><th>I<sub>y</sub> cm⁴</th><th>g kg/m</th><th>Taipuma</th><th></th></tr></thead><tbody>`+
     FAMS.map((f,i)=>{const q=pick[i];if(!q)return `<tr><td>${f}</td><td colspan="5" style="text-align:left">ei riittävää profiilia kirjastossa</td></tr>`;
-      const u=Ireq/q.Iy;return `<tr class="${p&&q.id===p.id?'sel':''}"><td>${f}</td><td>${q.name}${q===lightest?' ★':''}</td><td>${n(q.Iy/1e4,1)}</td><td>${n(q.g,1)}</td><td class="${cls(u)}">${n(u*100,0)} % ${VD(u)}</td><td><button type="button" data-pick="${q.id}">${p&&q.id===p.id?'Valittu':'Valitse'}</button></td></tr>`;}).join('')+
+      const u=uOf(q);return `<tr class="${p&&q.id===p.id?'sel':''}"><td>${f}</td><td>${q.name}${q===lightest?' ★':''}</td><td>${n(q.Iy/1e4,1)}</td><td>${n(q.g,1)}</td><td class="${cls(u)}">${n(u*100,0)} % ${VD(u)}</td><td><button type="button" data-pick="${q.id}">${p&&q.id===p.id?'Valittu':'Valitse'}</button></td></tr>`;}).join('')+
     `</tbody></table></div><p class="note" style="margin-left:52px">★ = kevein kaikista sarjoista. ${mat==='teras'?'Taipuma ei riipu teräslajista, joten valinta on sama kaikilla lujuuksilla.':`Puu: E = E<sub>0,mean</sub> / (1 + k<sub>def</sub>), k<sub>def</sub> = ${n(+$('gKdef').value,1)}.`}</p>`;
   }
   const gk=mat==='betoni'?(+$('gCb').value)*(+$('gCh').value)*25e-6:p?p.g*9.81/1000:null;
   const extra=mat==='betoni'?' Halkeilu, viruma ja kutistuma voivat kasvattaa betonipalkin todellista taipumaa moninkertaiseksi; raudoitetun palkin taipuma on tarkistettava SFS-EN 1992-1-1 kohdan 7.4 mukaan.':mat==='puu'?' Leikkausmuodonmuutoksen osuutta ei huomioida. Taipumarajat ovat SFS-EN 1995-1-1:n suositusalueelta; tarkista kohteen raja-arvot kansallisesta liitteestä.':' Murtorajatilan kestävyys (taivutus, leikkaus, kiepahdus, paikalliset ilmiöt) ja liitokset on tarkistettava erikseen.';
-  h+=`<div class="warnbox" style="margin-top:14px">Alustava mitoitus: poikkileikkaus on valittu vain taipuman perusteella.${extra}${mat!=='teras'?' Murtorajatilan kestävyys on tarkistettava erikseen.':''} Omaa painoa ei lisätä automaattisesti${gk!=null?` (oma paino ≈ ${n(gk,3)} kN/m)`:''}.</div>`;
+  h+=`<div class="warnbox" style="margin-top:14px">Alustava mitoitus: poikkileikkaus on valittu vain taipuman perusteella.${extra}${mat!=='teras'?' Murtorajatilan kestävyys on tarkistettava erikseen.':''} ${gSelf>0?`Oma paino ${n(gSelf,3)} kN/m on mukana taipumassa, momentissa ja kuvaajissa; laskennan vaiheiden kaavat ja tukireaktiot ovat pelkän hyötykuorman arvoja.`:`Omaa painoa ei ole huomioitu${gk!=null?` (oma paino ≈ ${n(gk,3)} kN/m)`:''}.`}</div>`;
   $('steps').innerHTML=h;
   $('steps').querySelectorAll('button[data-pick]').forEach(bt=>bt.onclick=()=>{$('gProf').value=bt.dataset.pick;applyProfile();toast(`${curProfile().name} valittu`);});
   // yhteenveto
   const best=k=>{const a=util.filter(x=>x[0].startsWith(k)).map(x=>x[1]);return a.length?Math.max(...a):null;};
   const tl=(k,u,sub)=>u==null?'':`<div class="tile"><span class="k">${k}</span><span class="v ${cls(u)}">${n(u*100,0)} %</span><div class="bar"><i style="width:${Math.min(u,1)*100}%;background:var(--${cls(u)})"></i></div><span class="s">${VDH(u)}</span>${sub?`<span class="s">${sub}</span>`:''}</div>`;
-  const Mk2=Math.max(...o.filter(r=>r[5]==='kNm'&&!/^M\(x/.test(r[1])).map(r=>Math.abs(r[4]))),fmax=Math.max(...o.filter(r=>/^f/.test(r[1])).map(r=>Math.abs(r[4])));
+  let Mk2=Math.max(...o.filter(r=>r[5]==='kNm'&&!/^M\(x/.test(r[1])).map(r=>Math.abs(r[4]))),Vk2=VK[c.id](v)[2];const fmax=Math.max(...fRows.map(r=>r.val));
+  if(gSelf>0){Mk2=0;Vk2=0;const hx=g.Lt/2000;for(let i=1;i<2000;i++){const x=i*hx;Mk2=Math.max(Mk2,Math.abs(Mtot(x)));Vk2=Math.max(Vk2,Math.abs((Mtot(x+hx/2)-Mtot(x-hx/2))/hx*1e3));}}
   $('sum').innerHTML=
-    `<div class="tile"><span class="k">max |M<sub>k</sub>|</span><span class="v">${n(Mk2)} <span class="u">kNm</span></span><span class="s">V<sub>k</sub> = ${n(VK[c.id](v)[2])} kN</span></div>`+
+    `<div class="tile"><span class="k">max |M<sub>k</sub>|</span><span class="v">${n(Mk2)} <span class="u">kNm</span></span><span class="s">V<sub>k</sub> = ${n(Vk2)} kN${gSelf>0?' (sis. oma paino)':''}</span></div>`+
     `<div class="tile"><span class="k">max |f|</span><span class="v">${n(fmax)} <span class="u">mm</span></span><span class="s">${mat==='betoni'?`${n(+$('gCb').value,0)}×${n(+$('gCh').value,0)} ${$('gCc').value}`:p?p.name:'oma I'}</span></div>`+
-    `<div class="tile"><span class="k">I<sub>req</sub></span><span class="v">${n(Ireq/1e4,1)} <span class="u">cm⁴</span></span><span class="s">${mat==='betoni'?`h<sub>req</sub> ≈ ${n(Math.cbrt(12*Ireq/(+$('gCb').value)),0)} mm`:lightest?'kevein: '+lightest.name+' ('+n(lightest.g,1)+' kg/m)':'ei riittävää profiilia'}</span></div>`+
+    `<div class="tile"><span class="k">I<sub>req</sub></span><span class="v">${n(Ireq/1e4,1)} <span class="u">cm⁴</span></span><span class="s">${mat==='betoni'?`h<sub>req</sub> = ${hreqC?n(hreqC,0):'> 4 000'} mm (b = ${n(+$('gCb').value,0)} mm)`:lightest?'kevein: '+lightest.name+' ('+n(lightest.g,1)+' kg/m)':'ei riittävää profiilia'}</span></div>`+
     tl('Taipuma',best('f'),`raja L/${nlim}${nu!=='c'?`, uloke L/${nu}`:''}`);
 }
 const cls=u=>u<=0.9?'ok':u<=1?'warn':'bad';
@@ -693,6 +725,7 @@ $('tab-palkit').onclick=()=>tab('palkit');$('tab-lib').onclick=()=>tab('lib');$(
 ['gCb','gCh','gPhi'].forEach(id=>$(id).oninput=applyProfile);
 ['gCc','gKdef'].forEach(id=>$(id).onchange=applyProfile);
 $('gMat').onchange=setMat;
+$('gSw').onchange=calcCase;$('gSwv').oninput=calcCase;
 $('gN').onchange=calcCase;
 $('gProf').onchange=applyProfile;
 fillProfSelect();$('gProf').value='IPE300';

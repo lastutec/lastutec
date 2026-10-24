@@ -132,22 +132,20 @@ tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
     <h2 id="h-in">Lähtötiedot</h2>
     <div class="inputs">
       <label for="life">Suunniteltu käyttöikä
-        <select id="life"><option value="50">50 vuotta</option><option value="100">100 vuotta</option><option value="200">Yli 100 vuotta</option></select></label>
+        <select id="life"><option value="50">Alle 100 vuotta (esim. 50 v)</option><option value="100">100 vuotta</option><option value="200">Yli 100 vuotta</option></select></label>
       <label for="steel">Teräs
         <select id="steel"><option value="r">Betoniteräs</option><option value="p">Jänneteräs</option><option value="p400">Jänneteräs, σ ≤ 400 N/mm² (KRT)</option></select></label>
-      <label for="dia">Tangon Ø tai nipun Ø<sub>n</sub> [mm]
+      <label for="dia">Tangon Ø [mm]
         <select id="dia"><option>6</option><option>8</option><option>10</option><option selected>12</option><option>16</option><option>20</option><option>25</option><option>32</option><option>40</option></select></label>
       <label for="dev">Mittapoikkeama Δc<sub>dev</sub> [mm]
         <select id="dev"><option value="10" selected>10 – paikallavalu, yleensä</option><option value="5">5 – elementtitehdas, laadunvalvonta</option></select></label>
       <label for="surf">Valupinta
         <select id="surf"><option value="form" selected>Muottia vasten</option><option value="prep">Tasattua alustaa vasten (tasausbetoni)</option><option value="soil20">Suoraan maata vasten, +20 mm</option><option value="soil30">Suoraan maata vasten, +30 mm</option><option value="soil40">Suoraan maata vasten, +40 mm</option></select></label>
-      <label for="fck">Betonin lujuusluokka
-        <select id="fck"></select></label>
-      <label for="fmin">Säilyvyyden vaatima vähimmäislujuus
-        <select id="fmin"></select></label>
+      <label for="nb">Tankoja nipussa n<sub>b</sub>
+        <select id="nb"><option value="1" selected>1 – yksi tanko</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label>
     </div>
     <label class="check"><input type="checkbox" id="dg"><span>Kiviaineksen maksimiraekoko yli 32 mm (c<sub>min,b</sub> + 5 mm)</span></label>
-    <p class="hint" id="fminHint"></p>
+    <label class="check"><input type="checkbox" id="red"><span>Kansallisen liitteen 5 mm:n vähennys c<sub>min,dur</sub>:iin: betonin lieriölujuus on vähintään 10 MPa suurempi kuin säilyvyyden vaatima vähimmäislujuus (SFS 7022)</span></label>
   </section>
 
 </div>
@@ -173,7 +171,7 @@ tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
 
 <div class="foot">
   <p>Lähteet: SFS-EN 1992-1-1 kohta 4.4.1; Suomen kansallinen liite (Ympäristöministeriö, Betonirakenteet 16.12.2019), taulukko 2 ja huomautukset; betonin koostumusvaatimukset SFS 7022 ja SFS-EN 206.</p>
-  <p>Kansallisen liitteen taulukko koskee käyttöikiä 50 ja 100 vuotta. Pidemmälle käyttöiälle tai muille arvoille tarvitaan laskennallinen käyttöikämitoitus. XF- ja XA-luokat eivät muuta taulukon peitearvoja, vaan ne asettavat vaatimuksia betonin koostumukselle. Säilyvyyden vaatimat vähimmäislujuudet ovat ohjeellisia; tarkista ne voimassa olevasta SFS 7022:sta. Tulokset tarkastaa laatija.</p>
+  <p>Kansallisen liitteen taulukko koskee käyttöikiä 50 ja 100 vuotta. Pidemmälle käyttöiälle tai muille arvoille tarvitaan laskennallinen käyttöikämitoitus. XF- ja XA-luokat eivät muuta taulukon peitearvoja, vaan ne asettavat vaatimuksia betonin koostumukselle. Tulokset tarkastaa laatija.</p>
 </div>
 </div>
 
@@ -183,11 +181,6 @@ tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
 const DUR = { X0:[10,10], XC1:[10,20], XC2:[20,30], XC3:[25,35], XC4:[25,35],
   XD1:[30,40], XS1:[30,40], XD2:[35,45], XS2:[35,45], XD3:[40,50], XS3:[40,50] }; // [betoniteräs, jänneteräs]
 const NO_LIFE_ADD = new Set(['X0','XC1']);
-// Ohjeellinen säilyvyyden vaatima vähimmäislujuus (SFS 7022), tarkistettava.
-const FMIN = { X0:'C12/15', XC1:'C20/25', XC2:'C20/25', XC3:'C30/37', XC4:'C30/37', XS1:'C30/37', XS2:'C35/45', XS3:'C35/45',
-  XD1:'C30/37', XD2:'C30/37', XD3:'C35/45', XA1:'C30/37', XA2:'C35/45', XA3:'C40/50' };
-const STR = ['C12/15','C16/20','C20/25','C25/30','C30/37','C32/40','C35/45','C40/50','C45/55','C50/60','C55/67','C60/75'];
-const fckOf = s => +s.slice(1).split('/')[0];
 
 const GROUPS = [
   {id:'XC', name:'Karbonatisoituminen', sub:'Raudoitteen korroosio', opts:{
@@ -239,7 +232,7 @@ $('presets').addEventListener('click', e => {
   const b = e.target.closest('button'); if(!b) return;
   preset = +b.dataset.i;
   for (const g of GROUPS) sel[g.id] = PRESETS[preset][1][g.id] || null;
-  fminAuto = true; render();
+  render();
 });
 
 // Rasitusluokkaryhmät
@@ -254,14 +247,10 @@ $('groups').innerHTML = GROUPS.map(g => `
 $('groups').addEventListener('click', e => {
   const b = e.target.closest('.seg button'); if(!b) return;
   sel[b.closest('.grp').dataset.g] = b.dataset.v || null;
-  preset = -1; fminAuto = true; render();
+  preset = -1; render();
 });
 
-$('fck').innerHTML = STR.map(s=>`<option${s==='C30/37'?' selected':''}>${s}</option>`).join('');
-$('fmin').innerHTML = STR.map(s=>`<option>${s}</option>`).join('');
-let fminAuto = true;
-$('fmin').addEventListener('change', ()=>{ fminAuto = false; render(); });
-['life','steel','dia','dev','surf','fck','dg'].forEach(id => $(id).addEventListener('change', render));
+['life','steel','dia','nb','dev','surf','dg','red'].forEach(id => $(id).addEventListener('change', render));
 
 function render(){
   // Valintojen tila
@@ -280,15 +269,7 @@ function render(){
   const all = GROUPS.map(g=>sel[g.id]).filter(Boolean);
   const durClasses = cls.length ? cls : ['X0'];
 
-  // Säilyvyyden vähimmäislujuus: suurin valituista luokista
-  const fminList = (all.length ? all : ['X0']).map(c=>FMIN[c]).filter(Boolean);
-  const fminAutoVal = fminList.sort((a,b)=>fckOf(b)-fckOf(a))[0] || 'C12/15';
-  if (fminAuto) $('fmin').value = fminAutoVal;
-  const fmin = $('fmin').value, fck = $('fck').value;
-  $('fminHint').textContent = fminAuto
-    ? `Vähimmäislujuus ${fminAutoVal} on ohjeellinen arvo valituille luokille (SFS 7022). Voit muuttaa sen.`
-    : `Vähimmäislujuus asetettu käsin (ohjeellinen arvo ${fminAutoVal}).`;
-  const reduce = fckOf(fck) - fckOf(fmin) >= 10;
+  const reduce = $('red').checked, nb = +$('nb').value;
 
   const rows = durClasses.map(c => {
     const base = DUR[c][col];
@@ -298,7 +279,8 @@ function render(){
   });
   const gov = rows.reduce((a,b)=> b.v > a.v ? b : a);
   const cdur = gov.v;
-  const cb = dia + (dg ? 5 : 0);
+  const dn = nb > 1 ? Math.min(Math.round(dia*Math.sqrt(nb)*10)/10, 55) : dia;
+  const cb = Math.ceil(dn) + (dg ? 5 : 0);
   const cmin = Math.max(cb, cdur, 10);
   let cnom = cmin + dev, groundTxt = '';
   if (surf === 'prep'){ const k1 = cmin + 10; if (k1 > cnom){ groundTxt = `k<sub>1</sub> = c<sub>min</sub> + 10 = ${k1} mm määrää`; } else groundTxt = `k<sub>1</sub> = c<sub>min</sub> + 10 = ${k1} mm ≤ ${cnom} mm`; cnom = Math.max(cnom, k1); }
@@ -311,11 +293,11 @@ function render(){
   $('tDur').textContent = cdur; $('tB').textContent = cb; $('tMin').textContent = cmin;
 
   const steelTxt = steel==='r' ? 'betoniteräs' : steel==='p' ? 'jänneteräs' : 'jänneteräs σ ≤ 400 N/mm², käsitellään kuten betoniterästä';
-  const lifeTxt = life===50 ? '50 v' : life===100 ? '100 v' : 'yli 100 v (taulukon 100 v arvot)';
+  const lifeTxt = life===50 ? 'alle 100 v' : life===100 ? '100 v' : 'yli 100 v (taulukon 100 v arvot)';
   const steps = [
     ['Määräävä rasitusluokka', `${gov.c}, ${steelTxt}, käyttöikä ${lifeTxt}`],
-    ['Säilyvyys, c<sub>min,dur</sub>', `${gov.base}${gov.add?` + ${gov.add} (100 v)`:''}${gov.red?` − 5 (f<sub>ck</sub> ${fckOf(fck)} ≥ ${fckOf(fmin)} + 10 MPa)`:''} = <b>${cdur} mm</b>`],
-    ['Tartunta, c<sub>min,b</sub>', `Ø = ${dia}${dg?' + 5 (raekoko > 32 mm)':''} = <b>${cb} mm</b>`],
+    ['Säilyvyys, c<sub>min,dur</sub>', `${gov.base}${gov.add?` + ${gov.add} (100 v)`:''}${gov.red?' − 5 (lujuusvähennys)':''} = <b>${cdur} mm</b>`],
+    ['Tartunta, c<sub>min,b</sub>', `${nb>1?`Ø<sub>n</sub> = Ø·√n<sub>b</sub> = ${dia}·√${nb} = ${String(dn).replace('.',',')} → `:'Ø = '}${Math.ceil(dn)}${dg?' + 5 (raekoko > 32 mm)':''} = <b>${cb} mm</b>`],
     ['Vähimmäispeite', `c<sub>min</sub> = max(${cb}; ${cdur}; 10) = <b>${cmin} mm</b>`],
     ['Nimellispeite', `c<sub>nom</sub> = c<sub>min</sub> + Δc<sub>dev</sub> = ${cmin} + ${dev} = ${cmin+dev} mm${groundTxt?`<br>${groundTxt}`:''}<br>→ <b>c<sub>nom</sub> = ${cnom} mm</b>`]
   ];
@@ -331,8 +313,9 @@ function render(){
   if (sel.XF) notes.push(['info', `${sel.XF}: betonin tulee olla pakkasenkestävää (SFS 7022)${/XF2|XF4/.test(sel.XF)?', vaaditaan P-lukumenettely':''}. Luokka ei muuta peitettä.`]);
   if (sel.XA) notes.push(['warn', `${sel.XA}: kemiallinen rasitus hoidetaan betonin koostumuksella ja tarvittaessa pintasuojauksella. Taulukko ei anna sille peitettä; arvioi tarve tapauskohtaisesti.`]);
   if (dev === 5) notes.push(['info','Δc<sub>dev</sub> = 5 mm edellyttää perusteltua tehtaan laadunvalvontaa (kansallinen liite: ei alle 5 mm).']);
-  if (reduce) notes.push(['info',`5 mm:n vähennys käytetty: ${fck} on vähintään 10 MPa lujempi kuin ${fmin}.`]);
-  else if (fckOf(fck) < fckOf(fmin)) notes.push(['warn',`Valittu ${fck} alittaa säilyvyyden vaatiman vähimmäislujuuden ${fmin}.`]);
+  if (reduce) notes.push(['info','5 mm:n lujuusvähennys käytetty. Varmista, että betonin lieriölujuus on vähintään 10 MPa yli säilyvyyden vaatiman vähimmäislujuuden.']);
+  if (nb>1 && dia*Math.sqrt(nb)>55) notes.push(['warn','Nipun ekvivalentti halkaisija Ø<sub>n</sub> saa olla enintään 55 mm.']);
+  notes.push(['warn', 'Huomioi betonipeitteen valinnassa myös palonkesto (ks. BY 60 / SFS-EN 1992-1-2, taulukkomitoitus).']);
   notes.push(['', 'Peitevaatimus koskee myös jännepunosten ankkureita ja valettavia metalliosia, ellei niitä ole suojattu korroosiolta.']);
   $('notes').innerHTML = notes.map(n=>`<div class="note ${n[0]}">${n[1]}</div>`).join('');
 }

@@ -147,7 +147,6 @@ tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
         <select id="nb"><option value="1" selected>1 – yksi tanko</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label>
     </div>
     <label class="check"><input type="checkbox" id="dg"><span>Kiviaineksen maksimiraekoko yli 32 mm (c<sub>min,b</sub> + 5 mm)</span></label>
-    <label class="check"><input type="checkbox" id="red"><span>Kansallisen liitteen 5 mm:n vähennys c<sub>min,dur</sub>:iin: betonin lieriölujuus on vähintään 10 MPa suurempi kuin säilyvyyden vaatima vähimmäislujuus (SFS 7022)</span></label>
   </section>
 
 </div>
@@ -252,7 +251,7 @@ $('groups').addEventListener('click', e => {
   preset = -1; render();
 });
 
-['life','steel','dia','nb','fck','dev','surf','dg','red'].forEach(id => $(id).addEventListener('change', render));
+['life','steel','dia','nb','fck','dev','surf','dg'].forEach(id => $(id).addEventListener('change', render));
 
 function render(){
   // Valintojen tila
@@ -271,13 +270,12 @@ function render(){
   const all = GROUPS.map(g=>sel[g.id]).filter(Boolean);
   const durClasses = cls.length ? cls : ['X0'];
 
-  const reduce = $('red').checked, nb = +$('nb').value;
+  const nb = +$('nb').value;
 
   const rows = durClasses.map(c => {
     const base = DUR[c][col];
     const add = (life >= 100 && !NO_LIFE_ADD.has(c)) ? 5 : 0;
-    const red = reduce ? 5 : 0;
-    return {c, base, add, red, v: base + add - red};
+    return {c, base, add, v: base + add};
   });
   const gov = rows.reduce((a,b)=> b.v > a.v ? b : a);
   const cdur = gov.v;
@@ -298,15 +296,15 @@ function render(){
   const lifeTxt = life===50 ? 'alle 100 v' : life===100 ? '100 v' : 'yli 100 v (taulukon 100 v arvot)';
   const steps = [
     ['Määräävä rasitusluokka', `${gov.c}, betoni ${$('fck').value}, ${steelTxt}, käyttöikä ${lifeTxt}`],
-    ['Säilyvyys, c<sub>min,dur</sub>', `${gov.base}${gov.add?` + ${gov.add} (100 v)`:''}${gov.red?' − 5 (lujuusvähennys)':''} = <b>${cdur} mm</b>`],
+    ['Säilyvyys, c<sub>min,dur</sub>', `${gov.base}${gov.add?` + ${gov.add} (100 v)`:''} = <b>${cdur} mm</b>`],
     ['Tartunta, c<sub>min,b</sub>', `${nb>1?`Ø<sub>n</sub> = Ø·√n<sub>b</sub> = ${dia}·√${nb} = ${String(dn).replace('.',',')} → `:'Ø = '}${Math.ceil(dn)}${dg?' + 5 (raekoko > 32 mm)':''} = <b>${cb} mm</b>`],
     ['Vähimmäispeite', `c<sub>min</sub> = max(${cb}; ${cdur}; 10) = <b>${cmin} mm</b>`],
     ['Nimellispeite', `c<sub>nom</sub> = c<sub>min</sub> + Δc<sub>dev</sub> = ${cmin} + ${dev} = ${cmin+dev} mm${groundTxt?`<br>${groundTxt}`:''}<br>→ <b>c<sub>nom</sub> = ${cnom} mm</b>`]
   ];
   $('steps').innerHTML = steps.map((s,i)=>`<div class="step"><span class="no">${i+1}</span><div><h3>${s[0]}</h3><div class="math">${s[1]}</div></div></div>`).join('');
 
-  $('byClass').innerHTML = `<thead><tr><th>Luokka</th><th>Taulukko</th><th>Käyttöikä</th><th>Lujuus</th><th>c<sub>min,dur</sub></th></tr></thead><tbody>` +
-    rows.map(r=>`<tr${r.c===gov.c?' class="hl"':''}><td>${r.c}</td><td>${r.base}</td><td>${r.add?'+'+r.add:'0'}</td><td>${r.red?'−'+r.red:'0'}</td><td>${r.v}</td></tr>`).join('') + '</tbody>';
+  $('byClass').innerHTML = `<thead><tr><th>Luokka</th><th>Taulukko</th><th>Käyttöikä</th><th>c<sub>min,dur</sub></th></tr></thead><tbody>` +
+    rows.map(r=>`<tr${r.c===gov.c?' class="hl"':''}><td>${r.c}</td><td>${r.base}</td><td>${r.add?'+'+r.add:'0'}</td><td>${r.v}</td></tr>`).join('') + '</tbody>';
 
   // Huomautukset
   const notes = [];
@@ -315,7 +313,6 @@ function render(){
   if (sel.XF) notes.push(['info', `${sel.XF}: betonin tulee olla pakkasenkestävää (SFS 7022)${/XF2|XF4/.test(sel.XF)?', vaaditaan P-lukumenettely':''}. Luokka ei muuta peitettä.`]);
   if (sel.XA) notes.push(['warn', `${sel.XA}: kemiallinen rasitus hoidetaan betonin koostumuksella ja tarvittaessa pintasuojauksella. Taulukko ei anna sille peitettä; arvioi tarve tapauskohtaisesti.`]);
   if (dev === 5) notes.push(['info','Δc<sub>dev</sub> = 5 mm edellyttää perusteltua tehtaan laadunvalvontaa (kansallinen liite: ei alle 5 mm).']);
-  if (reduce) notes.push(['info','5 mm:n lujuusvähennys käytetty. Varmista, että betonin lieriölujuus on vähintään 10 MPa yli säilyvyyden vaatiman vähimmäislujuuden.']);
   if (nb>1 && dia*Math.sqrt(nb)>55) notes.push(['warn','Nipun ekvivalentti halkaisija Ø<sub>n</sub> saa olla enintään 55 mm.']);
   notes.push(['warn', 'Huomioi betonipeitteen valinnassa myös palonkesto (ks. BY 60 / SFS-EN 1992-1-2, taulukkomitoitus).']);
   notes.push(['', 'Peitevaatimus koskee myös jännepunosten ankkureita ja valettavia metalliosia, ellei niitä ole suojattu korroosiolta.']);

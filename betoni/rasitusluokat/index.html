@@ -66,6 +66,11 @@ input[type=number]{background:#2b2410}
 .tile{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:1px;min-width:0}
 .tile .k{font-size:11px;color:var(--muted)}
 .tile .v{font-family:var(--mono);font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.strength{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:13.5px}
+.strength.okk{border-color:var(--ok)} .strength.nok{border-color:var(--bad)}
+.strength .pill{font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:99px;border:1px solid currentColor}
+.strength.okk .pill{color:var(--ok)} .strength.nok .pill{color:var(--bad)}
+.strength b{font-family:var(--mono)}
 .sec{font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin:4px 0 0;padding-bottom:4px;border-bottom:1px solid var(--line)}
 .steps{display:flex;flex-direction:column}
 .step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:0 10px;padding:8px 0;border-bottom:1px dashed var(--line)}
@@ -161,6 +166,7 @@ tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
       <div class="tile"><span class="k">c<sub>min,b</sub></span><span class="v" id="tB">–</span></div>
       <div class="tile"><span class="k">c<sub>min</sub></span><span class="v" id="tMin">–</span></div>
     </div>
+    <div class="strength" id="strength"></div>
     <div class="notes" id="notes"></div>
     <div class="sec">Laskenta</div>
     <div class="steps" id="steps"></div>
@@ -172,7 +178,7 @@ tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
 
 <div class="foot">
   <p>Lähteet: SFS-EN 1992-1-1 kohta 4.4.1; Suomen kansallinen liite (Ympäristöministeriö, Betonirakenteet 16.12.2019), taulukko 2 ja huomautukset; betonin koostumusvaatimukset SFS 7022 ja SFS-EN 206.</p>
-  <p>Kansallisen liitteen taulukko koskee käyttöikiä 50 ja 100 vuotta. Pidemmälle käyttöiälle tai muille arvoille tarvitaan laskennallinen käyttöikämitoitus. XF- ja XA-luokat eivät muuta taulukon peitearvoja, vaan ne asettavat vaatimuksia betonin koostumukselle. Tulokset tarkastaa laatija.</p>
+  <p>Kansallisen liitteen taulukko koskee käyttöikiä 50 ja 100 vuotta. Pidemmälle käyttöiälle tai muille arvoille tarvitaan laskennallinen käyttöikämitoitus. XF- ja XA-luokat eivät muuta taulukon peitearvoja, vaan ne asettavat vaatimuksia betonin koostumukselle. Lujuustarkistus käyttää SFS 7022:n vähimmäislujuusluokkia, joissa XF-luokille ei ole lujuusvaatimusta (pakkasenkestävyys osoitetaan lisähuokostuksella ja P-luvulla); tarkista arvot voimassa olevasta standardista. Tulokset tarkastaa laatija.</p>
 </div>
 </div>
 
@@ -182,6 +188,10 @@ tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
 const DUR = { X0:[10,10], XC1:[10,20], XC2:[20,30], XC3:[25,35], XC4:[25,35],
   XD1:[30,40], XS1:[30,40], XD2:[35,45], XS2:[35,45], XD3:[40,50], XS3:[40,50] }; // [betoniteräs, jänneteräs]
 const NO_LIFE_ADD = new Set(['X0','XC1']);
+// Betonin vähimmäislujuusluokka rasitusluokittain (SFS 7022, sama 50 ja 100 v). XF-luokissa pakkasenkestävyys osoitetaan lisähuokostuksella / P-luvulla.
+const FMIN = { X0:'C12/15', XC1:'C20/25', XC2:'C20/25', XC3:'C30/37', XC4:'C30/37', XS1:'C30/37', XS2:'C35/45', XS3:'C35/45',
+  XD1:'C30/37', XD2:'C30/37', XD3:'C35/45', XA1:'C30/37', XA2:'C35/45', XA3:'C40/50' };
+const fckOf = s => +s.slice(1).split('/')[0];
 
 const GROUPS = [
   {id:'XC', name:'Karbonatisoituminen', sub:'Raudoitteen korroosio', opts:{
@@ -290,6 +300,12 @@ function render(){
   const govSet = new Set([gov.c]);
   $('chips').innerHTML = (all.length ? all : ['X0']).map(c=>`<span class="chip${govSet.has(c)?' gov':''}">${c}</span>`).join('');
   $('cnom').textContent = cnom;
+  // Lujuustarkistus
+  const reqList = (all.length ? all : ['X0']).filter(c=>FMIN[c]);
+  const reqCls = reqList.reduce((a,c)=> !a || fckOf(FMIN[c]) > fckOf(FMIN[a]) ? c : a, null) || 'X0';
+  const req = FMIN[reqCls], fck = $('fck').value, sOk = fckOf(fck) >= fckOf(req);
+  $('strength').className = 'strength ' + (sOk ? 'okk' : 'nok');
+  $('strength').innerHTML = `<span class="pill">${sOk?'Lujuus OK':'Lujuus ei riitä'}</span><span>Valittu <b>${fck}</b> · vaadittu vähintään <b>${req}</b> (${reqCls})</span>`;
   $('tDur').textContent = cdur; $('tB').textContent = cb; $('tMin').textContent = cmin;
 
   const steelTxt = steel==='r' ? 'betoniteräs' : steel==='p' ? 'jänneteräs' : 'jänneteräs σ ≤ 400 N/mm², käsitellään kuten betoniterästä';
@@ -299,7 +315,8 @@ function render(){
     ['Säilyvyys, c<sub>min,dur</sub>', `${gov.base}${gov.add?` + ${gov.add} (100 v)`:''} = <b>${cdur} mm</b>`],
     ['Tartunta, c<sub>min,b</sub>', `${nb>1?`Ø<sub>n</sub> = Ø·√n<sub>b</sub> = ${dia}·√${nb} = ${String(dn).replace('.',',')} → `:'Ø = '}${Math.ceil(dn)}${dg?' + 5 (raekoko > 32 mm)':''} = <b>${cb} mm</b>`],
     ['Vähimmäispeite', `c<sub>min</sub> = max(${cb}; ${cdur}; 10) = <b>${cmin} mm</b>`],
-    ['Nimellispeite', `c<sub>nom</sub> = c<sub>min</sub> + Δc<sub>dev</sub> = ${cmin} + ${dev} = ${cmin+dev} mm${groundTxt?`<br>${groundTxt}`:''}<br>→ <b>c<sub>nom</sub> = ${cnom} mm</b>`]
+    ['Nimellispeite', `c<sub>nom</sub> = c<sub>min</sub> + Δc<sub>dev</sub> = ${cmin} + ${dev} = ${cmin+dev} mm${groundTxt?`<br>${groundTxt}`:''}<br>→ <b>c<sub>nom</sub> = ${cnom} mm</b>`],
+    ['Betonin lujuus', `vaadittu ${req} (${reqCls}) · valittu ${fck} → <b>${sOk?'riittää':'ei riitä'}</b>`]
   ];
   $('steps').innerHTML = steps.map((s,i)=>`<div class="step"><span class="no">${i+1}</span><div><h3>${s[0]}</h3><div class="math">${s[1]}</div></div></div>`).join('');
 

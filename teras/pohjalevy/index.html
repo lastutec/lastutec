@@ -5,18 +5,37 @@
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pilarin pohjalevyliitos – Lastutec</title>
-<meta name="description" content="Pilarin pohjalevyliitoksen mitoitus komponenttimenetelmällä SFS-EN 1993-1-8 (6.2.5–6.2.8) mukaan: puristettu T-osa, ankkurit, taivutettu pohjalevy, leikkaus ja hitsit. Useita liitoksia kerralla.">
+<meta name="description" content="Pilarin pohjalevyliitoksen mitoitus: komponenttimenetelmä SFS-EN 1993-1-8, pohjalevyn FEM-laskenta (jännitykset, kosketuspaine, ankkurivoimat) sekä liitoksen kiertymisjäykkyys ja luokittelu. Useita liitoksia kerralla.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="../teras.css">
 <script src="../teras.js"></script>
+<script src="fem.js"></script>
+<style>
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{font:600 13px var(--body);padding:5px 14px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+.femgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.femgrid{grid-template-columns:minmax(0,1fr)}}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.kv div{background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:6px 9px;font-size:12px;color:var(--muted)}
+.kv b{display:block;font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.cls{display:inline-block;padding:2px 8px;border-radius:3px;font-weight:700;font-size:12px;letter-spacing:.04em}
+.cls.r{background:#1d3b2a;color:var(--ok)} .cls.s{background:#3b3010;color:var(--warn)} .cls.p{background:#2a2a2a;color:var(--muted)}
+</style>
 </head>
 <body>
 <div class="wrap">
 <header>
   <div class="brand"><a href="../" class="back">← Teräsrakenteet</a><h1>Pilarin pohjalevyliitos</h1></div>
-  <div class="hdr-r"><span class="meta">Työkalu 4 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+  <div class="hdr-r"><span class="meta">Työkalu 3 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
 </header>
-<p class="intro">I-profiilipilarin pohjalevyliitos normaalivoimalle N, momentille M (vahvemman akselin ympäri) ja leikkausvoimalle V komponenttimenetelmällä (SFS-EN 1993-1-8, 6.2.5, 6.2.6.9–6.2.6.12, 6.2.8 ja 6.2.2). Voit laskea useita liitoksia: lisää rivi, valitse se ja muokkaa lähtötietoja. N on positiivinen puristuksena.</p>
+<p class="intro">Työkalu mitoittaa I-profiilipilarin pohjalevyliitoksen normaalivoimalle N, momentille M<sub>y</sub> ja leikkausvoimalle V. Mitoitus tehdään kolmella tavalla:</p>
+<ul class="intro">
+  <li>komponenttimenetelmällä (SFS-EN 1993-1-8, 6.2.5–6.2.8 ja 6.2.2)</li>
+  <li>FEM-laskennalla pohjalevylle. Levy mallinnetaan laattana, joka lepää vain puristusta kantavalla betonialustalla. Ankkurit kantavat vain vetoa, ja pilari on jäykkä kappale. Tuloksina saadaan von Mises -jännitykset, kosketuspaine ja ankkurivoimat.</li>
+  <li>liitoksen kiertymisjäykkyyden S<sub>j,ini</sub> laskennalla (6.3) ja luokittelulla (5.2.2.5)</li>
+</ul>
+<p class="intro">Voit laskea useita liitoksia kerralla. N on positiivinen puristuksena.</p>
 
 <section class="panel" aria-labelledby="h-list">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 id="h-list">Liitokset</h2>
@@ -36,6 +55,8 @@
     <label>N<sub>Ed</sub> puristus + <span class="u">[kN]</span><input type="number" id="N" step="10"></label>
     <label>M<sub>y,Ed</sub> <span class="u">[kNm]</span><input type="number" id="M" step="1"></label>
     <label>V<sub>Ed</sub> <span class="u">[kN]</span><input type="number" id="V" step="1" min="0"></label>
+    <label>Pilarin pituus L<sub>c</sub> <span class="u">[m]</span><input type="number" id="Lc" step="0.1" min="0.5"></label>
+    <label>Kehä<select id="frame"><option value="u">Sivusiirtyvä</option><option value="b">Sivusiirtymätön</option></select></label>
   </div>
   <div class="sec">Pohjalevy ja hitsit</div>
   <div class="inputs">
@@ -53,15 +74,16 @@
     <label>e<sub>x</sub> laipan ulkopinnasta <span class="u">[mm]</span><input type="number" id="ex" step="5" min="0"></label>
     <label>Jako w (poikittain) <span class="u">[mm]</span><input type="number" id="w" step="10" min="0"></label>
   </div>
-  <div class="sec">Perustus ja juotos</div>
+  <div class="sec">Perustus, juotos ja FEM</div>
   <div class="inputs">
     <label>Betoni f<sub>ck</sub> <span class="u">[MPa]</span><input type="number" id="fck" step="5" min="12"></label>
     <label>Perustus a × <span class="u">[mm]</span><input type="number" id="fa" step="50" min="0"></label>
     <label>× b <span class="u">[mm]</span><input type="number" id="fb" step="50" min="0"></label>
     <label>β<sub>j</sub> (juotos)<input type="number" id="bj" step="0.01" min="0.3" max="1"></label>
+    <label>FEM-verkko<select id="mesh"><option value="c">Karkea (≈ 2t<sub>p</sub>)</option><option value="n">Normaali (≈ t<sub>p</sub>)</option><option value="f">Tiheä (≈ t<sub>p</sub>/2)</option></select></label>
   </div>
   <div class="fig" id="fig"></div>
-  <p class="hint">β<sub>j</sub> = 2/3, kun juotoksen lujuus on vähintään 0,2 f<sub>ck</sub> ja paksuus enintään 0,2 · pohjalevyn pienempi sivumitta. Perustuksen koko vaikuttaa betonin keskitetyn kuorman kertoimeen α ≤ 3.</p>
+  <p class="hint">β<sub>j</sub> = 2/3, kun juotoksen lujuus on vähintään 0,2 f<sub>ck</sub> ja paksuus enintään 0,2 · pohjalevyn pienempi sivumitta. Pilarin pituutta L<sub>c</sub> ja kehän tyyppiä käytetään vain liitoksen jäykkyysluokitteluun.</p>
 </section>
 
 <section class="panel" aria-labelledby="h-res">
@@ -69,158 +91,220 @@
   <div class="big"><span class="v" id="umax">–</span><span class="k">% · suurin käyttöaste</span></div>
   <div class="verdict" id="verdict"></div>
   <div class="tablewrap"><table class="chk-table" id="chk"></table></div>
+  <div class="sec">Liitoksen jäykkyys</div>
+  <div class="kv" id="stiff"></div>
   <div class="sec">Laskenta</div>
   <div class="steps" id="steps"></div>
 </section>
 </div>
-<p class="foot">Laskenta SFS-EN 1993-1-8 ja 1992-1-1 sekä Suomen kansalliset liitteet: γ<sub>M0</sub> = 1,0, γ<sub>M2</sub> = 1,25, γ<sub>c</sub> = 1,5, α<sub>cc</sub> = 0,85. Pilarin poikkileikkaus oletetaan luokkaan 1–2. Ankkureiden ankkuroitumista betoniin (ulosvetokartio, tartunta, reunamurtuma) ei tarkisteta, vaan ne mitoitetaan SFS-EN 1992-4 mukaan erikseen. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
+
+<section class="panel" aria-labelledby="h-fem">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 id="h-fem">FEM-laskenta: pohjalevy</h2>
+  <div class="tabs noprint" id="ftabs"><button type="button" data-f="vm" aria-pressed="true">von Mises σ</button><button type="button" data-f="p" aria-pressed="false">Kosketuspaine</button><button type="button" data-f="w" aria-pressed="false">Siirtymä w</button></div></div>
+  <div class="femgrid">
+    <div><div class="fig" id="femfig"></div><p class="hint" id="femnote"></p></div>
+    <div style="display:flex;flex-direction:column;gap:12px"><div class="kv" id="femkv"></div><div class="tablewrap"><table id="boltt"></table></div><div class="steps" id="femsteps"></div></div>
+  </div>
+</section>
+
+<p class="foot">Laskenta noudattaa standardeja SFS-EN 1993-1-8 ja 1992-1-1 sekä Suomen kansallisia liitteitä: γ<sub>M0</sub> = 1,0, γ<sub>M2</sub> = 1,25, γ<sub>c</sub> = 1,5 ja α<sub>cc</sub> = 0,85.</p>
+<p class="foot">FEM-malli:</p>
+<ul class="foot">
+  <li>Pohjalevy on Mindlin-laatta (MITC4-elementit).</li>
+  <li>Betoni ja juotos ovat vain puristusta kantava Winkler-alusta, jonka jousivakio on k<sub>s</sub> = E<sub>c</sub>/(1,275√(l<sub>p</sub>b<sub>p</sub>)) (vrt. k<sub>13</sub>).</li>
+  <li>Ankkurit ovat vain vetoa kantavia jousia, joiden jäykkyys on EA<sub>s</sub>/L<sub>b</sub>.</li>
+  <li>Pilarin jalanjälki on jäykkä, ja levy on kiinnitetty siihen.</li>
+  <li>Laskenta on kimmoteorian mukainen. Jännitys luetaan elementin keskipisteestä, mikä vastaa jännitystä noin t<sub>p</sub>/2 etäisyydellä profiilin reunasta. Profiilin kulmien singulaariset huiput jäävät siksi pois.</li>
+</ul>
+<p class="foot">Pilarin poikkileikkaus oletetaan luokkaan 1–2. Ankkureiden ankkuroitumista betoniin ei tarkisteta, vaan ne mitoitetaan SFS-EN 1992-4 mukaan erikseen. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
 </div>
 
 <script>
 (function () {
-  var $ = function (id) { return document.getElementById(id); }, L = LT, n = L.n, G = L.GAMMA, rt2 = Math.SQRT2, rt3 = Math.sqrt(3);
-  var KEY = 'lt-pohjalevy-v1';
-  var DEF = { name: 'PL1', prof: 'HEA 200', gr: 'S355', N: 300, M: 25, V: 20, lp: 400, bp: 300, tp: 25, pgr: 'S355', af: 6, aw: 4, bs: 'M20', bc: '8.8', ex: 50, w: 200, fck: 25, fa: 1200, fb: 1200, bj: 0.67 };
+  var $ = function (id) { return document.getElementById(id); }, L = LT, n = L.n, G = L.GAMMA, E = L.E, rt2 = Math.SQRT2, rt3 = Math.sqrt(3), PI = Math.PI;
+  var KEY = 'lt-pohjalevy-v2';
+  var DEF = { name: 'PL1', prof: 'HEA 200', gr: 'S355', N: 300, M: 25, V: 20, Lc: 4, frame: 'u', lp: 400, bp: 300, tp: 25, pgr: 'S355', af: 6, aw: 4, bs: 'M20', bc: '8.8', ex: 50, w: 200, fck: 25, fa: 1200, fb: 1200, bj: 0.67, mesh: 'n' };
   var FIELDS = Object.keys(DEF);
-  var cases, cur = 0;
-  try { cases = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-  if (!Array.isArray(cases) || !cases.length) cases = [Object.assign({}, DEF), Object.assign({}, DEF, { name: 'PL2', prof: 'HEB 240', N: 650, M: 60, V: 35, lp: 480, bp: 360, tp: 30, bs: 'M24', ex: 55, w: 240 })];
+  var cases, cur = 0, field = 'vm', FEMC = {};
+  try { cases = JSON.parse(localStorage.getItem(KEY)) || JSON.parse(localStorage.getItem('lt-pohjalevy-v1')); } catch (e) {}
+  if (!Array.isArray(cases) || !cases.length) cases = [Object.assign({}, DEF), Object.assign({}, DEF, { name: 'PL2', prof: 'HEB 240', N: 650, M: 60, V: 35, lp: 480, bp: 360, tp: 30, bs: 'M24', ex: 55, w: 240, Lc: 5 })];
+  cases = cases.map(function (c) { return Object.assign({}, DEF, c); });
   function save() { try { localStorage.setItem(KEY, JSON.stringify(cases)); } catch (e) {} }
 
-  L.fill($('prof'), L.ORDER.filter(function (k) { return k.indexOf('HE') === 0 || k.indexOf('IPE') === 0; }), 'HEA 200');
+  L.fill($('prof'), L.ORDER, 'HEA 200');
   var GR = Object.keys(L.STEEL).map(function (k) { return [k, L.STEEL[k].label || k]; });
   L.fill($('gr'), GR, 'S355'); L.fill($('pgr'), GR, 'S355');
   L.fill($('bs'), ['M16', 'M20', 'M24', 'M27', 'M30', 'M36'], 'M20'); L.fill($('bc'), ['4.6', '5.6', '8.8'], '8.8');
+
+  function runFEM(cs, P, ks, kb, mp) {
+    var h = P.h, b = P.b, tf = P.tf, tw = P.tw, lp = +cs.lp, bp = +cs.bp, tp = +cs.tp, ex = +cs.ex, w = +cs.w;
+    var hmax = Math.min({ c: 2, n: 1, f: 0.5 }[cs.mesh] * tp, Math.min(lp, bp) / ({ c: 8, n: 14, f: 24 }[cs.mesh]));
+    var key = JSON.stringify([P.name, lp, bp, tp, ex, w, +cs.N, +cs.M, ks.toFixed(5), kb.toFixed(1), hmax.toFixed(2)]);
+    if (FEMC[key]) return FEMC[key];
+    var r = PlateFEM.solve({ E: E, tp: tp, ks: ks, N: +cs.N * 1000, M: Math.abs(+cs.M) * 1e6, hmax: hmax,
+      xkeys: [-lp / 2, lp / 2, -h / 2, h / 2, -h / 2 + tf, h / 2 - tf, -(h / 2 + ex), h / 2 + ex, 0],
+      ykeys: [-bp / 2, bp / 2, -b / 2, b / 2, -tw / 2, tw / 2, -w / 2, w / 2, 0],
+      bolts: [[-1, -1], [-1, 1], [1, -1], [1, 1]].map(function (s) { return { x: s[0] * (h / 2 + ex), y: s[1] * w / 2, k: kb }; }),
+      foot: function (x, y) { var e = 1e-6; return (Math.abs(x) >= h / 2 - tf - e && Math.abs(x) <= h / 2 + e && Math.abs(y) <= b / 2 + e) || (Math.abs(x) <= h / 2 - tf + e && Math.abs(y) <= tw / 2 + e); } });
+    r.hmax = hmax; FEMC[key] = r; return r;
+  }
 
   function calc(cs) {
     var P = L.PROF[cs.prof], mc = L.steel(cs.gr, P.tf), mp = L.steel(cs.pgr, cs.tp), bo = L.BOLTS[cs.bs], bc = L.BCLS[cs.bc];
     var h = P.h, b = P.b, tf = P.tf, tw = P.tw, lp = +cs.lp, bp = +cs.bp, tp = +cs.tp, ex = +cs.ex, w = +cs.w;
     var N = +cs.N, M = Math.abs(+cs.M), V = Math.abs(+cs.V), d0 = bo.d0, d = bo.d;
     var S = [], C = [], W = [];
-    function chk(name, Ed, Rd, unit) { var u = Rd > 0 ? Ed / Rd : (Ed > 0 ? Infinity : 0); C.push([name, Ed, Rd, u, unit || 'kN']); return u; }
+    function chk(name, Ed, Rd, unit) { var u = Rd > 0 ? Ed / Rd : (Ed > 0 ? Infinity : 0); C.push([name, Ed, Rd, u, unit === undefined ? 'kN' : unit]); return u; }
 
-    // 1. Betoni ja juotos
+    // Geometria
+    var ox = (lp - h) / 2, oy = (bp - b) / 2, exT = ox - ex, e = (bp - w) / 2, mx = ex - 0.8 * cs.af * rt2;
+    S.push(['Geometria',
+      'l<sub>p</sub> ≥ h + 2e<sub>x</sub> + 2 · 1,2d<sub>0</sub> = ' + n(h + 2 * ex + 2.4 * d0, 0) + ' mm ' + L.ok((h + 2 * ex + 2.4 * d0) / lp),
+      'e = (b<sub>p</sub> − w)/2 = ' + n(e, 0) + ' mm ≥ 1,2d<sub>0</sub> = ' + n(1.2 * d0, 1) + ' mm ' + L.ok(1.2 * d0 / e) + ', w = ' + n(w, 0) + ' ≥ 2,4d<sub>0</sub> = ' + n(2.4 * d0, 1) + ' ' + L.ok(2.4 * d0 / w),
+      'm = e<sub>x</sub> − 0,8a<sub>f</sub>√2 = ' + n(mx, 1) + ' mm &gt; 0 ' + L.ok(mx > 0 ? 0.5 : 2) + ', b<sub>p</sub> ≥ b = ' + n(b, 0) + ' mm ' + L.ok(b / bp)]);
+    if (exT < 1.2 * d0 || e < 1.2 * d0 || w < 2.4 * d0 || mx <= 0 || bp < b) W.push('Geometria ei täytä reunaetäisyys- tai mittaehtoja.');
+
+    // 1. Betoni
     var fcd = 0.85 * cs.fck / 1.5, a1 = Math.min(+cs.fa, 3 * lp), b1 = Math.min(+cs.fb, 3 * bp);
-    var alpha = Math.max(1, Math.min(Math.sqrt(a1 * b1 / (lp * bp)), 3)), fjd = cs.bj * alpha * fcd;
+    var alpha = Math.max(1, Math.min(Math.sqrt(a1 * b1 / (lp * bp)), 3)), fjd = cs.bj * alpha * fcd, Ec = 22000 * Math.pow((+cs.fck + 8) / 10, 0.3);
     S.push(['Liitoksen puristuslujuus f<sub>jd</sub>',
-      'f<sub>cd</sub> = α<sub>cc</sub>f<sub>ck</sub>/γ<sub>c</sub> = 0,85 · ' + cs.fck + ' / 1,5 = ' + n(fcd, 2) + ' N/mm²',
+      'f<sub>cd</sub> = α<sub>cc</sub>f<sub>ck</sub>/γ<sub>c</sub> = 0,85 · ' + cs.fck + ' / 1,5 = ' + n(fcd, 2) + ' N/mm², E<sub>cm</sub> = 22000((f<sub>ck</sub> + 8)/10)<sup>0,3</sup> = ' + n(Ec, 0) + ' N/mm²',
       'a<sub>1</sub> = min(a; 3l<sub>p</sub>) = ' + n(a1, 0) + ', b<sub>1</sub> = min(b; 3b<sub>p</sub>) = ' + n(b1, 0) + ' → α = √(a<sub>1</sub>b<sub>1</sub>/(l<sub>p</sub>b<sub>p</sub>)) = ' + n(alpha, 2) + ' (1 … 3)',
       'f<sub>jd</sub> = β<sub>j</sub> · α · f<sub>cd</sub> = ' + n(+cs.bj, 2) + ' · ' + n(alpha, 2) + ' · ' + n(fcd, 2) + ' = <b>' + n(fjd, 2) + ' N/mm²</b>']);
 
     // 2. Puristettu T-osa
-    var c = tp * Math.sqrt(mp.fy / (3 * fjd * G.M0)), ox = (lp - h) / 2, oy = (bp - b) / 2;
+    var c = tp * Math.sqrt(mp.fy / (3 * fjd * G.M0));
     var cO = Math.max(0, Math.min(c, ox)), cI = Math.min(c, (h - 2 * tf) / 2), cY = Math.max(0, Math.min(c, oy));
     var beff = tf + cO + cI, leff = b + 2 * cY, Fcpl = fjd * beff * leff / 1000;
     var Mc = P.Wply * mc.fy / G.M0 / 1e6, Fcfc = Mc * 1000 / (h - tf), FcRd = Math.min(Fcpl, Fcfc);
-    var Aeff;
-    if (2 * c >= h - 2 * tf) Aeff = (h + 2 * cO) * leff; else Aeff = 2 * beff * leff + (h - 2 * tf - 2 * c) * Math.min(tw + 2 * c, bp);
+    var Aeff = (2 * c >= h - 2 * tf) ? (h + 2 * cO) * leff : 2 * beff * leff + (h - 2 * tf - 2 * c) * Math.min(tw + 2 * c, bp);
     var NcRd = Aeff * fjd / 1000;
     S.push(['Puristettu T-osa (laipan alla)',
-      'Lisäleveys c = t<sub>p</sub>√(f<sub>y</sub>/(3f<sub>jd</sub>γ<sub>M0</sub>)) = ' + n(tp, 0) + ' · √(' + mp.fy + ' / (3 · ' + n(fjd, 2) + ')) = <b>' + n(c, 1) + ' mm</b>',
-      'Ulkonemat: l-suunta (l<sub>p</sub> − h)/2 = ' + n(ox, 0) + ' mm, b-suunta (b<sub>p</sub> − b)/2 = ' + n(oy, 0) + ' mm',
+      'c = t<sub>p</sub>√(f<sub>y</sub>/(3f<sub>jd</sub>γ<sub>M0</sub>)) = ' + n(tp, 0) + ' · √(' + mp.fy + ' / (3 · ' + n(fjd, 2) + ')) = <b>' + n(c, 1) + ' mm</b>',
       'b<sub>eff</sub> = t<sub>f</sub> + min(c; ' + n(ox, 0) + ') + min(c; (h − 2t<sub>f</sub>)/2) = ' + n(beff, 1) + ' mm, l<sub>eff</sub> = b + 2min(c; ' + n(oy, 0) + ') = ' + n(leff, 1) + ' mm',
-      'F<sub>C,pl,Rd</sub> = f<sub>jd</sub> b<sub>eff</sub> l<sub>eff</sub> = ' + n(fjd, 2) + ' · ' + n(beff, 1) + ' · ' + n(leff, 1) + ' = ' + n(Fcpl, 1) + ' kN',
-      'Laippa ja uuma puristuksessa: F<sub>c,fc,Rd</sub> = M<sub>c,Rd</sub>/(h − t<sub>f</sub>) = ' + n(Mc, 1) + ' / ' + n((h - tf) / 1000, 4) + ' = ' + n(Fcfc, 1) + ' kN',
-      'F<sub>C,Rd</sub> = min = <b>' + n(FcRd, 1) + ' kN</b>',
-      'Keskeinen puristus: A<sub>eff</sub> = ' + n(Aeff, 0) + ' mm² → N<sub>c,Rd</sub> = A<sub>eff</sub>f<sub>jd</sub> = <b>' + n(NcRd, 1) + ' kN</b>']);
+      'F<sub>C,pl,Rd</sub> = f<sub>jd</sub>b<sub>eff</sub>l<sub>eff</sub> = ' + n(Fcpl, 1) + ' kN, F<sub>c,fc,Rd</sub> = M<sub>c,Rd</sub>/(h − t<sub>f</sub>) = ' + n(Mc, 1) + ' / ' + n((h - tf) / 1000, 4) + ' = ' + n(Fcfc, 1) + ' kN',
+      'F<sub>C,Rd</sub> = <b>' + n(FcRd, 1) + ' kN</b>; keskeinen puristus A<sub>eff</sub> = ' + n(Aeff, 0) + ' mm² → N<sub>c,Rd</sub> = <b>' + n(NcRd, 1) + ' kN</b>']);
 
     // 3. Vedetty T-osa
-    var exT = ox - ex, e = (bp - w) / 2, mx = ex - 0.8 * cs.af * rt2;
-    var lcp = Math.min(2 * Math.PI * mx, Math.PI * mx + w, Math.PI * mx + 2 * e);
+    var lcp = Math.min(2 * PI * mx, PI * mx + w, PI * mx + 2 * e);
     var lnc = Math.min(4 * mx + 1.25 * exT, e + 2 * mx + 0.625 * exT, 0.5 * bp, 0.5 * w + 2 * mx + 0.625 * exT);
     var l1 = Math.min(lcp, lnc), l2 = lnc;
     var Mpl1 = 0.25 * l1 * tp * tp * mp.fy / G.M0 / 1e6, Mpl2 = 0.25 * l2 * tp * tp * mp.fy / G.M0 / 1e6;
     var Ft1b = 0.9 * bc.fub * bo.As / G.M2 / 1000, SFt = 2 * Ft1b;
-    var Lb = 8 * d + 30 + tp + 0.4 * d, Lbs = 8.8 * Math.pow(mx, 3) * bo.As * 2 / (l1 * Math.pow(tp, 3));
+    var Lb = 8 * d + 30 + tp + 0.4 * d, Lbs = 8.8 * Math.pow(mx, 3) * bo.As * 2 / (l1 * Math.pow(tp, 3)), noPry = Lb > Lbs;
     var FT, ttxt;
-    if (Lb > Lbs) { var F12 = 2 * Mpl1 * 1000 / mx; FT = Math.min(F12, SFt);
+    if (noPry) { var F12 = 2 * Mpl1 * 1000 / mx; FT = Math.min(F12, SFt);
       ttxt = ['L<sub>b</sub> = 8d + juotos 30 + t<sub>p</sub> + 0,4d = ' + n(Lb, 0) + ' mm &gt; L<sub>b</sub>* = 8,8m³A<sub>s</sub>n<sub>b</sub>/(Σl<sub>eff,1</sub>t<sub>p</sub>³) = ' + n(Lbs, 0) + ' mm → vipuvoimia ei synny',
-        'Murtotapa 1–2: F<sub>T,1-2,Rd</sub> = 2M<sub>pl,1,Rd</sub>/m = 2 · ' + n(Mpl1, 2) + ' / ' + n(mx / 1000, 4) + ' = ' + n(F12, 1) + ' kN',
-        'Murtotapa 3: F<sub>T,3,Rd</sub> = ΣF<sub>t,Rd</sub> = 2 · ' + n(Ft1b, 1) + ' = ' + n(SFt, 1) + ' kN']; }
+        'F<sub>T,1-2,Rd</sub> = 2M<sub>pl,1,Rd</sub>/m = ' + n(F12, 1) + ' kN, F<sub>T,3,Rd</sub> = ΣF<sub>t,Rd</sub> = ' + n(SFt, 1) + ' kN']; }
     else { var nn = Math.min(exT, 1.25 * mx), F1 = 4 * Mpl1 * 1000 / mx, F2 = (2 * Mpl2 * 1e6 + nn * SFt * 1000) / (mx + nn) / 1000; FT = Math.min(F1, F2, SFt);
       ttxt = ['L<sub>b</sub> = ' + n(Lb, 0) + ' mm ≤ L<sub>b</sub>* = ' + n(Lbs, 0) + ' mm → vipuvoimat mahdollisia',
-        'Murtotapa 1: F<sub>T,1,Rd</sub> = 4M<sub>pl,1,Rd</sub>/m = ' + n(F1, 1) + ' kN',
-        'Murtotapa 2: F<sub>T,2,Rd</sub> = (2M<sub>pl,2,Rd</sub> + nΣF<sub>t,Rd</sub>)/(m + n), n = ' + n(nn, 1) + ' mm → ' + n(F2, 1) + ' kN',
-        'Murtotapa 3: F<sub>T,3,Rd</sub> = ΣF<sub>t,Rd</sub> = ' + n(SFt, 1) + ' kN']; }
+        'F<sub>T,1,Rd</sub> = 4M<sub>pl,1,Rd</sub>/m = ' + n(F1, 1) + ' kN, F<sub>T,2,Rd</sub> = (2M<sub>pl,2,Rd</sub> + nΣF<sub>t,Rd</sub>)/(m + n) = ' + n(F2, 1) + ' kN, F<sub>T,3,Rd</sub> = ' + n(SFt, 1) + ' kN']; }
     var Fwc = l1 * tw * mc.fy / G.M0 / 1000, FtRd = Math.min(FT, Fwc);
     S.push(['Vedetty T-osa (pohjalevyn taivutus ja ankkurit)',
-      'm = e<sub>x</sub> − 0,8a<sub>f</sub>√2 = ' + n(ex, 0) + ' − 0,8 · ' + n(+cs.af, 1) + ' · √2 = ' + n(mx, 1) + ' mm, e<sub>x,levy</sub> = ' + n(exT, 0) + ' mm, e = (b<sub>p</sub> − w)/2 = ' + n(e, 0) + ' mm',
-      'l<sub>eff,cp</sub> = min(2πm; πm + w; πm + 2e) = ' + n(lcp, 1) + ' mm',
-      'l<sub>eff,nc</sub> = min(4m + 1,25e<sub>x</sub>; e + 2m + 0,625e<sub>x</sub>; 0,5b<sub>p</sub>; 0,5w + 2m + 0,625e<sub>x</sub>) = ' + n(lnc, 1) + ' mm',
-      'M<sub>pl,1,Rd</sub> = 0,25 l<sub>eff,1</sub> t<sub>p</sub>² f<sub>y</sub>/γ<sub>M0</sub> = 0,25 · ' + n(l1, 1) + ' · ' + n(tp, 0) + '² · ' + mp.fy + ' = ' + n(Mpl1, 2) + ' kNm',
-      'Ankkuri: F<sub>t,Rd</sub> = 0,9f<sub>ub</sub>A<sub>s</sub>/γ<sub>M2</sub> = 0,9 · ' + bc.fub + ' · ' + n(bo.As, 0) + ' / 1,25 = ' + n(Ft1b, 1) + ' kN'].concat(ttxt, [
-      'Pilarin uuma vedossa: F<sub>t,wc,Rd</sub> = l<sub>eff</sub>t<sub>w</sub>f<sub>y</sub>/γ<sub>M0</sub> = ' + n(Fwc, 1) + ' kN',
-      'F<sub>T,Rd</sub> = <b>' + n(FtRd, 1) + ' kN</b>']));
+      'm = ' + n(mx, 1) + ' mm, e<sub>x,levy</sub> = ' + n(exT, 0) + ' mm, e = ' + n(e, 0) + ' mm',
+      'l<sub>eff,cp</sub> = min(2πm; πm + w; πm + 2e) = ' + n(lcp, 1) + ' mm, l<sub>eff,nc</sub> = min(4m + 1,25e<sub>x</sub>; e + 2m + 0,625e<sub>x</sub>; 0,5b<sub>p</sub>; 0,5w + 2m + 0,625e<sub>x</sub>) = ' + n(lnc, 1) + ' mm',
+      'M<sub>pl,1,Rd</sub> = 0,25l<sub>eff,1</sub>t<sub>p</sub>²f<sub>y</sub>/γ<sub>M0</sub> = ' + n(Mpl1, 2) + ' kNm; ankkuri F<sub>t,Rd</sub> = 0,9f<sub>ub</sub>A<sub>s</sub>/γ<sub>M2</sub> = ' + n(Ft1b, 1) + ' kN'].concat(ttxt, [
+      'Pilarin uuma vedossa F<sub>t,wc,Rd</sub> = ' + n(Fwc, 1) + ' kN → F<sub>T,Rd</sub> = <b>' + n(FtRd, 1) + ' kN</b>']));
 
-    // 4. Voimat ja momenttikestävyys
-    var zt = h / 2 + ex, zc = (h - tf) / 2, z = zt + zc, Ft = 0, Fc = 0, Fcl = 0, mode, f = [];
+    // 4. Voimat
+    var zt = h / 2 + ex, zc = (h - tf) / 2, z = zt + zc, Ft = 0, Fc = 0, mode, f = [];
     var FtA = (M - N * zc / 1000) / (z / 1000), FcA = (M + N * zt / 1000) / (z / 1000);
     if (FtA > 0 && FcA >= 0) { mode = 'Toinen puoli vedetty, toinen puristettu'; Ft = FtA; Fc = FcA;
-      f.push('F<sub>t</sub> = (M − N z<sub>c</sub>)/z = (' + n(M, 1) + ' − ' + n(N, 0) + ' · ' + n(zc / 1000, 4) + ') / ' + n(z / 1000, 4) + ' = <b>' + n(Ft, 1) + ' kN</b>');
-      f.push('F<sub>c</sub> = (M + N z<sub>t</sub>)/z = (' + n(M, 1) + ' + ' + n(N, 0) + ' · ' + n(zt / 1000, 4) + ') / ' + n(z / 1000, 4) + ' = <b>' + n(Fc, 1) + ' kN</b>'); }
-    else if (FtA <= 0) { mode = 'Molemmat laipat puristettuja'; Fc = N / 2 + M / (2 * zc / 1000); Fcl = N / 2 - M / (2 * zc / 1000);
-      f.push('F<sub>c,r</sub> = N/2 + M/(2z<sub>c</sub>) = <b>' + n(Fc, 1) + ' kN</b>, F<sub>c,l</sub> = N/2 − M/(2z<sub>c</sub>) = ' + n(Fcl, 1) + ' kN'); }
+      f.push('F<sub>t</sub> = (M − Nz<sub>c</sub>)/z = <b>' + n(Ft, 1) + ' kN</b>, F<sub>c</sub> = (M + Nz<sub>t</sub>)/z = <b>' + n(Fc, 1) + ' kN</b>'); }
+    else if (FtA <= 0) { mode = 'Molemmat laipat puristettuja'; Fc = N / 2 + M / (2 * zc / 1000);
+      f.push('F<sub>c,r</sub> = N/2 + M/(2z<sub>c</sub>) = <b>' + n(Fc, 1) + ' kN</b>, F<sub>c,l</sub> = N/2 − M/(2z<sub>c</sub>) = ' + n(N / 2 - M / (2 * zc / 1000), 1) + ' kN'); }
     else { mode = 'Molemmat puolet vedettyjä'; Ft = -N / 2 + M / (2 * zt / 1000);
-      f.push('F<sub>t,l</sub> = −N/2 + M/(2z<sub>t</sub>) = <b>' + n(Ft, 1) + ' kN</b>, F<sub>t,r</sub> = −N/2 − M/(2z<sub>t</sub>) = ' + n(-N / 2 - M / (2 * zt / 1000), 1) + ' kN'); }
+      f.push('F<sub>t,l</sub> = −N/2 + M/(2z<sub>t</sub>) = <b>' + n(Ft, 1) + ' kN</b>'); }
     var MA = Math.min(FtRd * z / 1000 + N * zc / 1000, FcRd * z / 1000 - N * zt / 1000), MB = (FcRd - N / 2) * 2 * zc / 1000;
     var MRd = (N > 0 && MB <= N * zc / 1000) ? MB : MA;
-    S.push(['Voimat liitoksessa: ' + mode.toLowerCase(),
-      'Vipuvarret pilarin akselista: z<sub>t</sub> = h/2 + e<sub>x</sub> = ' + n(zt, 0) + ' mm, z<sub>c</sub> = (h − t<sub>f</sub>)/2 = ' + n(zc, 1) + ' mm, z = ' + n(z, 1) + ' mm'].concat(f, [
-      (MRd === MB ? 'Momenttikestävyys tällä N:llä (molemmat puristettuja): M<sub>j,Rd</sub> = (F<sub>C,Rd</sub> − N/2) · 2z<sub>c</sub>' : 'Momenttikestävyys tällä N:llä: M<sub>j,Rd</sub> = min(F<sub>T,Rd</sub>z + Nz<sub>c</sub>; F<sub>C,Rd</sub>z − Nz<sub>t</sub>)') + ' = <b>' + n(Math.max(MRd, 0), 1) + ' kNm</b> <span class="c">(taulukko 6.7)</span>']));
+    S.push(['Voimat (komponenttimenetelmä): ' + mode.toLowerCase(),
+      'z<sub>t</sub> = h/2 + e<sub>x</sub> = ' + n(zt, 0) + ' mm, z<sub>c</sub> = (h − t<sub>f</sub>)/2 = ' + n(zc, 1) + ' mm, z = ' + n(z, 1) + ' mm'].concat(f, [
+      'M<sub>j,Rd</sub> (tällä N:llä, taulukko 6.7) = <b>' + n(Math.max(MRd, 0), 1) + ' kNm</b>']));
     if (Ft > 0) chk('Vetopuoli (T-osa, ankkurit)', Ft, FtRd);
     chk('Puristuspuoli (laipan T-osa)', Fc, FcRd);
-    if (N > 0) chk('Keskeinen puristus N/N<sub>c,Rd</sub>', N, NcRd);
+    if (N > 0) chk('Keskeinen puristus', N, NcRd);
 
     // 5. Leikkaus
     var Ff = N > 0 ? 0.2 * N : 0, abc = 0.44 - 0.0003 * bc.fyb, F1v = bc.av * bc.fub * bo.As / G.M2 / 1000, F2v = abc * bc.fub * bo.As / G.M2 / 1000;
     var Fvb = Math.min(F1v, F2v), FvRd = Ff + 4 * Fvb;
-    var fvb = Math.max(0, V - Ff) / 4, ftb = Ft / 2, inter = fvb / Fvb + ftb / (1.4 * Ft1b);
     chk('Leikkaus (kitka + ankkurit)', V, FvRd);
-    if (V > Ff && Ft > 0) chk('Ankkuri: leikkaus + veto', inter, 1, '');
     S.push(['Leikkauskestävyys (6.2.2)',
-      'Kitka: F<sub>f,Rd</sub> = C<sub>f,d</sub>N<sub>c,Ed</sub> = 0,2 · ' + n(Math.max(N, 0), 0) + ' = ' + n(Ff, 1) + ' kN',
-      'F<sub>1,vb,Rd</sub> = α<sub>v</sub>f<sub>ub</sub>A<sub>s</sub>/γ<sub>M2</sub> = ' + n(F1v, 1) + ' kN, α<sub>bc</sub> = 0,44 − 0,0003f<sub>yb</sub> = ' + n(abc, 3) + ' → F<sub>2,vb,Rd</sub> = ' + n(F2v, 1) + ' kN',
-      'F<sub>v,Rd</sub> = F<sub>f,Rd</sub> + n F<sub>vb,Rd</sub> = ' + n(Ff, 1) + ' + 4 · ' + n(Fvb, 1) + ' = <b>' + n(FvRd, 1) + ' kN</b>',
-      Ft > 0 && V > Ff ? 'Vedetty ankkuri: F<sub>v,Ed</sub>/F<sub>v,Rd</sub> + F<sub>t,Ed</sub>/(1,4F<sub>t,Rd</sub>) = ' + n(fvb, 1) + '/' + n(Fvb, 1) + ' + ' + n(ftb, 1) + '/(1,4 · ' + n(Ft1b, 1) + ') = <b>' + n(inter, 3) + '</b>' : 'Leikkaus siirtyy kitkalla tai vetoa ei ole → yhteisvaikutusta ei tarkisteta']);
+      'F<sub>f,Rd</sub> = 0,2N<sub>c,Ed</sub> = ' + n(Ff, 1) + ' kN, F<sub>vb,Rd</sub> = min(α<sub>v</sub>f<sub>ub</sub>A<sub>s</sub>/γ<sub>M2</sub>; α<sub>bc</sub>f<sub>ub</sub>A<sub>s</sub>/γ<sub>M2</sub>) = min(' + n(F1v, 1) + '; ' + n(F2v, 1) + ') = ' + n(Fvb, 1) + ' kN',
+      'F<sub>v,Rd</sub> = F<sub>f,Rd</sub> + 4F<sub>vb,Rd</sub> = <b>' + n(FvRd, 1) + ' kN</b>']);
 
     // 6. Hitsit
     var mw = mc.fu / mc.bw <= mp.fu / mp.bw ? mc : mp, fwd = mw.fu / (mw.bw * G.M2);
     var Lf = 2 * b - tw, Fwf = Lf * cs.af * fwd / rt2 / 1000, Lw = 2 * (h - 2 * tf - 2 * P.r), Fww = Lw * cs.aw * fwd / rt3 / 1000;
     if (Ft > 0) chk('Laippahitsi (veto)', Ft, Fwf);
     chk('Uumahitsit (leikkaus)', V, Fww);
-    S.push(['Pilarin hitsit pohjalevyyn (' + mw.label + ', f<sub>u</sub>/(β<sub>w</sub>γ<sub>M2</sub>) = ' + n(fwd, 1) + ' N/mm²)',
-      'Laippa: L = 2b − t<sub>w</sub> = ' + n(Lf, 0) + ' mm, poikittainen (√2): F<sub>w,Rd</sub> = L a<sub>f</sub> f<sub>vw</sub>/√2 = ' + n(Lf, 0) + ' · ' + n(+cs.af, 1) + ' · ' + n(fwd, 1) + ' / √2 = <b>' + n(Fwf, 1) + ' kN</b>',
-      'Uuma: L = 2(h − 2t<sub>f</sub> − 2r) = ' + n(Lw, 0) + ' mm, pitkittäinen (√3): V<sub>w,Rd</sub> = ' + n(Lw, 0) + ' · ' + n(+cs.aw, 1) + ' · ' + n(fwd, 1) + ' / √3 = <b>' + n(Fww, 1) + ' kN</b>']);
+    S.push(['Pilarin hitsit pohjalevyyn',
+      'Laippa: F<sub>w,Rd</sub> = (2b − t<sub>w</sub>)a<sub>f</sub> · f<sub>u</sub>/(√2β<sub>w</sub>γ<sub>M2</sub>) = ' + n(Lf, 0) + ' · ' + n(+cs.af, 1) + ' · ' + n(fwd / rt2, 1) + ' = <b>' + n(Fwf, 1) + ' kN</b>',
+      'Uuma: V<sub>w,Rd</sub> = 2(h − 2t<sub>f</sub> − 2r)a<sub>w</sub> · f<sub>u</sub>/(√3β<sub>w</sub>γ<sub>M2</sub>) = ' + n(Lw, 0) + ' · ' + n(+cs.aw, 1) + ' · ' + n(fwd / rt3, 1) + ' = <b>' + n(Fww, 1) + ' kN</b>']);
 
-    // 7. Geometria
-    var g = [
-      'l<sub>p</sub> ≥ h + 2e<sub>x</sub> + 2 · 1,2d<sub>0</sub> = ' + n(h + 2 * ex + 2.4 * d0, 0) + ' mm ' + L.ok((h + 2 * ex + 2.4 * d0) / lp),
-      'e = (b<sub>p</sub> − w)/2 = ' + n(e, 0) + ' mm ≥ 1,2d<sub>0</sub> = ' + n(1.2 * d0, 1) + ' mm ' + L.ok(1.2 * d0 / e) + ', w = ' + n(w, 0) + ' ≥ 2,4d<sub>0</sub> = ' + n(2.4 * d0, 1) + ' ' + L.ok(2.4 * d0 / w),
-      'm = ' + n(mx, 1) + ' mm &gt; 0 ' + L.ok(mx > 0 ? 0.5 : 2) + ', b<sub>p</sub> ≥ b = ' + n(b, 0) + ' mm ' + L.ok(b / bp)];
-    S.unshift(['Geometria'].concat(g));
-    if (exT < 1.2 * d0 || e < 1.2 * d0 || w < 2.4 * d0 || mx <= 0 || bp < b) W.push('Geometria ei täytä reunaetäisyys- tai mittaehtoja.');
+    // 7. Kiertymisjäykkyys (6.3)
+    var cs_ = 1.25 * tp, bS = tf + Math.max(0, Math.min(cs_, ox)) + Math.min(cs_, (h - 2 * tf) / 2), lS = b + 2 * Math.max(0, Math.min(cs_, oy));
+    var k13 = Ec * Math.sqrt(bS * lS) / (1.275 * E), k15 = (noPry ? 0.425 : 0.85) * l1 * Math.pow(tp, 3) / Math.pow(mx, 3), k16 = (noPry ? 2.0 : 1.6) * bo.As / Lb;
+    var kt = 1 / (1 / k15 + 1 / k16), kc = k13, sm, th, w0, mtxt;
+    var Nn = N * 1000, Mm = M * 1e6;
+    function solve2(a11, a12, a21, a22, b1_, b2_) { var dt = a11 * a22 - a12 * a21; return [(b1_ * a22 - a12 * b2_) / dt, (a11 * b2_ - a21 * b1_) / dt]; }
+    var sol = solve2(-E * (kc + kt), E * (kc * zc - kt * zt), E * (kt * zt - kc * zc), E * (kt * zt * zt + kc * zc * zc), Nn, Mm);
+    w0 = sol[0]; th = sol[1]; mtxt = 'vasen veto (k<sub>t</sub>), oikea puristus (k<sub>c</sub>)';
+    if (w0 + th * zt <= 0) { w0 = -Nn / (2 * E * kc); th = Mm / (2 * E * kc * zc * zc); mtxt = 'molemmat puolet puristettuja (k<sub>c</sub>)'; }
+    else if (w0 - th * zc >= 0) { w0 = -Nn / (2 * E * kt); th = Mm / (2 * E * kt * zt * zt); mtxt = 'molemmat puolet vedettyjä (k<sub>t</sub>)'; }
+    var Sj0 = E * z * z / (1 / kt + 1 / kc) / 1e9, Sj = M > 0 ? Mm / th / 1e9 : Sj0; // MNm/rad
+    var EIL = E * P.Iy / (cs.Lc * 1000) / 1e9; // MNm/rad
+    var Ncr0 = PI * PI * E * P.Iy / Math.pow(cs.Lc * 1000, 2) / 1000, lam0 = Math.sqrt(P.A * mc.fy / 1000 / Ncr0);
+    function classify(Sjx) {
+      if (Sjx <= 0.5 * EIL) return ['NIVELELLINEN', 'p', 'S<sub>j</sub> ≤ 0,5EI<sub>c</sub>/L<sub>c</sub> = ' + n(0.5 * EIL, 1) + ' MNm/rad (analogia 5.2.2.5(1))'];
+      if (cs.frame === 'u') return Sjx >= 30 * EIL ? ['JÄYKKÄ', 'r', 'S<sub>j</sub> ≥ 30EI<sub>c</sub>/L<sub>c</sub> = ' + n(30 * EIL, 1) + ' MNm/rad'] : ['PUOLIJÄYKKÄ', 's', 'S<sub>j</sub> &lt; 30EI<sub>c</sub>/L<sub>c</sub> = ' + n(30 * EIL, 1) + ' MNm/rad'];
+      if (lam0 <= 0.5) return ['JÄYKKÄ', 'r', 'λ̄<sub>0</sub> = ' + n(lam0, 2) + ' ≤ 0,5'];
+      var req = lam0 < 3.93 ? 7 * (2 * lam0 - 1) * EIL : 48 * EIL;
+      return Sjx >= req ? ['JÄYKKÄ', 'r', 'S<sub>j</sub> ≥ ' + (lam0 < 3.93 ? '7(2λ̄<sub>0</sub> − 1)' : '48') + 'EI<sub>c</sub>/L<sub>c</sub> = ' + n(req, 1) + ' MNm/rad'] : ['PUOLIJÄYKKÄ', 's', 'S<sub>j</sub> &lt; ' + n(req, 1) + ' MNm/rad (λ̄<sub>0</sub> = ' + n(lam0, 2) + ')'];
+    }
+    var clC = classify(Sj);
+    S.push(['Kiertymisjäykkyys S<sub>j,ini</sub> (6.3, taulukot 6.11 ja 6.12)',
+      'Puristus: c = 1,25t<sub>p</sub> = ' + n(cs_, 1) + ' mm, b<sub>eff</sub> × l<sub>eff</sub> = ' + n(bS, 1) + ' × ' + n(lS, 1) + ' mm → k<sub>13</sub> = E<sub>c</sub>√(b<sub>eff</sub>l<sub>eff</sub>)/(1,275E) = <b>' + n(k13, 2) + ' mm</b>',
+      'Veto: k<sub>15</sub> = ' + (noPry ? '0,425' : '0,85') + 'l<sub>eff</sub>t<sub>p</sub>³/m³ = ' + n(k15, 2) + ' mm, k<sub>16</sub> = ' + (noPry ? '2,0' : '1,6') + 'A<sub>s</sub>/L<sub>b</sub> = ' + n(k16, 3) + ' mm → k<sub>t</sub> = 1/(1/k<sub>15</sub> + 1/k<sub>16</sub>) = <b>' + n(kt, 3) + ' mm</b>',
+      'Puhdas taivutus: S<sub>j,ini</sub> = Ez²/(1/k<sub>t</sub> + 1/k<sub>c</sub>) = 210000 · ' + n(z, 1) + '² / (' + n(1 / kt, 3) + ' + ' + n(1 / kc, 3) + ') = ' + n(Sj0, 2) + ' MNm/rad',
+      'N:n ja M:n kanssa (jousimalli, ' + mtxt + '): θ = ' + n(th * 1000, 4) + ' mrad → S<sub>j,ini</sub> = M/θ = <b>' + n(Sj, 2) + ' MNm/rad</b>' + (M > 0 ? '' : ' <span class="c">(M = 0 → puhtaan taivutuksen arvo)</span>'),
+      'EI<sub>c</sub>/L<sub>c</sub> = ' + n(EIL, 2) + ' MNm/rad (' + P.name + ', L<sub>c</sub> = ' + n(+cs.Lc, 2) + ' m, ' + (cs.frame === 'u' ? 'sivusiirtyvä' : 'sivusiirtymätön, λ̄<sub>0</sub> = ' + n(lam0, 2)) + ') → <span class="cls ' + clC[1] + '">' + clC[0] + '</span> ' + clC[2]]);
+
+    // 8. FEM
+    var ks = Ec / (1.275 * Math.sqrt(lp * bp)), kb = E * bo.As / Lb, F = runFEM(cs, P, ks, kb, mp), femOK = !F.error;
+    var SjF = null, clF = null, Fbmax = 0;
+    if (femOK) {
+      Fbmax = Math.max.apply(null, F.bolts.map(function (x) { return x.F; })) / 1000;
+      chk('FEM: pohjalevyn von Mises', F.vcmax, mp.fy / G.M0, 'MPa');
+      if (Fbmax > 0) chk('FEM: suurin ankkurivoima', Fbmax, Ft1b);
+      chk('FEM: kosketuspaine p<sub>max</sub>', F.pmax, fjd, 'MPa');
+      if (M > 0 && F.th > 0) { SjF = Mm / F.th / 1e9; clF = classify(SjF); }
+    } else W.push('FEM: ' + F.error);
 
     var umax = Math.max.apply(null, C.map(function (x) { return x[3]; })), gov = C.filter(function (x) { return x[3] === umax; })[0];
-    return { S: S, C: C, W: W, umax: umax, gov: gov ? gov[0] : '', P: P, c: c, cO: cO, cI: cI, cY: cY, mode: mode, Ft: Ft, Fc: Fc, mx: mx };
+    return { S: S, C: C, W: W, umax: umax, gov: gov ? gov[0] : '', P: P, c: c, cO: cO, cI: cI, cY: cY, mode: mode, Ft: Ft, Fc: Fc, F: F, femOK: femOK, ks: ks, kb: kb, Lb: Lb,
+      Sj: Sj, Sj0: Sj0, SjF: SjF, clC: clC, clF: clF, EIL: EIL, fjd: fjd, fy: mp.fy, Ft1b: Ft1b, Fbmax: Fbmax, k13: k13, kt: kt, tp: tp, mp: mp };
   }
 
-  function bind() {
-    var cs = cases[cur];
-    FIELDS.forEach(function (k) { var el = $(k); if (el) el.value = cs[k]; });
-    $('curname').textContent = cs.name;
-  }
+  function bind() { var cs = cases[cur]; FIELDS.forEach(function (k) { var el = $(k); if (el) el.value = cs[k]; }); $('curname').textContent = cs.name; }
+
   function render() {
     var R = cases.map(calc), r = R[cur], cs = cases[cur];
-    $('list').innerHTML = '<thead><tr><th>Tunnus</th><th class="l">Pilari</th><th class="l">Pohjalevy</th><th class="l">Ankkurit</th><th>N [kN]</th><th>M [kNm]</th><th>V [kN]</th><th class="l">Käyttöaste</th><th class="l">Mitoittava</th></tr></thead><tbody>' +
-      cases.map(function (c, i) { var x = R[i]; return '<tr class="pick' + (i === cur ? ' cur' : '') + '" data-i="' + i + '"><td>' + c.name + '</td><td class="l">' + c.prof + '</td><td class="l">' + c.lp + '×' + c.bp + '×' + c.tp + '</td><td class="l">4×' + c.bs + ' ' + c.bc + '</td><td>' + n(+c.N, 0) + '</td><td>' + n(+c.M, 1) + '</td><td>' + n(+c.V, 0) + '</td><td class="l"><div style="display:flex;gap:8px;align-items:center">' + L.bar(x.umax) + '<span>' + n(x.umax * 100, 0) + ' %</span> ' + L.ok(x.umax <= 1 && !x.W.length ? x.umax : 2) + '</div></td><td class="l">' + x.gov + '</td></tr>'; }).join('') + '</tbody>';
+    $('list').innerHTML = '<thead><tr><th>Tunnus</th><th class="l">Pilari</th><th class="l">Pohjalevy</th><th class="l">Ankkurit</th><th>N [kN]</th><th>M [kNm]</th><th>V [kN]</th><th>σ<sub>vM</sub> FEM</th><th>S<sub>j,ini</sub> [MNm/rad]</th><th class="l">Käyttöaste</th><th class="l">Mitoittava</th></tr></thead><tbody>' +
+      cases.map(function (c, i) { var x = R[i]; return '<tr class="pick' + (i === cur ? ' cur' : '') + '" data-i="' + i + '"><td>' + c.name + '</td><td class="l">' + c.prof + '</td><td class="l">' + c.lp + '×' + c.bp + '×' + c.tp + '</td><td class="l">4×' + c.bs + ' ' + c.bc + '</td><td>' + n(+c.N, 0) + '</td><td>' + n(+c.M, 1) + '</td><td>' + n(+c.V, 0) + '</td><td>' + (x.femOK ? n(x.F.vcmax, 0) : '–') + '</td><td>' + n(x.Sj, 1) + ' <span class="cls ' + x.clC[1] + '">' + x.clC[0] + '</span></td><td class="l"><div style="display:flex;gap:8px;align-items:center">' + L.bar(x.umax) + '<span>' + n(x.umax * 100, 0) + ' %</span> ' + L.ok(x.umax <= 1 && !x.W.length ? x.umax : 2) + '</div></td><td class="l">' + x.gov + '</td></tr>'; }).join('') + '</tbody>';
     $('list').querySelectorAll('tr.pick').forEach(function (tr) { tr.onclick = function () { cur = +tr.dataset.i; bind(); render(); }; });
     $('umax').textContent = n(r.umax * 100, 0);
     var vd = $('verdict'); vd.className = 'verdict ' + (r.umax <= 1 && !r.W.length ? 'ok' : 'nok');
     vd.innerHTML = cs.name + ': ' + r.mode + '. Mitoittava: ' + r.gov + ' ' + L.ok(r.umax) + (r.W.length ? '<br>' + r.W.map(function (w) { return '<b class="warn">!</b> ' + w; }).join('<br>') : '');
     $('chk').innerHTML = '<thead><tr><th>Tarkistus</th><th>Ed</th><th>Rd</th><th class="l">Käyttöaste</th></tr></thead><tbody>' +
-      r.C.map(function (x) { return '<tr' + (x[3] === r.umax ? ' class="cur"' : '') + '><td>' + x[0] + '</td><td>' + n(x[1], x[4] ? 1 : 3) + '</td><td>' + n(x[2], x[4] ? 1 : 2) + '</td><td class="l"><div style="display:flex;gap:8px;align-items:center">' + L.bar(x[3]) + '<span>' + n(x[3] * 100, 0) + ' %</span></div></td></tr>'; }).join('') + '</tbody>';
+      r.C.map(function (x) { return '<tr' + (x[3] === r.umax ? ' class="cur"' : '') + '><td>' + x[0] + '</td><td>' + n(x[1], 1) + ' ' + x[4] + '</td><td>' + n(x[2], 1) + ' ' + x[4] + '</td><td class="l"><div style="display:flex;gap:8px;align-items:center">' + L.bar(x[3]) + '<span>' + n(x[3] * 100, 0) + ' %</span></div></td></tr>'; }).join('') + '</tbody>';
+    $('stiff').innerHTML = [
+      ['S<sub>j,ini</sub> komponenttimenetelmä', n(r.Sj, 2) + ' MNm/rad', '<span class="cls ' + r.clC[1] + '">' + r.clC[0] + '</span>'],
+      ['S<sub>j</sub> FEM (sekantti M/θ)', r.SjF !== null ? n(r.SjF, 2) + ' MNm/rad' : '– (M = 0)', r.clF ? '<span class="cls ' + r.clF[1] + '">' + r.clF[0] + '</span>' : ''],
+      ['EI<sub>c</sub>/L<sub>c</sub>', n(r.EIL, 2) + ' MNm/rad', cs.frame === 'u' ? 'jäykkä ≥ ' + n(30 * r.EIL, 1) : 'sivusiirtymätön'],
+      ['Jousivakiot', 'k<sub>13</sub> = ' + n(r.k13, 1) + ' mm', 'k<sub>t</sub> = ' + n(r.kt, 2) + ' mm']
+    ].map(function (a) { return '<div>' + a[0] + '<b>' + a[1] + '</b>' + a[2] + '</div>'; }).join('');
     $('steps').innerHTML = L.steps(r.S);
-    fig(cs, r);
+    fig(cs, r); femView(cs, r);
     save();
   }
 
@@ -230,18 +314,11 @@
     var X = function (x) { return cx + x * s; }, Y = function (y) { return cy - y * s; };
     var o = '<svg viewBox="0 0 ' + Wd + ' ' + Ht + '" font-family="Arial,Helvetica,sans-serif">';
     o += '<rect x="' + X(-lp / 2) + '" y="' + Y(bp / 2) + '" width="' + lp * s + '" height="' + bp * s + '" fill="#2a2a2a" stroke="#9a9a9a"/>';
-    // puristettu alue (oikea laippa)
-    var h = P.h, b = P.b, tf = P.tf, tw = P.tw;
-    var xc0 = h / 2 - tf - r.cI, xc1 = h / 2 + r.cO;
+    var h = P.h, b = P.b, tf = P.tf, tw = P.tw, xc0 = h / 2 - tf - r.cI, xc1 = h / 2 + r.cO;
     o += '<rect x="' + X(xc0) + '" y="' + Y(b / 2 + r.cY) + '" width="' + (xc1 - xc0) * s + '" height="' + (b + 2 * r.cY) * s + '" fill="#F74902" fill-opacity=".3" stroke="#F74902" stroke-dasharray="4 3"/>';
-    // profiili
-    o += '<rect x="' + X(-h / 2) + '" y="' + Y(b / 2) + '" width="' + tf * s + '" height="' + b * s + '" fill="#bdbdbd"/>';
-    o += '<rect x="' + X(h / 2 - tf) + '" y="' + Y(b / 2) + '" width="' + tf * s + '" height="' + b * s + '" fill="#bdbdbd"/>';
-    o += '<rect x="' + X(-h / 2 + tf) + '" y="' + Y(tw / 2) + '" width="' + (h - 2 * tf) * s + '" height="' + Math.max(1, tw * s) + '" fill="#bdbdbd"/>';
-    // ankkurit
+    o += profile(X, Y, P, s, '#bdbdbd');
     var d0 = L.BOLTS[cs.bs].d0;
     [-1, 1].forEach(function (sx) { [-1, 1].forEach(function (sy) { o += '<circle cx="' + X(sx * (h / 2 + ex)) + '" cy="' + Y(sy * w / 2) + '" r="' + Math.max(3, d0 / 2 * s) + '" fill="' + (sx < 0 && r.Ft > 0 ? '#F74902' : '#f4f4f4') + '" stroke="#111"/>'; }); });
-    // mitat
     o += '<text x="' + cx + '" y="' + (Y(-bp / 2) + 18) + '" fill="#f4f4f4" font-size="11" text-anchor="middle">l<tspan font-size="8" dy="2">p</tspan><tspan dy="-2"> = ' + lp + ' mm</tspan></text>';
     o += '<text x="' + (X(lp / 2) + 6) + '" y="' + cy + '" fill="#f4f4f4" font-size="11" transform="rotate(90 ' + (X(lp / 2) + 6) + ' ' + cy + ')" text-anchor="middle">b<tspan font-size="8" dy="2">p</tspan><tspan dy="-2"> = ' + bp + ' mm</tspan></text>';
     o += '<text x="' + X(-lp / 2) + '" y="' + (Y(bp / 2) - 10) + '" fill="#9a9a9a" font-size="11">' + (r.Ft > 0 ? 'VETO (ankkurit)' : '') + '</text>';
@@ -249,9 +326,66 @@
     o += '<text x="12" y="' + (Ht - 10) + '" fill="#9a9a9a" font-size="10.5">Tasokuva · ' + P.name + ', M kiertää vahvemman akselin ympäri</text>';
     $('fig').innerHTML = o + '</svg>';
   }
+  function profile(X, Y, P, s, fill, op) {
+    var h = P.h, b = P.b, tf = P.tf, tw = P.tw, a = op ? ' fill-opacity="' + op + '"' : '';
+    return '<rect x="' + X(-h / 2) + '" y="' + Y(b / 2) + '" width="' + tf * s + '" height="' + b * s + '" fill="' + fill + '"' + a + '/>' +
+      '<rect x="' + X(h / 2 - tf) + '" y="' + Y(b / 2) + '" width="' + tf * s + '" height="' + b * s + '" fill="' + fill + '"' + a + '/>' +
+      '<rect x="' + X(-h / 2 + tf) + '" y="' + Y(tw / 2) + '" width="' + (h - 2 * tf) * s + '" height="' + Math.max(1, tw * s) + '" fill="' + fill + '"' + a + '/>';
+  }
+  function cmap(t) { t = Math.max(0, Math.min(1, t)); var st = [[30, 50, 110], [40, 140, 200], [90, 200, 120], [250, 210, 60], [247, 73, 2], [200, 20, 20]], k = t * 5, i = Math.min(4, Math.floor(k)), f = k - i;
+    return 'rgb(' + [0, 1, 2].map(function (j) { return Math.round(st[i][j] + (st[i + 1][j] - st[i][j]) * f); }).join(',') + ')'; }
 
-  FIELDS.forEach(function (k) { var el = $(k); if (!el) return; var h = function () { cases[cur][k] = el.type === 'number' ? (el.value === '' ? 0 : +el.value) : el.value; if (k === 'name') $('curname').textContent = el.value; render(); }; el.addEventListener('input', h); el.addEventListener('change', h); });
-  $('add').onclick = function () { var nm = 'PL' + (cases.length + 1); cases.push(Object.assign({}, DEF, { name: nm })); cur = cases.length - 1; bind(); render(); };
+  function femView(cs, r) {
+    var F = r.F;
+    if (!r.femOK) { $('femfig').innerHTML = '<p class="hint">' + F.error + '</p>'; return; }
+    var P = r.P, lp = +cs.lp, bp = +cs.bp, Wd = 560, Ht = 400, s = Math.min(480 / lp, 300 / bp), cx = Wd / 2 - 20, cy = 190;
+    var X = function (x) { return cx + x * s; }, Y = function (y) { return cy - y * s; };
+    var val, vmax, unit, title;
+    if (field === 'vm') { val = function (e) { return e.foot ? null : e.vmc; }; vmax = r.fy; unit = 'N/mm²'; title = 'von Mises σ (levyn pinta, elementin keskipiste), asteikko 0 … f<tspan font-size="8" dy="2">y</tspan><tspan dy="-2"> = ' + r.fy + ' N/mm²</tspan>'; }
+    else if (field === 'p') { val = function (e) { return e.p; }; vmax = Math.max(F.pmax, 1e-6); unit = 'N/mm²'; title = 'Kosketuspaine p (f<tspan font-size="8" dy="2">jd</tspan><tspan dy="-2"> = ' + n(r.fjd, 1) + ' N/mm²)</tspan>'; }
+    else { val = function (e) { return e.w; }; vmax = Math.max(Math.abs(F.wmin), Math.abs(F.wmax), 1e-9); unit = 'mm'; title = 'Pystysiirtymä w (+ ylös, − alas)'; }
+    var o = '<svg viewBox="0 0 ' + Wd + ' ' + Ht + '" font-family="Arial,Helvetica,sans-serif">';
+    F.el.forEach(function (e) { var v = val(e), col;
+      if (v === null) col = '#3a3a3a';
+      else if (field === 'w') { var t = v / vmax; col = t >= 0 ? 'rgb(' + Math.round(235 - 5 * t) + ',' + Math.round(235 - 175 * t) + ',' + Math.round(235 - 195 * t) + ')' : 'rgb(' + Math.round(235 + 195 * t) + ',' + Math.round(235 + 125 * t) + ',' + Math.round(235 + 5 * t) + ')'; }
+      else col = (field === 'p' && v <= 0) ? '#1a1a1a' : cmap(v / vmax);
+      o += '<rect x="' + X(e.x0).toFixed(2) + '" y="' + Y(e.y1).toFixed(2) + '" width="' + ((e.x1 - e.x0) * s + 0.4).toFixed(2) + '" height="' + ((e.y1 - e.y0) * s + 0.4).toFixed(2) + '" fill="' + col + '"/>'; });
+    o += '<rect x="' + X(-lp / 2) + '" y="' + Y(bp / 2) + '" width="' + lp * s + '" height="' + bp * s + '" fill="none" stroke="#9a9a9a"/>';
+    o += profile(X, Y, P, s, '#f4f4f4', 0.18);
+    var mx = r.F.at; if (field === 'vm' && mx) o += '<rect x="' + X(mx.x0) + '" y="' + Y(mx.y1) + '" width="' + (mx.x1 - mx.x0) * s + '" height="' + (mx.y1 - mx.y0) * s + '" fill="none" stroke="#fff" stroke-width="2"/>';
+    F.bolts.forEach(function (bb) { o += '<circle cx="' + X(bb.x) + '" cy="' + Y(bb.y) + '" r="5" fill="' + (bb.F > 0 ? '#F74902' : '#111') + '" stroke="#f4f4f4" stroke-width="1.5"/><text x="' + (X(bb.x) + 8) + '" y="' + (Y(bb.y) - 7) + '" fill="#f4f4f4" font-size="11" font-weight="700">' + n(bb.F / 1000, 1) + ' kN</text>'; });
+    // väripalkki
+    var gx = Wd - 30, gy = 30, gh = 300;
+    for (var i = 0; i <= 60; i++) { var t = 1 - i / 60, cc = field === 'w' ? (function (tt) { tt = 2 * tt - 1; return tt >= 0 ? 'rgb(' + Math.round(235 - 5 * tt) + ',' + Math.round(235 - 175 * tt) + ',' + Math.round(235 - 195 * tt) + ')' : 'rgb(' + Math.round(235 + 195 * tt) + ',' + Math.round(235 + 125 * tt) + ',' + Math.round(235 + 5 * tt) + ')'; })(t) : cmap(t);
+      o += '<rect x="' + gx + '" y="' + (gy + i * gh / 60) + '" width="14" height="' + (gh / 60 + 0.5) + '" fill="' + cc + '"/>'; }
+    var top = field === 'w' ? '+' + n(vmax, 3) : n(vmax, 1), bot = field === 'w' ? '−' + n(vmax, 3) : '0';
+    o += '<text x="' + (gx - 4) + '" y="' + (gy + 9) + '" fill="#9a9a9a" font-size="10.5" text-anchor="end">' + top + '</text><text x="' + (gx - 4) + '" y="' + (gy + gh) + '" fill="#9a9a9a" font-size="10.5" text-anchor="end">' + bot + '</text><text x="' + (gx + 7) + '" y="' + (gy + gh + 16) + '" fill="#9a9a9a" font-size="10.5" text-anchor="middle">' + unit + '</text>';
+    o += '<text x="12" y="' + (Ht - 12) + '" fill="#9a9a9a" font-size="11">' + title + '</text>';
+    $('femfig').innerHTML = o + '</svg>';
+    $('femnote').innerHTML = 'Verkko ' + (F.nx - 1) + ' × ' + (F.ny - 1) + ' = ' + F.ne + ' elementtiä (h ≤ ' + n(F.hmax, 1) + ' mm), ' + F.n + ' vapausastetta, ' + F.it + ' kosketusiteraatiota' + (F.conv ? '' : ' (ei konvergoinut!)') + ', ' + n(F.ms, 0) + ' ms. Valkoinen kehys = suurin von Mises -jännitys. Pilarin jalanjälki (harmaa) on jäykkä.';
+    var tot = F.bolts.reduce(function (s2, b) { return s2 + b.F; }, 0);
+    $('femkv').innerHTML = [['σ<sub>vM,max</sub> (keskipiste)', n(F.vcmax, 0) + ' N/mm²'], ['σ<sub>vM</sub> huippu (Gauss)', n(F.vmax, 0) + ' N/mm²'], ['p<sub>max</sub>', n(F.pmax, 2) + ' N/mm²'], ['Kosketusala', n(F.contactArea / (lp * bp) * 100, 0) + ' %'],
+      ['ΣF<sub>ankkurit</sub>', n(tot / 1000, 1) + ' kN'], ['Kiertymä θ', n(F.th * 1000, 3) + ' mrad'], ['S<sub>j</sub> FEM', r.SjF !== null ? n(r.SjF, 2) + ' MNm/rad' : '–'], ['Tasapaino R<sub>c</sub> − ΣF<sub>b</sub>', n((F.Rc - tot) / 1000, 1) + ' kN']]
+      .map(function (a) { return '<div>' + a[0] + '<b>' + a[1] + '</b></div>'; }).join('');
+    $('boltt').innerHTML = '<thead><tr><th>Ankkuri</th><th>x [mm]</th><th>y [mm]</th><th>F<sub>t,Ed</sub> [kN]</th><th>F<sub>t,Rd</sub> [kN]</th><th class="l">Käyttöaste</th></tr></thead><tbody>' +
+      F.bolts.map(function (bb, i) { var u = bb.F / 1000 / r.Ft1b; return '<tr><td>A' + (i + 1) + '</td><td>' + n(bb.x, 0) + '</td><td>' + n(bb.y, 0) + '</td><td>' + n(bb.F / 1000, 1) + '</td><td>' + n(r.Ft1b, 1) + '</td><td class="l"><div style="display:flex;gap:8px;align-items:center">' + L.bar(u) + '<span>' + n(u * 100, 0) + ' %</span></div></td></tr>'; }).join('') + '</tbody>';
+    var at = F.at;
+    $('femsteps').innerHTML = L.steps([
+      ['Malli', 'Laatta: D = Et<sub>p</sub>³/(12(1 − ν²)) = ' + n(F.D / 1e6, 1) + ' kNm, t<sub>p</sub> = ' + n(r.tp, 0) + ' mm, MITC4-elementit',
+        'Alusta: k<sub>s</sub> = E<sub>c</sub>/(1,275√(l<sub>p</sub>b<sub>p</sub>)) = ' + n(r.ks, 1) + ' N/mm³, vain puristus',
+        'Ankkuri: k<sub>b</sub> = EA<sub>s</sub>/L<sub>b</sub> = 210000 · ' + n(L.BOLTS[cs.bs].As, 0) + ' / ' + n(r.Lb, 0) + ' = ' + n(r.kb / 1000, 1) + ' kN/mm, vain veto'],
+      ['Tulokset', 'Suurin von Mises -jännitys (elementin keskipiste, ulkopuolella jalanjälkeä): <b>' + n(F.vcmax, 1) + ' N/mm²</b>' + (at ? ' kohdassa x = ' + n((at.x0 + at.x1) / 2, 0) + ', y = ' + n((at.y0 + at.y1) / 2, 0) + ' mm (σ<sub>x</sub> = ' + n(at.sx, 0) + ', σ<sub>y</sub> = ' + n(at.sy, 0) + ', τ<sub>xy</sub> = ' + n(at.txy, 0) + ')' : ''),
+        'σ<sub>vM</sub>/(f<sub>y</sub>/γ<sub>M0</sub>) = ' + n(F.vcmax, 1) + '/' + r.fy + ' = <b>' + n(F.vcmax / r.fy, 3) + '</b> ' + L.ok(F.vcmax / r.fy) + (F.vcmax > r.fy ? ' <span class="c">kimmoteoria ylittyy: paikallinen myötö; harkitse paksumpaa levyä tai plastista tarkastelua (EN 1993-1-5 liite C, ε ≤ 5 %)</span>' : ''),
+        'Kosketuspaine p<sub>max</sub> = ' + n(F.pmax, 2) + ' ≤ f<sub>jd</sub> = ' + n(r.fjd, 2) + ' N/mm² ' + L.ok(F.pmax / r.fjd),
+        'Suurin ankkurivoima ' + n(r.Fbmax, 1) + ' ≤ F<sub>t,Rd</sub> = ' + n(r.Ft1b, 1) + ' kN ' + L.ok(r.Fbmax / r.Ft1b),
+        'Kiertymä θ = ' + n(F.th * 1000, 4) + ' mrad, w<sub>0</sub> = ' + n(F.w0, 3) + ' mm' + (r.SjF !== null ? ' → S<sub>j</sub> = M/θ = <b>' + n(r.SjF, 2) + ' MNm/rad</b> (komponenttimenetelmä ' + n(r.Sj, 2) + ', ero ' + n((r.SjF / r.Sj - 1) * 100, 0) + ' %)' : '')]]);
+  }
+
+  var timer = null;
+  function schedule() { clearTimeout(timer); timer = setTimeout(render, 120); }
+  FIELDS.forEach(function (k) { var el = $(k); if (!el) return; var h = function () { cases[cur][k] = el.type === 'number' ? (el.value === '' ? 0 : +el.value) : el.value; if (k === 'name') $('curname').textContent = el.value; schedule(); }; el.addEventListener('input', h); el.addEventListener('change', h); });
+  $('ftabs').querySelectorAll('button').forEach(function (bt) { bt.onclick = function () { field = bt.dataset.f; $('ftabs').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === bt ? 'true' : 'false'); }); femView(cases[cur], calc(cases[cur])); }; });
+  $('add').onclick = function () { cases.push(Object.assign({}, DEF, { name: 'PL' + (cases.length + 1) })); cur = cases.length - 1; bind(); render(); };
   $('dup').onclick = function () { var c = Object.assign({}, cases[cur]); c.name = c.name + ' (kopio)'; cases.splice(cur + 1, 0, c); cur++; bind(); render(); };
   $('del').onclick = function () { if (cases.length < 2) return; cases.splice(cur, 1); cur = Math.max(0, cur - 1); bind(); render(); };
   bind(); render();

@@ -89,8 +89,9 @@ tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:0}
     <label for="cx">Vaativuus<select id="cx"><option value="0.8">Helppo (×0,8)</option><option value="1" selected>Tavanomainen (×1,0)</option><option value="1.3">Vaativa (×1,3)</option><option value="1.6">Poikkeuksellisen vaativa (×1,6)</option></select></label>
     <label for="hpp">Tuntia / henkilö / kk<input type="number" id="hpp" value="140" min="1" step="5"></label>
     <label for="start">Aloituskuukausi<input type="month" id="start"></label>
+    <label for="dtime">Suunnitteluaika [kk]<input type="number" id="dtime" value="16" min="1" step="1"></label>
   </div>
-  <p class="hint">Rakennustyypin valinta asettaa tuntia/brm²-oletuksen, jota voi muuttaa. Kokonaistunnit = bruttoala · tuntia/brm² · vaativuuskerroin.</p>
+  <p class="hint">Rakennustyypin valinta asettaa tuntia/brm²-oletuksen, jota voi muuttaa. Kokonaistunnit = bruttoala · tuntia/brm² · vaativuuskerroin. Suunnitteluaika on hankesuunnittelun alusta toteutussuunnittelun loppuun: sen muuttaminen venyttää tai tiivistää suunnitteluvaiheiden kestot samassa suhteessa ja siirtää rakentamisvaiheet sen mukaan, jolloin S-käyrä muodostuu valitun suunnitteluajan mukaan.</p>
 </section>
 
 <div class="tiles" id="tiles"></div>
@@ -148,6 +149,18 @@ $('type').onchange = () => { $('hpm').value = TYPES[+$('type').value][1]; calc()
 const d = new Date(); d.setMonth(d.getMonth() + 1);
 $('start').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 ['area', 'hpm', 'cx', 'hpp', 'start'].forEach(id => $(id).addEventListener('input', calc));
+// Suunnitteluaika: vaiheet 1–6 (hankesuunnittelu … toteutussuunnittelu) skaalataan, vaiheet 7–10 siirretään
+const DS = 1, DE = 6;
+const designSpan = () => { const s0 = PH[DS][2], e = Math.max(...PH.slice(DS, DE + 1).map(r => r[2] + r[3])); return [s0, e]; };
+const r2 = x => Math.round(x * 2) / 2;
+$('dtime').addEventListener('change', () => {
+  const T = parseFloat($('dtime').value); if (!(T > 0)) return;
+  const [s0, e] = designSpan(), f = T / (e - s0);
+  for (let i = DS; i <= DE; i++) { PH[i][2] = r2(s0 + (PH[i][2] - s0) * f); PH[i][3] = Math.max(0.5, r2(PH[i][3] * f)); }
+  const [, e2] = designSpan(), shift = e2 - e;
+  for (let i = DE + 1; i < PH.length; i++) PH[i][2] = Math.max(0, r2(PH[i][2] + shift));
+  renderPhases(); calc();
+});
 $('cx').onchange = calc;
 $('reset').onclick = () => { PH = DEF.map(r => [...r]); renderPhases(); calc(); };
 
@@ -171,6 +184,7 @@ const monthLabel = k => {
 };
 
 function calc() {
+  { const [s0, e] = designSpan(); if (document.activeElement !== $('dtime')) $('dtime').value = +(e - s0).toFixed(1); }
   const A = Math.max(0, +$('area').value || 0), hpm = Math.max(0, +$('hpm').value || 0), cx = +$('cx').value, hpp = Math.max(1, +$('hpp').value || 140);
   const H = A * hpm * cx;
   const psum = PH.reduce((s, r) => s + r[1], 0);

@@ -28,7 +28,18 @@
   var CLASSES = ['IFCWALL', 'IFCWALLSTANDARDCASE', 'IFCWALLELEMENTEDCASE', 'IFCSLAB', 'IFCSLABSTANDARDCASE', 'IFCSLABELEMENTEDCASE', 'IFCBEAM', 'IFCBEAMSTANDARDCASE',
     'IFCCOLUMN', 'IFCCOLUMNSTANDARDCASE', 'IFCMEMBER', 'IFCMEMBERSTANDARDCASE', 'IFCFOOTING', 'IFCSTAIR', 'IFCSTAIRFLIGHT', 'IFCRAMP', 'IFCRAMPFLIGHT', 'IFCPLATE',
     'IFCPLATESTANDARDCASE', 'IFCBUILDINGELEMENTPROXY', 'IFCCHIMNEY', 'IFCROOF', 'IFCELEMENTASSEMBLY', 'IFCPILE', 'IFCCOVERING'];
-  var CONC = /betoni|concrete|\bC\d{2}\s*\/\s*\d{2}\b|\bK\d{2}\b|precast|elementti|ontelo|hollow\s*core|sandwich/i;
+  var CONC = /betoni|concrete|\bC\d{2}\s*\/\s*\d{2}\b|\bK\d{2}\b|precast|ontelo|hollow\s*core|sandwich|\bbeton/i;
+  var OTHER = /teräs|teras|steel|\bS\d{3}|\bHEA|\bHEB|\bIPE|\bRHS|\bSHS|puu|timber|wood|glulam|liimapuu|\bLVL\b|\bCLT\b|kipsi|gypsum|lasi|glass|alumiini|aluminium|aluminum|tiili|brick|harkko|kahi|leca|kevytbetoni|siporex|aerated|villa|eriste|insulation|eps|xps|muovi|plastic|bitumi|maa|soil|terrain|maasto/i;
+  // betonielementti? materiaali ratkaisee; jos materiaalia ei ole, nimi/tyyppi/kuvaus tai elementtitunnus
+  var NOTPRE = /kevytbetoni|kevyt\s*sora|siporex|aerated|\baac\b|\bleca\b|harkko|kahi|valmisbetoni|paikallavalu|cast.?in.?place|in.?situ/i;
+  function isConcrete(matTxt, txt, codeKnown) {
+    if (NOTPRE.test(matTxt + ' ' + txt)) return false;
+    if (matTxt && CONC.test(matTxt)) return true;
+    if (matTxt && OTHER.test(matTxt)) return false;
+    if (CONC.test(txt)) return true;
+    if (OTHER.test(txt)) return false;
+    return !!codeKnown;
+  }
 
   // ---------- geometria ----------
   function analyse(tris) {
@@ -68,15 +79,8 @@
   }
 
   // ---------- poiminta ----------
-  function units(M) {
-    var u = { vol: 1, mass: 1 }; // m³, kg
-    (M.byType.get('IFCSIUNIT') || []).forEach(function (id) { var a = M.args(id), ty = a[1] && a[1].e, pre = a[2] && a[2].e;
-      var f = { MILLI: 1e-3, CENTI: 1e-2, DECI: 1e-1, KILO: 1e3, MEGA: 1e6 }[pre] || 1;
-      if (ty === 'VOLUMEUNIT') u.vol = Math.pow(f, 3); });
-    // massayksikkö: GRAM ilman etuliitettä = g → 0,001 kg; KILO GRAM = kg
-    (M.byType.get('IFCSIUNIT') || []).forEach(function (id) { var a = M.args(id); if (a[1] && a[1].e === 'MASSUNIT') { var pre = a[2] && a[2].e; u.mass = pre === 'KILO' ? 1 : pre === 'MEGA' ? 1000 : pre === 'MILLI' ? 1e-6 : 0.001; } });
-    (M.byType.get('IFCCONVERSIONBASEDUNIT') || []).forEach(function (id) { var a = M.args(id); if (a[1] && a[1].e === 'MASSUNIT') { var nm = String(a[2] || '').toUpperCase(); if (/TONNE|TON/.test(nm)) u.mass = 1000; } });
-    return u;
+  function units(M) { // projektin yksiköt (IfcProject.UnitsInContext)
+    return { vol: M.unitScale('VOLUMEUNIT') || 1, mass: M.unitScale('MASSUNIT') || 1 }; // m³, kg
   }
   function num(v) { if (typeof v === 'number') return v; if (v === null || v === undefined) return NaN; var s = String(v).replace(',', '.').match(/-?\d+(\.\d+)?(e-?\d+)?/i); return s ? parseFloat(s[0]) : NaN; }
   var WKEY = /(^|[.\s_])(net\s*weight|gross\s*weight|weight|paino|massa|mass)$/i, VKEY = /(^|[.\s_])(net\s*volume|gross\s*volume|volume|tilavuus)$/i;
@@ -109,15 +113,18 @@
       var tag = M.type(id) === 'IFCELEMENTASSEMBLY' || /^IFC(WALL|SLAB|BEAM|COLUMN|MEMBER|PLATE|FOOTING|STAIR|BUILDINGELEMENTPROXY|PILE|CHIMNEY|ROOF|RAMP)/.test(M.type(id)) ? a[7] : '';
       return { a: a, props: props, mats: mats.filter(function (x, i) { return x && mats.indexOf(x) === i; }), tag: tag || '' };
     }
-    var ids = M.ofTypes(CLASSES), seen = new Set();
+    var ids = M.ofTypes(CLASSES), seen = new Set(), skipped = 0;
     ids.forEach(function (id) {
       var r = root(id); if (seen.has(r)) return; seen.add(r);
       var parts = [], stack = [r]; while (stack.length) { var x = stack.pop(); parts.push(x); (kids.get(x) || []).forEach(function (k) { stack.push(k); }); }
+      var I = info(r), a = I.a, mats = I.mats.slice();
+      parts.forEach(function (p) { if (p !== r) info(p).mats.forEach(function (m) { if (mats.indexOf(m) < 0) mats.push(m); }); });
+      var txt0 = [a[2], a[3], a[4], typeName(r), I.tag].join(' ');
+      if (!isConcrete(mats.join(' '), txt0, codeOf({ attr: { 'Tunniste (Tag)': I.tag, 'Nimi': a[2], 'Objektityyppi': a[4] }, props: I.props }).known)) { skipped++; return; }
       var tris = [], partInfo = [];
       parts.forEach(function (pid) { var tt = []; try { tt = M.productTris(pid); } catch (e) { tt = []; } for (var i = 0; i < tt.length; i++) tris.push(tt[i]); if (pid !== r || parts.length === 1) partInfo.push({ id: pid, ifc: M.type(pid), tris: tt }); });
       if (!tris.length) return;
-      var I = info(r), a = I.a, geo = analyse(tris); if (!geo) return;
-      var mats = I.mats.slice(); partInfo.forEach(function (p) { if (p.id !== r) info(p.id).mats.forEach(function (m) { if (mats.indexOf(m) < 0) mats.push(m); }); });
+      var geo = analyse(tris); if (!geo) return;
       // kokoonpanon IFC-luokka: suurimman osan luokka
       var ifc = M.type(r), mainIfc = ifc;
       if (ifc === 'IFCELEMENTASSEMBLY' || kids.has(r)) { var bigV = -1; partInfo.forEach(function (p) { var gg = analyse(p.tris); if (gg && gg.V > bigV && p.ifc !== 'IFCELEMENTASSEMBLY') { bigV = gg.V; mainIfc = p.ifc; } }); }
@@ -136,9 +143,9 @@
       el.lb = (function () { var v = I.props['Pset_WallCommon.LoadBearing'] || I.props['Pset_SlabCommon.LoadBearing'] || I.props['Pset_BeamCommon.LoadBearing'] || I.props['Pset_ColumnCommon.LoadBearing']; return v === 'TRUE' ? true : v === 'FALSE' ? false : null; })();
       el.code = codeOf(el);
       el.autoKind = classify(el); el.kind = 'auto';
-      el.concrete = CONC.test([el.attr['Materiaali'], el.attr['Tyyppi'], el.attr['Nimi'], el.attr['Objektityyppi'], el.attr['Kuvaus']].join(' ')) || !!el.code.known;
       els.push(el); byId.set(r, el);
     });
+    els.skipped = skipped;
     return els;
   }
 
@@ -323,6 +330,8 @@
     } else {
       add('Mitat', 'Mitat', m2(L) + ' × ' + m2(H) + ' × ' + mm(t), 'ei yleistä mittasuositusta', 'ok', '', 'Tälle elementtityypille ei ole elementtisuunnittelu.fi:ssä yleistä enimmäiskokoa – tarkista valmistajalta.');
     }
+    var big = Math.max(el.g.L, el.g.B, el.g.H);
+    if (big > 40) add('Mitat', 'Geometria', 'suurin mitta ' + m2(big), 'tarkista malli', 'warn', '', 'Elementti on poikkeuksellisen suuri. Tarkista mallin pituusyksikkö ja elementin geometria (esim. kokoonpanoon kuuluvat ylimääräiset osat).');
     var st = C.some(function (c) { return c.st === 'bad'; }) ? 'bad' : C.some(function (c) { return c.st === 'warn'; }) ? 'warn' : 'ok';
     return { kind: kind, d: d, w: w, load: load, cap: cap, R: Rr, util: util, checks: C, st: st, stW: stW, stD: C.filter(function (c) { return c.grp === 'Mitat'; }).reduce(function (s, c) { return c.st === 'bad' || s === 'bad' ? 'bad' : c.st === 'warn' || s === 'warn' ? 'warn' : 'ok'; }, 'ok') };
   }

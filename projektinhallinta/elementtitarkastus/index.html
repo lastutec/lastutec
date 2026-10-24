@@ -139,7 +139,7 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto;max-width:170px}
     <label>Tunnus<input type="text" id="val" list="vals" placeholder="tyhjä = kaikki"><datalist id="vals"></datalist></label>
     <label>Kerros<select id="storey"></select></label>
   </div>
-  <label class="chk"><input type="checkbox" id="conc" checked> Vain betonielementit (materiaali, tyyppi tai nimi viittaa betoniin, tai nimessä on elementtitunnus)</label>
+  <p class="hint">Tarkastukseen otetaan vain betonielementit: materiaali viittaa betoniin (esim. Betoni, Concrete, C30/37), tai materiaalia ei ole ja nimi, tyyppi tai elementtitunnus viittaa betonielementtiin. Muut objektit (teräs, puu, eristeet, muuraus, maasto ym.) jätetään huomiotta.</p>
   <p class="hint" id="selinfo"></p>
 </section>
 
@@ -159,9 +159,9 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto;max-width:170px}
   </section>
   <section class="panel a-view">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2>3D-malli</h2>
-      <label class="chk"><input type="checkbox" id="ctx" checked> Näytä muut rakenteet</label></div>
+      <label class="chk"><input type="checkbox" id="ctx" checked> Näytä rajauksen ulkopuoliset elementit</label></div>
     <div class="cv" id="cvw"><canvas id="cv"></canvas><canvas id="ov" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas><div class="vbtns"><button type="button" id="v3d">3D</button><button type="button" id="ztop">Pohja</button><button type="button" id="vfront">Edestä</button><button type="button" id="vside">Sivulta</button><button type="button" id="zfit" title="Sovita koko malli" aria-label="Sovita">⤢</button><button type="button" id="zin" aria-label="Lähennä">+</button><button type="button" id="zout" aria-label="Loitonna">−</button></div><div class="placemsg" id="placemsg" hidden>Napauta nosturin paikka pohjakuvaan · Esc peruu</div></div>
-    <div class="legend"><span><i style="background:#ff5a5a"></i>Korjattava</span><span><i style="background:#f2b84b"></i>Huomio</span><span><i style="background:#3fbf6f"></i>OK</span><span><i style="background:#6b6b6b"></i>Muut rakenteet</span><span id="lgCrane" hidden><i style="background:#F74902;border-radius:50%"></i>Nosturi ja ulottuma</span><span>Vedä: kierrä · oikea painike, Shift tai kaksi sormea: siirrä · rulla tai nipistys: zoomaa · napauta: valitse · kaksoisnapautus: kohdista</span></div>
+    <div class="legend"><span><i style="background:#ff5a5a"></i>Korjattava</span><span><i style="background:#f2b84b"></i>Huomio</span><span><i style="background:#3fbf6f"></i>OK</span><span><i style="background:#6b6b6b"></i>Rajauksen ulkopuolella</span><span id="lgCrane" hidden><i style="background:#F74902;border-radius:50%"></i>Nosturi ja ulottuma</span><span>Vedä: kierrä · oikea painike, Shift tai kaksi sormea: siirrä · rulla tai nipistys: zoomaa · napauta: valitse · kaksoisnapautus: kohdista</span></div>
     <div id="detail"></div>
   </section>
 </div>
@@ -195,11 +195,11 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto;max-width:170px}
       try {
         var t0 = performance.now(); M = new IFCModel(text); var t1 = performance.now();
         EL = E.extract(M); var t2 = performance.now();
-        if (!EL.length) { status(name + ': mallista ei löytynyt rakennusosia, joilla on geometriaa.'); return; }
+        if (!EL.length) { status(name + ': mallista ei löytynyt betonielementtejä (' + (EL.skipped || 0) + ' muuta objektia ohitettiin).'); return; }
         MB = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
         EL.forEach(function (e) { for (var i = 0; i < 3; i++) { MB[i] = Math.min(MB[i], e.g.box[i]); MB[i + 3] = Math.max(MB[i + 3], e.g.box[i + 3]); } });
         $('cx').value = round1((MB[0] + MB[3]) / 2); $('cy').value = round1((MB[1] + MB[4]) / 2);
-        status(name + ': ' + M.ent.size.toLocaleString('fi-FI') + ' entiteettiä, ' + EL.length + ' rakennusosaa, joista ' + EL.filter(function (e) { return e.concrete; }).length + ' betonielementtiä. Luku ' + Math.round(t1 - t0) + ' ms, geometria ' + Math.round(t2 - t1) + ' ms.');
+        status(name + ': ' + M.ent.size.toLocaleString('fi-FI') + ' entiteettiä, ' + EL.length + ' betonielementtiä, ' + EL.skipped + ' muuta objektia ohitettu. Pituusyksikkö ' + ({ 1: 'm', 0.001: 'mm', 0.01: 'cm' }[M.scale] || M.scale + ' m') + '. Luku ' + Math.round(t1 - t0) + ' ms, geometria ' + Math.round(t2 - t1) + ' ms.');
         setupFilters(); $('setpanel').hidden = false; $('main').hidden = false; cur = null; fit(); run();
       } catch (e) { console.error(e); status('Virhe: ' + e.message); }
     }, 30);
@@ -221,14 +221,12 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto;max-width:170px}
     $('field').innerHTML = opts.map(function (o) { return '<option value="' + esc(o[0]) + '">' + esc(o[1]) + '</option>'; }).join('');
     $('storey').innerHTML = '<option value="">Kaikki kerrokset</option>' + M.relations().storeys.map(function (s) { return '<option>' + esc(s.name) + '</option>'; }).join('');
     $('val').value = ''; $('field').value = '*'; fillVals();
-    if (!EL.some(function (e) { return e.concrete; })) $('conc').checked = false;
   }
   function fillVals() { var f = $('field').value, s = {}; EL.forEach(function (w) { (f === '*' ? [w.attr['Nimi'], w.attr['Tyyppi'], w.attr['Materiaali']] : [w.attr[f]]).forEach(function (v) { if (v) s[v] = 1; }); });
     $('vals').innerHTML = Object.keys(s).sort().slice(0, 300).map(function (v) { return '<option value="' + esc(v) + '">'; }).join(''); }
   function match(w) {
     var f = $('field').value, op = $('op').value, q = $('val').value.trim(), st = $('storey').value;
     if (st && w.storey !== st) return false;
-    if ($('conc').checked && !w.concrete) return false;
     if (!q) return true;
     var vals = f === '*' ? Object.keys(w.attr).map(function (k) { return w.attr[k]; }) : [w.attr[f] || ''];
     if (op === 'r') { var re; try { re = new RegExp(q, 'i'); } catch (e) { return false; } return vals.some(function (v) { return re.test(v); }); }
@@ -250,7 +248,7 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto;max-width:170px}
     var n = { ok: 0, warn: 0, bad: 0 }, mx = null; SEL.forEach(function (w) { var r = RES.get(w); n[r.st]++; if (!mx || r.w.t > RES.get(mx).w.t) mx = w; });
     $('kN').textContent = SEL.length; $('kOk').textContent = n.ok; $('kWarn').textContent = n.warn; $('kBad').textContent = n.bad;
     $('kMax').textContent = mx ? fmt(RES.get(mx).w.t, 1) + ' t' : '–'; $('kMaxN').textContent = mx ? mx.name : '';
-    $('selinfo').innerHTML = 'Valittu <b>' + SEL.length + '</b> / ' + EL.length + ' rakennusosaa.' + (SEL.length ? '' : ' Tarkista tunnus tai poista rajaus ”Vain betonielementit”.');
+    $('selinfo').innerHTML = 'Valittu <b>' + SEL.length + '</b> / ' + EL.length + ' betonielementtiä.' + (SEL.length ? '' : ' Tarkista tunnus.');
     if (O.mode === 'chart' && !O.chart.length) $('selinfo').innerHTML += ' <span style="color:var(--bad)">Kuormituskäyrä puuttuu tai on virheellinen.</span>';
     if (cur && SEL.indexOf(cur) < 0) cur = null;
     dirty = true; table(); detail(); draw();
@@ -507,7 +505,7 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto;max-width:170px}
     var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = (fileName.replace(/\.ifc$/i, '') || 'elementit') + '_elementtitarkastus.csv'; a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
   };
 
-  ['mode', 'cap', 'rig', 'rho', 'warnU', 'chart', 'cx', 'cy', 'field', 'op', 'val', 'conc'].forEach(function (id) { var h = function () { if (!EL.length) return; if (id === 'field') fillVals(); run(); }; $(id).addEventListener('input', h); $(id).addEventListener('change', h); });
+  ['mode', 'cap', 'rig', 'rho', 'warnU', 'chart', 'cx', 'cy', 'field', 'op', 'val'].forEach(function (id) { var h = function () { if (!EL.length) return; if (id === 'field') fillVals(); run(); }; $(id).addEventListener('input', h); $(id).addEventListener('change', h); });
   $('mode').addEventListener('change', function () { if (EL.length && this.value === 'chart') { var c = C0.slice(), z = zoom; fit(); var t = { C: C0.slice(), zoom: 0.75 }; C0 = c; zoom = z; animateTo(t); } });
   $('storey').addEventListener('change', function () { fit(); run(); });
   window.addEventListener('resize', resize);

@@ -59,12 +59,32 @@
   };
   Model.prototype.ref = function (v) { return v && typeof v === 'object' && v.r ? v.r : null; };
   Model.prototype.ofTypes = function (list) { var o = [], self = this; list.forEach(function (t) { var l = self.byType.get(t); if (l) o = o.concat(l); }); return o; };
-  Model.prototype.lengthScale = function () {
-    var self = this, sc = null;
-    (this.byType.get('IFCSIUNIT') || []).forEach(function (id) { var a = self.args(id); if (a[1] && a[1].e === 'LENGTHUNIT' && sc === null) { var pre = a[2] && a[2].e; sc = { MILLI: 0.001, CENTI: 0.01, DECI: 0.1, KILO: 1000 }[pre] || 1; } });
-    (this.byType.get('IFCCONVERSIONBASEDUNIT') || []).forEach(function (id) { var a = self.args(id); if (a[1] && a[1].e === 'LENGTHUNIT') { var nm = (a[2] || '').toUpperCase(); sc = nm.indexOf('FOOT') >= 0 ? 0.3048 : nm.indexOf('INCH') >= 0 ? 0.0254 : sc; } });
-    return sc || 1;
+  // Projektin yksiköt (IfcProject.UnitsInContext). Tiedostossa voi olla muitakin yksiköitä, esim. georeferoinnin
+  // karttayksikkö (IfcProjectedCRS.MapUnit = metri), joten ensimmäistä löytyvää yksikköä ei voi käyttää.
+  Model.prototype.projectUnits = function () {
+    if (this._units) return this._units;
+    var self = this, ids = [];
+    (this.byType.get('IFCPROJECT') || []).forEach(function (pid) { var ua = self.ref(self.args(pid)[8]); if (ua && self.type(ua) === 'IFCUNITASSIGNMENT') (self.args(ua)[0] || []).forEach(function (r) { if (r && r.r) ids.push(r.r); }); });
+    if (!ids.length) ids = (this.byType.get('IFCSIUNIT') || []).concat(this.byType.get('IFCCONVERSIONBASEDUNIT') || []);
+    this._units = ids; return ids;
   };
+  Model.prototype.unitScale = function (kind) { // SI-yksikön kerroin (pituus → m, tilavuus → m³, massa → kg); null jos ei määritelty
+    var self = this, sc = null, PRE = { EXA: 1e18, PETA: 1e15, TERA: 1e12, GIGA: 1e9, MEGA: 1e6, KILO: 1e3, HECTO: 1e2, DECA: 10, DECI: 0.1, CENTI: 0.01, MILLI: 1e-3, MICRO: 1e-6, NANO: 1e-9 };
+    this.projectUnits().forEach(function (id) {
+      if (sc !== null) return; var t = self.type(id), a = self.args(id); if (!a) return;
+      if (t === 'IFCSIUNIT' && a[1] && a[1].e === kind) {
+        var f = (a[2] && PRE[a[2].e]) || 1;
+        sc = kind === 'VOLUMEUNIT' ? Math.pow(f, 3) : kind === 'AREAUNIT' ? f * f : kind === 'MASSUNIT' ? f / 1000 : f; // massa: GRAM-perusyksikkö → kg
+      } else if (t === 'IFCCONVERSIONBASEDUNIT' && a[1] && a[1].e === kind) {
+        var mu = self.args(self.ref(a[3])), v = mu && mu[0], nm = String(a[2] || '').toUpperCase(), base = mu ? self.ref(mu[1]) : null;
+        var vv = v && typeof v === 'object' && 'v' in v ? v.v : v;
+        if (typeof vv === 'number' && base) { var bt = self.type(base), ba = self.args(base), bf = bt === 'IFCSIUNIT' ? ((ba[2] && PRE[ba[2].e]) || 1) : 1; sc = vv * (kind === 'VOLUMEUNIT' ? Math.pow(bf, 3) : kind === 'MASSUNIT' ? bf / 1000 : bf); }
+        else if (kind === 'LENGTHUNIT') sc = nm.indexOf('FOOT') >= 0 ? 0.3048 : nm.indexOf('INCH') >= 0 ? 0.0254 : null;
+      }
+    });
+    return sc;
+  };
+  Model.prototype.lengthScale = function () { return this.unitScale('LENGTHUNIT') || 1; };
   // ---- matriisit (4×4, sarakevektorit, taulukko riveittäin 12 alkiota: R|t) ----
   function I() { return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0]; }
   function mul(A, B) { var C = new Array(12); for (var r = 0; r < 3; r++) { for (var c = 0; c < 3; c++) C[r * 4 + c] = A[r * 4] * B[c] + A[r * 4 + 1] * B[4 + c] + A[r * 4 + 2] * B[8 + c]; C[r * 4 + 3] = A[r * 4] * B[3] + A[r * 4 + 1] * B[7] + A[r * 4 + 2] * B[11] + A[r * 4 + 3]; } return C; }

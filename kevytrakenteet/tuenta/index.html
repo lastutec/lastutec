@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Muuratun seinän tuentatarve – Lastutec</title>
+<meta name="description" content="Ei-kantavien muurattujen Kahi-väliseinien tuentatarpeen arviointi IFC-mallista Weberin Kahi-rakenteiden suunnitteluohjeen (4-33) kapasiteettikäyrien mukaan.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<script src="ifc.js"></script>
+<script src="tuenta.js"></script>
+<style>
+:root{--bg:#000;--paper:#141414;--ink:#f4f4f4;--muted:#9a9a9a;--line:#2e2e2e;--accent:#F74902;--accent-soft:#3b1503;--ok:#3fbf6f;--bad:#ff5a5a;--warn:#f2b84b;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1400px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:800;margin:0}
+h3{font-size:14px;margin:0}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.btn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:7px 12px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:disabled{opacity:.4;cursor:default}
+.intro{margin:0;max-width:95ch;color:var(--muted)}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:10px 12px}
+label{display:flex;flex-direction:column;justify-content:space-between;font-size:13px;color:var(--muted);min-width:0}
+label.chk{flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;color:var(--ink)}
+label.chk input{width:auto;margin:0;accent-color:var(--accent)}
+select,input{display:block;margin-top:3px;font-family:var(--body);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input[type=number],input[type=text]{background:#2a1206}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.sec{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);padding-bottom:4px;border-bottom:1px solid var(--line)}
+.drop{border:2px dashed var(--line);border-radius:6px;padding:18px;text-align:center;color:var(--muted);cursor:pointer}
+.drop.over{border-color:var(--accent);color:var(--ink)}
+.drop b{color:var(--ink)}
+.status{font-size:13px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start}
+.a-view{position:sticky;top:12px}
+@media (max-width:1000px){.layout{grid-template-columns:minmax(0,1fr)}.a-view{position:static;order:-1}}
+.kpis{display:flex;gap:10px;flex-wrap:wrap}
+.kpi{flex:1 1 120px;border-radius:6px;padding:10px 12px;border:1px solid var(--line);background:var(--bg)}
+.kpi span{display:block;font-size:12px;color:var(--muted)}
+.kpi b{font-size:28px;line-height:1.1}
+.kpi.ok b{color:var(--ok)} .kpi.bad b{color:var(--bad)}
+.tablewrap{overflow:auto;max-height:620px;border:1px solid var(--line);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{position:sticky;top:0;background:#1b1b1b;color:var(--muted);font-weight:600;font-size:12px;z-index:1}
+th.l,td.l{text-align:left}
+td.nm{max-width:220px;overflow:hidden;text-overflow:ellipsis}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:#1c1c1c}
+tbody tr.cur td{background:var(--accent-soft)}
+td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-weight:700;font-size:12px}
+.badge.ok{background:#173d26;color:var(--ok)} .badge.bad{background:#46171a;color:var(--bad)}
+.cv{position:relative;width:100%;border:1px solid var(--line);border-radius:4px;background:#0a0a0a;overflow:hidden}
+.cv canvas{display:block;width:100%;height:560px;touch-action:none;cursor:grab}
+@media (max-width:1000px){.cv canvas{height:420px}}
+.vbtns{position:absolute;right:8px;top:8px;display:flex;gap:6px}
+.vbtns button{font:600 14px var(--body);min-width:32px;height:32px;border-radius:4px;border:1px solid var(--line);background:#141414cc;color:var(--ink);cursor:pointer;padding:0 8px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.detail .math{font-size:13.5px;display:flex;flex-direction:column;gap:3px}
+.chart svg{width:100%;height:auto;display:block;background:#0a0a0a;border:1px solid var(--line);border-radius:4px}
+.foot{font-size:12.5px;color:var(--muted);margin:0;max-width:110ch}
+.empty{color:var(--muted);font-size:14px;padding:30px;text-align:center}
+@media print{:root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;color-scheme:light}.btn,.vbtns,.drop{display:none!important}.a-view{position:static}.tablewrap{max-height:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Kevytrakenteet</a><h1>Muuratun seinän tuentatarve</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 2 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="btn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="intro">Tuo IFC-malli, valitse tunnuksella muuratut ei-kantavat väliseinät, ja ohjelma hakee niiden mitat ja tuennat mallista. Sen jälkeen ohjelma tarkastaa seinät Weberin <i>Kahi-rakenteiden suunnitteluohjeen</i> (4-33, 15.9.2026, luku 3.5, kuvat 1–4) kapasiteettikäyrillä.</p>
+<p class="intro">Tulokset näkyvät mallissa väreinä:</p>
+<ul class="intro">
+  <li><b style="color:var(--ok)">vihreä</b> = OK</li>
+  <li><b style="color:var(--bad)">punainen</b> = seinä tarvitsee tuentaa</li>
+</ul>
+<p class="intro">Malli käsitellään vain selaimessasi eikä sitä lähetetä minnekään.</p>
+
+<section class="panel">
+  <div class="sec">1. IFC-malli</div>
+  <label class="drop" id="drop" for="file"><span><b>Valitse IFC-tiedosto</b> tai pudota se tähän (IFC2x3, IFC4, IFC4.3)</span><input type="file" id="file" accept=".ifc" style="display:none"></label>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button type="button" class="btn ghost" id="demo">Lataa esimerkkimalli</button><span class="status" id="status">Ei mallia.</span></div>
+</section>
+
+<section class="panel" id="selpanel" hidden>
+  <div class="sec">2. Muurattujen seinien valinta ja asetukset</div>
+  <div class="inputs">
+    <label>Tunnuskenttä<select id="field"></select></label>
+    <label>Ehto<select id="op"><option value="c">sisältää</option><option value="e">on täsmälleen</option><option value="s">alkaa</option><option value="r">säännöllinen lauseke</option></select></label>
+    <label>Tunnus<input type="text" id="val" list="vals" placeholder="esim. Kahi"><datalist id="vals"></datalist></label>
+    <label>Kerros<select id="storey"></select></label>
+  </div>
+  <label class="chk"><input type="checkbox" id="nonlb" checked> Vain ei-kantavat seinät (ohitetaan, jos Pset_WallCommon.LoadBearing = TRUE)</label>
+  <div class="inputs">
+    <label>Seinätyyppi<select id="prod"><option value="auto">Automaattinen (”tiili” nimessä → tiili)</option><option value="harkko">Kahi-harkko</option><option value="tiili">Kahi-tiili</option></select></label>
+    <label>Raudoitus (oletus)<select id="reinf"><option value="no">Raudoittamaton</option><option value="yes">Raudoitettu vaakasaumoista</option></select></label>
+    <label>Sivutuen tunnistusetäisyys <span class="meta">[mm]</span><input type="number" id="sideTol" value="50" min="0" step="10"></label>
+    <label>Yläpään suurin rako laattaan/palkkiin <span class="meta">[mm]</span><input type="number" id="topTol" value="100" min="0" step="10"></label>
+  </div>
+  <label class="chk"><input type="checkbox" id="fire"> Paloseinät: tarkista lisäksi H ≤ 40 · t</label>
+  <p class="hint" id="selinfo"></p>
+</section>
+
+<div class="layout" id="main" hidden>
+  <section class="panel">
+    <div class="kpis"><div class="kpi"><span>Muurattuja seiniä</span><b id="kN">0</b></div><div class="kpi ok"><span>OK</span><b id="kOk">0</b></div><div class="kpi bad"><span>Tarvitsee tuentaa</span><b id="kBad">0</b></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2>Seinät</h2><button type="button" class="btn ghost" id="csv">Lataa CSV</button></div>
+    <div class="tablewrap"><table id="tbl"></table></div>
+    <p class="hint">Tuennan ja raudoituksen voi muuttaa seinäkohtaisesti. Auto = tunnistettu mallista: sivutuki = seinän päässä on toinen seinä tai pilari, yläpään tuki = välipohja, yläpohja tai palkki on enintään asetetun raon päässä seinän yläpinnasta.</p>
+  </section>
+  <section class="panel a-view">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2>3D-malli</h2>
+      <label class="chk"><input type="checkbox" id="ctx" checked> Näytä muut rakenteet</label></div>
+    <div class="cv"><canvas id="cv"></canvas><canvas id="ov" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas><div class="vbtns"><button type="button" id="zin" aria-label="Lähennä">+</button><button type="button" id="zout" aria-label="Loitonna">−</button><button type="button" id="zfit" aria-label="Sovita">⟲</button><button type="button" id="ztop">Pohja</button></div></div>
+    <div class="legend"><span><i style="background:#3fbf6f"></i>OK</span><span><i style="background:#ff5a5a"></i>Tarvitsee tuentaa</span><span><i style="background:#6b6b6b"></i>Muut rakenteet</span><span>Vedä: kierrä · Shift/oikea painike: siirrä · rulla/nipistys: zoomaa · napauta seinää: valitse</span></div>
+    <div class="detail" id="detail"></div>
+  </section>
+</div>
+
+<p class="foot">Kapasiteettikäyrät on digitoitu Weberin Kahi-rakenteiden suunnitteluohjeen (4-33, 15.9.2026) kuvista 1–4. Ne koskevat ei-kantavia 85 ja 130 mm Kahi-harkko- ja -tiiliseiniä, jotka on mitoitettu vaakakuormalle q<sub>d</sub> = 0,32 kN/m² (SFS-EN 1996-1-1, liite F). Paksummat seinät tarkistetaan lähimmän ohuemman käyrän mukaan, joten tulos on varmalla puolella. Alle 80 mm seinille ei ole käyrää. Muilla kuormilla, aukollisilla seinillä ja onnettomuuskuormilla tukivälit on laskettava kohdekohtaisesti, ja myös työnaikainen kaatuminen on estettävä.</p>
+<p class="foot">Tuentojen tunnistus perustuu geometriaan:</p>
+<ul class="foot">
+  <li>Seinän pituus L, korkeus H ja paksuus t lasketaan seinän geometriasta pienimmän ympäröivän suorakaiteen avulla.</li>
+  <li>Samansuuntaista jatkuvaa seinää ei lasketa sivutueksi.</li>
+</ul>
+<p class="foot">Tarkista aina tunnistetut tuennat. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var T = window.Tuenta, M = null, EL = [], WALLS = [], SEL = [], RES = new Map(), cur = null, fileName = '';
+  var fmt = function (x, d) { return isFinite(x) ? x.toLocaleString('fi-FI', { minimumFractionDigits: d, maximumFractionDigits: d }) : '∞'; };
+  var CASEOPT = [['auto', 'Auto'], ['blue', '4 reunaa'], ['green', 'Ylä + ala + 1 sivu'], ['red', 'Ala + 2 sivua'], ['tb', 'Ylä + ala'], ['free', 'Vapaa']];
+
+  // ---- tiedoston luku ----
+  function status(t) { $('status').textContent = t; }
+  function load(text, name) {
+    fileName = name; status('Luetaan ' + name + ' …');
+    setTimeout(function () {
+      try {
+        var t0 = performance.now(); M = new IFCModel(text); var t1 = performance.now();
+        EL = T.extract(M); var t2 = performance.now();
+        WALLS = EL.filter(function (e) { return e.kind === 'wall'; });
+        WALLS.forEach(function (w) { w.sup = 'auto'; w.reinf = 'auto'; });
+        status(name + ': ' + M.ent.size.toLocaleString('fi-FI') + ' entiteettiä, ' + WALLS.length + ' seinää, ' + EL.filter(function (e) { return e.kind === 'top'; }).length + ' laattaa/palkkia, ' + EL.filter(function (e) { return e.kind === 'side'; }).length + ' pilaria. Luku ' + Math.round(t1 - t0) + ' ms, geometria ' + Math.round(t2 - t1) + ' ms.');
+        if (!WALLS.length) { status(name + ': mallista ei löytynyt seiniä (IfcWall).'); return; }
+        setupFilters(); $('selpanel').hidden = false; $('main').hidden = false; cur = null; fit(); run();
+      } catch (e) { console.error(e); status('Virhe: ' + e.message); }
+    }, 30);
+  }
+  $('file').addEventListener('change', function () { var f = this.files[0]; if (!f) return; var r = new FileReader(); r.onload = function () { load(r.result, f.name); }; r.readAsText(f); });
+  var dz = $('drop');
+  ['dragover', 'dragenter'].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add('over'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove('over'); }); });
+  dz.addEventListener('drop', function (e) { var f = e.dataTransfer.files[0]; if (!f) return; var r = new FileReader(); r.onload = function () { load(r.result, f.name); }; r.readAsText(f); });
+  $('demo').onclick = function () { status('Ladataan esimerkkimallia …'); fetch('esimerkki.ifc').then(function (r) { return r.text(); }).then(function (t) { load(t, 'esimerkki.ifc'); }).catch(function (e) { status('Esimerkin lataus epäonnistui: ' + e.message); }); };
+
+  // ---- valinta ----
+  var BASE = ['Materiaali', 'Tyyppi', 'Nimi', 'Objektityyppi', 'Tunniste (Tag)', 'Kuvaus', 'Kerros'];
+  function setupFilters() {
+    var keys = {}; WALLS.forEach(function (w) { Object.keys(w.attr).forEach(function (k) { if (BASE.indexOf(k) < 0 && w.attr[k] !== '') keys[k] = 1; }); });
+    var opts = [['*', 'Kaikki kentät']].concat(BASE.map(function (k) { return [k, k]; }), Object.keys(keys).sort().map(function (k) { return [k, k]; }));
+    $('field').innerHTML = opts.map(function (o) { return '<option value="' + esc(o[0]) + '">' + esc(o[1]) + '</option>'; }).join('');
+    var st = M.relations().storeys; $('storey').innerHTML = '<option value="">Kaikki kerrokset</option>' + st.map(function (s) { return '<option>' + esc(s.name) + '</option>'; }).join('');
+    // ehdotus tunnukseksi
+    var all = WALLS.map(function (w) { return Object.keys(w.attr).map(function (k) { return w.attr[k]; }).join(' '); }).join(' ').toLowerCase(), sug = '';
+    ['kahi', 'harkko', 'tiili', 'muur', 'masonry', 'brick'].some(function (k) { if (all.indexOf(k) >= 0) { sug = k; return true; } return false; });
+    $('val').value = sug; $('field').value = '*'; fillVals();
+  }
+  function fillVals() { var f = $('field').value, s = {}; WALLS.forEach(function (w) { (f === '*' ? [w.attr['Materiaali'], w.attr['Tyyppi'], w.attr['Nimi']] : [w.attr[f]]).forEach(function (v) { if (v) s[v] = 1; }); });
+    $('vals').innerHTML = Object.keys(s).sort().slice(0, 300).map(function (v) { return '<option value="' + esc(v) + '">'; }).join(''); }
+  function match(w) {
+    var f = $('field').value, op = $('op').value, q = $('val').value.trim(), st = $('storey').value;
+    if (st && w.storey !== st) return false;
+    if ($('nonlb').checked && w.loadBearing === true) return false;
+    if (!q) return true;
+    var vals = f === '*' ? Object.keys(w.attr).map(function (k) { return w.attr[k]; }) : [w.attr[f] || ''];
+    if (op === 'r') { var re; try { re = new RegExp(q, 'i'); } catch (e) { return false; } return vals.some(function (v) { return re.test(v); }); }
+    var ql = q.toLowerCase();
+    return vals.some(function (v) { v = String(v).toLowerCase(); return op === 'c' ? v.indexOf(ql) >= 0 : op === 'e' ? v === ql : v.indexOf(ql) === 0; });
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  // ---- laskenta ----
+  function opts() { return { sideTol: Math.max(0, +$('sideTol').value || 0) / 1000, topTol: Math.max(0, +$('topTol').value || 0) / 1000, prod: $('prod').value, reinf: $('reinf').value === 'yes', fire: $('fire').checked }; }
+  var lastTol = null;
+  function run() {
+    var o = opts(), key = o.sideTol + '|' + o.topTol;
+    if (key !== lastTol) { WALLS.forEach(function (w) { w.supports = T.detectSupports(w, EL, o); }); lastTol = key; }
+    SEL = WALLS.filter(match); RES = new Map();
+    SEL.forEach(function (w) { RES.set(w, T.check(w, o)); });
+    var nOk = SEL.filter(function (w) { return RES.get(w).ok; }).length;
+    $('kN').textContent = SEL.length; $('kOk').textContent = nOk; $('kBad').textContent = SEL.length - nOk;
+    $('selinfo').innerHTML = 'Valittu <b>' + SEL.length + '</b> / ' + WALLS.length + ' seinää.' + (SEL.length ? '' : ' Tarkista tunnus. Mallin tyyppejä: ' + esc(uniq(WALLS.map(function (w) { return w.attr['Tyyppi'] || w.attr['Materiaali']; })).slice(0, 12).join(' · ')));
+    if (cur && SEL.indexOf(cur) < 0) cur = null;
+    dirty = true; table(); detail(); draw();
+  }
+  function uniq(a) { return a.filter(function (x, i) { return x && a.indexOf(x) === i; }); }
+  function table() {
+    var rows = SEL.slice().sort(function (a, b) { var ra = RES.get(a), rb = RES.get(b); return (ra.ok - rb.ok) || (a.storey > b.storey ? 1 : a.storey < b.storey ? -1 : 0) || (a.name > b.name ? 1 : -1); });
+    $('tbl').innerHTML = '<thead><tr><th class="l">Seinä</th><th class="l">Kerros</th><th>L [m]</th><th>H [m]</th><th>t [mm]</th><th class="l">Tuenta</th><th class="l">Raud.</th><th class="l">Käyrä</th><th>L<sub>max</sub> [m]</th><th class="l">Tulos</th></tr></thead><tbody>' +
+      rows.map(function (w) { var r = RES.get(w), auto = T.autoCase(w.supports);
+        return '<tr data-id="' + w.id + '"' + (w === cur ? ' class="cur"' : '') + '><td class="l nm" title="' + esc(w.name) + '">' + esc(w.name) + '</td><td class="l">' + esc(w.storey) + '</td><td>' + fmt(r.L, 2) + '</td><td>' + fmt(r.H, 2) + '</td><td>' + fmt(r.t, 0) + '</td>' +
+          '<td class="l"><select data-k="sup">' + CASEOPT.map(function (c) { return '<option value="' + c[0] + '"' + (w.sup === c[0] ? ' selected' : '') + '>' + (c[0] === 'auto' ? 'Auto: ' + T.CASES[auto].short : c[1]) + '</option>'; }).join('') + '</select></td>' +
+          '<td class="l"><select data-k="reinf"><option value="auto"' + (w.reinf === 'auto' ? ' selected' : '') + '>Oletus</option><option value="yes"' + (w.reinf === 'yes' ? ' selected' : '') + '>Kyllä</option><option value="no"' + (w.reinf === 'no' ? ' selected' : '') + '>Ei</option></select></td>' +
+          '<td class="l">' + (r.key ? (r.prod === 'tiili' ? 'Tiili ' : 'Harkko ') + r.key : '–') + '</td><td>' + (r.Lmax === null ? '–' : fmt(r.Lmax, 2)) + '</td><td class="l"><span class="badge ' + (r.ok ? 'ok' : 'bad') + '">' + (r.ok ? 'OK' : 'TUETTAVA') + '</span></td></tr>'; }).join('') + '</tbody>';
+    $('tbl').querySelectorAll('tbody tr').forEach(function (tr) {
+      var w = WALLS.filter(function (x) { return x.id === +tr.dataset.id; })[0];
+      tr.addEventListener('click', function (e) { if (e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION') return; cur = w; focusWall(w); dirty = true; table(); detail(); draw(); });
+      tr.querySelectorAll('select').forEach(function (s) { s.addEventListener('change', function () { w[s.dataset.k] = s.value; cur = w; run(); }); });
+    });
+  }
+  function detail() {
+    var w = cur, d = $('detail'); if (!w) { d.innerHTML = '<p class="hint">Valitse seinä taulukosta tai mallista nähdäksesi laskennan ja kapasiteettikäyrän.</p>'; return; }
+    var r = RES.get(w), s = w.supports, C = r.curve, cs = T.CASES[r.cs];
+    var lines = [
+      '<b>' + esc(w.name) + '</b> · ' + esc(w.ifc) + ' #' + w.id + (w.guid ? ' · ' + esc(w.guid) : ''),
+      'Mitat mallista: L = ' + fmt(r.L, 2) + ' m, H = ' + fmt(r.H, 2) + ' m, t = ' + fmt(r.t, 0) + ' mm · ' + esc(w.attr['Materiaali'] || w.attr['Tyyppi'] || ''),
+      'Tunnistettu tuenta: alku ' + (s.e1 ? '✓ ' + esc(s.e1.name) : '✗ vapaa') + ' · loppu ' + (s.e2 ? '✓ ' + esc(s.e2.name) : '✗ vapaa') + ' · yläpää ' + (s.top ? '✓ ' + esc(s.topBy || '') : '✗ vapaa') + ' (' + Math.round(s.topFrac * 100) + ' % pituudesta)',
+      'Tuentatapa: <b>' + cs.name + '</b>' + (w.sup !== 'auto' ? ' (käsin valittu)' : '') + (C ? ' · ' + C.fig + ': ' + C.name + (r.reinf ? ', raudoitettu ' + C.reinf : ', raudoittamaton') : ''),
+      r.Lmax === null ? 'L<sub>max</sub>: –' : 'L<sub>max</sub>(H = ' + fmt(r.H, 2) + ' m) = <b>' + fmt(r.Lmax, 2) + ' m</b> → L = ' + fmt(r.L, 2) + ' m ' + (r.ok ? '≤' : '&gt;') + ' L<sub>max</sub>',
+      '<span class="badge ' + (r.ok ? 'ok' : 'bad') + '">' + (r.ok ? 'OK – ei lisätuentaa' : 'TARVITSEE TUENTAA') + '</span>' + (r.ok ? '' : ' Ratkaisuja: lisää sivutuki (esim. teräspilari tai poikittainen seinä) tukivälin lyhentämiseksi, tue yläpää, raudoita vaakasaumat tai kasvata seinäpaksuutta.')
+    ].concat(r.notes.map(function (n) { return '<span class="meta">' + esc(n) + '</span>'; }));
+    d.innerHTML = '<div class="sec">Valittu seinä</div><div class="math">' + lines.map(function (l) { return '<span>' + l + '</span>'; }).join('') + '</div>' + (C ? '<div class="chart">' + chart(C, r) + '</div>' : '');
+  }
+  function chart(C, r) {
+    var W = 560, Hh = 370, ml = 40, mr = 14, mt = 26, mb = 34, Hm = C.Hmax, sx = (W - ml - mr) / 20, sy = (Hh - mt - mb) / Hm;
+    var X = function (L) { return ml + Math.min(L, 20) * sx; }, Y = function (H) { return Hh - mb - Math.min(H, Hm) * sy; };
+    var o = '<svg viewBox="0 0 ' + W + ' ' + Hh + '" font-family="Arial,Helvetica,sans-serif">';
+    for (var L = 0; L <= 20; L += 1) o += '<line x1="' + X(L) + '" y1="' + Y(0) + '" x2="' + X(L) + '" y2="' + Y(Hm) + '" stroke="' + (L % 2 ? '#1c1c1c' : '#2a2a2a') + '"/>' + (L % 2 ? '' : '<text x="' + X(L) + '" y="' + (Hh - mb + 14) + '" fill="#9a9a9a" font-size="10.5" text-anchor="middle">' + L + '</text>');
+    for (var H = 0; H <= Hm; H += 1) o += '<line x1="' + X(0) + '" y1="' + Y(H) + '" x2="' + X(20) + '" y2="' + Y(H) + '" stroke="#2a2a2a"/><text x="' + (ml - 6) + '" y="' + (Y(H) + 4) + '" fill="#9a9a9a" font-size="10.5" text-anchor="end">' + H + '</text>';
+    o += '<text x="' + (W / 2) + '" y="' + (Hh - 4) + '" fill="#9a9a9a" font-size="11" text-anchor="middle">L (m) – tukiväli</text><text x="8" y="14" fill="#9a9a9a" font-size="11">H (m)</text>';
+    ['red', 'blue', 'green'].forEach(function (k) {
+      var col = T.CASES[k].col, act = k === r.cs, w = act ? 3 : 1.4, op = act ? 1 : 0.45;
+      o += '<polyline points="' + C.u[k].map(function (p) { return X(p[0]) + ',' + Y(p[1]); }).join(' ') + '" fill="none" stroke="' + col + '" stroke-width="' + w + '" opacity="' + op + '"/>';
+      o += '<polyline points="' + C.r[k].map(function (p) { return X(p[0]) + ',' + Y(p[1]); }).join(' ') + '" fill="none" stroke="' + col + '" stroke-width="' + w + '" stroke-dasharray="7 5" opacity="' + op + '"/>';
+    });
+    var pc = r.ok ? '#3fbf6f' : '#ff5a5a';
+    o += '<circle cx="' + X(r.L) + '" cy="' + Y(r.H) + '" r="7" fill="' + pc + '" stroke="#fff" stroke-width="2"/><text x="' + (X(r.L) + 10) + '" y="' + (Y(r.H) - 8) + '" fill="#fff" font-size="12" font-weight="700">' + fmt(r.L, 2) + ' × ' + fmt(r.H, 2) + ' m</text>';
+    return o + '</svg><p class="hint" style="margin-top:6px">Yhtenäinen viiva = raudoittamaton, katkoviiva = raudoitettu. <span style="color:#3b82f6">Sininen</span> = kaikki reunat tuettu, <span style="color:#22a05a">vihreä</span> = ylä-, ala- ja toinen sivureuna, <span style="color:#e5484d">punainen</span> = yläpää vapaa. Paksunnettu käyrä on seinän tuentatapa; piste on seinän L × H. Lähde: Weber 4-33, ' + C.fig + ' (q<sub>d</sub> = 0,32 kN/m²).</p>';
+  }
+
+  // ---- 3D-näkymä ----
+  var cv = $('cv'), ctx = null, DPR = 1, Wc = 0, Hc = 0, yaw = -0.8, pitch = 0.55, zoom = 1, pan = [0, 0], C0 = [0, 0, 0], R0 = 10;
+  function resize() { DPR = Math.min(window.devicePixelRatio || 1, 2); Wc = cv.clientWidth; Hc = cv.clientHeight; cv.width = Wc * DPR; cv.height = Hc * DPR; draw(); }
+  function visible(e) { var st = $('storey').value; return !st || !e.storey || e.storey === st; }
+  function fit() { var b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity]; EL.forEach(function (e) { if (!visible(e)) return; for (var i = 0; i < 3; i++) { b[i] = Math.min(b[i], e.g.box[i]); b[i + 3] = Math.max(b[i + 3], e.g.box[i + 3]); } }); if (!isFinite(b[0])) return; C0 = [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2]; R0 = Math.max(b[3] - b[0], b[4] - b[1], b[5] - b[2], 1) * 0.62; zoom = 1; pan = [0, 0]; }
+  function focusWall(w) { C0 = [w.g.c[0], w.g.c[1], (w.g.z0 + w.g.z1) / 2]; pan = [0, 0]; }
+  function proj(p) {
+    var x = p[0] - C0[0], y = p[1] - C0[1], z = p[2] - C0[2], cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    var x1 = x * cy - y * sy, y1 = x * sy + y * cy; // pystyakseli z
+    var Y2 = z * cp - y1 * sp, D = z * sp + y1 * cp;
+    var S = Math.min(Wc, Hc) / (2 * R0) * zoom;
+    return [Wc / 2 + x1 * S + pan[0], Hc / 2 - Y2 * S + pan[1], -D];
+  }
+  var drawing = false;
+  function draw() { if (drawing) return; drawing = true; requestAnimationFrame(function () { drawing = false; render(); }); }
+  // WebGL-renderöinti (syvyyspuskuri), varalla 2D-maalarialgoritmi
+  var ov = $('ov'), octx = ov.getContext('2d'), gl = null, prog = null, BUF = null, dirty = true;
+  try { gl = cv.getContext('webgl', { antialias: true, alpha: false }) || null; } catch (e) { gl = null; }
+  if (gl) {
+    var vs = 'attribute vec3 p;attribute vec3 n;attribute vec4 c;uniform mat4 M;varying vec3 vn;varying vec4 vc;void main(){gl_Position=M*vec4(p,1.0);vn=n;vc=c;}';
+    var fs = 'precision mediump float;varying vec3 vn;varying vec4 vc;uniform vec3 L;void main(){float s=0.42+0.58*abs(dot(normalize(vn),L));gl_FragColor=vec4(vc.rgb*s,vc.a);}';
+    var sh = function (t, src) { var o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+    prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) gl = null; else ctx = null;
+  } else ctx = cv.getContext('2d');
+  function colorOf(e) { var r = RES.get(e); if (r) { var c = r.ok ? [63, 191, 111] : [255, 90, 90]; if (e === cur) c = r.ok ? [140, 245, 175] : [255, 165, 165]; return [c[0] / 255, c[1] / 255, c[2] / 255, 1]; } return e.kind === 'top' ? [0.36, 0.36, 0.38, 0.28] : [0.45, 0.45, 0.46, 0.42]; }
+  function buildBuffers() {
+    var showCtx = $('ctx').checked, sets = [[], []];
+    EL.forEach(function (e) { if (!visible(e)) return; var sel = RES.has(e); if (!sel && !showCtx) return; sets[sel ? 0 : 1].push(e); });
+    BUF = sets.map(function (list) {
+      var n = 0; list.forEach(function (e) { n += e.tris.length; });
+      var P = new Float32Array(n * 3), N = new Float32Array(n * 3), C = new Float32Array(n * 4), k = 0;
+      list.forEach(function (e) { var col = colorOf(e), t = e.tris;
+        for (var i = 0; i + 2 < t.length; i += 3) { var A = t[i], B = t[i + 1], Cc = t[i + 2], ux = B[0] - A[0], uy = B[1] - A[1], uz = B[2] - A[2], vx = Cc[0] - A[0], vy = Cc[1] - A[1], vz = Cc[2] - A[2];
+          var nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+          [A, B, Cc].forEach(function (p) { P[k * 3] = p[0] - C0[0]; P[k * 3 + 1] = p[1] - C0[1]; P[k * 3 + 2] = p[2] - C0[2]; N[k * 3] = nx; N[k * 3 + 1] = ny; N[k * 3 + 2] = nz; C[k * 4] = col[0]; C[k * 4 + 1] = col[1]; C[k * 4 + 2] = col[2]; C[k * 4 + 3] = col[3]; k++; }); } });
+      var b = { n: k, C0: C0.slice() }; ['P', 'N', 'C'].forEach(function (nm) { b[nm] = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b[nm]); gl.bufferData(gl.ARRAY_BUFFER, nm === 'P' ? P : nm === 'N' ? N : C, gl.STATIC_DRAW); });
+      return b; });
+    dirty = false;
+  }
+  function matrix(c0) { // sama projektio kuin proj()
+    var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), S = Math.min(Wc, Hc) / (2 * R0) * zoom, ax = S / (Wc / 2), ay = S / (Hc / 2), az = 1 / (6 * R0);
+    var d = [c0[0] - C0[0], c0[1] - C0[1], c0[2] - C0[2]]; // bufferin origo suhteessa kameran keskipisteeseen
+    var r0 = [ax * cy, -ax * sy, 0], r1 = [-ay * sp * sy, -ay * sp * cy, ay * cp], r2 = [az * cp * sy, az * cp * cy, az * sp];
+    var t0 = r0[0] * d[0] + r0[1] * d[1] + r0[2] * d[2] + pan[0] / (Wc / 2), t1 = r1[0] * d[0] + r1[1] * d[1] + r1[2] * d[2] - pan[1] / (Hc / 2), t2 = r2[0] * d[0] + r2[1] * d[1] + r2[2] * d[2];
+    return new Float32Array([r0[0], r1[0], r2[0], 0, r0[1], r1[1], r2[1], 0, r0[2], r1[2], r2[2], 0, t0, t1, t2, 1]);
+  }
+  function render() {
+    if (!Wc || !EL.length) return;
+    ov.width = Wc * DPR; ov.height = Hc * DPR; octx.setTransform(DPR, 0, 0, DPR, 0, 0); octx.clearRect(0, 0, Wc, Hc);
+    if (gl) {
+      if (dirty || !BUF) buildBuffers();
+      gl.viewport(0, 0, cv.width, cv.height); gl.clearColor(0.04, 0.04, 0.04, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.useProgram(prog); gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
+      gl.uniform3f(gl.getUniformLocation(prog, 'L'), 0.35, -0.45, 0.82);
+      var lp = gl.getAttribLocation(prog, 'p'), ln = gl.getAttribLocation(prog, 'n'), lc = gl.getAttribLocation(prog, 'c');
+      BUF.forEach(function (b, i) { if (!b.n) return;
+        gl.uniformMatrix4fv(gl.getUniformLocation(prog, 'M'), false, matrix(b.C0));
+        if (i === 1) { gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); } else { gl.disable(gl.BLEND); gl.depthMask(true); }
+        gl.bindBuffer(gl.ARRAY_BUFFER, b.P); gl.enableVertexAttribArray(lp); gl.vertexAttribPointer(lp, 3, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, b.N); gl.enableVertexAttribArray(ln); gl.vertexAttribPointer(ln, 3, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, b.C); gl.enableVertexAttribArray(lc); gl.vertexAttribPointer(lc, 4, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, b.n); });
+      gl.depthMask(true);
+    } else render2d();
+    overlay();
+  }
+  function overlay() {
+    var c = octx;
+    if (cur && visible(cur)) { var p = proj([cur.g.c[0], cur.g.c[1], cur.g.z1 + 0.3]); c.font = '600 12px Arial,Helvetica,sans-serif'; var tw = c.measureText(cur.name).width; c.fillStyle = 'rgba(0,0,0,.78)'; c.fillRect(p[0] - tw / 2 - 6, p[1] - 18, tw + 12, 20); c.fillStyle = '#fff'; c.textAlign = 'center'; c.fillText(cur.name, p[0], p[1] - 4); }
+    var o0 = [24, Hc - 24]; c.textAlign = 'left'; c.font = '11px Arial,Helvetica,sans-serif';
+    [[1, 0, 0, 'x', '#e5484d'], [0, 1, 0, 'y', '#3fbf6f'], [0, 0, 1, 'z', '#3b82f6']].forEach(function (a) {
+      var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), x1 = a[0] * cy - a[1] * sy, y1 = a[0] * sy + a[1] * cy, Y2 = a[2] * cp - y1 * sp;
+      c.strokeStyle = a[4]; c.lineWidth = 2; c.beginPath(); c.moveTo(o0[0], o0[1]); c.lineTo(o0[0] + x1 * 16, o0[1] - Y2 * 16); c.stroke(); c.fillStyle = a[4]; c.fillText(a[3], o0[0] + x1 * 20, o0[1] - Y2 * 20 + 4); });
+  }
+  function render2d() {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, Wc, Hc); ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, Wc, Hc);
+    var L = [0.35, -0.45, 0.82], showCtx = $('ctx').checked, F = [];
+    EL.forEach(function (e) {
+      if (!visible(e)) return; var sel = RES.has(e); if (!sel && !showCtx) return;
+      var col = colorOf(e), t = e.tris;
+      for (var i = 0; i + 2 < t.length; i += 3) {
+        var A = t[i], B = t[i + 1], Cc = t[i + 2], ux = B[0] - A[0], uy = B[1] - A[1], uz = B[2] - A[2], vx = Cc[0] - A[0], vy = Cc[1] - A[1], vz = Cc[2] - A[2];
+        var nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx, nl = Math.hypot(nx, ny, nz) || 1, sh = 0.42 + 0.58 * Math.abs((nx * L[0] + ny * L[1] + nz * L[2]) / nl);
+        var pa = proj(A), pb = proj(B), pc = proj(Cc); F.push([pa, pb, pc, (pa[2] + pb[2] + pc[2]) / 3, col, sh]); } });
+    F.sort(function (p, q) { return p[3] - q[3]; });
+    F.forEach(function (f) { var c = f[4], s = f[5], st = 'rgba(' + Math.round(c[0] * 255 * s) + ',' + Math.round(c[1] * 255 * s) + ',' + Math.round(c[2] * 255 * s) + ',' + c[3] + ')';
+      ctx.beginPath(); ctx.moveTo(f[0][0], f[0][1]); ctx.lineTo(f[1][0], f[1][1]); ctx.lineTo(f[2][0], f[2][1]); ctx.closePath(); ctx.fillStyle = st; ctx.fill(); ctx.strokeStyle = st; ctx.lineWidth = 0.6; ctx.stroke(); });
+  }
+  window.LTdebug = { pick: function (x, y) { var w = pick(x, y); return w ? w.name : null; }, screenOf: function (name) { var w = WALLS.filter(function (x) { return x.name === name; })[0]; if (!w) return null; var p = proj([w.g.c[0], w.g.c[1], (w.g.z0 + w.g.z1) / 2]); return [p[0], p[1]]; } };
+  // osoitus
+  function pick(mx, my) {
+    var best = null, bz = -Infinity;
+    SEL.forEach(function (w) { if (!visible(w)) return; var t = w.tris; for (var i = 0; i + 2 < t.length; i += 3) { var a = proj(t[i]), b = proj(t[i + 1]), c = proj(t[i + 2]);
+      var d = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1]); if (Math.abs(d) < 1e-9) continue;
+      var l1 = ((b[1] - c[1]) * (mx - c[0]) + (c[0] - b[0]) * (my - c[1])) / d, l2 = ((c[1] - a[1]) * (mx - c[0]) + (a[0] - c[0]) * (my - c[1])) / d, l3 = 1 - l1 - l2;
+      if (l1 < 0 || l2 < 0 || l3 < 0) continue; var z = l1 * a[2] + l2 * b[2] + l3 * c[2]; if (z > bz) { bz = z; best = w; } } });
+    return best;
+  }
+  var ptrs = {}, last = null, moved = 0, pinch = 0, mode = 'rot';
+  cv.addEventListener('pointerdown', function (e) { cv.setPointerCapture(e.pointerId); ptrs[e.pointerId] = [e.clientX, e.clientY]; last = [e.clientX, e.clientY]; moved = 0; mode = (e.button === 2 || e.shiftKey) ? 'pan' : 'rot'; });
+  cv.addEventListener('pointermove', function (e) {
+    if (!ptrs[e.pointerId]) return; ptrs[e.pointerId] = [e.clientX, e.clientY]; var ids = Object.keys(ptrs);
+    if (ids.length === 2) { var a = ptrs[ids[0]], b = ptrs[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch) zoom = Math.max(0.2, Math.min(40, zoom * d / pinch)); pinch = d; moved += 10; draw(); return; }
+    var dx = e.clientX - last[0], dy = e.clientY - last[1]; last = [e.clientX, e.clientY]; moved += Math.abs(dx) + Math.abs(dy);
+    if (mode === 'pan') { pan[0] += dx; pan[1] += dy; } else { yaw += dx * 0.008; pitch = Math.max(-0.1, Math.min(1.55, pitch + dy * 0.006)); }
+    draw(); });
+  function up(e) {
+    if (ptrs[e.pointerId] && moved < 5 && Object.keys(ptrs).length === 1) { var rc = cv.getBoundingClientRect(), w = pick(e.clientX - rc.left, e.clientY - rc.top); if (w) { cur = w; dirty = true; table(); detail(); var tr = $('tbl').querySelector('tr.cur'); if (tr) tr.scrollIntoView({ block: 'nearest' }); } draw(); }
+    delete ptrs[e.pointerId]; pinch = 0; }
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', function (e) { delete ptrs[e.pointerId]; pinch = 0; });
+  cv.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  cv.addEventListener('wheel', function (e) { e.preventDefault(); zoom = Math.max(0.2, Math.min(40, zoom * (e.deltaY < 0 ? 1.12 : 0.89))); draw(); }, { passive: false });
+  $('zin').onclick = function () { zoom = Math.min(40, zoom * 1.25); draw(); };
+  $('zout').onclick = function () { zoom = Math.max(0.2, zoom / 1.25); draw(); };
+  $('zfit').onclick = function () { yaw = -0.8; pitch = 0.55; fit(); draw(); };
+  $('ztop').onclick = function () { yaw = 0; pitch = Math.PI / 2 - 0.001; draw(); };
+  $('ctx').onchange = function () { dirty = true; draw(); };
+
+  // ---- CSV ----
+  $('csv').onclick = function () {
+    var rows = [['GlobalId', 'IFC-id', 'Seinä', 'Kerros', 'Materiaali/tyyppi', 'L [m]', 'H [m]', 't [mm]', 'Tuenta', 'Raudoitettu', 'Käyrä', 'Lmax [m]', 'Tulos', 'Huomiot']];
+    SEL.forEach(function (w) { var r = RES.get(w); rows.push([w.guid || '', w.id, w.name, w.storey, w.attr['Materiaali'] || w.attr['Tyyppi'], fmt(r.L, 2), fmt(r.H, 2), fmt(r.t, 0), T.CASES[r.cs].name, r.reinf ? 'kyllä' : 'ei', r.curve ? r.curve.fig : '', r.Lmax === null ? '' : fmt(r.Lmax, 2), r.ok ? 'OK' : 'TUETTAVA', r.notes.join(' ')]); });
+    var csv = '﻿' + rows.map(function (r) { return r.map(function (c) { c = String(c); return /[;"\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(';'); }).join('\r\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = (fileName.replace(/\.ifc$/i, '') || 'seinat') + '_tuentatarve.csv'; a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  };
+
+  ['field', 'op', 'val', 'nonlb', 'prod', 'reinf', 'fire', 'sideTol', 'topTol'].forEach(function (id) { $(id).addEventListener('input', function () { if (id === 'field') fillVals(); run(); }); $(id).addEventListener('change', function () { if (id === 'field') fillVals(); run(); }); });
+  $('storey').addEventListener('change', function () { fit(); run(); });
+  window.addEventListener('resize', resize);
+  new ResizeObserver(resize).observe(cv);
+  detail();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Statiikkalaskuri – Lastutec</title>
+<meta name="description" content="Palkkien statiikka, teräsprofiilikirjasto ja taipumamitoitus. Kaavat ja välivaiheet näkyvissä.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23f5a623'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+/* Layout: laskentapohja – yhteiset E ja I ylhäällä, kuormitustapausten valitsin, valitun tapauksen kuva, lähtötiedot ja vaiheittainen laskenta */
+:root{
+  --bg:#0e0e0e; --paper:#181818; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e;
+  --accent:#f5a623; --accent-soft:#33270f; --load:#ff7a5c; --ok:#5cc58a; --warn:#f5c86b; --bad:#ff6b5a;
+  --display:Arial,Helvetica,sans-serif; --body:Arial,Helvetica,sans-serif; --mono:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.tabs button{font:600 14px var(--body);background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:8px 12px;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px}
+.global{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;margin-bottom:16px}
+.global .hint{font-size:13px;color:var(--muted);flex:1 1 240px;min-width:0}
+label{display:block;font-size:13px;color:var(--muted);min-width:0}
+label input,label select{display:block;margin-top:3px}
+input[type=number]{font-family:var(--mono);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:#2b2410;color:var(--ink);width:100%;min-width:0}
+.global label{width:170px}
+.global label.wide{width:220px}
+select{font-family:var(--mono);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input[type=number]:disabled{background:var(--bg);color:var(--muted)}
+.libbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.libbar button{font:600 13px var(--body);padding:5px 14px;border-radius:99px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.libbar button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+.tablewrap{overflow-x:auto;padding:0}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font:600 11px var(--body);color:var(--muted);text-transform:none;letter-spacing:.02em;position:sticky;top:0;background:var(--paper)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--paper)}
+tbody tr:hover td{background:var(--accent-soft)}
+tr.sel td{background:var(--accent-soft);font-weight:600}
+td button{font:600 11.5px var(--body);color:var(--accent);background:none;border:1px solid var(--accent);border-radius:99px;padding:2px 9px;cursor:pointer}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%}
+.chkline{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.pill{display:inline-block;font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;padding:1px 8px;border-radius:99px;border:1px solid currentColor}
+.u{font-family:var(--mono);font-size:11px}
+.picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:16px}
+.picker button{display:flex;flex-direction:column;gap:4px;align-items:stretch;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:8px;cursor:pointer;color:var(--ink);font:12.5px/1.3 var(--body)}
+.picker button:hover{border-color:var(--accent)}
+.picker button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.picker svg{width:100%;height:auto;display:block}
+.grp{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.case{display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.case{grid-template-columns:minmax(0,1fr)}}
+.side{display:flex;flex-direction:column;gap:16px}
+.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.calc-head{display:flex;flex-direction:column;gap:12px}
+h2{font-family:var(--display);font-size:20px;font-weight:800;margin:0;text-wrap:balance}
+.fig svg{width:100%;height:auto;display:block}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.tile .s{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.sec{font-family:var(--display);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin:18px 0 4px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.step{display:grid;grid-template-columns:40px minmax(0,1fr);gap:2px 12px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:0}
+.step .no{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:2px}
+.step h3{margin:0;font-size:15px;font-weight:600}
+.math{grid-column:2;font-family:var(--mono);font-size:13.5px;overflow-x:auto;display:flex;flex-direction:column;gap:1px}
+.math .f{color:var(--accent)} .math .s{color:var(--muted)} .math .r{font-weight:600}
+.math sub,.math sup{font-size:.75em}
+.note{grid-column:2;font-size:13px;color:var(--muted);margin:2px 0 0}
+.warnbox{border:1px solid var(--warn);color:var(--warn);border-radius:6px;padding:8px 12px;font-size:13.5px}
+.sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px}
+.shape{display:flex;flex-direction:column;gap:12px}
+.shape-top{display:flex;gap:14px;align-items:center}
+.shape-top svg{width:96px;height:96px;flex:none}
+.shape .inputs{flex:1;min-width:0}
+.use{font:600 12px var(--body);color:var(--accent);background:none;border:1px solid var(--accent);border-radius:99px;padding:3px 10px;cursor:pointer;margin-top:4px;align-self:flex-start}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:99px;font-size:13.5px;z-index:20}
+.foot{font-size:12.5px;color:var(--muted);margin-top:20px;max-width:80ch}
+@media (prefers-reduced-motion:no-preference){.picker button{transition:border-color .15s}}
+</style>
+<style>html,body{margin:0}body{font-size:15px;-webkit-text-size-adjust:100%}[hidden]{display:none!important}*,*::before,*::after{box-sizing:border-box}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px Arial,Helvetica,sans-serif;color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.printbtn:hover{filter:brightness(1.1)}
+.printbtn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--dim:#888;--accent:#a35f00;--accent-soft:#fbeed6;--ok:#1d6b3a;--ok-bg:#ddf1e3;--warn:#8a5a00;--bad:#b3261e;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  input,select{background:#fff!important;color:#000!important}
+  .result,[style*="sticky"],thead th,th,td{position:static!important}
+  .panel,.tablewrap,.step,tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Statiikka ja mekaniikka</a><h1>Statiikkalaskuri</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 1 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" id="tab-palkit" aria-selected="true" aria-controls="view-palkit">Palkit</button>
+  <button role="tab" id="tab-lib" aria-selected="false" aria-controls="view-lib">Profiilikirjasto</button>
+  <button role="tab" id="tab-pl" aria-selected="false" aria-controls="view-pl">Poikkileikkaussuureet</button>
+</nav>
+
+<section id="view-lib" role="tabpanel" hidden>
+  <div class="libbar" id="libfam"></div>
+  <div class="panel tablewrap"><table id="libtable"></table></div>
+  <p class="foot">Suureet on laskettu nimellismitoista pyöristykset mukaan lukien (kuumavalssatut I-profiilit EN 10365, kylmämuovatut putket EN 10219-2: r<sub>o</sub> = 2t / 2,5t / 3t). Arvot poikkeavat valmistajien taulukoista enintään noin 0,1 %. A<sub>v</sub> = leikkauspinta-ala kuormalle uuman suunnassa (η = 1,0, varmalla puolella).</p>
+</section>
+
+<section id="view-palkit" role="tabpanel">
+  <div class="panel global">
+    <label for="gProf" class="wide">Profiili<select id="gProf"></select></label>
+    <label for="gGrade">Teräslaji<select id="gGrade"><option>S235</option><option>S275</option><option selected>S355</option><option>S420</option><option>S460</option></select></label>
+    <label for="gFy">f<sub>y</sub> <span class="u">[N/mm²]</span><input type="number" id="gFy" value="355" step="5"></label>
+    <label for="gE">Kimmokerroin E <span class="u">[N/mm²]</span><input type="number" id="gE" value="210000" step="1000"></label>
+    <label for="gI">Jäyhyysmomentti I <span class="u">[mm⁴]</span><input type="number" id="gI" value="1800043.86" step="1000"></label>
+    <label for="gMode">Mitoitusperuste<select id="gMode"><option value="f" selected>Vain taipuma</option><option value="all">Taipuma + kestävyys</option></select></label>
+    <label for="gGF">Kuormakerroin γ<sub>F</sub> (MRT)<input type="number" id="gGF" value="1.5" step="0.05"></label>
+    <label for="gN">Taipumaraja L / n<select id="gN"><option value="200">L/200</option><option value="250">L/250</option><option value="300" selected>L/300</option><option value="400">L/400</option><option value="500">L/500</option></select></label>
+    <p class="hint">Syötä kuormat ominaisarvoina. Taipuma lasketaan ominaiskuormilla (KRT) ja kestävyys arvoilla γ<sub>F</sub> · kuorma (MRT). E, profiili ja raja-arvot ovat yhteisiä kaikille tapauksille.</p>
+  </div>
+  <div class="picker" id="picker"></div>
+  <div class="case" id="case"></div>
+</section>
+
+<section id="view-pl" role="tabpanel" hidden>
+  <div class="sections" id="sections"></div>
+</section>
+
+<p class="foot">Kaavat ovat kimmoteorian mukaisia tasapoikkileikkauksisen palkin perustapauksia. Kuormat ovat ominais- tai mitoitusarvoja sen mukaan, mitä syötät. Tulokset tarkastaa laatija.</p>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const $=id=>document.getElementById(id);
+function n(v,d){ if(!isFinite(v)) return '–'; const a=Math.abs(v);
+  if(d==null) d=a>=1000?0:a>=100?1:a>=1?2:a>=0.01?3:4;
+  return v.toLocaleString('fi-FI',{minimumFractionDigits:0,maximumFractionDigits:d}); }
+const neg=v=>v<0?`(${n(v)})`:n(v);
+
+/* ---------- Teräsprofiilikirjasto ---------- */
+// I-profiilit: [nimi, h, b, tw, tf, r]  (EN 10365 / Euronorm 19-57 ja 53-62)
+const PI_DATA={
+ IPE:[[80,80,46,3.8,5.2,5],[100,100,55,4.1,5.7,7],[120,120,64,4.4,6.3,7],[140,140,73,4.7,6.9,7],[160,160,82,5,7.4,9],[180,180,91,5.3,8,9],[200,200,100,5.6,8.5,12],[220,220,110,5.9,9.2,12],[240,240,120,6.2,9.8,15],[270,270,135,6.6,10.2,15],[300,300,150,7.1,10.7,15],[330,330,160,7.5,11.5,18],[360,360,170,8,12.7,18],[400,400,180,8.6,13.5,21],[450,450,190,9.4,14.6,21],[500,500,200,10.2,16,21],[550,550,210,11.1,17.2,24],[600,600,220,12,19,24]],
+ HEA:[[100,96,100,5,8,12],[120,114,120,5,8,12],[140,133,140,5.5,8.5,12],[160,152,160,6,9,15],[180,171,180,6,9.5,15],[200,190,200,6.5,10,18],[220,210,220,7,11,18],[240,230,240,7.5,12,21],[260,250,260,7.5,12.5,24],[280,270,280,8,13,24],[300,290,300,8.5,14,27],[320,310,300,9,15.5,27],[340,330,300,9.5,16.5,27],[360,350,300,10,17.5,27],[400,390,300,11,19,27],[450,440,300,11.5,21,27],[500,490,300,12,23,27],[550,540,300,12.5,24,27],[600,590,300,13,25,27]],
+ HEB:[[100,100,100,6,10,12],[120,120,120,6.5,11,12],[140,140,140,7,12,12],[160,160,160,8,13,15],[180,180,180,8.5,14,15],[200,200,200,9,15,18],[220,220,220,9.5,16,18],[240,240,240,10,17,21],[260,260,260,10,17.5,24],[280,280,280,10.5,18,24],[300,300,300,11,19,27],[320,320,300,11.5,20.5,27],[340,340,300,12,21.5,27],[360,360,300,12.5,22.5,27],[400,400,300,13.5,24,27],[450,450,300,14,26,27],[500,500,300,14.5,28,27],[550,550,300,15,29,27],[600,600,300,15.5,30,27]]
+};
+// Kylmämuovatut putket EN 10219-2: [h, b, t]
+const HS_DATA={
+ SHS:[[20,20,2],[20,20,2.5],[25,25,2],[25,25,2.5],[25,25,3],[30,30,2],[30,30,2.5],[30,30,3],[40,40,2],[40,40,2.5],[40,40,3],[40,40,4],[50,50,2],[50,50,2.5],[50,50,3],[50,50,4],[50,50,5],[60,60,2.5],[60,60,3],[60,60,4],[60,60,5],[60,60,6],[70,70,3],[70,70,4],[70,70,5],[70,70,6],[80,80,3],[80,80,4],[80,80,5],[80,80,6],[80,80,8],[90,90,4],[90,90,5],[90,90,6],[100,100,4],[100,100,5],[100,100,6],[100,100,8],[100,100,10],[110,110,4],[110,110,5],[110,110,6],[120,120,4],[120,120,5],[120,120,6],[120,120,8],[120,120,10],[140,140,5],[140,140,6],[140,140,8],[140,140,10],[150,150,5],[150,150,6],[150,150,8],[150,150,10],[150,150,12.5],[160,160,5],[160,160,6],[160,160,8],[160,160,10],[180,180,6],[180,180,8],[180,180,10],[180,180,12.5],[200,200,6],[200,200,8],[200,200,10],[200,200,12.5],[220,220,8],[220,220,10],[220,220,12.5],[250,250,8],[250,250,10],[250,250,12.5],[260,260,8],[260,260,10],[260,260,12.5],[300,300,8],[300,300,10],[300,300,12.5],[350,350,10],[350,350,12.5],[400,400,10],[400,400,12.5]],
+ RHS:[[40,20,2],[40,20,2.5],[40,20,3],[50,30,2],[50,30,2.5],[50,30,3],[50,30,4],[60,40,2.5],[60,40,3],[60,40,4],[60,40,5],[80,40,3],[80,40,4],[80,40,5],[80,60,3],[80,60,4],[80,60,5],[100,40,3],[100,40,4],[100,40,5],[100,50,3],[100,50,4],[100,50,5],[100,50,6],[100,60,3],[100,60,4],[100,60,5],[100,60,6],[120,60,4],[120,60,5],[120,60,6],[120,80,4],[120,80,5],[120,80,6],[120,80,8],[140,80,4],[140,80,5],[140,80,6],[140,80,8],[150,100,4],[150,100,5],[150,100,6],[150,100,8],[150,100,10],[160,80,4],[160,80,5],[160,80,6],[160,80,8],[180,100,5],[180,100,6],[180,100,8],[180,100,10],[200,100,5],[200,100,6],[200,100,8],[200,100,10],[200,120,6],[200,120,8],[200,120,10],[250,150,6],[250,150,8],[250,150,10],[250,150,12.5],[300,200,8],[300,200,10],[300,200,12.5],[400,200,8],[400,200,10],[400,200,12.5]]
+};
+function integrate(h,wo,wi){ // vaakasuikaleet: wo(y) ulkoleveys, wi(y) sisäleveys, y = etäisyys painopisteakselista
+  const N=6000,dy=(h/2)/N;let A=0,Iy=0,Iz=0,Sy=0,Sz=0;
+  for(let i=0;i<N;i++){const y=(i+0.5)*dy,o=wo(y),n=wi(y),w=o-n;
+    A+=w*dy;Iy+=w*y*y*dy;Sy+=w*y*dy;Iz+=(o**3-n**3)/12*dy;Sz+=(o*o-n*n)/4*dy;}
+  return {A:2*A,Iy:2*Iy,Iz:2*Iz,Wply:2*Sy,Wplz:2*Sz};
+}
+function mkI(fam,[nm,h,b,tw,tf,r]){
+  const wo=y=>{const d=h/2-y;if(d<=tf)return b;if(d<=tf+r){const u=tf+r-d;return tw+2*(r-Math.sqrt(Math.max(0,r*r-u*u)));}return tw;};
+  const s=integrate(h,wo,()=>0),hw=h-2*tf;
+  const Av=Math.max(s.A-2*b*tf+(tw+2*r)*tf,1.0*hw*tw);
+  return {id:fam+nm,fam,name:`${fam} ${nm}`,kind:'I',h,b,tw,tf,r,tmax:tf,...s,Wely:s.Iy/(h/2),Welz:s.Iz/(b/2),Av,
+    Avf:`A − 2·b·t<sub>f</sub> + (t<sub>w</sub> + 2·r)·t<sub>f</sub> ≥ η·h<sub>w</sub>·t<sub>w</sub>`};
+}
+function mkH(fam,[h,b,t]){
+  const ro=t<=6?2*t:t<=10?2.5*t:3*t,ri=ro-t,hi=h-2*t,bi=b-2*t;
+  const rw=(W,H,R,y)=>{const d=H/2-y;if(d<0)return 0;if(d<R){const u=R-d;return W-2*(R-Math.sqrt(Math.max(0,R*R-u*u)));}return W;};
+  const s=integrate(h,y=>rw(b,h,ro,y),y=>rw(bi,hi,ri,y));
+  return {id:fam+h+'x'+b+'x'+t,fam,name:fam==='SHS'?`SHS ${h}×${h}×${String(t).replace('.',',')}`:`RHS ${h}×${b}×${String(t).replace('.',',')}`,kind:'H',h,b,t,r:ro,tmax:t,...s,Wely:s.Iy/(h/2),Welz:s.Iz/(b/2),Av:s.A*h/(b+h),
+    Avf:'A · h / (b + h)'};
+}
+const PROFILES=[];
+for(const f in PI_DATA)PI_DATA[f].forEach(d=>PROFILES.push(mkI(f,d)));
+for(const f in HS_DATA)HS_DATA[f].forEach(d=>PROFILES.push(mkH(f,d)));
+PROFILES.forEach(p=>{p.g=p.A*7850e-6;});
+
+/* ---------- Palkin piirto ---------- */
+function beamSVG(g,mini){
+  const W=600,H=mini?120:190,x0=50,x1=550,y=mini?62:78,s=p=>x0+(x1-x0)*p/g.Lt;
+  let o=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rakennemalli">`;
+  // kuormat
+  for(const ld of g.loads){
+    if(ld.t==='P'){const X=s(ld.p);o+=`<line x1="${X}" y1="${y-48}" x2="${X}" y2="${y-8}" stroke="var(--load)" stroke-width="3"/><polygon points="${X},${y-2} ${X-7},${y-14} ${X+7},${y-14}" fill="var(--load)"/>`;
+      if(!mini) o+=`<text x="${X+8}" y="${y-38}" class="lb" fill="var(--load)">F</text>`;}
+    if(ld.t==='q'){const a=s(ld.a),b=s(ld.b);o+=`<rect x="${a}" y="${y-34}" width="${b-a}" height="6" fill="var(--load)"/>`;
+      const k=Math.max(2,Math.round((b-a)/40));for(let i=0;i<=k;i++){const X=a+(b-a)*i/k;o+=`<line x1="${X}" y1="${y-28}" x2="${X}" y2="${y-9}" stroke="var(--load)" stroke-width="2"/><polygon points="${X},${y-3} ${X-5},${y-11} ${X+5},${y-11}" fill="var(--load)"/>`;}
+      if(!mini) o+=`<text x="${(a+b)/2}" y="${y-42}" text-anchor="middle" class="lb" fill="var(--load)">q</text>`;}
+  }
+  o+=`<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="var(--ink)" stroke-width="5" stroke-linecap="butt"/>`;
+  // tuet
+  for(const sp of g.sup){const X=s(sp.p);
+    if(sp.t==='fix'){const d=sp.side==='L'?-1:1;o+=`<line x1="${X}" y1="${y-30}" x2="${X}" y2="${y+30}" stroke="var(--ink)" stroke-width="3"/>`;
+      for(let i=-30;i<30;i+=9)o+=`<line x1="${X}" y1="${y+i}" x2="${X+d*12}" y2="${y+i+9}" stroke="var(--muted)" stroke-width="1.5"/>`;}
+    else{o+=`<polygon points="${X},${y+3} ${X-11},${y+21} ${X+11},${y+21}" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
+      if(sp.t==='roll')o+=`<line x1="${X-14}" y1="${y+27}" x2="${X+14}" y2="${y+27}" stroke="var(--ink)" stroke-width="2"/>`;
+      else for(let i=-12;i<12;i+=6)o+=`<line x1="${X+i}" y1="${y+28}" x2="${X+i+5}" y2="${y+22}" stroke="var(--muted)" stroke-width="1.3"/>`;}
+    if(!mini&&sp.n) o+=`<text x="${X+(sp.t==='fix'?(sp.side==='L'?-24:16):-26)}" y="${y+(sp.t==='fix'?-34:18)}" class="lb">${sp.n}</text>`;
+  }
+  if(!mini){ // mitat
+    let row=0;for(const dm of g.dims){const a=s(dm.a),b=s(dm.b),Y=y+48+row*26;row=dm.row??row;
+      const yy=y+48+(dm.row||0)*26;
+      o+=`<line x1="${a}" y1="${yy}" x2="${b}" y2="${yy}" stroke="var(--muted)" stroke-width="1"/><line x1="${a}" y1="${yy-6}" x2="${a}" y2="${yy+6}" stroke="var(--muted)"/><line x1="${b}" y1="${yy-6}" x2="${b}" y2="${yy+6}" stroke="var(--muted)"/><text x="${(a+b)/2}" y="${yy-5}" text-anchor="middle" class="dm">${dm.l}</text>`;}
+    if(g.xmark!=null){const X=s(g.xmark.p);o+=`<line x1="${X}" y1="${y+6}" x2="${X}" y2="${y+36}" stroke="var(--accent)" stroke-dasharray="3 3"/><text x="${X+4}" y="${y+40}" class="dm" fill="var(--accent)">${g.xmark.l}</text>`;}
+  }
+  return o+`<style>.lb{font:600 15px Arial,Helvetica,sans-serif;fill:var(--ink)}.dm{font:12px Arial,Helvetica,sans-serif;fill:var(--muted)}</style></svg>`;
+}
+function momentSVG(g,Mf){
+  const W=600,H=170,x0=50,x1=550,y0=70,N=300;let pts=[],mx=-1e30,mn=1e30,sx=0,sn=0;
+  for(let i=0;i<=N;i++){const p=g.Lt*i/N,m=Mf(p);pts.push([p,m]);if(m>mx){mx=m;sx=p;}if(m<mn){mn=m;sn=p;}}
+  const A=Math.max(Math.abs(mx),Math.abs(mn))||1, sc=55/A, X=p=>x0+(x1-x0)*p/g.Lt, Y=m=>y0+m*sc; // positiivinen alas (vetopuoli)
+  let path=`M${X(0)},${y0} `+pts.map(([p,m])=>`L${X(p).toFixed(1)},${Y(m).toFixed(1)}`).join(' ')+` L${X(g.Lt)},${y0} Z`;
+  let o=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Momenttipinta"><path d="${path}" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.6"/><line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="var(--ink)" stroke-width="1.5"/>`;
+  const lab=(p,m)=>{const xx=Math.min(Math.max(X(p),x0+30),x1-30),yy=Y(m)+(m>=0?16:-7);return `<text x="${xx}" y="${yy}" text-anchor="middle" style="font:600 12px Arial,Helvetica,sans-serif;fill:var(--ink)">${n(m)} kNm</text>`;};
+  if(mx>1e-9)o+=lab(sx,mx); if(mn<-1e-9)o+=lab(sn,mn);
+  o+=`<text x="${x0}" y="${H-6}" style="font:11px Arial,Helvetica,sans-serif;fill:var(--muted)">Momenttipinta, piirretty vetopuolelle (kenttämomentti +, tukimomentti −)</text></svg>`;
+  return o;
+}
+
+/* ---------- Kuormitustapaukset (Statiikkaa-välilehti) ---------- */
+const C=[
+{id:'u1',grp:'Uloke',name:'Uloke, pistekuorma',
+ inp:[['F','F','kN',6],['L','L','mm',6600],['x','x (vapaasta päästä)','mm',6600]],
+ geo:v=>({Lt:v.L,sup:[{t:'fix',p:0,side:'L',n:'A'}],loads:[{t:'P',p:v.L}],dims:[{a:0,b:v.L,l:'L'}],xmark:{p:v.L-v.x,l:'x'}}),
+ M:(v,p)=>-v.F*(v.L-p)/1e3,
+ chk:v=>v.x<0||v.x>v.L?'x:n pitää olla välillä 0…L.':'',
+ out:(v,E,I)=>[
+  ['Momentti kohdassa x','M(x)','−F · x',`−${n(v.F)} · ${n(v.x/1e3)}`,-v.F*v.x/1e3,'kNm'],
+  ['Maksimimomentti (tuella A)','M<sub>max</sub>','−F · L',`−${n(v.F)} · ${n(v.L/1e3)}`,-v.F*v.L/1e3,'kNm'],
+  ['Taipuma vapaassa päässä','f','F · L³ / (3 · E · I)',`${n(v.F*1e3)} · ${n(v.L)}³ / (3 · ${n(E)} · ${n(I)})`,v.F*1e3*v.L**3/(3*E*I),'mm'],
+  ['Tukireaktio','A','F',`${n(v.F)}`,v.F,'kN']]},
+{id:'u2',grp:'Uloke',name:'Uloke, tasainen kuorma',
+ inp:[['q','q','kN/m',0.4],['L','L','mm',1305],['x','x (vapaasta päästä)','mm',500]],
+ geo:v=>({Lt:v.L,sup:[{t:'fix',p:0,side:'L',n:'A'}],loads:[{t:'q',a:0,b:v.L}],dims:[{a:0,b:v.L,l:'L'}],xmark:{p:v.L-v.x,l:'x'}}),
+ M:(v,p)=>-v.q*((v.L-p)/1e3)**2/2,
+ chk:v=>v.x<0||v.x>v.L?'x:n pitää olla välillä 0…L.':'',
+ out:(v,E,I)=>[
+  ['Momentti kohdassa x','M(x)','−q · x² / 2',`−${n(v.q)} · ${n(v.x/1e3)}² / 2`,-v.q*(v.x/1e3)**2/2,'kNm'],
+  ['Maksimimomentti (tuella A)','M<sub>max</sub>','−q · L² / 2',`−${n(v.q)} · ${n(v.L/1e3)}² / 2`,-v.q*(v.L/1e3)**2/2,'kNm'],
+  ['Taipuma vapaassa päässä','f','q · L⁴ / (8 · E · I)',`${n(v.q)} · ${n(v.L)}⁴ / (8 · ${n(E)} · ${n(I)})`,v.q*v.L**4/(8*E*I),'mm'],
+  ['Tukireaktio','A','q · L',`${n(v.q)} · ${n(v.L/1e3)}`,v.q*v.L/1e3,'kN']]},
+{id:'ua1',grp:'1-aukkoinen + uloke',name:'Uloke, pistekuorma ulokkeen päässä',
+ inp:[['F','F','kN',5],['L','L (jänne)','mm',400],['a','a (uloke)','mm',150],['x','x (tuelta A)','mm',200]],
+ geo:v=>({Lt:v.L+v.a,sup:[{t:'pin',p:0,n:'A'},{t:'roll',p:v.L,n:'B'}],loads:[{t:'P',p:v.L+v.a}],dims:[{a:0,b:v.L,l:'L'},{a:v.L,b:v.L+v.a,l:'a'}],xmark:{p:v.x,l:'x'}}),
+ M:(v,p)=>p<=v.L?-v.F*v.a*p/v.L/1e3:-v.F*(v.L+v.a-p)/1e3,
+ chk:v=>v.x<0||v.x>v.L?'M(x)-kaava pätee jänteellä A–B: x:n pitää olla välillä 0…L.':'',
+ out:(v,E,I)=>{const L=v.L/1e3,a=v.a/1e3;return[
+  ['Momentti kohdassa x (jänteellä)','M(x)','−F · a · x / L',`−${n(v.F)} · ${n(a)} · ${n(v.x/1e3)} / ${n(L)}`,-v.F*a*(v.x/1e3)/L,'kNm'],
+  ['Tukimomentti','M<sub>B</sub>','−F · a',`−${n(v.F)} · ${n(a)}`,-v.F*a,'kNm'],
+  ['Suurin taipuma jänteellä (ylöspäin)','f<sub>1</sub>','F · L² / (9 · E · I) · a / √3',`${n(v.F*1e3)} · ${n(v.L)}² / (9 · ${n(E)} · ${n(I)}) · ${n(v.a)} / 1,732`,v.F*1e3*v.L**2/(9*E*I)*v.a/Math.sqrt(3),'mm'],
+  ['Ulokkeen pään taipuma','f<sub>2</sub>','F · a² / (3 · E · I) · (L + a)',`${n(v.F*1e3)} · ${n(v.a)}² / (3 · ${n(E)} · ${n(I)}) · (${n(v.L)} + ${n(v.a)})`,v.F*1e3*v.a**2/(3*E*I)*(v.L+v.a),'mm'],
+  ['Tukireaktio A (alaspäin)','A','−F · a / L',`−${n(v.F)} · ${n(a)} / ${n(L)}`,-v.F*a/L,'kN'],
+  ['Tukireaktio B','B','F · (L + a) / L',`${n(v.F)} · (${n(L)} + ${n(a)}) / ${n(L)}`,v.F*(L+a)/L,'kN']];}},
+{id:'ua2',grp:'1-aukkoinen + uloke',name:'Uloke, tasainen kuorma koko matkalla',
+ inp:[['q','q','kN/m',9.4],['L','L (jänne)','mm',150],['a','a (uloke)','mm',350]],
+ geo:v=>({Lt:v.L+v.a,sup:[{t:'pin',p:0,n:'A'},{t:'roll',p:v.L,n:'B'}],loads:[{t:'q',a:0,b:v.L+v.a}],dims:[{a:0,b:v.L,l:'L'},{a:v.L,b:v.L+v.a,l:'a'}]}),
+ M:(v,p)=>{const L=v.L/1e3,a=v.a/1e3,s=p/1e3,A=v.q/(2*L)*(L*L-a*a),B=v.q/(2*L)*(L+a)**2;return A*s-v.q*s*s/2+(s>L?B*(s-L):0);},
+ out:(v,E,I)=>{const L=v.L/1e3,a=v.a/1e3;return[
+  ['Suurin kenttämomentti','M<sub>max</sub>','q / (8 · L²) · (L² − a²)²',`${n(v.q)} / (8 · ${n(L)}²) · (${n(L)}² − ${n(a)}²)²`,v.q/(8*L*L)*(L*L-a*a)**2,'kNm'],
+  ['Tukimomentti','M<sub>B</sub>','−q · a² / 2',`−${n(v.q)} · ${n(a)}² / 2`,-v.q*a*a/2,'kNm'],
+  ['Taipuma jänteen keskellä','f<sub>1</sub>','q · L² / (384 · E · I) · (5 · L² − 12 · a²)',`${n(v.q)} · ${n(v.L)}² / (384 · ${n(E)} · ${n(I)}) · (5 · ${n(v.L)}² − 12 · ${n(v.a)}²)`,v.q*v.L**2/(384*E*I)*(5*v.L**2-12*v.a**2),'mm'],
+  ['Ulokkeen pään taipuma','f<sub>2</sub>','q · a / (24 · E · I) · (a² · (4 · L + 3 · a) − L³)',`${n(v.q)} · ${n(v.a)} / (24 · ${n(E)} · ${n(I)}) · (${n(v.a)}² · (4 · ${n(v.L)} + 3 · ${n(v.a)}) − ${n(v.L)}³)`,v.q*v.a/(24*E*I)*(v.a**2*(4*v.L+3*v.a)-v.L**3),'mm'],
+  ['Tukireaktio A','A','q / (2 · L) · (L² − a²)',`${n(v.q)} / (2 · ${n(L)}) · (${n(L)}² − ${n(a)}²)`,v.q/(2*L)*(L*L-a*a),'kN'],
+  ['Tukireaktio B','B','q / (2 · L) · (L + a)²',`${n(v.q)} / (2 · ${n(L)}) · (${n(L)} + ${n(a)})²`,v.q/(2*L)*(L+a)**2,'kN']];},
+ note:'Negatiivinen M<sub>max</sub> tai f<sub>1</sub> tarkoittaa, että jänne taipuu ylöspäin ulokkeen kuorman takia.'},
+{id:'s1',grp:'1-aukkoinen',name:'Pistekuorma mielivaltaisessa kohdassa',
+ inp:[['F','F','kN',105],['L','L','mm',5150],['a','a (tuelta A)','mm',600],['x','x (tuelta A, väli A–C)','mm',300],['x1','x₁ (tuelta B, väli C–B)','mm',100]],
+ geo:v=>({Lt:v.L,sup:[{t:'pin',p:0,n:'A'},{t:'roll',p:v.L,n:'B'}],loads:[{t:'P',p:v.a}],dims:[{a:0,b:v.a,l:'a'},{a:v.a,b:v.L,l:'b'},{a:0,b:v.L,l:'L',row:1}]}),
+ M:(v,p)=>{const b=v.L-v.a;return p<=v.a?v.F*b*p/v.L/1e3:v.F*v.a*(v.L-p)/v.L/1e3;},
+ chk:v=>{const b=v.L-v.a;let w=[];if(v.a<=0||v.a>=v.L)w.push('a:n pitää olla välillä 0…L.');if(v.x<0||v.x>v.a)w.push('x:n pitää olla välillä 0…a (väli A–C).');if(v.x1<0||v.x1>b)w.push('x₁:n pitää olla välillä 0…b (väli C–B).');return w.join(' ');},
+ out:(v,E,I)=>{const L=v.L/1e3,a=v.a/1e3,b=(v.L-v.a)/1e3,bm=v.L-v.a;return[
+  ['Kuorman etäisyys tuelta B','b','L − a',`${n(v.L)} − ${n(v.a)}`,bm,'mm'],
+  ['Momentti välillä A–C','M(x)','F · b / L · x',`${n(v.F)} · ${n(b)} / ${n(L)} · ${n(v.x/1e3)}`,v.F*b/L*v.x/1e3,'kNm'],
+  ['Momentti välillä C–B','M(x₁)','F · a / L · x₁',`${n(v.F)} · ${n(a)} / ${n(L)} · ${n(v.x1/1e3)}`,v.F*a/L*v.x1/1e3,'kNm'],
+  ['Maksimimomentti (kuorman kohdalla)','M<sub>max</sub>','F · a · b / L',`${n(v.F)} · ${n(a)} · ${n(b)} / ${n(L)}`,v.F*a*b/L,'kNm'],
+  ['Taipuma kuorman kohdalla','f','F · a² · b² / (3 · E · I · L)',`${n(v.F*1e3)} · ${n(v.a)}² · ${n(bm)}² / (3 · ${n(E)} · ${n(I)} · ${n(v.L)})`,v.F*1e3*v.a**2*bm**2/(3*E*I*v.L),'mm'],
+  ['Tukireaktio A','A','F · b / L',`${n(v.F)} · ${n(b)} / ${n(L)}`,v.F*b/L,'kN'],
+  ['Tukireaktio B','B','F · a / L',`${n(v.F)} · ${n(a)} / ${n(L)}`,v.F*a/L,'kN']];},
+ note:'Taipuma f on kuorman kohdalla. Kun a ≠ b, suurin taipuma on hieman suurempi ja sijaitsee pidemmällä osuudella.'},
+{id:'s2',grp:'1-aukkoinen',name:'Pistekuorma keskellä',
+ inp:[['F','F','kN',1],['L','L','mm',1000],['x','x (tuelta A)','mm',200]],
+ geo:v=>({Lt:v.L,sup:[{t:'pin',p:0,n:'A'},{t:'roll',p:v.L,n:'B'}],loads:[{t:'P',p:v.L/2}],dims:[{a:0,b:v.L/2,l:'L/2'},{a:v.L/2,b:v.L,l:'L/2'}],xmark:{p:v.x,l:'x'}}),
+ M:(v,p)=>v.F/2*Math.min(p,v.L-p)/1e3,
+ chk:v=>v.x<0||v.x>v.L?'x:n pitää olla välillä 0…L.':'',
+ out:(v,E,I)=>{const xs=Math.min(v.x,v.L-v.x);return[
+  ['Momentti kohdassa x','M(x)','F / 2 · x  (x ≤ L/2, muuten L − x)',`${n(v.F)} / 2 · ${n(xs/1e3)}`,v.F/2*xs/1e3,'kNm'],
+  ['Maksimimomentti','M<sub>max</sub>','F · L / 4',`${n(v.F)} · ${n(v.L/1e3)} / 4`,v.F*v.L/1e3/4,'kNm'],
+  ['Taipuma keskellä','f','F · L³ / (48 · E · I)',`${n(v.F*1e3)} · ${n(v.L)}³ / (48 · ${n(E)} · ${n(I)})`,v.F*1e3*v.L**3/(48*E*I),'mm'],
+  ['Tukireaktiot','A = B','F / 2',`${n(v.F)} / 2`,v.F/2,'kN']];}},
+{id:'s3',grp:'1-aukkoinen',name:'Kaksi symmetristä pistekuormaa',
+ inp:[['F','F (kumpikin)','kN',50],['L','L','mm',3000],['a','a (tuelta)','mm',500]],
+ geo:v=>({Lt:v.L,sup:[{t:'pin',p:0,n:'A'},{t:'roll',p:v.L,n:'B'}],loads:[{t:'P',p:v.a},{t:'P',p:v.L-v.a}],dims:[{a:0,b:v.a,l:'a'},{a:v.L-v.a,b:v.L,l:'a'},{a:0,b:v.L,l:'L',row:1}]}),
+ M:(v,p)=>v.F*Math.min(p,v.a,v.L-p)/1e3,
+ chk:v=>v.a<=0||v.a>v.L/2?'a:n pitää olla välillä 0…L/2.':'',
+ out:(v,E,I)=>[
+  ['Maksimimomentti (kuormien välillä)','M<sub>max</sub>','F · a',`${n(v.F)} · ${n(v.a/1e3)}`,v.F*v.a/1e3,'kNm'],
+  ['Taipuma keskellä','f','F · a / (24 · E · I) · (3 · L² − 4 · a²)',`${n(v.F*1e3)} · ${n(v.a)} / (24 · ${n(E)} · ${n(I)}) · (3 · ${n(v.L)}² − 4 · ${n(v.a)}²)`,v.F*1e3*v.a/(24*E*I)*(3*v.L**2-4*v.a**2),'mm'],
+  ['Tukireaktiot','A = B','F',`${n(v.F)}`,v.F,'kN']]},
+{id:'s4',grp:'1-aukkoinen',name:'Kolme pistekuormaa neljännespisteissä',
+ inp:[['F','F (kukin)','kN',50],['L','L','mm',1000]],
+ geo:v=>({Lt:v.L,sup:[{t:'pin',p:0,n:'A'},{t:'roll',p:v.L,n:'B'}],loads:[{t:'P',p:v.L/4},{t:'P',p:v.L/2},{t:'P',p:3*v.L/4}],dims:[0,1,2,3].map(i=>({a:i*v.L/4,b:(i+1)*v.L/4,l:'a'})).concat([{a:0,b:v.L,l:'L',row:1}])}),
+ M:(v,p)=>{const a=v.L/4;return(1.5*v.F*p-v.F*(Math.max(0,p-a)+Math.max(0,p-2*a)+Math.max(0,p-3*a)))/1e3;},
+ out:(v,E,I)=>[
+  ['Kuormien väli','a','L / 4',`${n(v.L)} / 4`,v.L/4,'mm'],
+  ['Maksimimomentti (keskellä)','M<sub>max</sub>','F · L / 2',`${n(v.F)} · ${n(v.L/1e3)} / 2`,v.F*v.L/1e3/2,'kNm'],
+  ['Taipuma keskellä','f','19 · F · L³ / (384 · E · I)',`19 · ${n(v.F*1e3)} · ${n(v.L)}³ / (384 · ${n(E)} · ${n(I)})`,19*v.F*1e3*v.L**3/(384*E*I),'mm'],
+  ['Tukireaktiot','A = B','3 · F / 2',`3 · ${n(v.F)} / 2`,1.5*v.F,'kN']]},
+{id:'s5',grp:'1-aukkoinen',name:'Tasainen kuorma',
+ inp:[['q','q','kN/m',0.15],['L','L','mm',6200],['x','x (tuelta A)','mm',300]],
+ geo:v=>({Lt:v.L,sup:[{t:'pin',p:0,n:'A'},{t:'roll',p:v.L,n:'B'}],loads:[{t:'q',a:0,b:v.L}],dims:[{a:0,b:v.L,l:'L'}],xmark:{p:v.x,l:'x'}}),
+ M:(v,p)=>v.q*(v.L/1e3)*(p/1e3)/2*(1-p/v.L),
+ chk:v=>v.x<0||v.x>v.L?'x:n pitää olla välillä 0…L.':'',
+ out:(v,E,I)=>[
+  ['Momentti kohdassa x','M(x)','q · L · x / 2 · (1 − x / L)',`${n(v.q)} · ${n(v.L/1e3)} · ${n(v.x/1e3)} / 2 · (1 − ${n(v.x)} / ${n(v.L)})`,v.q*(v.L/1e3)*(v.x/1e3)/2*(1-v.x/v.L),'kNm'],
+  ['Maksimimomentti (keskellä)','M<sub>max</sub>','q · L² / 8',`${n(v.q)} · ${n(v.L/1e3)}² / 8`,v.q*(v.L/1e3)**2/8,'kNm'],
+  ['Taipuma keskellä','f','5 · q · L⁴ / (384 · E · I)',`5 · ${n(v.q)} · ${n(v.L)}⁴ / (384 · ${n(E)} · ${n(I)})`,5*v.q*v.L**4/(384*E*I),'mm'],
+  ['Tukireaktiot','A = B','q · L / 2',`${n(v.q)} · ${n(v.L/1e3)} / 2`,v.q*v.L/1e3/2,'kN']]},
+{id:'j1',grp:'Molemmat päät jäykkiä',name:'Pistekuorma keskellä',
+ inp:[['F','F','kN',75],['L','L','mm',250],['x','x (tuelta A)','mm',100]],
+ geo:v=>({Lt:v.L,sup:[{t:'fix',p:0,side:'L',n:'A'},{t:'fix',p:v.L,side:'R',n:'B'}],loads:[{t:'P',p:v.L/2}],dims:[{a:0,b:v.L/2,l:'L/2'},{a:v.L/2,b:v.L,l:'L/2'}],xmark:{p:v.x,l:'x'}}),
+ M:(v,p)=>-v.F*v.L/1e3/8*(1-4*Math.min(p,v.L-p)/v.L),
+ chk:v=>v.x<0||v.x>v.L?'x:n pitää olla välillä 0…L.':'',
+ out:(v,E,I)=>{const xs=Math.min(v.x,v.L-v.x);return[
+  ['Momentti kohdassa x','M(x)','−F · L / 8 · (1 − 4 · x / L)  (x ≤ L/2, muuten L − x)',`−${n(v.F)} · ${n(v.L/1e3)} / 8 · (1 − 4 · ${n(xs)} / ${n(v.L)})`,-v.F*v.L/1e3/8*(1-4*xs/v.L),'kNm'],
+  ['Kenttämomentti keskellä','M<sub>max</sub>','F · L / 8',`${n(v.F)} · ${n(v.L/1e3)} / 8`,v.F*v.L/1e3/8,'kNm'],
+  ['Tukimomentit','M<sub>A</sub> = M<sub>B</sub>','−F · L / 8',`−${n(v.F)} · ${n(v.L/1e3)} / 8`,-v.F*v.L/1e3/8,'kNm'],
+  ['Taipuma keskellä','f','F · L³ / (192 · E · I)',`${n(v.F*1e3)} · ${n(v.L)}³ / (192 · ${n(E)} · ${n(I)})`,v.F*1e3*v.L**3/(192*E*I),'mm'],
+  ['Tukireaktiot','A = B','F / 2',`${n(v.F)} / 2`,v.F/2,'kN']];},
+ note:'M(x)-kaava pätee välillä 0…L/2. Kun x > L/2, laskenta käyttää symmetriaa (x → L − x).'},
+{id:'j2',grp:'Molemmat päät jäykkiä',name:'Tasainen kuorma',
+ inp:[['q','q','kN/m',3],['L','L','mm',5560],['x','x (tuelta A)','mm',100]],
+ geo:v=>({Lt:v.L,sup:[{t:'fix',p:0,side:'L',n:'A'},{t:'fix',p:v.L,side:'R',n:'B'}],loads:[{t:'q',a:0,b:v.L}],dims:[{a:0,b:v.L,l:'L'}],xmark:{p:v.x,l:'x'}}),
+ M:(v,p)=>-v.q*(v.L/1e3)**2/2*(1/6-p/v.L+(p/v.L)**2),
+ chk:v=>v.x<0||v.x>v.L?'x:n pitää olla välillä 0…L.':'',
+ out:(v,E,I)=>[
+  ['Momentti kohdassa x','M(x)','−q · L² / 2 · (1/6 − x/L + x²/L²)',`−${n(v.q)} · ${n(v.L/1e3)}² / 2 · (1/6 − ${n(v.x)}/${n(v.L)} + ${n(v.x)}²/${n(v.L)}²)`,-v.q*(v.L/1e3)**2/2*(1/6-v.x/v.L+(v.x/v.L)**2),'kNm'],
+  ['Kenttämomentti keskellä','M<sub>max</sub>','q · L² / 24',`${n(v.q)} · ${n(v.L/1e3)}² / 24`,v.q*(v.L/1e3)**2/24,'kNm'],
+  ['Tukimomentit','M<sub>A</sub> = M<sub>B</sub>','−q · L² / 12',`−${n(v.q)} · ${n(v.L/1e3)}² / 12`,-v.q*(v.L/1e3)**2/12,'kNm'],
+  ['Taipuma keskellä','f','q · L⁴ / (384 · E · I)',`${n(v.q)} · ${n(v.L)}⁴ / (384 · ${n(E)} · ${n(I)})`,v.q*v.L**4/(384*E*I),'mm'],
+  ['Tukireaktiot','A = B','q · L / 2',`${n(v.q)} · ${n(v.L/1e3)} / 2`,v.q*v.L/1e3/2,'kN']]}
+];
+
+/* Leikkausvoiman ominaisarvo (suurin itseisarvo) ja taipumien tarkasteluvälit */
+const VK={
+ u1:v=>['F',`${n(v.F)}`,v.F],
+ u2:v=>['q · L',`${n(v.q)} · ${n(v.L/1e3)}`,v.q*v.L/1e3],
+ ua1:v=>['max(F · a / L ; F)',`max(${n(v.F)} · ${n(v.a)} / ${n(v.L)} ; ${n(v.F)})`,Math.max(v.F*v.a/v.L,v.F)],
+ ua2:v=>{const L=v.L/1e3,a=v.a/1e3,A=Math.abs(v.q/(2*L)*(L*L-a*a)),Bl=v.q*(L*L+a*a)/(2*L),Br=v.q*a;
+   return['max(|A| ; q · (L² + a²) / (2L) ; q · a)',`max(${n(A)} ; ${n(Bl)} ; ${n(Br)})`,Math.max(A,Bl,Br)];},
+ s1:v=>{const a=v.a/1e3,b=(v.L-v.a)/1e3;return['F · max(a ; b) / L',`${n(v.F)} · ${n(Math.max(a,b))} / ${n(v.L/1e3)}`,v.F*Math.max(a,b)/(v.L/1e3)];},
+ s2:v=>['F / 2',`${n(v.F)} / 2`,v.F/2],
+ s3:v=>['F',`${n(v.F)}`,v.F],
+ s4:v=>['3 · F / 2',`3 · ${n(v.F)} / 2`,1.5*v.F],
+ s5:v=>['q · L / 2',`${n(v.q)} · ${n(v.L/1e3)} / 2`,v.q*v.L/2e3],
+ j1:v=>['F / 2',`${n(v.F)} / 2`,v.F/2],
+ j2:v=>['q · L / 2',`${n(v.q)} · ${n(v.L/1e3)} / 2`,v.q*v.L/2e3]
+};
+// palauttaa [jänne mm, uloke?] taipumasymbolille
+function fspan(id,sym,v){
+  if(id==='u1'||id==='u2')return[v.L,true];
+  if((id==='ua1'||id==='ua2')&&/2/.test(sym))return[v.a,true];
+  return[v.L,false];
+}
+const FY={S235:[235,215],S275:[275,255],S355:[355,335],S420:[420,390],S460:[460,430]};
+
+const vals={}; C.forEach(c=>{vals[c.id]={};c.inp.forEach(([k,,,d])=>vals[c.id][k]=d);});
+let cur='s1';
+
+function renderPicker(){
+  $('picker').innerHTML=C.map(c=>`<button type="button" data-id="${c.id}" aria-pressed="${c.id===cur}"><span class="grp">${c.grp}</span>${beamSVG(c.geo(vals[c.id]),true)}<span>${c.name}</span></button>`).join('');
+  $('picker').querySelectorAll('button').forEach(b=>b.onclick=()=>{cur=b.dataset.id;renderPicker();renderCase();});
+}
+function renderCase(){
+  const c=C.find(x=>x.id===cur);
+  $('case').innerHTML=`<div class="side">
+    <div class="panel"><div class="inputs">${c.inp.map(([k,l,u])=>`<label for="in-${c.id}-${k}">${l} <span class="u">[${u}]</span><input type="number" id="in-${c.id}-${k}" data-k="${k}" value="${vals[c.id][k]}" step="any"></label>`).join('')}</div></div>
+    <div class="panel fig" id="mfig"></div>
+  </div>
+  <div class="calc-head">
+    <div><span class="grp">${c.grp}</span><h2>${c.name}</h2></div>
+    <div class="panel fig" id="bfig"></div>
+    <div id="warn"></div>
+    <div class="summary" id="sum"></div>
+    <div class="panel" id="steps"></div>
+  </div>`;
+  $('case').querySelectorAll('input').forEach(i=>i.oninput=()=>{const v=parseFloat(i.value);if(isFinite(v)){vals[c.id][i.dataset.k]=v;calcCase();}});
+  calcCase();
+}
+function calcCase(){
+  const c=C.find(x=>x.id===cur),v=vals[c.id],E=+$('gE').value,I=+$('gI').value;
+  const g=c.geo(v);
+  if(!(g.Lt>0&&E>0&&I>0)){$('warn').innerHTML='<div class="warnbox">Pituuksien, E:n ja I:n pitää olla positiivisia.</div>';$('steps').innerHTML='';$('sum').innerHTML='';return;}
+  $('bfig').innerHTML=beamSVG(g,false);
+  $('mfig').innerHTML=momentSVG(g,p=>c.M(v,p));
+  const w=c.chk?c.chk(v):'';$('warn').innerHTML=w?`<div class="warnbox">${w}</div>`:'';
+  const o=c.out(v,E,I);
+  const sec=u=>u==='kNm'?'Momentit':u==='mm'?'Taipumat ja geometria':'Tukireaktiot';
+  let h='',last='',no=0;
+  for(const [t,sym,f,s,val,u] of o){
+    const S=(u==='mm'&&!/^f/.test(sym))?'Geometria':sec(u);
+    if(S!==last){h+=`<div class="sec">${S}</div>`;last=S;}
+    no++;
+    h+=`<div class="step"><span class="no">${String(no).padStart(2,'0')}</span><h3>${t}</h3><div class="math"><span class="f">${sym} = ${f}</span><span class="s">${sym} = ${s}</span><span class="r">${sym} = ${n(val)} ${u}</span></div></div>`;
+  }
+  if(c.note)h+=`<p class="note" style="margin-top:10px">${c.note}</p>`;
+  h+=`<p class="note" style="margin-top:6px">Yksiköt laskennassa: F [kN] → ·10³ N, q [kN/m] = [N/mm], pituudet momenteissa [m], taipumissa [mm], E [N/mm²], I [mm⁴].</p>`;
+  /* ---------- Mitoitus ---------- */
+  const st=(t,lines,note)=>{no++;return `<div class="step"><span class="no">${String(no).padStart(2,'0')}</span><h3>${t}</h3><div class="math">${lines.map(([k,x])=>`<span class="${k}">${x}</span>`).join('')}</div>${note?`<p class="note">${note}</p>`:''}</div>`;};
+  const U=(u)=>`<span class="${cls(u)}">${n(u*100,0)} %</span> → ${VDH(u)}`;
+  const mode=$('gMode').value,p=curProfile(),fy=+$('gFy').value,gF=+$('gGF').value,nlim=+$('gN').value,gM0=1.0;
+  const util=[];
+  // taipumat (KRT)
+  h+=`<div class="sec">Taipumamitoitus (KRT, ominaiskuormat)</div>`;
+  for(const r of o.filter(r=>/^f/.test(r[1]))){
+    const [span,cant]=fspan(c.id,r[1],v),lim=(cant?2*span:span)/nlim,u=Math.abs(r[4])/lim;util.push(['f',u]);
+    h+=st(`Taipumaraja, ${r[1]}`,[
+      ['f',cant?`f<sub>lim</sub> = 2 · L<sub>u</sub> / n  (uloke)`:`f<sub>lim</sub> = L / n`],
+      ['s',`f<sub>lim</sub> = ${cant?'2 · ':''}${n(span)} / ${nlim}`],
+      ['r',`f<sub>lim</sub> = ${n(lim)} mm`],
+      ['r',`Käyttöaste: |${r[1]}| / f<sub>lim</sub> = ${n(Math.abs(r[4]))} / ${n(lim)} = ${U(u)}  (= L/${n(span/Math.max(Math.abs(r[4]),1e-9),0)})`]]);
+  }
+  // vaadittava jäyhyysmomentti ja profiiliehdotukset
+  let Ireq=0;
+  for(const r of o.filter(r=>/^f/.test(r[1]))){const [span,cant]=fspan(c.id,r[1],v),lim=(cant?2*span:span)/nlim;Ireq=Math.max(Ireq,I*Math.abs(r[4])/lim);}
+  const Mq=Math.max(...o.filter(r=>r[5]==='kNm'&&!/^M\(x/.test(r[1])).map(r=>Math.abs(r[4])))*(+$('gGF').value);
+  const qm=q=>{const fyq=FY[$('gGrade').value][q.tmax>40?1:0];return Mq/(q.Wply*fyq/1e6);};
+  const pick=FAMS.map(f=>PROFILES.filter(x=>x.fam===f&&x.Iy>=Ireq).sort((a,b)=>a.g-b.g)[0]||null);
+  const lightest=pick.filter(Boolean).sort((a,b)=>a.g-b.g)[0]||null;
+  h+=`<div class="sec">Profiilin valinta taipuman perusteella</div>`;
+  h+=st('Vaadittava jäyhyysmomentti',[
+    ['f','I<sub>req</sub> = I · max( |f| / f<sub>lim</sub> )'],
+    ['s',`I<sub>req</sub> = ${n(I)} · ${n(Ireq/I,3)}`],
+    ['r',`I<sub>req</sub> = ${n(Ireq)} mm⁴ = ${n(Ireq/1e4,1)} cm⁴`]],
+    'Taipuma on kääntäen verrannollinen jäyhyysmomenttiin, joten vaadittava I saadaan suoraan nykyisen I:n ja käyttöasteen tulona.');
+  h+=`<div class="tablewrap" style="margin:6px 0 4px 52px"><table><thead><tr><th>Sarja</th><th>Kevein riittävä</th><th>I<sub>y</sub> cm⁴</th><th>g kg/m</th><th>Taipuma</th><th>Taivutus*</th><th></th></tr></thead><tbody>`+
+    FAMS.map((f,i)=>{const q=pick[i];if(!q)return `<tr><td>${f}</td><td colspan="6" style="text-align:left">ei riittävää profiilia kirjastossa</td></tr>`;
+      const u=Ireq/q.Iy;return `<tr class="${p&&q.id===p.id?'sel':''}"><td>${f}</td><td>${q.name}${q===lightest?' ★':''}</td><td>${n(q.Iy/1e4,1)}</td><td>${n(q.g,1)}</td><td class="${cls(u)}">${n(u*100,0)} % ${VD(u)}</td><td class="${cls(qm(q))}">${n(qm(q)*100,0)} % ${VD(qm(q))}</td><td><button type="button" data-pick="${q.id}">${p&&q.id===p.id?'Valittu':'Valitse'}</button></td></tr>`;}).join('')+
+    `</tbody></table></div><p class="note" style="margin-left:52px">★ = kevein kaikista sarjoista. *Taivutus = pikatarkistus M<sub>Ed</sub> / (W<sub>pl,y</sub> · f<sub>y</sub>) teräslajilla ${$('gGrade').value} ja γ<sub>F</sub> = ${n(+$('gGF').value)}, ilman luokitusta ja kiepahdusta. Yli 100 % tarkoittaa, että taipuma ei ole mitoittava. Taipuma ei riipu teräslajista, joten valinta on sama kaikilla lujuuksilla.</p>`;
+  if(mode==='f'){
+    h+=`<p class="note" style="margin-top:10px">Mitoitusperusteena on vain taipuma. Taivutus- ja leikkauskestävyys saadaan näkyviin valitsemalla mitoitusperusteeksi "Taipuma + kestävyys". Tarkista kestävyys ainakin kerran, jos jänne on lyhyt tai kuorma suuri.</p>`;
+  }else if(!p){
+    h+=`<div class="sec">Kestävyys (MRT)</div><p class="note" style="margin:8px 0 0">Taivutus- ja leikkaustarkastelu vaatii profiilin. Valitse profiili kirjastosta yläosan valikosta.</p>`;
+  }else if(!(fy>0&&gF>0)){
+    h+=`<p class="note">Syötä positiiviset f<sub>y</sub> ja γ<sub>F</sub>.</p>`;
+  }else{
+    const eps=Math.sqrt(235/fy);
+    h+=`<div class="sec">Poikkileikkausluokka (${p.name}, ${$('gGrade').value})</div>`;
+    h+=st('Materiaalikerroin ε',[['f','ε = √(235 / f<sub>y</sub>)'],['s',`ε = √(235 / ${n(fy)})`],['r',`ε = ${n(eps,3)}`]]);
+    let cf,cw,lf,lw,tF,tW,flab,wlab;
+    if(p.kind==='I'){cf=(p.b-p.tw-2*p.r)/2;tF=p.tf;cw=p.h-2*p.tf-2*p.r;tW=p.tw;lf=[9,10,14];lw=[72,83,124];
+      flab=['c = (b − t<sub>w</sub> − 2r) / 2',`c = (${n(p.b)} − ${n(p.tw)} − 2·${n(p.r)}) / 2`,'t<sub>f</sub>'];
+      wlab=['c = h − 2t<sub>f</sub> − 2r',`c = ${n(p.h)} − 2·${n(p.tf)} − 2·${n(p.r)}`,'t<sub>w</sub>'];}
+    else{cf=p.b-3*p.t;tF=p.t;cw=p.h-3*p.t;tW=p.t;lf=[33,38,42];lw=[72,83,124];
+      flab=['c = b − 3t',`c = ${n(p.b)} − 3·${n(p.t)}`,'t'];wlab=['c = h − 3t',`c = ${n(p.h)} − 3·${n(p.t)}`,'t'];}
+    const klass=(rat,l)=>rat<=l[0]*eps?1:rat<=l[1]*eps?2:rat<=l[2]*eps?3:4;
+    const kf=klass(cf/tF,lf),kw=klass(cw/tW,lw),kl=Math.max(kf,kw);
+    h+=st(`Puristettu laippa ${p.kind==='I'?'(ulokeosa)':'(sisäosa)'}`,[['f',flab[0]],['s',flab[1]+` = ${n(cf)} mm`],
+      ['f',`c / ${flab[2]} ≤ ${lf[0]}ε / ${lf[1]}ε / ${lf[2]}ε  (luokka 1 / 2 / 3)`],
+      ['r',`c / ${flab[2]} = ${n(cf)} / ${n(tF)} = ${n(cf/tF)}  ↔  ${n(lf[0]*eps)} / ${n(lf[1]*eps)} / ${n(lf[2]*eps)}  →  luokka ${kf}`]],'SFS-EN 1993-1-1, taulukko 5.2');
+    h+=st('Uuma (taivutus)',[['f',wlab[0]],['s',wlab[1]+` = ${n(cw)} mm`],
+      ['f',`c / ${wlab[2]} ≤ ${lw[0]}ε / ${lw[1]}ε / ${lw[2]}ε`],
+      ['r',`c / ${wlab[2]} = ${n(cw)} / ${n(tW)} = ${n(cw/tW)}  ↔  ${n(lw[0]*eps)} / ${n(lw[1]*eps)} / ${n(lw[2]*eps)}  →  luokka ${kw}`],
+      ['r',`Poikkileikkausluokka: ${kl}`]]);
+    // taivutus
+    const Mk=Math.max(...o.filter(r=>r[5]==='kNm'&&!/^M\(x/.test(r[1])).map(r=>Math.abs(r[4])));
+    const MEd=gF*Mk,Vk=VK[c.id](v),VEd=gF*Vk[2];
+    h+=`<div class="sec">Taivutuskestävyys (MRT)</div>`;
+    h+=st('Mitoittava momentti',[['f','M<sub>Ed</sub> = γ<sub>F</sub> · max|M<sub>k</sub>|'],['s',`M<sub>Ed</sub> = ${n(gF)} · ${n(Mk)}`],['r',`M<sub>Ed</sub> = ${n(MEd)} kNm`]]);
+    let MRd=NaN,Wuse;
+    if(kl<=3){const pl=kl<=2;Wuse=pl?p.Wply:p.Wely;MRd=Wuse*fy/gM0/1e6;
+      h+=st(`Momenttikestävyys (luokka ${kl}, ${pl?'plastinen':'kimmoinen'})`,[
+        ['f',`M<sub>c,Rd</sub> = W<sub>${pl?'pl':'el'},y</sub> · f<sub>y</sub> / γ<sub>M0</sub>`],
+        ['s',`M<sub>c,Rd</sub> = ${n(Wuse)} · ${n(fy)} / ${n(gM0)} · 10⁻⁶`],
+        ['r',`M<sub>c,Rd</sub> = ${n(MRd)} kNm`],
+        ['r',`Käyttöaste: ${n(MEd)} / ${n(MRd)} = ${U(MEd/MRd)}`]],'SFS-EN 1993-1-1, 6.2.5. γ<sub>M0</sub> = 1,0 (Suomen kansallinen liite).');
+      util.push(['M',MEd/MRd]);
+    }else{h+=st('Momenttikestävyys',[['r','<span class="bad">Luokka 4 – tehollisen poikkileikkauksen laskentaa ei ole toteutettu.</span> → <b class="bad">TARKASTA, EI OK!</b>']]);util.push(['M',9]);}
+    // leikkaus
+    h+=`<div class="sec">Leikkauskestävyys (MRT)</div>`;
+    h+=st('Mitoittava leikkausvoima',[['f',`V<sub>k</sub> = ${Vk[0]}`],['s',`V<sub>k</sub> = ${Vk[1]} = ${n(Vk[2])} kN`],['f','V<sub>Ed</sub> = γ<sub>F</sub> · V<sub>k</sub>'],['r',`V<sub>Ed</sub> = ${n(gF)} · ${n(Vk[2])} = ${n(VEd)} kN`]]);
+    const Vpl=p.Av*fy/(Math.sqrt(3)*gM0)/1e3;
+    const avs=p.kind==='I'?`A<sub>v</sub> = ${n(p.A)} − 2·${n(p.b)}·${n(p.tf)} + (${n(p.tw)} + 2·${n(p.r)})·${n(p.tf)}  (≥ 1,0·${n(p.h-2*p.tf)}·${n(p.tw)})`:`A<sub>v</sub> = ${n(p.A)} · ${n(p.h)} / (${n(p.b)} + ${n(p.h)})`;
+    h+=st('Leikkauspinta-ala',[['f',`A<sub>v</sub> = ${p.Avf}`],['s',avs],['r',`A<sub>v</sub> = ${n(p.Av)} mm²`]],'SFS-EN 1993-1-1, 6.2.6(3). η = 1,0 (varmalla puolella).');
+    h+=st('Plastinen leikkauskestävyys',[['f','V<sub>pl,Rd</sub> = A<sub>v</sub> · (f<sub>y</sub> / √3) / γ<sub>M0</sub>'],['s',`V<sub>pl,Rd</sub> = ${n(p.Av)} · (${n(fy)} / √3) / ${n(gM0)} · 10⁻³`],['r',`V<sub>pl,Rd</sub> = ${n(Vpl)} kN`],['r',`Käyttöaste: ${n(VEd)} / ${n(Vpl)} = ${U(VEd/Vpl)}`]],'SFS-EN 1993-1-1, 6.2.6(2)');
+    util.push(['V',VEd/Vpl]);
+    const hw=p.kind==='I'?p.h-2*p.tf:p.h-2*p.t,tw=p.kind==='I'?p.tw:p.t,lb=72*eps/1.0;
+    h+=st('Uuman leikkauslommahdus',[['f','h<sub>w</sub> / t<sub>w</sub> ≤ 72 · ε / η'],['r',`${n(hw)} / ${n(tw)} = ${n(hw/tw)} ${hw/tw<=lb?'≤':'>'} ${n(lb)}  →  ${hw/tw<=lb?'<span class="ok">ei lommahdustarkastelua</span>':'<span class="bad">tarkastettava EN 1993-1-5 mukaan</span>'}</span><span class="r">Käyttöaste: ${n(hw/tw)} / ${n(lb)} = ${U((hw/tw)/lb)}`]],'SFS-EN 1993-1-1, 6.2.6(6)');
+    // yhteisvaikutus
+    h+=`<div class="sec">Taivutuksen ja leikkauksen yhteisvaikutus</div>`;
+    if(VEd<=0.5*Vpl){
+      h+=st('Leikkauksen vaikutus momenttikestävyyteen',[['f','V<sub>Ed</sub> ≤ 0,5 · V<sub>pl,Rd</sub>  →  ei pienennystä'],['r',`${n(VEd)} ≤ 0,5 · ${n(Vpl)} = ${n(0.5*Vpl)}  →  <span class="ok">ei vaikutusta</span>`]],'SFS-EN 1993-1-1, 6.2.8(2)');
+    }else if(isFinite(MRd)){
+      const rho=(2*VEd/Vpl-1)**2;let MV,lines;
+      if(p.kind==='I'&&kl<=2){const Aw=hw*tw;MV=Math.min((p.Wply-rho*Aw*Aw/(4*tw))*fy/gM0/1e6,MRd);
+        lines=[['f','M<sub>y,V,Rd</sub> = (W<sub>pl,y</sub> − ρ · A<sub>w</sub>² / (4 · t<sub>w</sub>)) · f<sub>y</sub> / γ<sub>M0</sub>,  A<sub>w</sub> = h<sub>w</sub> · t<sub>w</sub>'],['s',`M<sub>y,V,Rd</sub> = (${n(p.Wply)} − ${n(rho,3)} · ${n(Aw)}² / (4 · ${n(tw)})) · ${n(fy)} · 10⁻⁶`]];}
+      else{MV=(1-rho)*MRd;lines=[['f','M<sub>V,Rd</sub> = (1 − ρ) · M<sub>c,Rd</sub>  (varmalla puolella)'],['s',`M<sub>V,Rd</sub> = (1 − ${n(rho,3)}) · ${n(MRd)}`]];}
+      h+=st('Pienennetty momenttikestävyys',[['f','ρ = (2 · V<sub>Ed</sub> / V<sub>pl,Rd</sub> − 1)²'],['s',`ρ = (2 · ${n(VEd)} / ${n(Vpl)} − 1)² = ${n(rho,3)}`],...lines,['r',`M<sub>V,Rd</sub> = ${n(MV)} kNm`],['r',`Käyttöaste: ${n(MEd)} / ${n(MV)} = ${U(MEd/MV)}`]],'SFS-EN 1993-1-1, 6.2.8(3)–(5). Suurin momentti ja leikkausvoima yhdistetään, mikä on varmalla puolella.');
+      util.push(['MV',MEd/MV]);
+    }
+    h+=`<p class="note" style="margin-top:10px">Oletukset: palkin puristettu laippa on tuettu sivusuunnassa (kiepahdusta ei tarkastella), kuormat vaikuttavat profiilin vahvemman akselin suunnassa (y–y), eikä profiilin omaa painoa lisätä automaattisesti. Profiilin oma paino on ${n(p.g,1)} kg/m ≈ ${n(p.g*9.81/1000,3)} kN/m.</p>`;
+  }
+  $('steps').innerHTML=h;
+  $('steps').querySelectorAll('button[data-pick]').forEach(bt=>bt.onclick=()=>{$('gProf').value=bt.dataset.pick;applyProfile();toast(`${curProfile().name} valittu`);});
+  // yhteenveto
+  const best=k=>{const a=util.filter(x=>x[0].startsWith(k)).map(x=>x[1]);return a.length?Math.max(...a):null;};
+  const tl=(k,u,sub)=>u==null?'':`<div class="tile"><span class="k">${k}</span><span class="v ${cls(u)}">${n(u*100,0)} %</span><div class="bar"><i style="width:${Math.min(u,1)*100}%;background:var(--${cls(u)})"></i></div><span class="s">${VDH(u)}</span>${sub?`<span class="s">${sub}</span>`:''}</div>`;
+  const Mk2=Math.max(...o.filter(r=>r[5]==='kNm'&&!/^M\(x/.test(r[1])).map(r=>Math.abs(r[4]))),fmax=Math.max(...o.filter(r=>/^f/.test(r[1])).map(r=>Math.abs(r[4])));
+  $('sum').innerHTML=
+    `<div class="tile"><span class="k">max |M<sub>k</sub>|</span><span class="v">${n(Mk2)} <span class="u">kNm</span></span><span class="s">V<sub>k</sub> = ${n(VK[c.id](v)[2])} kN</span></div>`+
+    `<div class="tile"><span class="k">max |f|</span><span class="v">${n(fmax)} <span class="u">mm</span></span><span class="s">${p?p.name:'oma I'}</span></div>`+
+    `<div class="tile"><span class="k">I<sub>req</sub></span><span class="v">${n(Ireq/1e4,1)} <span class="u">cm⁴</span></span><span class="s">${lightest?'kevein: '+lightest.name+' ('+n(lightest.g,1)+' kg/m)':'ei riittävää profiilia'}</span></div>`+
+    tl('Taivutus',best('M'))+tl('Leikkaus',best('V'))+tl('Taipuma',best('f'),`raja L/${nlim}`);
+}
+const cls=u=>u<=0.9?'ok':u<=1?'warn':'bad';
+const VD=u=>u<=1?'OK!':'TARKASTA, EI OK!';
+const VDH=u=>`<b class="${u<=1?'ok':'bad'}">${VD(u)}</b>`;
+function curProfile(){return PROFILES.find(x=>x.id===$('gProf').value)||null;}
+
+/* ---------- Poikkileikkaussuureet (Jäyhyysmomentti + Taivutusvastus) ---------- */
+const P=Math.PI;
+const SH=[
+{id:'pt',name:'Pyörötanko',inp:[['D','D','mm',24]],
+ svg:`<circle cx="48" cy="48" r="36" fill="var(--accent-soft)" stroke="var(--ink)" stroke-width="2"/><line x1="12" y1="48" x2="84" y2="48" stroke="var(--muted)" stroke-dasharray="3 3"/><line x1="48" y1="12" x2="48" y2="84" stroke="var(--muted)" stroke-dasharray="3 3"/><text x="52" y="44" class="t">D</text>`,
+ out:v=>[
+  ['I','I<sub>y</sub> = I<sub>z</sub>','π · D⁴ / 64',`π · ${n(v.D)}⁴ / 64`,P*v.D**4/64,'mm⁴'],
+  ['W','W<sub>y</sub> = W<sub>z</sub>','π · D³ / 32',`π · ${n(v.D)}³ / 32`,P*v.D**3/32,'mm³']]},
+{id:'la',name:'Latta',inp:[['b','b (leveys)','mm',300],['h','h (korkeus)','mm',10]],
+ svg:`<rect x="10" y="36" width="76" height="24" fill="var(--accent-soft)" stroke="var(--ink)" stroke-width="2"/><line x1="4" y1="48" x2="92" y2="48" stroke="var(--muted)" stroke-dasharray="3 3"/><text x="44" y="78" class="t">b</text><text x="0" y="30" class="t">h</text><text x="80" y="44" class="t">z</text>`,
+ out:v=>[
+  ['I','I<sub>z</sub>','b · h³ / 12',`${n(v.b)} · ${n(v.h)}³ / 12`,v.b*v.h**3/12,'mm⁴'],
+  ['I','I<sub>y</sub>','h · b³ / 12',`${n(v.h)} · ${n(v.b)}³ / 12`,v.h*v.b**3/12,'mm⁴'],
+  ['W','W<sub>z</sub>','b · h² / 6',`${n(v.b)} · ${n(v.h)}² / 6`,v.b*v.h**2/6,'mm³'],
+  ['W','W<sub>y</sub>','h · b² / 6',`${n(v.h)} · ${n(v.b)}² / 6`,v.h*v.b**2/6,'mm³']],
+ note:'z-akseli on b:n suuntainen (lappeellaan taivutettu latta käyttää I<sub>z</sub>:aa).'},
+{id:'yr',name:'Ympyrärengas (putki)',inp:[['D','D (ulko)','mm',76.1],['d','d (sisä)','mm',69.1]],
+ svg:`<circle cx="48" cy="48" r="36" fill="var(--accent-soft)" stroke="var(--ink)" stroke-width="2"/><circle cx="48" cy="48" r="26" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/><text x="40" y="52" class="t">d</text><text x="78" y="16" class="t">D</text>`,
+ chk:v=>v.d>=v.D?'Sisähalkaisijan pitää olla ulkohalkaisijaa pienempi.':'',
+ out:v=>[
+  ['I','I<sub>y</sub> = I<sub>z</sub>','π · (D⁴ − d⁴) / 64',`π · (${n(v.D)}⁴ − ${n(v.d)}⁴) / 64`,P*(v.D**4-v.d**4)/64,'mm⁴'],
+  ['W','W<sub>y</sub> = W<sub>z</sub>','π · (D⁴ − d⁴) / (32 · D)',`π · (${n(v.D)}⁴ − ${n(v.d)}⁴) / (32 · ${n(v.D)})`,P*(v.D**4-v.d**4)/(32*v.D),'mm³']]},
+{id:'lp',name:'Tasakylkinen L-profiili',inp:[['L','L (kylki)','mm',100],['t','t (paksuus)','mm',10]],
+ svg:`<path d="M14 10 h14 v58 h58 v14 h-72 Z" fill="var(--accent-soft)" stroke="var(--ink)" stroke-width="2"/><text x="0" y="46" class="t">L</text><text x="80" y="64" class="t">t</text>`,
+ chk:v=>v.t>=v.L?'Paksuuden pitää olla kylkeä pienempi.':'',
+ out:v=>{const L=v.L,t=v.t,Ix=t*(5*L*L-5*L*t+t*t)*(L*L-L*t+t*t)/(12*(2*L-t)),e=(L*L+L*t-t*t)/(2*(2*L-t));return[
+  ['g','e','(L² + L·t − t²) / (2 · (2L − t))',`(${n(L)}² + ${n(L)}·${n(t)} − ${n(t)}²) / (2 · (2·${n(L)} − ${n(t)}))`,e,'mm'],
+  ['I','I<sub>x</sub> = I<sub>y</sub>','t · (5L² − 5Lt + t²) · (L² − Lt + t²) / (12 · (2L − t))',`${n(t)} · (5·${n(L)}² − 5·${n(L)}·${n(t)} + ${n(t)}²) · (${n(L)}² − ${n(L)}·${n(t)} + ${n(t)}²) / (12 · (2·${n(L)} − ${n(t)}))`,Ix,'mm⁴'],
+  ['I','I<sub>u</sub> (pääakseli, max)','t · (2L − t) · (2L² − 2Lt + t²) / 12',`${n(t)} · (2·${n(L)} − ${n(t)}) · (2·${n(L)}² − 2·${n(L)}·${n(t)} + ${n(t)}²) / 12`,t*(2*L-t)*(2*L*L-2*L*t+t*t)/12,'mm⁴'],
+  ['I','I<sub>v</sub> (pääakseli, min)','t · (2L⁴ − 4L³t + 8L²t² − 6Lt³ + t⁴) / (12 · (2L − t))',`${n(t)} · (2·${n(L)}⁴ − 4·${n(L)}³·${n(t)} + 8·${n(L)}²·${n(t)}² − 6·${n(L)}·${n(t)}³ + ${n(t)}⁴) / (12 · (2·${n(L)} − ${n(t)}))`,t*(2*L**4-4*L**3*t+8*L*L*t*t-6*L*t**3+t**4)/(12*(2*L-t)),'mm⁴'],
+  ['g','I<sub>xy</sub>','L² · t · (L − t)² / (4 · (t − 2L))',`${n(L)}² · ${n(t)} · (${n(L)} − ${n(t)})² / (4 · (${n(t)} − 2·${n(L)}))`,L*L*t*(L-t)**2/(4*(t-2*L)),'mm⁴'],
+  ['W','W<sub>x,min</sub>','I<sub>x</sub> / (L − e)',`${n(Ix)} / (${n(L)} − ${n(e)})`,Ix/(L-e),'mm³']];},
+ note:'x- ja y-akselit kulkevat painopisteen kautta kylkien suuntaisesti; e on painopisteen etäisyys kyljen ulkopinnasta. Pyöristyssäteitä ei huomioida.'}
+];
+const svals={};SH.forEach(s=>{svals[s.id]={};s.inp.forEach(([k,,,d])=>svals[s.id][k]=d);});
+function renderSections(){
+  $('sections').innerHTML=SH.map(s=>`<div class="panel shape" id="sh-${s.id}"><h2>${s.name}</h2><div class="shape-top"><svg viewBox="0 0 96 96" aria-hidden="true">${s.svg}<style>.t{font:600 13px Arial,Helvetica,sans-serif;fill:var(--ink)}</style></svg><div class="inputs">${s.inp.map(([k,l,u])=>`<label for="sin-${s.id}-${k}">${l} <span class="u">[${u}]</span><input type="number" id="sin-${s.id}-${k}" data-s="${s.id}" data-k="${k}" value="${svals[s.id][k]}" step="any"></label>`).join('')}</div></div><div class="res"></div></div>`).join('');
+  $('sections').querySelectorAll('input').forEach(i=>i.oninput=()=>{const v=parseFloat(i.value);if(isFinite(v)){svals[i.dataset.s][i.dataset.k]=v;calcShape(i.dataset.s);}});
+  SH.forEach(s=>calcShape(s.id));
+}
+function calcShape(id){
+  const s=SH.find(x=>x.id===id),v=svals[id],box=document.querySelector(`#sh-${id} .res`);
+  const w=s.chk?s.chk(v):'';
+  if(w||Object.values(v).some(x=>!(x>0))){box.innerHTML=`<div class="warnbox">${w||'Mittojen pitää olla positiivisia.'}</div>`;return;}
+  let h='',last='';const lab={I:'Jäyhyysmomentti',W:'Taivutusvastus',g:'Geometria'};
+  s.out(v).forEach(([kind,sym,f,sub,val,u],i)=>{
+    if(lab[kind]!==last){h+=`<div class="sec">${lab[kind]}</div>`;last=lab[kind];}
+    h+=`<div class="step"><span class="no">${String(i+1).padStart(2,'0')}</span><h3>${sym}</h3><div class="math"><span class="f">${f}</span><span class="s">= ${sub}</span><span class="r">= ${n(val)} ${u}</span>${kind==='I'?`<button type="button" class="use" data-v="${val}">Käytä palkkilaskelmassa</button>`:''}</div></div>`;
+  });
+  if(s.note)h+=`<p class="note" style="margin-top:8px">${s.note}</p>`;
+  box.innerHTML=h;
+  box.querySelectorAll('.use').forEach(b=>b.onclick=()=>{$('gProf').value='';$('gI').disabled=false;$('gI').value=(+b.dataset.v).toFixed(2);renderLib();toast(`I = ${n(+b.dataset.v)} mm⁴ siirretty palkkilaskelmaan`);});
+}
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600);}
+
+/* ---------- Profiilivalinta ja kirjasto ---------- */
+const FAMS=['IPE','HEA','HEB','SHS','RHS'];
+function fillProfSelect(){
+  $('gProf').innerHTML=`<option value="">Oma poikkileikkaus (vain taipuma)</option>`+FAMS.map(f=>`<optgroup label="${f}">${PROFILES.filter(p=>p.fam===f).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</optgroup>`).join('');
+}
+function setFy(){const p=curProfile(),t=p?p.tmax:0;$('gFy').value=FY[$('gGrade').value][t>40?1:0];}
+function applyProfile(){
+  const p=curProfile();
+  $('gI').disabled=!!p;
+  if(p)$('gI').value=p.Iy.toFixed(0);
+  setFy();calcCase();renderLib();
+}
+let libFam='IPE';
+function renderLib(){
+  $('libfam').innerHTML=FAMS.map(f=>`<button type="button" data-f="${f}" aria-pressed="${f===libFam}">${f}</button>`).join('');
+  $('libfam').querySelectorAll('button').forEach(b=>b.onclick=()=>{libFam=b.dataset.f;renderLib();});
+  const I=libFam==='IPE'||libFam==='HEA'||libFam==='HEB',sel=$('gProf').value;
+  const c=(x,d=1)=>n(x,d);
+  $('libtable').innerHTML=`<thead><tr><th>Profiili</th><th>h<br>mm</th><th>b<br>mm</th><th>${I?'t<sub>w</sub>':'t'}<br>mm</th>${I?'<th>t<sub>f</sub><br>mm</th>':''}<th>${I?'r':'r<sub>o</sub>'}<br>mm</th><th>A<br>cm²</th><th>g<br>kg/m</th><th>I<sub>y</sub><br>cm⁴</th><th>W<sub>el,y</sub><br>cm³</th><th>W<sub>pl,y</sub><br>cm³</th><th>i<sub>y</sub><br>cm</th><th>I<sub>z</sub><br>cm⁴</th><th>W<sub>pl,z</sub><br>cm³</th><th>A<sub>v,z</sub><br>cm²</th><th></th></tr></thead><tbody>`+
+  PROFILES.filter(p=>p.fam===libFam).map(p=>`<tr class="${p.id===sel?'sel':''}"><td>${p.name}</td><td>${c(p.h,0)}</td><td>${c(p.b,0)}</td><td>${c(I?p.tw:p.t)}</td>${I?`<td>${c(p.tf)}</td>`:''}<td>${c(p.r)}</td><td>${c(p.A/100,2)}</td><td>${c(p.g,1)}</td><td>${c(p.Iy/1e4,1)}</td><td>${c(p.Wely/1e3,1)}</td><td>${c(p.Wply/1e3,1)}</td><td>${c(Math.sqrt(p.Iy/p.A)/10,2)}</td><td>${c(p.Iz/1e4,1)}</td><td>${c(p.Wplz/1e3,1)}</td><td>${c(p.Av/100,2)}</td><td><button type="button" data-id="${p.id}">${p.id===sel?'Valittu':'Valitse'}</button></td></tr>`).join('')+'</tbody>';
+  $('libtable').querySelectorAll('td button').forEach(b=>b.onclick=()=>{$('gProf').value=b.dataset.id;applyProfile();tab('palkit');toast(`${curProfile().name} valittu palkkilaskelmaan`);});
+}
+
+/* ---------- Välilehdet ---------- */
+function tab(which){
+  for(const [t,v,k] of [['tab-palkit','view-palkit','palkit'],['tab-lib','view-lib','lib'],['tab-pl','view-pl','pl']]){
+    $(t).setAttribute('aria-selected',which===k);$(v).hidden=which!==k;}
+  if(which==='palkit')calcCase();
+}
+$('tab-palkit').onclick=()=>tab('palkit');$('tab-lib').onclick=()=>tab('lib');$('tab-pl').onclick=()=>tab('pl');
+['gE','gI','gFy','gGF'].forEach(id=>$(id).oninput=calcCase);
+$('gN').onchange=calcCase;
+$('gMode').onchange=calcCase;
+$('gGrade').onchange=()=>{setFy();calcCase();};
+$('gProf').onchange=applyProfile;
+fillProfSelect();$('gProf').value='IPE300';
+renderPicker();renderCase();renderSections();applyProfile();
+</script>
+</body>
+</html>

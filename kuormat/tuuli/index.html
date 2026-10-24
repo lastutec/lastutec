@@ -98,6 +98,15 @@ details.step>.calc{padding:0 12px 10px}
   html,body{background:#fff!important;color:#000}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .printbtn,.back{display:none!important} .no-print{display:none!important} .card{border:0;padding:0} .grid{grid-template-columns:1fr} details.step{break-inside:avoid} }
+.w3ctl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+.w3ctl button{font:600 12.5px Arial,Helvetica,sans-serif;padding:4px 11px;border-radius:99px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer}
+.w3ctl button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+.w3d{width:100%;height:auto;display:block;background:#0b0b0b;border:1px solid var(--line);border-radius:6px;touch-action:none;cursor:grab;user-select:none}
+.w3d:active{cursor:grabbing}
+.w3d .w3l{font:700 13px Arial,Helvetica,sans-serif;fill:#f4f4f4;paint-order:stroke;stroke:#000;stroke-width:3px}
+.w3d .w3v{font:600 12px Arial,Helvetica,sans-serif;fill:#fff;paint-order:stroke;stroke:#000;stroke-width:3px}
+.w3d .w3a{font:12px Arial,Helvetica,sans-serif;fill:#9a9a9a}
+@media print{.w3d{background:#fff}.w3d .w3a{fill:#444}.w3ctl{display:none}}
 </style>
 </head>
 <body>
@@ -138,6 +147,16 @@ details.step>.calc{padding:0 12px 10px}
           <div class="kpis" id="w-kpis"></div>
           <details class="step" open><summary>Puuskanopeuspaine q<sub>p</sub>(h) välivaiheineen</summary><div class="calc" id="w-qpsteps"></div></details>
           <details class="step"><summary>q<sub>p</sub>(z) korkeuden funktiona</summary><div class="tbl-wrap" style="padding:0 12px 10px"><table id="w-qptbl"></table></div></details>
+        </div>
+        <div class="card">
+          <h2>Tuulikuormat 3D</h2>
+          <div class="w3ctl" id="w3d-ctl">
+            <span class="small">Tuulen suunta</span><button type="button" data-dir="X">X</button><button type="button" data-dir="Y">Y</button>
+            <span class="small" style="margin-left:8px">Näytä</span><button type="button" data-mode="e">w<sub>e</sub> ulkoinen</button><button type="button" data-mode="p">netto c<sub>pi</sub>+</button><button type="button" data-mode="n">netto c<sub>pi</sub>−</button>
+            <button type="button" data-reset>↺ Näkymä</button>
+          </div>
+          <svg id="w3d-svg" class="w3d" viewBox="0 0 720 460" role="img" aria-label="Rakennuksen tuulikuormat 3D-kuvana"></svg>
+          <div class="small" id="w3d-note"></div>
         </div>
         <div id="w-dirs"></div>
       </div>
@@ -208,7 +227,7 @@ function windCalc(){
   $('#w-qptbl').innerHTML='<thead><tr><th class="l">z [m]</th><th>c<sub>r</sub></th><th>v<sub>m</sub> [m/s]</th><th>I<sub>v</sub></th><th>q<sub>p</sub> [kN/m²]</th></tr></thead><tbody>'+zs.map(z=>{const q=W.qp(z); return `<tr${z===h?' style="font-weight:600"':''}><td class="l">${fmt(z,1)}</td><td class="num">${fmt(q.cr,3)}</td><td class="num">${fmt(q.vm,2)}</td><td class="num">${fmt(q.Iv,3)}</td><td class="num">${fmt(q.q,3)}</td></tr>`;}).join('')+'</tbody>';
   // suunnat
   const dirs=[{k:'X',b:Ly,d:Lx,F:'F<sub>x</sub>'},{k:'Y',b:Lx,d:Ly,F:'F<sub>y</sub>'}];
-  let out=''; const floorF={X:[],Y:[]};
+  let out=''; const floorF={X:[],Y:[]}; const w3={Lx,Ly,h};
   dirs.forEach(D=>{
     const b=D.b, d=D.d, hd=d>0?h/d:0, e=Math.min(b,2*h); const cw=cpeWall(hd);
     // seinävyöhykkeet
@@ -233,6 +252,7 @@ function windCalc(){
     s+='</tbody></table></div><div class="small">Paineet kN/m², + = paine pintaa kohti, − = imu. c<sub>pe</sub>(A) = c<sub>pe,1</sub> − (c<sub>pe,1</sub> − c<sub>pe,10</sub>)·log<sub>10</sub>A, kun 1 m² &lt; A &lt; 10 m².</div>';
     // tasakatto
     const cr=cpeRoof(h>0?hp/h:0); const zh=h+hp; const qr=W.qp(zh).q;
+    w3[D.k]={b,d,e,zones,cw,cr,qh,qr,cpi};
     s+='<h3>Tasakatto (h<sub>p</sub>/h = '+fmt(h>0?hp/h:0,3)+', z<sub>e</sub> = h + h<sub>p</sub> = '+fmt(zh,2)+' m, q<sub>p</sub> = '+fmt(qr,3)+' kN/m²)</h3>';
     s+='<div class="tbl-wrap"><table><thead><tr><th class="l">Vyöhyke</th><th class="l">Mitat</th><th>c<sub>pe,10</sub></th><th>c<sub>pe,1</sub></th><th>w<sub>e</sub> = q<sub>p</sub>·c<sub>pe,10</sub></th><th>w<sub>net</sub> max imu</th></tr></thead><tbody>';
     const rz={F:'e/4 × e/10 = '+fmt(e/4,2)+' × '+fmt(e/10,2)+' m (nurkat)',G:'(b − e/2) × e/10 = '+fmt(Math.max(0,b-e/2),2)+' × '+fmt(e/10,2)+' m',H:'b × (e/2 − e/10) = '+fmt(b,2)+' × '+fmt(Math.min(d,e/2)-e/10,2)+' m',I:'b × (d − e/2) = '+fmt(b,2)+' × '+fmt(Math.max(0,d-e/2),2)+' m'};
@@ -264,7 +284,91 @@ function windCalc(){
   out+='<div class="card"><h2>Kerrosvoimat jäykistyslaskelmaan</h2><div class="small">Siirrä tason vaakavoimat vaakakuormien jakautumistyökaluun. F<sub>x</sub> ja F<sub>y</sub> ovat erillisiä kuormitustapauksia, joten molemmat siirtyvät samalla kertaa. Tarkista työkalussa kuorman sijainti (x<sub>F</sub>, y<sub>F</sub>).</div><div class="tbl-wrap" style="margin-top:6px"><table><thead><tr><th class="l">Taso</th><th>z [m]</th><th>F<sub>x</sub> [kN]</th><th>F<sub>y</sub> [kN]</th><th class="l no-print"></th></tr></thead><tbody>'+
     floorF.X.map((o,i)=>{ const fy=floorF.Y[i]?floorF.Y[i].F:0; return `<tr><td class="l">${o.i}</td><td class="num">${fmt(o.z,2)}</td><td class="num">${fmt(o.F,1)}</td><td class="num">${fmt(fy,1)}</td><td class="l no-print"><a href="../../statiikka/vaakakuormat/?Fx=${o.F.toFixed(2)}&Fy=${fy.toFixed(2)}&taso=${o.i}">Avaa jäykistystyökalussa →</a></td></tr>`; }).join('')+'</tbody></table></div></div>';
   $('#w-dirs').innerHTML=out;
+  V3.data=w3; render3D();
 }
+/* ===================== 3D-kuva tuulikuormista ===================== */
+const V3={yaw:55,pitch:28,dir:'X',mode:'e',data:null};
+function face(pts,val,label,kind){ return {pts,val,label,kind}; }
+function build3D(){
+  const T=V3.data; if(!T) return [];
+  const D=T[V3.dir]; const {Lx,Ly,h}=T; const F=[];
+  const ci=V3.mode==='e'?0:(V3.mode==='p'?Math.max(...D.cpi):Math.min(...D.cpi));
+  const wv=(q,c)=>q*(c-ci);
+  // apufunktio: suorakaide u-akselin (tuulen suunta) ja v-akselin (poikittain) koordinaateissa → maailma
+  const X=V3.dir==='X';
+  const P=(u,v,z)=>X?[u,v,z]:[v,u,z];               // u = tuulen suuntaan, v = poikittain
+  const d=D.d, b=D.b, e=D.e;
+  // tuulenpuoli D (u=0) ja suojanpuoli E (u=d)
+  const cD=D.cw.D[0], cE=D.cw.E[0];
+  F.push(face([P(0,0,0),P(0,b,0),P(0,b,h),P(0,0,h)],wv(D.qh,cD),'D',X?[-1,0,0]:[0,-1,0]));
+  F.push(face([P(d,0,0),P(d,0,h),P(d,b,h),P(d,b,0)],wv(D.qh,cE),'E',X?[1,0,0]:[0,1,0]));
+  // sivuseinät (v=0 ja v=b), vyöhykkeet A,B,C pitkin u:ta
+  let u0=0; D.zones.forEach(([n,len])=>{ const u1=Math.min(d,u0+len); const c=D.cw[n][0];
+    F.push(face([P(u0,0,0),P(u0,0,h),P(u1,0,h),P(u1,0,0)],wv(D.qh,c),n,X?[0,-1,0]:[-1,0,0]));
+    F.push(face([P(u0,b,0),P(u1,b,0),P(u1,b,h),P(u0,b,h)],wv(D.qh,c),n,X?[0,1,0]:[1,0,0]));
+    u0=u1; });
+  // tasakatto F,G,H,I
+  const zt=h, up=[0,0,1]; const r=D.cr, q=D.qr;
+  const roof=(u0,u1,v0,v1,n,c)=>{ if(u1-u0<1e-6||v1-v0<1e-6) return; F.push(face([P(u0,v0,zt),P(u1,v0,zt),P(u1,v1,zt),P(u0,v1,zt)],wv(q,c),n,up)); };
+  const e10=Math.min(d,e/10), e4=Math.min(b/2,e/4), e2=Math.min(d,e/2);
+  roof(0,e10,0,e4,'F',r.F[0]); roof(0,e10,b-e4,b,'F',r.F[0]); roof(0,e10,e4,b-e4,'G',r.G[0]);
+  roof(e10,e2,0,b,'H',r.H[0]); roof(e2,d,0,b,'I',-0.2);
+  // pohja (näkyy vain alta)
+  F.push(face([P(0,0,0),P(d,0,0),P(d,b,0),P(0,b,0)].reverse(),null,'',[0,0,-1]));
+  return F;
+}
+function render3D(){
+  const el=$('#w3d-svg'); if(!el||!V3.data) return;
+  const T=V3.data; const W=720,H=460;
+  const ya=V3.yaw*Math.PI/180, pa=V3.pitch*Math.PI/180, cy=Math.cos(ya), sy=Math.sin(ya), cp=Math.cos(pa), sp=Math.sin(pa);
+  const cx=T.Lx/2, cyy=T.Ly/2, cz=T.h/2;
+  const pr=p=>{ const x=p[0]-cx, y=p[1]-cyy, z=p[2]-cz; const X1=x*cy-y*sy, Y1=x*sy+y*cy; return {x:X1, y:-(z*cp+Y1*sp), dep:Y1*cp-z*sp}; };
+  const rn=n=>{ const X1=n[0]*cy-n[1]*sy, Y1=n[0]*sy+n[1]*cy; return -Y1*cp+n[2]*sp; };
+  const faces=build3D();
+  // mittakaava
+  const corners=[]; [0,T.Lx].forEach(x=>[0,T.Ly].forEach(y=>[0,T.h].forEach(z=>corners.push(pr([x,y,z])))));
+  const xs=corners.map(c=>c.x), ys=corners.map(c=>c.y); const minx=Math.min(...xs), maxx=Math.max(...xs), miny=Math.min(...ys), maxy=Math.max(...ys);
+  const sc=Math.min((W-170)/(maxx-minx||1),(H-110)/(maxy-miny||1)); const ox=W/2-(minx+maxx)/2*sc, oy=H/2+10-(miny+maxy)/2*sc;
+  const S=p=>{ const q=pr(p); return [ox+q.x*sc, oy+q.y*sc, q.dep]; };
+  const vmax=Math.max(0.01,...faces.filter(f=>f.val!==null).map(f=>Math.abs(f.val)));
+  const fill=v=>{ if(v===null) return '#222'; const t=Math.min(1,Math.abs(v)/vmax); return v>=0?`rgba(255,107,90,${(0.22+0.68*t).toFixed(3)})`:`rgba(110,170,235,${(0.22+0.68*t).toFixed(3)})`; };
+  const vis=faces.map(f=>{ const sp2=f.pts.map(S); return {f,sp:sp2,dep:sp2.reduce((a,p)=>a+p[2],0)/sp2.length,show:rn(f.kind)>1e-6}; }).filter(o=>o.show).sort((a,b)=>b.dep-a.dep);
+  let g='';
+  vis.forEach(o=>{ g+=`<polygon points="${o.sp.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="${fill(o.f.val)}" stroke="#0b0b0b" stroke-width="1.2" stroke-linejoin="round"/>`; });
+  // tekstit
+  vis.forEach(o=>{ if(!o.f.label) return; const p=o.sp; let A=0; for(let i=0;i<p.length;i++){ const j=(i+1)%p.length; A+=p[i][0]*p[j][1]-p[j][0]*p[i][1]; } A=Math.abs(A)/2;
+    if(A<450) return; const mx=p.reduce((a,q)=>a+q[0],0)/p.length, my=p.reduce((a,q)=>a+q[1],0)/p.length;
+    const v=o.f.val; const big=A>3500;
+    g+=`<text x="${mx.toFixed(1)}" y="${(my-(big?4:0)).toFixed(1)}" text-anchor="middle" class="w3l">${o.f.label}</text>`;
+    g+=`<text x="${mx.toFixed(1)}" y="${(my+(big?12:11)).toFixed(1)}" text-anchor="middle" class="w3v">${(v>0?'+':'')+fmt(v,2)}</text>`; });
+  // tuulinuolet
+  const D=T[V3.dir]; const X=V3.dir==='X'; const P=(u,v,z)=>X?[u,v,z]:[v,u,z]; const L=Math.max(T.Lx,T.Ly)*0.28;
+  [0.2,0.8].forEach(f=>{ const a=S(P(-L,D.b*f,T.h*0.3)), bq=S(P(-L*0.12,D.b*f,T.h*0.3));
+    g+=`<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${bq[0].toFixed(1)}" y2="${bq[1].toFixed(1)}" stroke="var(--accent)" stroke-width="3" marker-end="url(#w3ah)"/>`; });
+  const lab=S(P(-L*1.05,D.b*0.2,T.h*0.3)); g+=`<text x="${lab[0].toFixed(1)}" y="${(lab[1]+18).toFixed(1)}" text-anchor="middle" class="w3l" style="fill:var(--accent)">tuuli ${V3.dir}</text>`;
+  // akselit
+  const o0=S([0,0,0]), ax=S([Math.min(T.Lx,6),0,0]), ay=S([0,Math.min(T.Ly,6),0]);
+  g+=`<line x1="${o0[0]}" y1="${o0[1]}" x2="${ax[0]}" y2="${ax[1]}" stroke="#9a9a9a" stroke-width="1.5"/><text x="${ax[0]+4}" y="${ax[1]+4}" class="w3a">x</text><line x1="${o0[0]}" y1="${o0[1]}" x2="${ay[0]}" y2="${ay[1]}" stroke="#9a9a9a" stroke-width="1.5"/><text x="${ay[0]+4}" y="${ay[1]+4}" class="w3a">y</text>`;
+  // selite
+  const mode={e:'ulkoinen paine w<tspan baseline-shift="sub" font-size="9">e</tspan> = q<tspan baseline-shift="sub" font-size="9">p</tspan>·c<tspan baseline-shift="sub" font-size="9">pe,10</tspan>',p:'nettopaine, c<tspan baseline-shift="sub" font-size="9">pi</tspan> = '+fmt(Math.max(...D.cpi),1),n:'nettopaine, c<tspan baseline-shift="sub" font-size="9">pi</tspan> = '+fmt(Math.min(...D.cpi),1)}[V3.mode];
+  g+=`<text x="14" y="${H-34}" class="w3a">${mode} [kN/m²] · + paine, − imu</text>`;
+  g+=`<rect x="14" y="${H-24}" width="14" height="10" fill="rgba(255,107,90,.85)"/><text x="32" y="${H-15}" class="w3a">paine</text><rect x="84" y="${H-24}" width="14" height="10" fill="rgba(110,170,235,.85)"/><text x="102" y="${H-15}" class="w3a">imu</text><text x="${W-14}" y="${H-15}" text-anchor="end" class="w3a">Vedä pyörittääksesi</text>`;
+  el.innerHTML=`<defs><marker id="w3ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>${g}`;
+  $$('#w3d-ctl [data-dir]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.dir===V3.dir));
+  $$('#w3d-ctl [data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===V3.mode));
+  $('#w3d-note').innerHTML='Seinät: q<sub>p</sub>(z<sub>e</sub> = h) = '+fmt(D.qh,3)+' kN/m², katto: q<sub>p</sub>(h + h<sub>p</sub>) = '+fmt(D.qr,3)+' kN/m², e = '+fmt(D.e,2)+' m. Katon vyöhykkeessä I näytetään imu (c<sub>pe</sub> = −0,2); vaihtoehtoinen arvo on +0,2. Kun h &gt; b, seinän alaosan paine on pienempi (z<sub>e</sub>-jakauma, ks. kerrosvoimat).';
+}
+(function(){ const svg=$('#w3d-svg'); if(!svg) return; let drag=null;
+  svg.addEventListener('pointerdown',e=>{ drag={x:e.clientX,y:e.clientY,yaw:V3.yaw,pitch:V3.pitch}; svg.setPointerCapture(e.pointerId); });
+  svg.addEventListener('pointermove',e=>{ if(!drag) return; V3.yaw=drag.yaw+(e.clientX-drag.x)*0.5; V3.pitch=Math.max(0,Math.min(85,drag.pitch+(e.clientY-drag.y)*0.4)); render3D(); });
+  ['pointerup','pointercancel'].forEach(t=>svg.addEventListener(t,()=>drag=null));
+  $('#w3d-ctl').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
+    if(b.dataset.dir){ V3.dir=b.dataset.dir; V3.yaw=V3.dir==='X'?55:25; }
+    if(b.dataset.mode) V3.mode=b.dataset.mode;
+    if(b.dataset.reset!==undefined){ V3.yaw=V3.dir==='X'?55:25; V3.pitch=28; }
+    render3D(); });
+})();
+
 function svgPlan(k,Lx,Ly,e,zones,d,b){
   const W=560,H=230; const sc=Math.min(360/Math.max(Lx,0.1),150/Math.max(Ly,0.1)); const w=Lx*sc, hh=Ly*sc; const x0=(W-w)/2+20, y0=(H-hh)/2+5;
   let z='';

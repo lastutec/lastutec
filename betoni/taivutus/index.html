@@ -95,6 +95,7 @@ td.sel sup{color:#111}
   body.print-sketch #sketchPanel .skhead button{display:none}
   #printSketch{display:none}
 }
+.btn2.hl{background:var(--accent);border-color:var(--accent);color:#111}
 .cnrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .btn2{font:600 12.5px var(--body);padding:5px 12px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;text-decoration:none}
 .btn2:hover{border-color:var(--accent)}
@@ -127,7 +128,7 @@ input:disabled{opacity:.75}
     <label for="gs">γ<sub>s</sub><input type="number" id="gs" value="1.15" step="0.05"></label>
     <label for="acc">α<sub>cc</sub><input type="number" id="acc" value="0.85" step="0.05"></label>
   </div>
-  <div class="cnrow" id="cnrow" hidden><button type="button" class="btn2" id="cnImport">Tuo rasitusluokkatyökalusta</button><a class="btn2" href="../rasitusluokat/">Laske betonipeite →</a><span class="hint" id="cnInfo"></span></div>
+  <div class="cnrow" id="cnrow"><span class="hint">Betonipeite:</span><a class="btn2 hl" id="cnLink" href="../rasitusluokat/?palaa=taivutus">Laske rasitusluokka ja betonipeite →</a><button type="button" class="btn2" id="cnImport">Tuo laskettu betonipeite</button><span class="hint" id="cnInfo"></span></div>
   <div class="sec">Pääraudoitus (vetopinta)</div>
   <div class="inputs">
     <label for="md">Ø <span class="u">[mm]</span><select id="md"></select></label>
@@ -310,7 +311,7 @@ const vd = u => `<b class="${u <= 1 ? 'ok' : 'nok'}">${n(u * 100, 0)} % · ${u <
 
 function calc() {
   const dmode = $('dm').value === '1', reinf0 = $('shm').value === '1';
-  $('lcn').hidden = $('cnrow').hidden = !dmode; $('d').disabled = dmode; $('topin').hidden = mode !== 'p';
+  $('lcn').hidden = !dmode; $('cnLink').href = `../rasitusluokat/?palaa=taivutus&mode=${mode}`; $('d').disabled = dmode; $('topin').hidden = mode !== 'p';
   if (dmode) { const v = +$('h').value - (+$('cn').value || 0) - (reinf0 ? +$('sw').value : 0) - (+$('md').value) / 2; $('d').value = Math.round(v * 10) / 10; }
   const tn = mode === 'p' ? Math.max(0, +$('tn').value || 0) : 0, tD = +$('tD').value;
   const b = +$('b').value, h = +$('h').value, d = +$('d').value, fck = +$('c').value, fyk = +$('fyk').value, gc = +$('gc').value, gs = +$('gs').value, acc = +$('acc').value;

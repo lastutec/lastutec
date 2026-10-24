@@ -165,6 +165,7 @@ tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
     <div class="classes" id="chips"></div>
     <div class="big"><span class="v" id="cnom">–</span><span class="u">mm</span><span class="k">c<sub>nom</sub></span></div>
     <a class="toTool" id="toTaiv" href="../taivutus/">Käytä taivutus- ja leikkauslaskurissa →</a>
+    <p class="hint" id="backHint" hidden>Tulit taivutus- ja leikkauslaskurista. Valitse rasitusluokat ja paina yllä olevaa painiketta, niin betonipeite siirtyy laskentaan.</p>
     <div class="tiles">
       <div class="tile"><span class="k">c<sub>min,dur</sub></span><span class="v" id="tDur">–</span></div>
       <div class="tile"><span class="k">c<sub>min,b</sub></span><span class="v" id="tB">–</span></div>
@@ -306,7 +307,7 @@ function render(){
   $('cnom').textContent = cnom;
   { const rl = (all.length ? all : ['X0']).join(','), life = $('life').value;
     try { localStorage.setItem('lastutec.cnom', JSON.stringify({ cnom, rl, life, t: Date.now() })); } catch (e) {}
-    $('toTaiv').href = `../taivutus/?cnom=${cnom}&rl=${encodeURIComponent(rl)}&ika=${life}`; }
+    const qm = new URLSearchParams(location.search).get('mode'); $('toTaiv').href = `../taivutus/?cnom=${cnom}&rl=${encodeURIComponent(rl)}&ika=${life}${qm ? '&mode=' + qm : ''}`; }
   // Lujuustarkistus
   const reqList = (all.length ? all : ['X0']).filter(c=>FMIN[c]);
   const reqCls = reqList.reduce((a,c)=> !a || fckOf(FMIN[c]) > fckOf(FMIN[a]) ? c : a, null) || 'X0';
@@ -343,6 +344,7 @@ function render(){
   notes.push(['', 'Peitevaatimus koskee myös jännepunosten ankkureita ja valettavia metalliosia, ellei niitä ole suojattu korroosiolta.']);
   $('notes').innerHTML = notes.map(n=>`<div class="note ${n[0]}">${n[1]}</div>`).join('');
 }
+if (new URLSearchParams(location.search).get('palaa') === 'taivutus') { $('backHint').hidden = false; $('toTaiv').textContent = 'Vie betonipeite taivutus- ja leikkauslaskuriin →'; }
 render();
 })();
 </script>

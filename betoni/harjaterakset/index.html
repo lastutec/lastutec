@@ -47,6 +47,9 @@ label{display:block;font-size:13px;color:var(--muted)}
 .pick.top{background:var(--accent);border-color:var(--accent);color:#111}
 .pick.top small{color:#3a2a08}
 .empty{font-size:13.5px;color:var(--muted)}
+.pick small strong{font-weight:700;color:var(--ok)}
+.pick.top small strong{color:#111}
+.nok{color:#ff6b5a;font-weight:700}
 .tablewrap{overflow-x:auto;background:var(--paper);border:1px solid var(--line);border-radius:6px}
 table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
 th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
@@ -139,8 +142,8 @@ td.low{color:var(--dim)}
     });
     all.sort((a,b)=>a.v-b.v);
     picks.innerHTML=all.length?all.slice(0,5).map((p,i)=>
-      '<div class="pick'+(i===0?' top':'')+'"><b>'+label(p)+'</b><small>'+fmt(p.v)+' · käyttöaste '+Math.round(req/p.v*100)+' %</small></div>').join('')
-      :'<span class="empty">Mikään taulukon vaihtoehto ei riitä. Harkitse kaksoisverkkoa tai suurempaa kokoa.</span>';
+      '<div class="pick'+(i===0?' top':'')+'"><b>'+label(p)+'</b><small>'+fmt(p.v)+' · käyttöaste '+Math.round(req/p.v*100)+' % · <strong>OK!</strong></small></div>').join('')
+      :'<span class="empty"><strong class="nok">TARKASTA, EI OK!</strong> Mikään taulukon vaihtoehto ei riitä. Harkitse kaksoisverkkoa tai suurempaa kokoa.</span>';
   }
   const runJ=()=>mark('tJako','reqJako','picksJako',p=>'Ø'+p.d+' k'+p.c);
   const runK=()=>mark('tKpl','reqKpl','picksKpl',p=>p.c+' Ø'+p.d);

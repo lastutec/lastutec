@@ -427,7 +427,7 @@ function calcCase(){
   h+=`<p class="note" style="margin-top:6px">Yksiköt laskennassa: F [kN] → ·10³ N, q [kN/m] = [N/mm], pituudet momenteissa [m], taipumissa [mm], E [N/mm²], I [mm⁴].</p>`;
   /* ---------- Mitoitus ---------- */
   const st=(t,lines,note)=>{no++;return `<div class="step"><span class="no">${String(no).padStart(2,'0')}</span><h3>${t}</h3><div class="math">${lines.map(([k,x])=>`<span class="${k}">${x}</span>`).join('')}</div>${note?`<p class="note">${note}</p>`:''}</div>`;};
-  const U=(u)=>`<span class="${cls(u)}">${n(u*100,0)} %</span>`;
+  const U=(u)=>`<span class="${cls(u)}">${n(u*100,0)} %</span> → ${VDH(u)}`;
   const mode=$('gMode').value,p=curProfile(),fy=+$('gFy').value,gF=+$('gGF').value,nlim=+$('gN').value,gM0=1.0;
   const util=[];
   // taipumat (KRT)
@@ -455,7 +455,7 @@ function calcCase(){
     'Taipuma on kääntäen verrannollinen jäyhyysmomenttiin, joten vaadittava I saadaan suoraan nykyisen I:n ja käyttöasteen tulona.');
   h+=`<div class="tablewrap" style="margin:6px 0 4px 52px"><table><thead><tr><th>Sarja</th><th>Kevein riittävä</th><th>I<sub>y</sub> cm⁴</th><th>g kg/m</th><th>Taipuma</th><th>Taivutus*</th><th></th></tr></thead><tbody>`+
     FAMS.map((f,i)=>{const q=pick[i];if(!q)return `<tr><td>${f}</td><td colspan="6" style="text-align:left">ei riittävää profiilia kirjastossa</td></tr>`;
-      const u=Ireq/q.Iy;return `<tr class="${p&&q.id===p.id?'sel':''}"><td>${f}</td><td>${q.name}${q===lightest?' ★':''}</td><td>${n(q.Iy/1e4,1)}</td><td>${n(q.g,1)}</td><td class="${cls(u)}">${n(u*100,0)} %</td><td class="${cls(qm(q))}">${n(qm(q)*100,0)} %</td><td><button type="button" data-pick="${q.id}">${p&&q.id===p.id?'Valittu':'Valitse'}</button></td></tr>`;}).join('')+
+      const u=Ireq/q.Iy;return `<tr class="${p&&q.id===p.id?'sel':''}"><td>${f}</td><td>${q.name}${q===lightest?' ★':''}</td><td>${n(q.Iy/1e4,1)}</td><td>${n(q.g,1)}</td><td class="${cls(u)}">${n(u*100,0)} % ${VD(u)}</td><td class="${cls(qm(q))}">${n(qm(q)*100,0)} % ${VD(qm(q))}</td><td><button type="button" data-pick="${q.id}">${p&&q.id===p.id?'Valittu':'Valitse'}</button></td></tr>`;}).join('')+
     `</tbody></table></div><p class="note" style="margin-left:52px">★ = kevein kaikista sarjoista. *Taivutus = pikatarkistus M<sub>Ed</sub> / (W<sub>pl,y</sub> · f<sub>y</sub>) teräslajilla ${$('gGrade').value} ja γ<sub>F</sub> = ${n(+$('gGF').value)}, ilman luokitusta ja kiepahdusta. Yli 100 % tarkoittaa, että taipuma ei ole mitoittava. Taipuma ei riipu teräslajista, joten valinta on sama kaikilla lujuuksilla.</p>`;
   if(mode==='f'){
     h+=`<p class="note" style="margin-top:10px">Mitoitusperusteena on vain taipuma. Taivutus- ja leikkauskestävyys saadaan näkyviin valitsemalla mitoitusperusteeksi "Taipuma + kestävyys". Tarkista kestävyys ainakin kerran, jos jänne on lyhyt tai kuorma suuri.</p>`;
@@ -495,7 +495,7 @@ function calcCase(){
         ['r',`M<sub>c,Rd</sub> = ${n(MRd)} kNm`],
         ['r',`Käyttöaste: ${n(MEd)} / ${n(MRd)} = ${U(MEd/MRd)}`]],'SFS-EN 1993-1-1, 6.2.5. γ<sub>M0</sub> = 1,0 (Suomen kansallinen liite).');
       util.push(['M',MEd/MRd]);
-    }else{h+=st('Momenttikestävyys',[['r','<span class="bad">Luokka 4 – tehollisen poikkileikkauksen laskentaa ei ole toteutettu.</span>']]);util.push(['M',9]);}
+    }else{h+=st('Momenttikestävyys',[['r','<span class="bad">Luokka 4 – tehollisen poikkileikkauksen laskentaa ei ole toteutettu.</span> → <b class="bad">TARKASTA, EI OK!</b>']]);util.push(['M',9]);}
     // leikkaus
     h+=`<div class="sec">Leikkauskestävyys (MRT)</div>`;
     h+=st('Mitoittava leikkausvoima',[['f',`V<sub>k</sub> = ${Vk[0]}`],['s',`V<sub>k</sub> = ${Vk[1]} = ${n(Vk[2])} kN`],['f','V<sub>Ed</sub> = γ<sub>F</sub> · V<sub>k</sub>'],['r',`V<sub>Ed</sub> = ${n(gF)} · ${n(Vk[2])} = ${n(VEd)} kN`]]);
@@ -505,7 +505,7 @@ function calcCase(){
     h+=st('Plastinen leikkauskestävyys',[['f','V<sub>pl,Rd</sub> = A<sub>v</sub> · (f<sub>y</sub> / √3) / γ<sub>M0</sub>'],['s',`V<sub>pl,Rd</sub> = ${n(p.Av)} · (${n(fy)} / √3) / ${n(gM0)} · 10⁻³`],['r',`V<sub>pl,Rd</sub> = ${n(Vpl)} kN`],['r',`Käyttöaste: ${n(VEd)} / ${n(Vpl)} = ${U(VEd/Vpl)}`]],'SFS-EN 1993-1-1, 6.2.6(2)');
     util.push(['V',VEd/Vpl]);
     const hw=p.kind==='I'?p.h-2*p.tf:p.h-2*p.t,tw=p.kind==='I'?p.tw:p.t,lb=72*eps/1.0;
-    h+=st('Uuman leikkauslommahdus',[['f','h<sub>w</sub> / t<sub>w</sub> ≤ 72 · ε / η'],['r',`${n(hw)} / ${n(tw)} = ${n(hw/tw)} ${hw/tw<=lb?'≤':'>'} ${n(lb)}  →  ${hw/tw<=lb?'<span class="ok">ei lommahdustarkastelua</span>':'<span class="bad">tarkastettava EN 1993-1-5 mukaan</span>'}`]],'SFS-EN 1993-1-1, 6.2.6(6)');
+    h+=st('Uuman leikkauslommahdus',[['f','h<sub>w</sub> / t<sub>w</sub> ≤ 72 · ε / η'],['r',`${n(hw)} / ${n(tw)} = ${n(hw/tw)} ${hw/tw<=lb?'≤':'>'} ${n(lb)}  →  ${hw/tw<=lb?'<span class="ok">ei lommahdustarkastelua</span>':'<span class="bad">tarkastettava EN 1993-1-5 mukaan</span>'}</span><span class="r">Käyttöaste: ${n(hw/tw)} / ${n(lb)} = ${U((hw/tw)/lb)}`]],'SFS-EN 1993-1-1, 6.2.6(6)');
     // yhteisvaikutus
     h+=`<div class="sec">Taivutuksen ja leikkauksen yhteisvaikutus</div>`;
     if(VEd<=0.5*Vpl){
@@ -524,7 +524,7 @@ function calcCase(){
   $('steps').querySelectorAll('button[data-pick]').forEach(bt=>bt.onclick=()=>{$('gProf').value=bt.dataset.pick;applyProfile();toast(`${curProfile().name} valittu`);});
   // yhteenveto
   const best=k=>{const a=util.filter(x=>x[0].startsWith(k)).map(x=>x[1]);return a.length?Math.max(...a):null;};
-  const tl=(k,u,sub)=>u==null?'':`<div class="tile"><span class="k">${k}</span><span class="v ${cls(u)}">${n(u*100,0)} %</span><div class="bar"><i style="width:${Math.min(u,1)*100}%;background:var(--${cls(u)})"></i></div>${sub?`<span class="s">${sub}</span>`:''}</div>`;
+  const tl=(k,u,sub)=>u==null?'':`<div class="tile"><span class="k">${k}</span><span class="v ${cls(u)}">${n(u*100,0)} %</span><div class="bar"><i style="width:${Math.min(u,1)*100}%;background:var(--${cls(u)})"></i></div><span class="s">${VDH(u)}</span>${sub?`<span class="s">${sub}</span>`:''}</div>`;
   const Mk2=Math.max(...o.filter(r=>r[5]==='kNm'&&!/^M\(x/.test(r[1])).map(r=>Math.abs(r[4]))),fmax=Math.max(...o.filter(r=>/^f/.test(r[1])).map(r=>Math.abs(r[4])));
   $('sum').innerHTML=
     `<div class="tile"><span class="k">max |M<sub>k</sub>|</span><span class="v">${n(Mk2)} <span class="u">kNm</span></span><span class="s">V<sub>k</sub> = ${n(VK[c.id](v)[2])} kN</span></div>`+
@@ -533,6 +533,8 @@ function calcCase(){
     tl('Taivutus',best('M'))+tl('Leikkaus',best('V'))+tl('Taipuma',best('f'),`raja L/${nlim}`);
 }
 const cls=u=>u<=0.9?'ok':u<=1?'warn':'bad';
+const VD=u=>u<=1?'OK!':'TARKASTA, EI OK!';
+const VDH=u=>`<b class="${u<=1?'ok':'bad'}">${VD(u)}</b>`;
 function curProfile(){return PROFILES.find(x=>x.id===$('gProf').value)||null;}
 
 /* ---------- Poikkileikkaussuureet (Jäyhyysmomentti + Taivutusvastus) ---------- */

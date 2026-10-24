@@ -304,8 +304,9 @@ function render(){
   const reqList = (all.length ? all : ['X0']).filter(c=>FMIN[c]);
   const reqCls = reqList.reduce((a,c)=> !a || fckOf(FMIN[c]) > fckOf(FMIN[a]) ? c : a, null) || 'X0';
   const req = FMIN[reqCls], fck = $('fck').value, sOk = fckOf(fck) >= fckOf(req);
+  const sU = Math.round(fckOf(req)/fckOf(fck)*100), sVd = sOk ? 'OK!' : 'TARKASTA, EI OK!';
   $('strength').className = 'strength ' + (sOk ? 'okk' : 'nok');
-  $('strength').innerHTML = `<span class="pill">${sOk?'Lujuus OK':'Lujuus ei riitä'}</span><span>Valittu <b>${fck}</b> · vaadittu vähintään <b>${req}</b> (${reqCls})</span>`;
+  $('strength').innerHTML = `<span class="pill">${sVd}</span><span>Lujuus: käyttöaste <b>${sU} %</b> · valittu <b>${fck}</b>, vaadittu vähintään <b>${req}</b> (${reqCls})</span>`;
   $('tDur').textContent = cdur; $('tB').textContent = cb; $('tMin').textContent = cmin;
 
   const steelTxt = steel==='r' ? 'betoniteräs' : steel==='p' ? 'jänneteräs' : 'jänneteräs σ ≤ 400 N/mm², käsitellään kuten betoniterästä';
@@ -316,7 +317,7 @@ function render(){
     ['Tartunta, c<sub>min,b</sub>', `${nb>1?`Ø<sub>n</sub> = Ø·√n<sub>b</sub> = ${dia}·√${nb} = ${String(dn).replace('.',',')} → `:'Ø = '}${Math.ceil(dn)}${dg?' + 5 (raekoko > 32 mm)':''} = <b>${cb} mm</b>`],
     ['Vähimmäispeite', `c<sub>min</sub> = max(${cb}; ${cdur}; 10) = <b>${cmin} mm</b>`],
     ['Nimellispeite', `c<sub>nom</sub> = c<sub>min</sub> + Δc<sub>dev</sub> = ${cmin} + ${dev} = ${cmin+dev} mm${groundTxt?`<br>${groundTxt}`:''}<br>→ <b>c<sub>nom</sub> = ${cnom} mm</b>`],
-    ['Betonin lujuus', `vaadittu ${req} (${reqCls}) · valittu ${fck} → <b>${sOk?'riittää':'ei riitä'}</b>`]
+    ['Betonin lujuus', `vaadittu ${req} (${reqCls}) · valittu ${fck}<br>käyttöaste f<sub>ck,req</sub> / f<sub>ck</sub> = ${fckOf(req)} / ${fckOf(fck)} = ${sU} % → <b style="color:var(--${sOk?'ok':'bad'})">${sVd}</b>`]
   ];
   $('steps').innerHTML = steps.map((s,i)=>`<div class="step"><span class="no">${i+1}</span><div><h3>${s[0]}</h3><div class="math">${s[1]}</div></div></div>`).join('');
 

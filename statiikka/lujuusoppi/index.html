@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lujuusoppi – Lastutec</title>
+<meta name="description" content="Lujuusopin peruslaskut: normaali-, leikkaus- ja taivutusjännitykset, yhdistetyt jännitykset, eriaineiset poikkileikkaukset ja yksikkömuunnokset.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+/* Layout: laskentapohja – yhteiset E ja I ylhäällä, kuormitustapausten valitsin, valitun tapauksen kuva, lähtötiedot ja vaiheittainen laskenta */
+:root{
+  --bg:#000000; --paper:#141414; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e;
+  --accent:#F74902; --accent-soft:#3b1503; --load:#ffa67a; --ok:#5cc58a; --warn:#f5c86b; --bad:#ff6b5a;
+  --display:Arial,Helvetica,sans-serif; --body:Arial,Helvetica,sans-serif; --mono:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.tabs button{font:600 14px var(--body);background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:8px 12px;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px}
+.global{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;margin-bottom:16px}
+.global .hint{font-size:13px;color:var(--muted);flex:1 1 100%;min-width:0;margin:0}
+label{display:block;font-size:13px;color:var(--muted);min-width:0}
+label input,label select{display:block;margin-top:3px}
+input[type=number]{font-family:var(--mono);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:#2a1206;color:var(--ink);width:100%;min-width:0}
+.global label{width:170px}
+.global label.wide{width:220px}
+.global label.check{width:auto;display:flex;gap:8px;align-items:center;color:var(--ink);font-size:13.5px;align-self:center}
+.global label.check input{accent-color:var(--accent);width:16px;height:16px;margin:0}
+select{font-family:var(--mono);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input[type=number]:disabled{background:var(--bg);color:var(--muted)}
+.libbar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.libbar button{font:600 13px var(--body);padding:5px 14px;border-radius:99px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.libbar button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+.tablewrap{overflow-x:auto;padding:0}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font:600 11px var(--body);color:var(--muted);text-transform:none;letter-spacing:.02em;position:sticky;top:0;background:var(--paper)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--paper)}
+tbody tr:hover td{background:var(--accent-soft)}
+tr.sel td{background:var(--accent-soft);font-weight:600}
+td button{font:600 11.5px var(--body);color:var(--accent);background:none;border:1px solid var(--accent);border-radius:99px;padding:2px 9px;cursor:pointer}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.bar{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%}
+.chkline{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.pill{display:inline-block;font:600 11px var(--body);letter-spacing:.06em;text-transform:uppercase;padding:1px 8px;border-radius:99px;border:1px solid currentColor}
+.u{font-family:var(--mono);font-size:11px}
+.picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:16px}
+.picker button{display:flex;flex-direction:column;gap:4px;align-items:stretch;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:8px;cursor:pointer;color:var(--ink);font:12.5px/1.3 var(--body)}
+.picker button:hover{border-color:var(--accent)}
+.picker button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.picker svg{width:100%;height:auto;display:block}
+.grp{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.case{display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.case{grid-template-columns:minmax(0,1fr)}}
+.side{display:flex;flex-direction:column;gap:16px}
+.inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.calc-head{display:flex;flex-direction:column;gap:12px}
+h2{font-family:var(--display);font-size:20px;font-weight:800;margin:0;text-wrap:balance}
+.fig svg{width:100%;height:auto;display:block}
+.figbar{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;margin-bottom:8px}
+.figbar b{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tg{display:flex;flex-wrap:wrap;gap:4px;margin-left:auto}
+.tg button{font:600 11.5px var(--body);padding:3px 9px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer}
+.tg button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.subfig+.subfig{border-top:1px dashed var(--line);margin-top:6px;padding-top:6px}
+@media print{.tg{display:none}}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tile .v{font-family:var(--mono);font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.tile .s{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.sec{font-family:var(--display);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin:18px 0 4px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.step{display:grid;grid-template-columns:40px minmax(0,1fr);gap:2px 12px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:0}
+.step .no{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:2px}
+.step h3{margin:0;font-size:15px;font-weight:600}
+.math{grid-column:2;font-family:var(--mono);font-size:13.5px;overflow-x:auto;display:flex;flex-direction:column;gap:1px}
+.math .f{color:var(--accent)} .math .s{color:var(--muted)} .math .r{font-weight:600}
+.math sub,.math sup{font-size:.75em}
+.note{grid-column:2;font-size:13px;color:var(--muted);margin:2px 0 0}
+.warnbox{border:1px solid var(--warn);color:var(--warn);border-radius:6px;padding:8px 12px;font-size:13.5px}
+.sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px}
+.shape{display:flex;flex-direction:column;gap:12px}
+.shape-top{display:flex;gap:14px;align-items:center}
+.shape-top svg{width:96px;height:96px;flex:none}
+.shape .inputs{flex:1;min-width:0}
+.use{font:600 12px var(--body);color:var(--accent);background:none;border:1px solid var(--accent);border-radius:99px;padding:3px 10px;cursor:pointer;margin-top:4px;align-self:flex-start}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:99px;font-size:13.5px;z-index:20}
+.foot{font-size:12.5px;color:var(--muted);margin-top:20px;max-width:80ch}
+@media (prefers-reduced-motion:no-preference){.picker button{transition:border-color .15s}}
+.grp-h{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin:18px 0 8px;font-weight:700}
+.calc .inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr));gap:8px 10px}
+.calc .desc{font-size:13px;color:var(--muted);margin:0}
+.units{width:100%;border-collapse:collapse;font-size:13.5px}
+.units td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}
+.units td:first-child{color:var(--accent);font-weight:600;white-space:nowrap}
+</style>
+<style>html,body{margin:0}body{font-size:15px;-webkit-text-size-adjust:100%}[hidden]{display:none!important}*,*::before,*::after{box-sizing:border-box}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px Arial,Helvetica,sans-serif;color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.printbtn:hover{filter:brightness(1.1)}
+.printbtn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--dim:#888;--accent:#c63a00;--accent-soft:#fde2d5;--ok:#1d6b3a;--ok-bg:#ddf1e3;--warn:#8a5a00;--bad:#b3261e;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  input,select{background:#fff!important;color:#000!important}
+  .result,[style*="sticky"],thead th,th,td{position:static!important}
+  .panel,.tablewrap,.step,tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Statiikka ja mekaniikka</a><h1>Lujuusoppi</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 3 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="foot" style="margin:0 0 6px">Lujuusopin peruslaskut. Yksiköt: voimat kN, momentit kNm, mitat mm, jännitykset N/mm² (MPa). Etumerkit: veto +, puristus −. Tulokset päivittyvät heti ja kaavat välivaiheineen näkyvät.</p>
+<section><div id="sections"></div></section>
+<p class="foot" style="margin-top:16px">Kaavat ovat kimmoteorian mukaisia. Leikkausjännityksen kaavat ovat ohutseinämäisille ja kompakteille poikkileikkauksille tavanomaisia likiarvoja. Tulokset tarkastaa laatija.</p>
+</div>
+<div class="toast" id="toast" hidden></div>
+<script>
+const $=id=>document.getElementById(id);
+function n(v,d){ if(!isFinite(v)) return '–'; const a=Math.abs(v);
+  if(d==null) d=a>=1000?0:a>=100?1:a>=1?2:a>=0.01?3:4;
+  return v.toLocaleString('fi-FI',{minimumFractionDigits:0,maximumFractionDigits:d}); }
+const neg=v=>v<0?`(${n(v)})`:n(v);
+
+
+/* ---------- Lujuusoppi ---------- */
+// Yksiköt: voimat kN, momentit kNm, mitat mm, jännitykset N/mm² = MPa
+const G=[
+{grp:'Jännitykset (normaali-, leikkaus- ja taivutusjännitys)',items:[
+ {id:'nor',name:'Normaalijännitys',desc:'Normaalivoima N (veto +, puristus −) poikkipinnalla A.',inp:[['N','N','kN',100],['A','A','mm²',2000]],
+  out:v=>[['σ','N / A',`${n(v.N)} · 10³ / ${n(v.A)}`,v.N*1e3/v.A,'N/mm²']]},
+ {id:'hook',name:'Hooken laki ja venymä',desc:'σ = E·ε, ε = Δl / l.',inp:[['s','σ','N/mm²',200],['E','E','N/mm²',210000],['l','l','mm',3000]],
+  out:v=>{const e=v.s/v.E;return[['ε','σ / E',`${n(v.s)} / ${n(v.E)}`,e,'–'],['Δl','ε · l',`${n(e,6)} · ${n(v.l)}`,e*v.l,'mm']];}},
+ {id:'tau',name:'Leikkausjännitys',desc:'τ = V·S / (I·b). S on staattinen momentti tarkasteltavan rajapinnan suhteen, b tarkastelukohdan leveys.',inp:[['V','V','kN',50],['S','S','mm³',300000],['I','I','mm⁴',83560000],['b','b','mm',7.1]],
+  out:v=>[['τ','V · S / (I · b)',`${n(v.V)} · 10³ · ${n(v.S)} / (${n(v.I)} · ${n(v.b)})`,v.V*1e3*v.S/(v.I*v.b),'N/mm²']]},
+ {id:'taumax',name:'Suurin leikkausjännitys',desc:'Suorakaide 3V/(2A), umpipyöreä 4V/(3A), ohutseinäinen putki 2V/A.',inp:[['V','V','kN',50],['A','A','mm²',5000]],
+  out:v=>[['τ<sub>max</sub> (suorakaide)','3 · V / (2 · A)',`3 · ${n(v.V)} · 10³ / (2 · ${n(v.A)})`,1.5*v.V*1e3/v.A,'N/mm²'],
+          ['τ<sub>max</sub> (pyörö)','4 · V / (3 · A)',`4 · ${n(v.V)} · 10³ / (3 · ${n(v.A)})`,4/3*v.V*1e3/v.A,'N/mm²'],
+          ['τ<sub>max</sub> (putki)','2 · V / A',`2 · ${n(v.V)} · 10³ / ${n(v.A)}`,2*v.V*1e3/v.A,'N/mm²']]},
+ {id:'bend',name:'Taivutusjännitys',desc:'Reunajännitykset σ = M·e / I = M / W, e<sub>1</sub> ja e<sub>2</sub> neutraaliakselin etäisyydet reunoista.',inp:[['M','M','kNm',50],['I','I','mm⁴',83560000],['e1','e<sub>1</sub>','mm',150],['e2','e<sub>2</sub>','mm',150]],
+  out:v=>[['σ<sub>r1</sub>','M · e<sub>1</sub> / I',`${n(v.M)} · 10⁶ · ${n(v.e1)} / ${n(v.I)}`,v.M*1e6*v.e1/v.I,'N/mm²'],['W<sub>1</sub>','I / e<sub>1</sub>',`${n(v.I)} / ${n(v.e1)}`,v.I/v.e1,'mm³'],
+          ['σ<sub>r2</sub>','M · e<sub>2</sub> / I',`${n(v.M)} · 10⁶ · ${n(v.e2)} / ${n(v.I)}`,v.M*1e6*v.e2/v.I,'N/mm²'],['W<sub>2</sub>','I / e<sub>2</sub>',`${n(v.I)} / ${n(v.e2)}`,v.I/v.e2,'mm³']]}
+]},
+{grp:'Yhdistetyt jännitykset',items:[
+ {id:'comb',name:'Normaalivoima ja taivutus kahteen suuntaan',desc:'Pääakselit (I<sub>yz</sub> = 0). Huomioi merkkisäännöt: y ja z pisteen koordinaatit painopisteestä.',inp:[['N','N','kN',-200],['A','A','mm²',5381],['My','M<sub>y</sub>','kNm',40],['Iy','I<sub>y</sub>','mm⁴',83560000],['z','z','mm',150],['Mz','M<sub>z</sub>','kNm',5],['Iz','I<sub>z</sub>','mm⁴',6038000],['y','y','mm',75]],
+  out:v=>{const a=v.N*1e3/v.A,b=v.My*1e6/v.Iy*v.z,c=v.Mz*1e6/v.Iz*v.y;return[['N / A','N / A',`${n(v.N)} · 10³ / ${n(v.A)}`,a,'N/mm²'],['M<sub>y</sub> / I<sub>y</sub> · z','',`${n(v.My)} · 10⁶ / ${n(v.Iy)} · ${n(v.z)}`,b,'N/mm²'],['M<sub>z</sub> / I<sub>z</sub> · y','',`${n(v.Mz)} · 10⁶ / ${n(v.Iz)} · ${n(v.y)}`,c,'N/mm²'],['σ','N/A + M<sub>y</sub>/I<sub>y</sub> · z + M<sub>z</sub>/I<sub>z</sub> · y',`${n(a)} + ${neg(b)} + ${neg(c)}`,a+b+c,'N/mm²']];}},
+ {id:'gen',name:'Epäsymmetrinen poikkileikkaus (I<sub>yz</sub> ≠ 0)',desc:'Painopisteakselit, joissa tulomomentti I<sub>yz</sub> ≠ 0 (esim. L-profiili). Huomioi merkkisäännöt.',inp:[['N','N','kN',0],['A','A','mm²',1900],['My','M<sub>y</sub>','kNm',5],['Mz','M<sub>z</sub>','kNm',0],['Iy','I<sub>y</sub>','mm⁴',1770000],['Iz','I<sub>z</sub>','mm⁴',1770000],['Iyz','I<sub>yz</sub>','mm⁴',-1040000],['y','y','mm',-28.2],['z','z','mm',71.8]],
+  out:v=>{const D=v.Iy*v.Iz-v.Iyz**2,k1=(v.y*v.Iy-v.z*v.Iyz)/D,k2=(v.z*v.Iz-v.y*v.Iyz)/D,a=k1*v.Mz*1e6,b=k2*v.My*1e6,c=v.N*1e3/v.A;
+   return[['D','I<sub>y</sub> · I<sub>z</sub> − I<sub>yz</sub>²',`${n(v.Iy)} · ${n(v.Iz)} − ${neg(v.Iyz)}²`,D,'mm⁸'],
+          ['(y·I<sub>y</sub> − z·I<sub>yz</sub>) / D · M<sub>z</sub>','',`(${neg(v.y)} · ${n(v.Iy)} − ${neg(v.z)} · ${neg(v.Iyz)}) / D · ${neg(v.Mz)} · 10⁶`,a,'N/mm²'],
+          ['(z·I<sub>z</sub> − y·I<sub>yz</sub>) / D · M<sub>y</sub>','',`(${neg(v.z)} · ${n(v.Iz)} − ${neg(v.y)} · ${neg(v.Iyz)}) / D · ${neg(v.My)} · 10⁶`,b,'N/mm²'],
+          ['σ','… · M<sub>z</sub> + … · M<sub>y</sub> + N / A',`${neg(a)} + ${neg(b)} + ${neg(c)}`,a+b+c,'N/mm²']];}}
+]},
+{grp:'Eriaineiset yhdistetyt poikkileikkaukset',items:[
+ {id:'comp',name:'Teräs + betoni',desc:'Liittopoikkileikkauksen jäykkyydet. y<sub>s</sub> ja y<sub>c</sub> ovat osien painopisteiden etäisyydet samasta vertailutasosta (esim. alapinnasta).',inp:[['Es','E<sub>s</sub>','N/mm²',210000],['As','A<sub>s</sub>','mm²',5381],['Is','I<sub>s</sub>','mm⁴',83560000],['ys','y<sub>s</sub>','mm',150],['Ec','E<sub>c</sub>','N/mm²',33000],['Ac','A<sub>c</sub>','mm²',200000],['Ic','I<sub>c</sub>','mm⁴',666700000],['yc','y<sub>c</sub>','mm',350]],
+  out:v=>{const EA=v.Es*v.As+v.Ec*v.Ac,yNA=(v.ys*v.Es*v.As+v.yc*v.Ec*v.Ac)/EA,es=v.ys-yNA,ec=v.yc-yNA,EI=v.Es*v.Is+v.Ec*v.Ic+v.Es*v.As*es*es+v.Ec*v.Ac*ec*ec;
+   return[['EA<sub>com</sub>','E<sub>s</sub>A<sub>s</sub> + E<sub>c</sub>A<sub>c</sub>',`${n(v.Es)} · ${n(v.As)} + ${n(v.Ec)} · ${n(v.Ac)} · 10⁻³`,EA/1e3,'kN'],
+          ['y<sub>NA</sub>','(y<sub>s</sub>E<sub>s</sub>A<sub>s</sub> + y<sub>c</sub>E<sub>c</sub>A<sub>c</sub>) / EA<sub>com</sub>',`(${n(v.ys)} · ${n(v.Es*v.As)} + ${n(v.yc)} · ${n(v.Ec*v.Ac)}) / ${n(EA)}`,yNA,'mm'],
+          ['e<sub>s</sub>','y<sub>s</sub> − y<sub>NA</sub>',`${n(v.ys)} − ${n(yNA)}`,es,'mm'],
+          ['e<sub>c</sub>','y<sub>c</sub> − y<sub>NA</sub>',`${n(v.yc)} − ${n(yNA)}`,ec,'mm'],
+          ['EI<sub>com</sub>','E<sub>s</sub>I<sub>s</sub> + E<sub>c</sub>I<sub>c</sub> + E<sub>s</sub>A<sub>s</sub>e<sub>s</sub>² + E<sub>c</sub>A<sub>c</sub>e<sub>c</sub>²',`(${n(v.Es*v.Is)} + ${n(v.Ec*v.Ic)} + ${n(v.Es*v.As*es*es)} + ${n(v.Ec*v.Ac*ec*ec)}) · 10⁻⁹`,EI/1e9,'kNm²'],
+          ['I<sub>ekv</sub> (teräkseksi muunnettu)','EI<sub>com</sub> / E<sub>s</sub>',`${n(EI)} / ${n(v.Es)}`,EI/v.Es,'mm⁴']];}}
+]}
+];
+const vals={};G.forEach(g=>g.items.forEach(c=>{vals[c.id]={};c.inp.forEach(([k,,,d])=>vals[c.id][k]=d);}));
+function render(){
+  let h='';
+  G.forEach(g=>{h+=`<div class="grp-h">${g.grp}</div><div class="sections">`+g.items.map(c=>`<div class="panel calc" id="c-${c.id}"><h2>${c.name}</h2><p class="desc">${c.desc}</p><div class="inputs">${c.inp.map(([k,l,u])=>`<label for="i-${c.id}-${k}">${l} <span class="u">[${u}]</span><input type="number" id="i-${c.id}-${k}" data-c="${c.id}" data-k="${k}" value="${vals[c.id][k]}" step="any"></label>`).join('')}</div><div class="res"></div></div>`).join('')+`</div>`;});
+  h+=`<div class="grp-h">Yksikkömuunnokset</div><div class="panel"><table class="units"><tbody>
+   <tr><td>kPa</td><td>= kN/m²</td></tr><tr><td>MPa</td><td>= N/mm² = MN/m² = 1 000 kN/m²</td></tr><tr><td>GPa</td><td>= 1 000 MPa</td></tr>
+   <tr><td>1 bar</td><td>= 100 kPa = 100 kN/m² = 0,1 MPa</td></tr><tr><td>1 kN/m</td><td>= 1 N/mm</td></tr><tr><td>1 kNm</td><td>= 1 · 10⁶ Nmm</td></tr>
+   <tr><td>100 kg</td><td>≈ 1 kN (g ≈ 10 m/s²)</td></tr><tr><td>1 t</td><td>≈ 10 kN (g ≈ 10 m/s²)</td></tr></tbody></table></div>`;
+  $('sections').innerHTML=h;
+  document.querySelectorAll('#sections input').forEach(i=>i.oninput=()=>{const v=parseFloat(i.value);if(isFinite(v)){vals[i.dataset.c][i.dataset.k]=v;calc(i.dataset.c);}});
+  G.forEach(g=>g.items.forEach(c=>calc(c.id)));
+}
+function calc(id){
+  const c=G.flatMap(g=>g.items).find(x=>x.id===id),v=vals[id],box=document.querySelector(`#c-${id} .res`);
+  let r;try{r=c.out(v);}catch(e){r=[];}
+  if(r.some(x=>!isFinite(x[3]))){box.innerHTML='<div class="warnbox">Tarkista lähtötiedot (nollalla jako tai puuttuva arvo).</div>';return;}
+  box.innerHTML=r.map(([sym,f,sub,val,u],i)=>`<div class="step"><span class="no">${String(i+1).padStart(2,'0')}</span><h3>${sym}</h3><div class="math">${f?`<span class="f">${sym} = ${f}</span>`:''}<span class="s">= ${sub}</span><span class="r">= ${u==='–'?n(val,6):n(val)} ${u==='–'?'':u}</span></div></div>`).join('');
+}
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600);}
+render();
+</script>
+</body>
+</html>

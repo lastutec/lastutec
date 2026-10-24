@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Lumikuorma – Lastutec</title>
-<meta name="description" content="Katon lumikuorma SFS-EN 1991-1-3:n ja ympäristöministeriön asetuksen 6/16 (kansalliset valinnat) mukaan: pulpetti-, harja- ja sahakatot sekä kinostumat korkeampaa rakennusosaa ja estettä vasten.">
+<meta name="description" content="Katon lumikuorma SFS-EN 1991-1-3:n ja ympäristöministeriön asetuksen 6/16 (kansalliset valinnat) mukaan: pulpetti-, harja- ja sahakatot sekä paikkakuntakohtainen sk kartalta. Kinostumat lasketaan erillisellä Kinoslumikuorma-työkalulla.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
 <style>
@@ -106,15 +106,21 @@ details.step>.calc{padding:0 12px 10px}
     <div class="brand"><a href="../" class="back">← Kuormalaskenta</a><h1>Lumikuorma</h1></div>
     <div class="hdr-r"><span class="meta">Työkalu 2 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
   </header>
-  <p class="lead">Katon lumikuorma SFS-EN 1991-1-3:n ja ympäristöministeriön asetuksen 6/16 (kansalliset valinnat) mukaan: pulpetti-, harja- ja sahakatot sekä kinostumat korkeampaa rakennusosaa ja estettä vasten. Laskelmat näytetään välivaiheineen.</p>
+  <p class="lead">Katon lumikuorma SFS-EN 1991-1-3:n ja ympäristöministeriön asetuksen 6/16 (kansalliset valinnat) mukaan: pulpetti-, harja- ja sahakatot sekä paikkakuntakohtainen s<sub>k</sub> kartalta. Kinostumat lasketaan erillisellä Kinoslumikuorma-työkalulla. Laskelmat näytetään välivaiheineen.</p>
   <!-- ===================== LUMIKUORMA ===================== -->
   <section id="p-lumi">
+    <div class="card">
+      <h2>Maan lumikuorma s<sub>k</sub> paikkakunnittain</h2>
+      <div class="small">Klikkaa kuntaa kartalla tai hae nimellä; myös kartan muu kohta valitsee lähimmän kuntakeskuksen. Valittu arvo siirtyy lähtötietoihin, ja sitä voi muokata.</div>
+      <div id="s-map"></div>
+      <div class="small">Arvot ovat kuntakohtaisia s<sub>k</sub>-arvoja kansallisen liitteen kuvan 1 mukaan (kuntajako ennen vuoden 2009 liitoksia; uudet kuntanimet, kuten Raasepori ja Sastamala, löytyvät hausta). Kartan arvot ovat vähimmäisarvoja, ja kuntien välialueilla interpoloidaan lineaarisesti. Tarkista kriittisissä kohteissa arvo kansallisen liitteen kartasta.</div>
+    </div>
     <div class="grid">
       <div class="card">
         <h2>Lähtötiedot</h2>
         <div class="field"><label>Maan lumikuorma s<sub>k</sub></label><span><input type="number" id="s-sk" step="0.05" value="2.5"><span class="u">kN/m²</span></span></div>
         <div class="chips" id="s-skchips"></div>
-        <div class="small">s<sub>k</sub> luetaan kansallisen liitteen kuvasta 1 (arvot ovat vähimmäisarvoja, välialueilla interpoloidaan lineaarisesti).</div>
+        <div class="small" id="s-place">Valitse paikkakunta kartalta tai anna s<sub>k</sub> suoraan.</div>
         <div class="field"><label>Maastotyyppi</label><select id="s-terr"><option value="t">Tuulinen (C<sub>e</sub> = 0,8)</option><option value="n" selected>Normaali (Ce = 1,0)</option><option value="s">Suojainen (Ce = 1,2)</option></select></div>
         <div class="field"><label>Katon lyhyempi sivu L<sub>1</sub></label><span><input type="number" id="s-L1" step="any" value="12"><span class="u">m</span></span></div>
         <div class="field"><label>Katon pidempi sivu L<sub>2</sub></label><span><input type="number" id="s-L2" step="any" value="24"><span class="u">m</span></span></div>
@@ -126,17 +132,7 @@ details.step>.calc{padding:0 12px 10px}
           <div class="field" id="s-a2row"><label>Kaltevuus α<sub>2</sub></label><span><input type="number" id="s-a2" step="any" value="20"><span class="u">°</span></span></div>
           <label class="small"><input type="checkbox" id="s-guard"> Lumiesteet tai räystäskaide estävät lumen liukumisen (μ<sub>1</sub> ≥ 0,8)</label>
         </fieldset>
-        <fieldset><legend><label><input type="checkbox" id="s-dr-on"> Kinostuma korkeampaa rakennusosaa vasten (5.3.6)</label></legend>
-          <div class="field"><label>Korkeusero h</label><span><input type="number" id="s-h" step="any" value="3"><span class="u">m</span></span></div>
-          <div class="field"><label>Ylemmän katon leveys b<sub>1</sub></label><span><input type="number" id="s-b1" step="any" value="12"><span class="u">m</span></span></div>
-          <div class="field"><label>Alemman katon leveys b<sub>2</sub></label><span><input type="number" id="s-b2" step="any" value="8"><span class="u">m</span></span></div>
-          <div class="field"><label>Ylemmän katon kaltevuus</label><span><input type="number" id="s-au" step="any" value="5"><span class="u">°</span></span></div>
-          <div class="field"><label>Alemman katon pinta-ala</label><span><input type="number" id="s-Alow" step="any" value="96"><span class="u">m²</span></span></div>
-          <div class="field"><label>μ<sub>s</sub> (liukuva lumi, jos α &gt; 15°)</label><span><input type="number" id="s-mus" step="any" value="0"><span class="u"></span></span></div>
-        </fieldset>
-        <fieldset><legend><label><input type="checkbox" id="s-ob-on"> Kinostuma esteen / kaiteen kohdalla (6.2)</label></legend>
-          <div class="field"><label>Esteen korkeus h</label><span><input type="number" id="s-hob" step="any" value="0.8"><span class="u">m</span></span></div>
-        </fieldset>
+        <div class="info">Kinostumat korkeampaa rakennusosaa ja estettä vasten, lumiesteen kuorma ja räystään lumi lasketaan työkalulla <a href="../kinoslumi/">Kinoslumikuorma</a>.</div>
       </div>
       <div>
         <div class="card">
@@ -155,6 +151,7 @@ details.step>.calc{padding:0 12px 10px}
   <p class="small">Työkalu on suunnittelun apuväline – katso etusivun vastuuvapautuslauseke. Viittaukset: SFS-EN 1991-1-3 ja YM 6/16.</p>
 </div>
 
+<script src="../lumikartta.js"></script>
 <script>
 (function(){
 "use strict";
@@ -196,7 +193,7 @@ function snowCalc(){
   const Ce=Ce0*kor;
   const base=Ce*Ct*sk;
   st+='<h4>Perusarvot</h4>';
-  st+=row('Maan lumikuorma','s<sub>k</sub> = <b>'+fmt(sk,2)+' kN/m²</b>');
+  st+=row('Maan lumikuorma','s<sub>k</sub> = <b>'+fmt(sk,2)+' kN/m²</b>'+(store['s-place']&&Math.abs(+store['s-sk']-sk)<1e-9?' ('+esc(store['s-place'])+', kansallisen liitteen kuva 1)':''));
   st+=row('Tuulensuojaisuuskerroin C<sub>e</sub>',terrN[terr]+' maasto → '+fmt(CeT[terr],1)+(CeNote?'; '+CeNote:'')+' → <b>C<sub>e</sub> = '+fmt(Ce,3)+'</b>');
   st+=row('Lämpökerroin','C<sub>t</sub> = <b>'+fmt(Ct,2)+'</b>');
   st+=row('C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub>',fmt(Ce,3)+'·'+fmt(Ct,2)+'·'+fmt(sk,2)+' = <b>'+fmt(base,3)+' kN/m²</b>');
@@ -229,38 +226,6 @@ function snowCalc(){
     kp.push(['s laakso',sV]);
   }
   // kinostuma korkeampaa rakennusosaa vasten
-  if($('#s-dr-on').checked){
-    const h=num('#s-h'), b1=num('#s-b1'), b2=num('#s-b2'), au=num('#s-au'), Al=num('#s-Alow'); let mus=au<=15?0:num('#s-mus');
-    st+='<h4>Kinostuma korkeampaa rakennusosaa vasten (5.3.6)</h4>';
-    const muw0=h>0?(b1+b2)/(2*h):0, lim=h>0?gam*h/sk:0;
-    let up; if(Al>=6) up=2.5; else if(Al>=2) up=lerp(Al,2,6,1.5,2.5); else if(Al>1) up=lerp(Al,1,2,0.8,1.5); else up=0.8;
-    let muw=Math.min(muw0,lim); muw=Math.max(0.8,Math.min(up,muw));
-    let ls=2*h; const lsr=ls; ls=Math.max(5,Math.min(15,ls));
-    const mu2=mus+muw;
-    st+=row('μ<sub>w</sub> = (b<sub>1</sub>+b<sub>2</sub>)/(2h)','('+fmt(b1,2)+' + '+fmt(b2,2)+')/(2·'+fmt(h,2)+') = '+fmt(muw0,3));
-    st+=row('Yläraja γh/s<sub>k</sub>',fmt(gam,1)+'·'+fmt(h,2)+'/'+fmt(sk,2)+' = '+fmt(lim,3));
-    st+=row('Kansallinen raja (YM 6/16 §6)','alemman katon ala '+fmt(Al,1)+' m² → '+(Al<=1?'μ<sub>w</sub> = 0,8':'0,8 ≤ μ<sub>w</sub> ≤ '+fmt(up,2)));
-    st+=row('μ<sub>w</sub>','<b>'+fmt(muw,3)+'</b>');
-    st+=row('μ<sub>s</sub>',au<=15?'ylemmän katon kaltevuus '+fmt(au,1)+'° ≤ 15° → μ<sub>s</sub> = 0':'annettu μ<sub>s</sub> = '+fmt(mus,3)+' (50 % ylemmän katon viereisen lappeen suurimmasta lumikuormasta, 5.3.6(1))');
-    st+=row('μ<sub>2</sub> = μ<sub>s</sub> + μ<sub>w</sub>',fmt(mus,3)+' + '+fmt(muw,3)+' = <b>'+fmt(mu2,3)+'</b>');
-    st+=row('Kinostuman pituus l<sub>s</sub> = 2h','2·'+fmt(h,2)+' = '+fmt(lsr,2)+' m'+(lsr!==ls?' → rajoitus 5 m ≤ l<sub>s</sub> ≤ 15 m → ':' → ')+'<b>'+fmt(ls,2)+' m</b>');
-    const sMax=mu2*base, s1=0.8*base; let sEnd=s1, txtEnd='';
-    if(b2<ls){ sEnd=lerp(b2,0,ls,sMax,s1); txtEnd='b<sub>2</sub> &lt; l<sub>s</sub> → alemman katon päässä s = '+fmt(sEnd,3)+' kN/m² (lineaarinen)'; }
-    st+=row('Tapaus (i)','μ<sub>1</sub> = 0,8 → s = 0,8·'+fmt(base,3)+' = <b>'+fmt(s1,3)+' kN/m²</b>');
-    st+=row('Tapaus (ii)','seinän vieressä s = '+fmt(mu2,3)+'·'+fmt(base,3)+' = <b>'+fmt(sMax,3)+' kN/m²</b>, pienenee arvoon '+fmt(s1,3)+' matkalla l<sub>s</sub>'+(txtEnd?'; '+txtEnd:''));
-    cases.push({t:'Kinostuma korkeampaa rakennusosaa vasten – tapaus (ii)',svg:svgDrift(h,b2,ls,sMax,s1,'step'),txt:'s = '+fmt(sMax,2)+' → '+fmt(s1,2)+' kN/m², l<sub>s</sub> = '+fmt(ls,2)+' m'});
-    kp.push(['s kinostuma',sMax]);
-  }
-  if($('#s-ob-on').checked){
-    const h=num('#s-hob'); st+='<h4>Kinostuma esteen tai kaiteen kohdalla (6.2)</h4>';
-    const m2r=gam*h/sk, m2=Math.max(0.8,Math.min(2.0,m2r)); let ls=2*h; const lsr=ls; ls=Math.max(2,Math.min(6,ls));
-    st+=row('μ<sub>2</sub> = γh/s<sub>k</sub>',fmt(gam,1)+'·'+fmt(h,2)+'/'+fmt(sk,2)+' = '+fmt(m2r,3)+' → 0,8 ≤ μ<sub>2</sub> ≤ 2,0 → <b>'+fmt(m2,3)+'</b>');
-    st+=row('l<sub>s</sub> = 2h','2·'+fmt(h,2)+' = '+fmt(lsr,2)+' m → kansallinen liite 2 m ≤ l<sub>s</sub> ≤ 6 m → <b>'+fmt(ls,2)+' m</b>');
-    const sMax=m2*base, s1=0.8*base;
-    st+=row('Lumikuorma','esteen vieressä s = '+fmt(m2,3)+'·'+fmt(base,3)+' = <b>'+fmt(sMax,3)+' kN/m²</b>, muualla μ<sub>1</sub> = 0,8 → '+fmt(s1,3)+' kN/m²');
-    cases.push({t:'Kinostuma esteen kohdalla',svg:svgDrift(h,Math.max(ls*1.8,4),ls,sMax,s1,'obst'),txt:'s = '+fmt(sMax,2)+' → '+fmt(s1,2)+' kN/m², l<sub>s</sub> = '+fmt(ls,2)+' m'});
-    kp.push(['s este',sMax]);
-  }
   if(Ct<1) st+=row('Vähimmäisarvo','C<sub>t</sub> &lt; 1 → lumikuorma s ≥ 0,5 kN/m² (YM 6/16)');
   st+=row('Liitteet','Poikkeukselliset lumikuormat (tapaukset B1–B3) sekä liitteet B ja C eivät ole Suomessa käytössä. Räystäältä riippuvaa lunta ei yleensä tarvitse ottaa huomioon.');
   $('#s-steps').innerHTML=st;
@@ -288,19 +253,11 @@ function svgMulti(sV,sR,valley){
   else { for(let i=1;i<4;i++){ const x=xs[i]; blocks+=`<path d="M${x-55},${yb-80} L${x},${yb-80-sV/sm*50} L${x+55},${yb-80} Z" fill="var(--snow)" opacity=".85" stroke="var(--snow-ink)" stroke-width=".8"/>`; } blocks+=`<text x="${xs[2]}" y="${yb-80-sV/sm*50-6}" text-anchor="middle">${fmt(sV,2)} kN/m²</text>`; }
   return `<svg class="diag" viewBox="0 0 ${W} ${H}" role="img" aria-label="Lumikuorma sahakatolla">${blocks}<path d="${p}" fill="none" stroke="var(--ink)" stroke-width="2"/><line x1="40" y1="${yb}" x2="480" y2="${yb}" stroke="var(--muted)" stroke-dasharray="4 3"/></svg>`;
 }
-function svgDrift(h,b2,ls,sMax,s1,kind){
-  const W=560,H=220,xw=110,x1=520,yr=170; const L=Math.max(b2,ls); const px=(x1-xw)/L; const sc=v=>v/Math.max(sMax,0.01)*80;
-  const xe=xw+Math.min(ls,b2)*px; const sEnd=b2<ls?lerp(b2,0,ls,sMax,s1):s1; const xb=xw+b2*px;
-  let wall = kind==='step'?`<path d="M40,${yr-90} L${xw},${yr-90} L${xw},${yr}" fill="none" stroke="var(--ink)" stroke-width="2"/><text x="${xw-8}" y="${yr-40}" text-anchor="end" class="m">h = ${fmt(h,2)} m</text>`
-     :`<rect x="${xw-6}" y="${yr-34}" width="6" height="34" fill="var(--ink)"/><text x="${xw-10}" y="${yr-12}" text-anchor="end" class="m">h = ${fmt(h,2)} m</text>`;
-  const top=yr-6;
-  const poly=`M${xw},${top} L${xw},${top-sc(sMax)} L${xe},${top-sc(b2<ls?sEnd:s1)} L${xb},${top-sc(b2<ls?sEnd:s1)} L${xb},${top} Z`;
-  return `<svg class="diag" viewBox="0 0 ${W} ${H}" role="img" aria-label="Kinostuma"><path d="${poly}" fill="var(--snow)" opacity=".85" stroke="var(--snow-ink)" stroke-width=".8"/>${wall}
-   <line x1="${xw}" y1="${yr}" x2="${xb}" y2="${yr}" stroke="var(--ink)" stroke-width="2"/>
-   <text x="${xw+4}" y="${top-sc(sMax)-6}">${fmt(sMax,2)} kN/m²</text><text x="${xb-4}" y="${top-sc(b2<ls?sEnd:s1)-6}" text-anchor="end">${fmt(b2<ls?sEnd:s1,2)}</text>
-   <line x1="${xw}" y1="${yr+18}" x2="${xe}" y2="${yr+18}" stroke="var(--muted)"/><text x="${(xw+xe)/2}" y="${yr+34}" text-anchor="middle" class="m">l<tspan baseline-shift="sub" font-size="9">s</tspan> = ${fmt(ls,2)} m</text></svg>`;
-}
-bindPersist(['s-sk','s-terr','s-L1','s-L2','s-Ct','s-gam','s-type','s-a1','s-a2','s-guard','s-dr-on','s-h','s-b1','s-b2','s-au','s-Alow','s-mus','s-ob-on','s-hob'],snowCalc);
+bindPersist(['s-sk','s-terr','s-L1','s-L2','s-Ct','s-gam','s-type','s-a1','s-a2','s-guard'],snowCalc);
+// paikkakuntakartta
+const lk=window.LumiKartta&&LumiKartta.mount($('#s-map'),{onPick:p=>{ $('#s-sk').value=p.sk; store['s-sk']=String(p.sk); store['s-place']=p.alias||p.name; persist();
+  $('#s-place').innerHTML='Paikkakunta: <b>'+esc(p.label)+'</b> → s<sub>k</sub> = '+fmt(p.sk,2)+' kN/m² (kansallisen liitteen kuva 1). Arvoa voi muokata.'; snowCalc(); }});
+if(lk&&store['s-place']) lk.setPlace(store['s-place']);
 snowCalc();
 
 })();

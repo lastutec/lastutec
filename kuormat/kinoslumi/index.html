@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kinoslumikuorma – Lastutec</title>
+<meta name="description" content="Kinoslumikuormat SFS-EN 1991-1-3:n ja YM 6/16:n mukaan: kinostuma korkeampaa rakennusosaa ja estettä vasten, lumiesteen kuorma ja räystään lumi. Paikkakuntakohtainen sk kartalta.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<style>
+:root{
+  --bg:#000000; --panel:#141414; --panel2:#1c1c1c; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e; --line2:#262626;
+  --accent:#F74902; --accent-ink:#111111; --accent-soft:#3b1503; --input:#2a1206;
+  --ok:#5cc58a; --warn:#f5c86b; --bad:#ff6b5a;
+  --radius:6px; --mono:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+  --snow:#7fb2e6; --snow-ink:#bcd8f5; --press:#ff6b5a; --suct:#7fb2e6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+header.lt{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+header.lt .brand{display:flex;flex-direction:column;gap:2px}
+header.lt .back{font:600 13px Arial,Helvetica,sans-serif;color:var(--accent);text-decoration:none}
+header.lt .back:hover{text-decoration:underline}
+header.lt h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+header.lt .hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+header.lt .meta{font-size:12px;color:var(--muted)}
+.printbtn{font:600 13px Arial,Helvetica,sans-serif;color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.printbtn:hover{filter:brightness(1.1)}
+table,.num,.kpi .v{font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+.wrap{max-width:1300px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.crumb{font-size:13px;color:var(--muted)} .crumb a{color:var(--muted);text-decoration:none} .crumb a:hover{text-decoration:underline}
+h1{font-size:24px;line-height:1.2;margin:2px 0 4px}
+h2{font-size:17px;font-weight:800;margin:0 0 10px}
+h3{font-size:15px;margin:14px 0 6px}
+p.lead{margin:0 0 12px;color:var(--muted);max-width:85ch}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:8px 0 14px;flex-wrap:wrap}
+.tabs a{padding:8px 14px;text-decoration:none;color:var(--muted);border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;font-weight:600;font-size:14.5px}
+.tabs a.on{background:var(--panel);color:var(--ink);border-color:var(--line);margin-bottom:-1px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:950px){.grid{grid-template-columns:minmax(0,1fr)}}
+.field{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;margin:6px 0}
+.field>label{font-size:13.5px}
+.field .u{font-size:12px;color:var(--muted);margin-left:4px;display:inline-block;min-width:34px}
+input[type=number],input[type=text],select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);border-radius:4px;background:var(--input);color:var(--ink);min-width:0}
+select{background:var(--bg)!important}
+input[type=checkbox]{accent-color:var(--accent)}
+input[type=number]{width:92px}
+.field select{max-width:200px}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:6px;padding:6px 10px;font:inherit;font-size:13.5px;cursor:pointer;white-space:nowrap;line-height:1.2}
+.btn:hover{border-color:var(--accent)}.btn.primary{background:var(--accent);border-color:var(--accent);color:#111}.btn.ghost{background:transparent}.btn.danger{color:var(--bad)}
+.small{font-size:12.5px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 6px}
+.chips button{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:12px;padding:2px 9px;font-size:12.5px;cursor:pointer}
+.chips button:hover{border-color:var(--accent)}
+fieldset{border:1px solid var(--line);border-radius:6px;padding:6px 10px 8px;margin:10px 0}
+legend{font-size:12.5px;font-weight:600;color:var(--muted);padding:0 4px}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line2);padding:5px 7px;text-align:right;white-space:nowrap;vertical-align:middle}
+th{font-weight:600;color:var(--muted);font-size:12px;background:var(--panel)}
+td.l,th.l{text-align:left}
+td.expr{text-align:left;white-space:normal;font-family:var(--mono);font-size:12.5px;min-width:280px}
+.num{font-family:var(--mono)}
+.neg{color:var(--bad)}
+tr.gov td{background:var(--accent-soft)}
+tr.gov td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.x-term{color:#666;text-decoration:line-through}
+table.inp input[type=number]{width:80px;padding:3px 5px;text-align:right}
+table.inp input[type=text]{width:150px;padding:3px 5px}
+table.inp select{max-width:230px;padding:3px 5px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+.kpi{border:1px solid var(--line);border-radius:6px;padding:7px 9px;background:var(--panel2)}
+.kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)} .kpi .v{font:600 17px/1.3 var(--mono)}
+.kpi.hl{border-color:var(--accent);background:var(--accent-soft)}
+.calc{font-size:13.5px}
+.calc .row{display:grid;grid-template-columns:minmax(160px,250px) 1fr;gap:4px 14px;padding:3px 0;border-bottom:1px dashed var(--line2)}
+.calc .row .d{color:var(--muted)} .calc .row .f{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+.calc h4{margin:14px 0 2px;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.note{border-left:3px solid var(--warn);background:#2a1f08;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.info{border-left:3px solid var(--accent);background:#1f0d03;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.flex{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.right{margin-left:auto}
+.diag{width:100%;max-width:640px;height:auto;display:block;margin:6px 0}
+.diag text{font:12px system-ui,sans-serif;fill:var(--ink)}
+.diag .m{fill:var(--muted)}
+
+details.step{border:1px solid var(--line);border-radius:6px;margin:8px 0}
+details.step>summary{cursor:pointer;padding:7px 10px;font-weight:600}
+details.step>.calc{padding:0 12px 10px}
+.case{border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:10px 0}
+.case h3{margin:2px 0 6px}
+@media print{ :root{--bg:#fff;--panel:#fff;--panel2:#fff;--ink:#000;--muted:#444;--line:#bbb;--line2:#ddd;--accent:#c63a00;--accent-soft:#fde2d5;--input:#fff;--ok:#1d6b3a;--warn:#8a5a00;--bad:#b3261e;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back{display:none!important} .no-print{display:none!important} .card{border:0;padding:0} .grid{grid-template-columns:1fr} details.step{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="lt">
+    <div class="brand"><a href="../" class="back">← Kuormalaskenta</a><h1>Kinoslumikuorma</h1></div>
+    <div class="hdr-r"><span class="meta">Työkalu 3 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+  </header>
+  <p class="lead">Kinostuneen lumen kuormat SFS-EN 1991-1-3:n ja ympäristöministeriön asetuksen 6/16 (kansalliset valinnat) mukaan: kinostuma korkeampaa rakennusosaa vasten, kinostuma esteen tai kaiteen kohdalla, lumiesteen kuorma ja räystäältä riippuva lumi. Laskelmat näytetään välivaiheineen.</p>
+  <section id="p-kinos">
+    <div class="card">
+      <h2>Maan lumikuorma s<sub>k</sub> paikkakunnittain</h2>
+      <div class="small">Klikkaa kuntaa kartalla tai hae nimellä. Valinta on yhteinen Lumikuorma-työkalun kanssa.</div>
+      <div id="s-map"></div>
+      <div class="small">Kuntakohtaiset s<sub>k</sub>-arvot kansallisen liitteen kuvan 1 mukaan (kuntajako ennen vuotta 2009). Välialueilla interpoloidaan lineaarisesti; tarkista kriittisissä kohteissa kansallisen liitteen kartasta.</div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h2>Lähtötiedot</h2>
+        <div class="field"><label>Maan lumikuorma s<sub>k</sub></label><span><input type="number" id="s-sk" step="0.05" value="2.5"><span class="u">kN/m²</span></span></div>
+        <div class="small" id="s-place">Valitse paikkakunta kartalta tai anna s<sub>k</sub> suoraan.</div>
+        <div class="field"><label>Maastotyyppi</label><select id="s-terr"><option value="t">Tuulinen (Ce = 0,8)</option><option value="n" selected>Normaali (Ce = 1,0)</option><option value="s">Suojainen (Ce = 1,2)</option></select></div>
+        <div class="field"><label>Katon lyhyempi sivu L<sub>1</sub></label><span><input type="number" id="s-L1" step="any" value="12"><span class="u">m</span></span></div>
+        <div class="field"><label>Katon pidempi sivu L<sub>2</sub></label><span><input type="number" id="s-L2" step="any" value="24"><span class="u">m</span></span></div>
+        <div class="field"><label>Lämpökerroin C<sub>t</sub></label><span><input type="number" id="s-Ct" step="0.05" value="1.0"><span class="u"></span></span></div>
+        <div class="field"><label>Lumen tilavuuspaino γ</label><span><input type="number" id="s-gam" step="0.1" value="2.0"><span class="u">kN/m³</span></span></div>
+
+        <fieldset><legend><label><input type="checkbox" id="k-a-on" checked> A. Korkeampaa rakennusosaa vasten (5.3.6)</label></legend>
+          <div class="field"><label>Korkeusero h</label><span><input type="number" id="k-h" step="any" value="3"><span class="u">m</span></span></div>
+          <div class="field"><label>Ylemmän katon leveys b<sub>1</sub></label><span><input type="number" id="k-b1" step="any" value="12"><span class="u">m</span></span></div>
+          <div class="field"><label>Alemman katon leveys b<sub>2</sub></label><span><input type="number" id="k-b2" step="any" value="8"><span class="u">m</span></span></div>
+          <div class="field"><label>Alemman katon pinta-ala</label><span><input type="number" id="k-A" step="any" value="96"><span class="u">m²</span></span></div>
+          <div class="field"><label>Ylemmän katon kaltevuus α</label><span><input type="number" id="k-au" step="any" value="5"><span class="u">°</span></span></div>
+          <div class="field"><label>Alemmalle katolle viettävän lappeen vaakapituus</label><span><input type="number" id="k-bs" step="any" value="6"><span class="u">m</span></span></div>
+          <div class="small">Lappeen pituutta käytetään vain, kun α &gt; 15° (liukuva lumi, μ<sub>s</sub>).</div>
+        </fieldset>
+        <fieldset><legend><label><input type="checkbox" id="k-b-on" checked> B. Esteen tai kaiteen kohdalla (6.2)</label></legend>
+          <div class="field"><label>Esteen korkeus h</label><span><input type="number" id="k-ho" step="any" value="0.8"><span class="u">m</span></span></div>
+          <div class="field"><label>Sijainti</label><select id="k-opos"><option value="2">katon keskellä (kinostuma molemmin puolin)</option><option value="1">katon reunalla / räystäskaide (yksi puoli)</option></select></div>
+          <div class="field"><label>Katon kaltevuus</label><span><input type="number" id="k-ao" step="any" value="0"><span class="u">°</span></span></div>
+        </fieldset>
+        <fieldset><legend><label><input type="checkbox" id="k-c-on"> C. Lumiesteen kuorma (6.4)</label></legend>
+          <div class="field"><label>Katon kaltevuus α</label><span><input type="number" id="k-ac" step="any" value="27"><span class="u">°</span></span></div>
+          <div class="field"><label>Vaakaetäisyys b lumiesteestä harjalle / seuraavaan esteeseen</label><span><input type="number" id="k-bc" step="any" value="6"><span class="u">m</span></span></div>
+        </fieldset>
+        <fieldset><legend><label><input type="checkbox" id="k-d-on"> D. Räystäältä riippuva lumi (6.3)</label></legend>
+          <div class="field"><label>Katon kaltevuus α</label><span><input type="number" id="k-ad" step="any" value="15"><span class="u">°</span></span></div>
+          <div class="small">Kansallisen liitteen mukaan räystäältä riippuvaa lunta ei yleensä tarvitse ottaa huomioon; tarkastelu on mukana erikoistapauksia (esim. katokset, kevyet räystäsrakenteet) varten.</div>
+        </fieldset>
+      </div>
+      <div>
+        <div class="card">
+          <h2>Tulokset</h2>
+          <div class="kpis" id="k-kpis"></div>
+          <div id="k-cases"></div>
+        </div>
+        <div class="card">
+          <h2>Laskenta välivaiheineen</h2>
+          <div class="calc" id="k-steps"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="small">Työkalu on suunnittelun apuväline – katso etusivun vastuuvapautuslauseke. Viittaukset: SFS-EN 1991-1-3 ja YM 6/16 (kansalliset valinnat: μ<sub>w</sub>:n yläraja alemman katon pinta-alan mukaan, kinostumapituus esteiden kohdalla 2 m ≤ l<sub>s</sub> ≤ 6 m, tuulensuojaisuuskertoimen korotus laajoilla katoilla).</p>
+</div>
+
+
+<script src="../lumikartta.js"></script>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+function fmt(v,d){ if(v===null||v===undefined||!isFinite(v)) return '–'; if(Math.abs(v)<0.5*Math.pow(10,-d)) v=0;
+  let s=v.toFixed(d); let [i,f]=s.split('.'); const neg=i.startsWith('-'); if(neg)i=i.slice(1);
+  i=i.replace(/\B(?=(\d{3})+(?!\d))/g,' '); return (neg?'−':'')+i+(f?','+f:''); }
+const f2=v=>fmt(v,2), f3=v=>fmt(v,3);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=id=>{const v=parseFloat(String($(id).value).replace(',','.')); return isFinite(v)?v:0;};
+const row=(d,f)=>`<div class="row"><div class="d">${d}</div><div class="f">${f}</div></div>`;
+const lerp=(x,x0,x1,y0,y1)=>x1===x0?y0:y0+(y1-y0)*(x-x0)/(x1-x0);
+const LS='lastutec-kuormalaskenta-v1';
+let store={}; try{store=JSON.parse(localStorage.getItem(LS)||'{}')||{};}catch(e){}
+function persist(){ try{localStorage.setItem(LS,JSON.stringify(store));}catch(e){} }
+function bindPersist(ids,fn){ ids.forEach(id=>{ const el=$('#'+id); if(!el) return; if(store[id]!==undefined){ if(el.type==='checkbox') el.checked=store[id]; else el.value=store[id]; }
+  el.addEventListener(el.type==='checkbox'||el.tagName==='SELECT'?'change':'input',()=>{ store[id]=el.type==='checkbox'?el.checked:el.value; persist(); fn(); }); }); }
+
+/* =====================================================================
+   KINOSLUMIKUORMA
+   ===================================================================== */
+function mu1(a,guard){ let m; if(a<=30) m=0.8; else if(a<60) m=0.8*(60-a)/30; else m=0; if(guard) m=Math.max(m,0.8); return m; }
+function mu1txt(a,guard){ const m0=mu1(a,false); let t;
+  if(a<=30) t='α = '+fmt(a,1)+'° ≤ 30° → μ<sub>1</sub> = 0,8'; else if(a<60) t='30° &lt; α = '+fmt(a,1)+'° &lt; 60° → μ<sub>1</sub> = 0,8·(60 − '+fmt(a,1)+')/30 = '+fmt(m0,3); else t='α = '+fmt(a,1)+'° ≥ 60° → μ<sub>1</sub> = 0';
+  if(guard&&m0<0.8) t+=' → lumieste estää liukumisen: μ<sub>1</sub> = 0,8'; return t; }
+function basePart(){
+  const sk=num('#s-sk'), terr=$('#s-terr').value, L1=num('#s-L1'), L2=num('#s-L2'), Ct=num('#s-Ct')||1, gam=num('#s-gam')||2;
+  const CeT={t:0.8,n:1.0,s:1.2}, terrN={t:'tuulinen',n:'normaali',s:'suojainen'};
+  let Ce0=CeT[terr]; const Ls=Math.min(L1,L2), Ll=Math.max(L1,L2); let kor=1, note='';
+  if(Ls>=50){ if(terr==='t'){ Ce0=Math.max(Ce0,1.0); note='laaja katto tuulisessa maastossa → C<sub>e</sub> ≥ 1,0; '; }
+    const r=Math.min(2,Math.max(1,Ll/Ls)), L=Math.min(100,Math.max(50,Ls));
+    const k1=L<=75?lerp(L,50,75,1.0,1.1):lerp(L,75,100,1.1,1.2), k2=L<=75?lerp(L,50,75,1.1,1.2):lerp(L,75,100,1.2,1.25);
+    kor=lerp(r,1,2,k1,k2); note+='korotuskerroin (YM 6/16 taulukko 1) = '+fmt(kor,3); }
+  const Ce=Ce0*kor, base=Ce*Ct*sk;
+  let st='<h4>Perusarvot</h4>';
+  st+=row('Maan lumikuorma','s<sub>k</sub> = <b>'+fmt(sk,2)+' kN/m²</b>'+(store['s-place']&&Math.abs(+store['s-sk']-sk)<1e-9?' ('+esc(store['s-place'])+')':''));
+  st+=row('Tuulensuojaisuuskerroin',terrN[terr]+' maasto → '+fmt(CeT[terr],1)+(note?'; '+note:'')+' → <b>C<sub>e</sub> = '+fmt(Ce,3)+'</b>');
+  st+=row('Lämpökerroin','C<sub>t</sub> = <b>'+fmt(Ct,2)+'</b>');
+  st+=row('Lumen tilavuuspaino','γ = <b>'+fmt(gam,1)+' kN/m³</b> (5.3.6(1))');
+  st+=row('C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub>',fmt(Ce,3)+'·'+fmt(Ct,2)+'·'+fmt(sk,2)+' = <b>'+fmt(base,3)+' kN/m²</b>');
+  return {sk,Ce,Ct,gam,base,st};
+}
+function kinosCalc(){
+  const B=basePart(); const {sk,gam,base}=B; let st=B.st; const cases=[], kp=[];
+  // ---- A ----
+  if($('#k-a-on').checked){
+    const h=num('#k-h'), b1=num('#k-b1'), b2=num('#k-b2'), A=num('#k-A'), au=num('#k-au'), bs=num('#k-bs');
+    st+='<h4>A. Kinostuma korkeampaa rakennusosaa vasten (5.3.6)</h4>';
+    let ls=2*h; const lsr=ls; ls=Math.max(5,Math.min(15,ls));
+    st+=row('Kinostuman pituus l<sub>s</sub> = 2h','2·'+fmt(h,2)+' = '+fmt(lsr,2)+' m'+(lsr!==ls?' → rajoitus 5 m ≤ l<sub>s</sub> ≤ 15 m → ':' → ')+'<b>'+fmt(ls,2)+' m</b>');
+    const muw0=h>0?(b1+b2)/(2*h):0, lim=h>0?gam*h/sk:0;
+    let up; if(A>=6) up=2.5; else if(A>=2) up=lerp(A,2,6,1.5,2.5); else if(A>1) up=lerp(A,1,2,0.8,1.5); else up=0.8;
+    let muw=Math.max(0.8,Math.min(up,Math.min(muw0,lim)));
+    st+=row('μ<sub>w</sub> = (b<sub>1</sub> + b<sub>2</sub>)/(2h)','('+fmt(b1,2)+' + '+fmt(b2,2)+')/(2·'+fmt(h,2)+') = '+fmt(muw0,3));
+    st+=row('Yläraja γh/s<sub>k</sub>',fmt(gam,1)+'·'+fmt(h,2)+'/'+fmt(sk,2)+' = '+fmt(lim,3));
+    st+=row('Kansallinen raja (YM 6/16 §6)','alemman katon ala '+fmt(A,1)+' m² → '+(A<=1?'μ<sub>w</sub> = 0,8':'0,8 ≤ μ<sub>w</sub> ≤ '+fmt(up,2)+(A<6?' (interpoloitu)':'')));
+    st+=row('μ<sub>w</sub>','<b>'+fmt(muw,3)+'</b>');
+    let mus=0;
+    if(au<=15) st+=row('μ<sub>s</sub>','ylemmän katon kaltevuus '+fmt(au,1)+'° ≤ 15° → <b>μ<sub>s</sub> = 0</b>');
+    else { const m1u=mu1(au,false); mus=ls>0?m1u*bs/ls:0;
+      st+=row('μ<sub>1</sub> ylemmällä lappeella',mu1txt(au,false));
+      st+=row('μ<sub>s</sub> (liukuva lumi)','50 % lappeen kuormasta 0,5·μ<sub>1</sub>·C<sub>e</sub>C<sub>t</sub>s<sub>k</sub>·b<sub>s</sub> jaetaan kolmiona matkalle l<sub>s</sub> → μ<sub>s</sub> = μ<sub>1</sub>·b<sub>s</sub>/l<sub>s</sub> = '+fmt(m1u,3)+'·'+fmt(bs,2)+'/'+fmt(ls,2)+' = <b>'+fmt(mus,3)+'</b>'); }
+    const mu2=mus+muw, sMax=mu2*base, s1=0.8*base;
+    st+=row('μ<sub>2</sub> = μ<sub>s</sub> + μ<sub>w</sub>',fmt(mus,3)+' + '+fmt(muw,3)+' = <b>'+fmt(mu2,3)+'</b>');
+    st+=row('Tapaus (i)','μ<sub>1</sub> = 0,8 → s = 0,8·'+fmt(base,3)+' = <b>'+fmt(s1,3)+' kN/m²</b>');
+    let sEnd=s1, xEnd=ls; if(b2<ls){ sEnd=lerp(b2,0,ls,sMax,s1); xEnd=b2; }
+    st+=row('Tapaus (ii)','seinän vieressä s = μ<sub>2</sub>·C<sub>e</sub>C<sub>t</sub>s<sub>k</sub> = '+fmt(mu2,3)+'·'+fmt(base,3)+' = <b>'+fmt(sMax,3)+' kN/m²</b>, pienenee lineaarisesti arvoon '+fmt(s1,3)+' kN/m² matkalla l<sub>s</sub>'+(b2<ls?'; b<sub>2</sub> &lt; l<sub>s</sub> → alemman katon reunalla s = '+fmt(sEnd,3)+' kN/m²':''));
+    const tot=(sMax+sEnd)/2*xEnd+(b2>xEnd?s1*(b2-xEnd):0);
+    st+=row('Kokonaiskuorma alemmalla katolla','tapaus (ii): ∫s dx = '+fmt(tot,2)+' kN/m (seinän pituusmetriä kohti), tapaus (i): '+fmt(s1*b2,2)+' kN/m');
+    cases.push({t:'A. Kinostuma korkeampaa rakennusosaa vasten – tapaus (ii)',svg:svgDrift(h,b2,ls,sMax,s1,'step',1),txt:'s = '+fmt(sMax,2)+' → '+fmt(s1,2)+' kN/m², l<sub>s</sub> = '+fmt(ls,2)+' m, kokonaiskuorma '+fmt(tot,1)+' kN/m'});
+    kp.push(['A: s<sub>max</sub>',fmt(sMax,2)+' <span class="small">kN/m²</span>'],['A: l<sub>s</sub>',fmt(ls,2)+' <span class="small">m</span>']);
+  }
+  // ---- B ----
+  if($('#k-b-on').checked){
+    const h=num('#k-ho'), sides=+$('#k-opos').value, ao=num('#k-ao');
+    st+='<h4>B. Kinostuma esteen tai kaiteen kohdalla (6.2)</h4>';
+    const m1=mu1(ao,true); const m2r=sk>0?gam*h/sk:0, m2=Math.max(0.8,Math.min(2.0,m2r));
+    let ls=2*h; const lsr=ls; ls=Math.max(2,Math.min(6,ls));
+    st+=row('μ<sub>1</sub>',mu1txt(ao,true)+' (este estää lumen liukumisen, μ<sub>1</sub> ≥ 0,8)');
+    st+=row('μ<sub>2</sub> = γh/s<sub>k</sub>',fmt(gam,1)+'·'+fmt(h,2)+'/'+fmt(sk,2)+' = '+fmt(m2r,3)+' → 0,8 ≤ μ<sub>2</sub> ≤ 2,0 → <b>'+fmt(m2,3)+'</b>');
+    st+=row('l<sub>s</sub> = 2h','2·'+fmt(h,2)+' = '+fmt(lsr,2)+' m → kansallinen liite 2 m ≤ l<sub>s</sub> ≤ 6 m → <b>'+fmt(ls,2)+' m</b>');
+    const sMax=m2*base, s1=m1*base;
+    st+=row('Lumikuorma','esteen vieressä s = '+fmt(m2,3)+'·'+fmt(base,3)+' = <b>'+fmt(sMax,3)+' kN/m²</b>, muualla s = '+fmt(m1,3)+'·'+fmt(base,3)+' = '+fmt(s1,3)+' kN/m²'+(sides===2?'; kinostuma esteen molemmin puolin':'; kinostuma esteen sisäpuolelle'));
+    const extra=Math.max(0,(sMax-s1))*ls/2*sides;
+    st+=row('Kinostuman lisäkuorma','(s<sub>max</sub> − s)·l<sub>s</sub>/2'+(sides===2?'·2':'')+' = ('+fmt(sMax,3)+' − '+fmt(s1,3)+')·'+fmt(ls,2)+'/2'+(sides===2?'·2':'')+' = <b>'+fmt(extra,2)+' kN/m</b> (esteen pituusmetriä kohti)');
+    cases.push({t:'B. Kinostuma esteen kohdalla',svg:svgObst(h,ls,sMax,s1,sides),txt:'s = '+fmt(sMax,2)+' → '+fmt(s1,2)+' kN/m², l<sub>s</sub> = '+fmt(ls,2)+' m'});
+    kp.push(['B: s<sub>max</sub>',fmt(sMax,2)+' <span class="small">kN/m²</span>']);
+  }
+  // ---- C ----
+  if($('#k-c-on').checked){
+    const a=num('#k-ac'), b=num('#k-bc');
+    st+='<h4>C. Lumiesteen kuorma (6.4)</h4>';
+    const m=mu1(a,true), s=m*base, Fs=s*b*Math.sin(a*Math.PI/180);
+    st+=row('μ<sub>1</sub>',mu1txt(a,true));
+    st+=row('s (kinostumaton tapaus)','μ<sub>1</sub>·C<sub>e</sub>C<sub>t</sub>s<sub>k</sub> = '+fmt(m,3)+'·'+fmt(base,3)+' = <b>'+fmt(s,3)+' kN/m²</b>');
+    st+=row('F<sub>s</sub> = s·b·sin α',fmt(s,3)+'·'+fmt(b,2)+'·sin '+fmt(a,1)+'° = <b>'+fmt(Fs,3)+' kN/m</b> (lumiesteen pituusmetriä kohti, kitka katon ja lumen välillä jätetään huomiotta)');
+    cases.push({t:'C. Lumiesteen kuorma',svg:svgGuard(a,b,Fs),txt:'F<sub>s</sub> = '+fmt(Fs,2)+' kN/m'});
+    kp.push(['C: F<sub>s</sub>',fmt(Fs,2)+' <span class="small">kN/m</span>']);
+  }
+  // ---- D ----
+  if($('#k-d-on').checked){
+    const a=num('#k-ad'); st+='<h4>D. Räystäältä riippuva lumi (6.3)</h4>';
+    const m=mu1(a,false), s=m*base, d=gam>0?s/gam:0, k=d>0?Math.min(3/d,d*gam):0, se=gam>0?k*s*s/gam:0;
+    st+=row('s (epäedullisin kinostumaton)','μ<sub>1</sub>·C<sub>e</sub>C<sub>t</sub>s<sub>k</sub> = '+fmt(m,3)+'·'+fmt(base,3)+' = '+fmt(s,3)+' kN/m²');
+    st+=row('Lumikerroksen paksuus d = s/γ',fmt(s,3)+'/'+fmt(gam,1)+' = '+fmt(d,3)+' m');
+    st+=row('k = 3/d ≤ d·γ','3/'+fmt(d,3)+' = '+fmt(d>0?3/d:0,3)+', d·γ = '+fmt(d*gam,3)+' → <b>k = '+fmt(k,3)+'</b>');
+    st+=row('s<sub>e</sub> = k·s²/γ',fmt(k,3)+'·'+fmt(s,3)+'²/'+fmt(gam,1)+' = <b>'+fmt(se,3)+' kN/m</b> (räystään pituusmetriä kohti, vaikuttaa räystään reunalla)');
+    st+=row('Kansallinen valinta','YM 6/16: räystäältä riippuvaa lunta ei yleensä tarvitse ottaa huomioon.');
+    cases.push({t:'D. Räystäältä riippuva lumi',svg:svgEave(a,se),txt:'s<sub>e</sub> = '+fmt(se,2)+' kN/m'});
+    kp.push(['D: s<sub>e</sub>',fmt(se,2)+' <span class="small">kN/m</span>']);
+  }
+  $('#k-steps').innerHTML=st;
+  $('#k-kpis').innerHTML=`<div class="kpi"><div class="k">s<sub>k</sub></div><div class="v">${fmt(sk,2)} <span class="small">kN/m²</span></div></div><div class="kpi"><div class="k">C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub></div><div class="v">${fmt(base,3)} <span class="small">kN/m²</span></div></div>`+
+    kp.map((k,i)=>`<div class="kpi ${i===0?'hl':''}"><div class="k">${k[0]}</div><div class="v">${k[1]}</div></div>`).join('');
+  $('#k-cases').innerHTML=cases.length?cases.map(c=>`<div class="case"><h3>${c.t}</h3>${c.svg}<div class="small">${c.txt}</div></div>`).join(''):'<div class="small">Valitse vähintään yksi tarkastelu.</div>';
+}
+// --- kaaviot ---
+function svgDrift(h,b2,ls,sMax,s1){
+  const W=560,H=230,xw=110,x1=520,yr=180; const L=Math.max(b2,ls); const px=(x1-xw)/L; const sc=v=>v/Math.max(sMax,0.01)*90;
+  const xe=xw+Math.min(ls,b2)*px; const sEnd=b2<ls?lerp(b2,0,ls,sMax,s1):s1; const xb=xw+b2*px; const top=yr-6;
+  const poly=`M${xw},${top} L${xw},${top-sc(sMax)} L${xe},${top-sc(sEnd)} L${xb},${top-sc(sEnd)} L${xb},${top} Z`;
+  return `<svg class="diag" viewBox="0 0 ${W} ${H}" role="img" aria-label="Kinostuma korkeampaa rakennusosaa vasten"><path d="${poly}" fill="var(--snow)" opacity=".85" stroke="var(--snow-ink)" stroke-width=".8"/>
+   <path d="M30,${yr-110} L${xw},${yr-110} L${xw},${yr}" fill="none" stroke="var(--ink)" stroke-width="2"/><text x="${xw-8}" y="${yr-55}" text-anchor="end" class="m">h = ${fmt(h,2)} m</text>
+   <line x1="${xw}" y1="${yr}" x2="${xb}" y2="${yr}" stroke="var(--ink)" stroke-width="2"/>
+   <text x="${xw+4}" y="${top-sc(sMax)-6}">${fmt(sMax,2)} kN/m²</text><text x="${xb-4}" y="${top-sc(sEnd)-6}" text-anchor="end">${fmt(sEnd,2)}</text>
+   <line x1="${xw}" y1="${yr+18}" x2="${xe}" y2="${yr+18}" stroke="var(--muted)"/><text x="${(xw+xe)/2}" y="${yr+34}" text-anchor="middle" class="m">l<tspan baseline-shift="sub" font-size="9">s</tspan> = ${fmt(ls,2)} m</text></svg>`;
+}
+function svgObst(h,ls,sMax,s1,sides){
+  const W=560,H=200,yr=160,xo=sides===2?280:60,px=Math.min(200/Math.max(ls,0.1),80); const sc=v=>v/Math.max(sMax,0.01)*80; const top=yr-4;
+  const L=ls*px; let poly=`M${xo+6},${top} L${xo+6},${top-sc(sMax)} L${xo+6+L},${top-sc(s1)} L${xo+6+L+60},${top-sc(s1)} L${xo+6+L+60},${top} Z`;
+  if(sides===2) poly+=` M${xo},${top} L${xo},${top-sc(sMax)} L${xo-L},${top-sc(s1)} L${xo-L-60},${top-sc(s1)} L${xo-L-60},${top} Z`;
+  return `<svg class="diag" viewBox="0 0 ${W} ${H}" role="img" aria-label="Kinostuma esteen kohdalla"><path d="${poly}" fill="var(--snow)" opacity=".85" stroke="var(--snow-ink)" stroke-width=".8"/>
+   <rect x="${xo}" y="${yr-40}" width="6" height="40" fill="var(--ink)"/><line x1="20" y1="${yr}" x2="540" y2="${yr}" stroke="var(--ink)" stroke-width="2"/>
+   <text x="${xo+12}" y="${top-sc(sMax)-6}">${fmt(sMax,2)} kN/m²</text><text x="${xo+6+L+56}" y="${top-sc(s1)-6}" text-anchor="end">${fmt(s1,2)}</text>
+   <line x1="${xo+6}" y1="${yr+16}" x2="${xo+6+L}" y2="${yr+16}" stroke="var(--muted)"/><text x="${xo+6+L/2}" y="${yr+32}" text-anchor="middle" class="m">l<tspan baseline-shift="sub" font-size="9">s</tspan> = ${fmt(ls,2)} m</text>
+   <text x="${xo-6}" y="${yr-44}" text-anchor="end" class="m">h = ${fmt(h,2)} m</text></svg>`;
+}
+function svgGuard(a,b,Fs){
+  const W=560,H=210, x0=80,y0=180, L=360, r=a*Math.PI/180, x1=x0+L, y1=y0-Math.tan(r)*L*0.6;
+  const gx=x0+20, gy=y0-Math.tan(r)*20*0.6;
+  return `<svg class="diag" viewBox="0 0 ${W} ${H}" role="img" aria-label="Lumiesteen kuorma"><path d="M${x0},${y0} L${x1},${y1}" stroke="var(--ink)" stroke-width="2.5"/>
+   <path d="M${x0+20},${y0-Math.tan(r)*12-14} L${x1},${y1-14} L${x1},${y1} L${x0+20},${gy} Z" fill="var(--snow)" opacity=".8"/>
+   <rect x="${gx-3}" y="${gy-22}" width="6" height="22" fill="var(--accent)"/>
+   <path d="M${gx+70},${gy-50} L${gx+12},${gy-12}" stroke="var(--press)" stroke-width="2.5" marker-end="url(#ahg)"/><defs><marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--press)"/></marker></defs>
+   <text x="${gx+74}" y="${gy-54}">F<tspan baseline-shift="sub" font-size="9">s</tspan> = ${fmt(Fs,2)} kN/m</text>
+   <line x1="${gx}" y1="${y0+14}" x2="${x1}" y2="${y0+14}" stroke="var(--muted)"/><text x="${(gx+x1)/2}" y="${y0+28}" text-anchor="middle" class="m">b = ${fmt(b,2)} m</text>
+   <text x="${x1-6}" y="${y1+18}" text-anchor="end" class="m">α = ${fmt(a,1)}°</text></svg>`;
+}
+function svgEave(a,se){
+  const W=560,H=190, r=a*Math.PI/180, x0=120,y0=120, x1=470, y1=y0-Math.tan(r)*(x1-x0)*0.5;
+  return `<svg class="diag" viewBox="0 0 ${W} ${H}" role="img" aria-label="Räystäältä riippuva lumi"><path d="M${x0},${y0} L${x1},${y1}" stroke="var(--ink)" stroke-width="2.5"/>
+   <path d="M${x0+2},${y0-12} L${x1},${y1-12} L${x1},${y1} L${x0},${y0} Q${x0-26},${y0+4} ${x0-18},${y0+30} Q${x0-10},${y0+10} ${x0+2},${y0-12} Z" fill="var(--snow)" opacity=".85"/>
+   <path d="M${x0-12},${y0-50} L${x0-12},${y0+20}" stroke="var(--press)" stroke-width="2.5" marker-end="url(#ahe)"/><defs><marker id="ahe" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--press)"/></marker></defs>
+   <text x="${x0-4}" y="${y0-56}">s<tspan baseline-shift="sub" font-size="9">e</tspan> = ${fmt(se,2)} kN/m</text></svg>`;
+}
+bindPersist(['s-sk','s-terr','s-L1','s-L2','s-Ct','s-gam','k-a-on','k-h','k-b1','k-b2','k-A','k-au','k-bs','k-b-on','k-ho','k-opos','k-ao','k-c-on','k-ac','k-bc','k-d-on','k-ad'],kinosCalc);
+const lk=window.LumiKartta&&LumiKartta.mount($('#s-map'),{onPick:p=>{ $('#s-sk').value=p.sk; store['s-sk']=String(p.sk); store['s-place']=p.alias||p.name; persist();
+  $('#s-place').innerHTML='Paikkakunta: <b>'+esc(p.label)+'</b> → s<sub>k</sub> = '+fmt(p.sk,2)+' kN/m² (kansallisen liitteen kuva 1). Arvoa voi muokata.'; kinosCalc(); }});
+if(lk&&store['s-place']) lk.setPlace(store['s-place']);
+kinosCalc();
+
+})();
+</script>
+</body>
+</html>

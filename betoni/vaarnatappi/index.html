@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vaarnatappi – Lastutec</title>
+<meta name="description" content="Lyhyen vaarnatapin leikkauskestävyys kahdella kaavalla; mitoittavana pienempi arvo. Valmiit taulukot normaaleilla, pienennetyillä ja onnettomuustilanteen osavarmuusluvuilla.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+/* Layout: lähtötiedot + apukuva vasemmalla, tulos ja vaiheet oikealla; alla valmiit taulukot */
+:root{
+  --bg:#000000; --paper:#141414; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e;
+  --accent:#F74902; --accent-soft:#3b1503; --ok:#5cc58a; --bad:#ff6b5a;
+  --body:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:800;margin:0}
+h3{font-size:14px;margin:0;font-weight:700}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.intro{margin:0;max-width:85ch;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px 12px}
+label{display:block;font-size:13px;color:var(--muted);min-width:0}
+.u{font-size:11px}
+select,input{display:block;margin-top:3px;font-family:var(--body);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input[type=number]{background:#2a1206;font-variant-numeric:tabular-nums}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.fig svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+.big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big .v{font-size:40px;font-weight:700;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.big .k{font-size:14px;color:var(--muted)}
+.verdict{border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:14px}
+.verdict.ok{border-color:var(--ok)} .verdict.nok{border-color:var(--bad)}
+.verdict b.ok{color:var(--ok)} .verdict b.nok{color:var(--bad)}
+.steps{display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:0 10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:0}
+.step .no{font-size:12px;color:var(--muted);padding-top:2px}
+.math{font-size:13.5px;overflow-x:auto;display:flex;flex-direction:column;gap:1px}
+.math .f{color:var(--accent)} .math .s{color:var(--muted)} .math .r{font-weight:700}
+.sec{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);padding-bottom:4px;border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{font:600 13px var(--body);padding:5px 14px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-size:12.5px;color:var(--muted);font-weight:600}
+th:first-child,td:first-child{text-align:left}
+td.sel{background:var(--accent);color:#111;font-weight:700}
+td sup{font-size:9px;color:var(--muted);margin-left:2px}
+td.sel sup{color:#111}
+.foot{font-size:12.5px;color:var(--muted);margin:0;max-width:95ch}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#c63a00;--accent-soft:#fde2d5;--ok:#1d6b3a;--bad:#b3261e;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back,.tabs{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  input,select{background:#fff!important;color:#000!important}
+  .panel,tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Betonirakenteet</a><h1>Vaarnatappi</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 3 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="intro">Lyhyen vaarnatapin leikkauskestävyys kahdella kaavalla: Elementtisuunnittelu.fi:n lyhyen vaarnan kaava ja yksinkertaistettu tappikaava. Mitoittavaksi valitaan pienempi eli varmemman puolen arvo. Murtotapa on hauras, joten mitoituksessa suositellaan noin 80 %:n käyttöastetta.</p>
+
+<div class="grid">
+<section class="panel" aria-labelledby="h-in">
+  <h2 id="h-in">Lähtötiedot</h2>
+  <div class="inputs">
+    <label for="d">Tapin halkaisija Ø<select id="d"></select></label>
+    <label for="c">Betoni<select id="c"></select></label>
+    <label for="fyk">f<sub>yk</sub> <span class="u">[N/mm²]</span><input type="number" id="fyk" value="500" step="10"></label>
+    <label for="set">Osavarmuusluvut<select id="set"><option value="n" selected>Normaalit</option><option value="p">Pienennetyt</option><option value="o">Onnettomuustilanne</option></select></label>
+    <label for="gc">γ<sub>c</sub><input type="number" id="gc" value="1.5" step="0.05"></label>
+    <label for="gs">γ<sub>s</sub><input type="number" id="gs" value="1.15" step="0.05"></label>
+    <label for="gv">γ<sub>v</sub><input type="number" id="gv" value="1.25" step="0.05"></label>
+    <label for="acc">α<sub>cc</sub> (yksinkert. kaava)<input type="number" id="acc" value="0.85" step="0.05"></label>
+    <label for="ev">Epäkeskisyys e<sub>v</sub> <span class="u">[mm]</span><input type="number" id="ev" value="0" step="1" min="0"></label>
+    <label for="ss">Tangon jännitys σ<sub>s</sub> <span class="u">[N/mm²]</span><input type="number" id="ss" value="0" step="10" min="0"></label>
+    <label for="ved">V<sub>Ed</sub> per tappi <span class="u">[kN]</span><input type="number" id="ved" value="25" step="1" min="0"></label>
+  </div>
+  <p class="hint">e<sub>v</sub> on kuorman etäisyys sauman pinnasta (rako), σ<sub>s</sub> tappiin samanaikaisesti vaikuttava vetojännitys. Osavarmuuslukujen valinta täyttää γ-arvot, joita voi muuttaa.</p>
+  <div class="fig" id="fig"></div>
+</section>
+
+<section class="panel" aria-labelledby="h-res">
+  <h2 id="h-res">Tulos</h2>
+  <div class="big"><span class="v" id="vrd">–</span><span class="k">kN · V<sub>Rd</sub> mitoittava (pienempi)</span></div>
+  <div class="verdict" id="verdict"></div>
+  <div class="sec">Laskenta</div>
+  <div class="steps" id="steps"></div>
+</section>
+</div>
+
+<section class="panel" aria-labelledby="h-tab">
+  <h2 id="h-tab">Valmiiksi lasketut arvot [kN], B500B</h2>
+  <p class="hint">Kumpikin kaava on laskettu jokaiselle solulle, ja taulukossa on niistä pienempi (myös raja A<sub>s</sub>·f<sub>sd</sub>/√3 huomioitu). Merkintä ¹ = lyhyen vaarnan kaava, ² = yksinkertaistettu kaava, ³ = tangon leikkausraja. e<sub>v</sub> = 0, σ<sub>s</sub> = 0. Laskurissa valittu yhdistelmä on korostettu.</p>
+  <div class="tabs" id="tabs"></div>
+  <div class="tablewrap"><table id="tbl"></table></div>
+</section>
+
+<p class="foot">Kaavat: V<sub>s,Rd</sub> = (1,3/γ<sub>v</sub>) · (√(1 + (1,3ε)²) − 1,3ε) · Ø² · √(f<sub>sd</sub> f<sub>cd</sub> (1 − ζ²)) ≤ A<sub>s</sub> f<sub>sd</sub> / √3, ε = 3 (e<sub>v</sub>/Ø) √(f<sub>cd</sub>/f<sub>sd</sub>), ζ = σ<sub>s</sub>/f<sub>sd</sub> (Elementtisuunnittelu.fi, lyhyet vaarnatapit; f<sub>cd</sub> = f<sub>ck</sub>/γ<sub>c</sub>). Yksinkertaistettu: V<sub>Rd</sub> = 1,2 · Ø² · √(f<sub>yd</sub> f<sub>cd</sub>), f<sub>cd</sub> = α<sub>cc</sub> f<sub>ck</sub>/γ<sub>c</sub>. Osavarmuusluvut: normaalit γ<sub>c</sub> 1,5 / γ<sub>s</sub> 1,15 / γ<sub>v</sub> 1,25; pienennetyt 1,35 / 1,10 / 1,2; onnettomuus 1,2 / 1,0 / 1,0. Reunaetäisyydet: kuorman suuntaan ≥ 8Ø, sivuille ≥ 3Ø ja ≥ 5Ø; jos kuormaa siirretään laatan tasoa vastaan kohtisuoraan, laatan paksuus h > 4,5Ø. Eurokoodissa asiaa ei ole esitetty. Tulokset tarkastaa laatija.</p>
+</div>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const n = (v, d = 1) => isFinite(v) ? v.toLocaleString('fi-FI', { minimumFractionDigits: d, maximumFractionDigits: d }) : '–';
+const DS = [8, 10, 12, 16, 20, 25, 32];
+const CS = [['C25/30', 25], ['C30/37', 30], ['C35/45', 35], ['C40/50', 40], ['C45/55', 45], ['C50/60', 50]];
+const SETS = { n: ['Normaalit', 1.5, 1.15, 1.25], p: ['Pienennetyt', 1.35, 1.10, 1.2], o: ['Onnettomuustilanne', 1.2, 1.0, 1.0] };
+$('d').innerHTML = DS.map(d => `<option value="${d}"${d === 20 ? ' selected' : ''}>T${d}</option>`).join('');
+$('c').innerHTML = CS.map(([nm, f]) => `<option value="${f}"${f === 30 ? ' selected' : ''}>${nm}</option>`).join('');
+
+function dowel(D, fck, fyk, gc, gs, gv, acc, ev, ss) {
+  const fcd = fck / gc, fsd = fyk / gs, As = Math.PI * D * D / 4;
+  const eps = 3 * (ev / D) * Math.sqrt(fcd / fsd), zeta = Math.min(1, ss / fsd);
+  const k = Math.sqrt(1 + (1.3 * eps) ** 2) - 1.3 * eps;
+  const V1 = 1.3 / gv * k * D * D * Math.sqrt(fsd * fcd * (1 - zeta * zeta)) / 1e3;
+  const Vlim = As * fsd / Math.sqrt(3) / 1e3;
+  const fcd2 = acc * fck / gc, V2 = 1.2 * D * D * Math.sqrt(fsd * fcd2) / 1e3;
+  const vals = [[V1, 1], [V2, 2], [Vlim, 3]].sort((a, b) => a[0] - b[0]);
+  return { fcd, fsd, As, eps, zeta, k, V1, Vlim, fcd2, V2, V: vals[0][0], gov: vals[0][1] };
+}
+
+let tab = 'n';
+$('set').onchange = () => { const s = SETS[$('set').value]; $('gc').value = s[1]; $('gs').value = s[2]; $('gv').value = s[3]; tab = $('set').value; calc(); };
+['d', 'c'].forEach(id => $(id).onchange = calc);
+['fyk', 'gc', 'gs', 'gv', 'acc', 'ev', 'ss', 'ved'].forEach(id => $(id).oninput = calc);
+
+function fig(D, ev) {
+  const W = 420, H = 200, s = 2.2, d = Math.max(4, D * s * 0.35);
+  let o = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Vaarnatapin apukuva">`;
+  o += `<rect x="20" y="40" width="170" height="140" fill="#8f8f8f" fill-opacity="0.35" stroke="var(--ink)" stroke-width="1.5"/>`;
+  o += `<rect x="${200 + Math.min(40, ev * 0.6)}" y="40" width="${200 - Math.min(40, ev * 0.6)}" height="140" fill="#8f8f8f" fill-opacity="0.2" stroke="var(--muted)" stroke-dasharray="4 3"/>`;
+  const y = 110;
+  o += `<rect x="80" y="${y - d / 2}" width="${170 + Math.min(40, ev * 0.6)}" height="${d}" fill="var(--accent)"/>`;
+  o += `<line x1="190" y1="${y + 30}" x2="80" y2="${y + 30}" stroke="var(--muted)"/><text x="135" y="${y + 46}" text-anchor="middle" font-size="12" fill="var(--muted)">ankkurointi</text>`;
+  o += `<line x1="190" y1="${y}" x2="190" y2="${y + 55}" stroke="var(--muted)" stroke-dasharray="2 2"/><line x1="190" y1="58" x2="190" y2="${y - d / 2}" stroke="var(--muted)" stroke-dasharray="2 2"/>`;
+  o += `<text x="105" y="62" text-anchor="middle" font-size="12" fill="var(--ink)">≥ 8Ø = ${8 * D} mm</text><line x1="30" y1="70" x2="185" y2="70" stroke="var(--muted)"/>`;
+  const xa = 200 + Math.min(40, ev * 0.6) / 2;
+  o += `<line x1="${xa}" y1="14" x2="${xa}" y2="${y - d / 2 - 4}" stroke="var(--ink)" stroke-width="2.5"/><polygon points="${xa},${y - d / 2 - 1} ${xa - 6},${y - d / 2 - 12} ${xa + 6},${y - d / 2 - 12}" fill="var(--ink)"/><text x="${xa + 8}" y="24" font-size="12" font-weight="600" fill="var(--ink)">V<tspan baseline-shift="sub" font-size="9">Ed</tspan></text>`;
+  if (ev > 0) o += `<text x="${xa}" y="${H - 6}" text-anchor="middle" font-size="12" fill="var(--accent)">e<tspan baseline-shift="sub" font-size="9">v</tspan> = ${ev} mm</text>`;
+  o += `<text x="${W - 10}" y="${H - 6}" text-anchor="end" font-size="12" fill="var(--muted)">T${D}, sivuille ≥ 3Ø = ${3 * D} mm</text>`;
+  return o + `</svg>`;
+}
+
+function calc() {
+  const D = +$('d').value, fck = +$('c').value, fyk = +$('fyk').value, gc = +$('gc').value, gs = +$('gs').value, gv = +$('gv').value, acc = +$('acc').value, ev = Math.max(0, +$('ev').value || 0), ss = Math.max(0, +$('ss').value || 0), ved = Math.max(0, +$('ved').value || 0);
+  const r = dowel(D, fck, fyk, gc, gs, gv, acc, ev, ss);
+  $('vrd').textContent = n(r.V);
+  const u = ved / r.V, ok = u <= 0.8, cls = ok ? 'ok' : 'nok';
+  $('verdict').className = 'verdict ' + cls;
+  $('verdict').innerHTML = `Käyttöaste V<sub>Ed</sub> / V<sub>Rd</sub> = ${n(ved)} / ${n(r.V)} = <b class="${cls}">${n(u * 100, 0)} % · ${ok ? 'OK!' : 'TARKASTA, EI OK!'}</b><br><span class="hint">Raja 80 % hauraan murtotavan vuoksi.</span>`;
+  const govTxt = ['', 'lyhyen vaarnan kaava', 'yksinkertaistettu kaava', 'tangon leikkausraja'][r.gov];
+  const S = [
+    ['Materiaalit', `f<sub>cd</sub> = ${fck} / ${n(gc, 2)} = ${n(r.fcd, 2)} N/mm², f<sub>sd</sub> = ${fyk} / ${n(gs, 2)} = ${n(r.fsd, 1)} N/mm²`, `A<sub>s</sub> = π · ${D}² / 4 = ${n(r.As, 0)} mm²`],
+    ['Kaava 1: ε ja ζ', `ε = 3 · (${ev} / ${D}) · √(${n(r.fcd, 2)} / ${n(r.fsd, 1)}) = ${n(r.eps, 3)}`, `ζ = ${ss} / ${n(r.fsd, 1)} = ${n(r.zeta, 3)}`],
+    ['Kaava 1: lyhyt vaarna', `V<sub>s,Rd</sub> = (1,3 / ${n(gv, 2)}) · (√(1 + (1,3·${n(r.eps, 3)})²) − 1,3·${n(r.eps, 3)}) · ${D}² · √(${n(r.fsd, 1)} · ${n(r.fcd, 2)} · (1 − ${n(r.zeta, 3)}²))`, `<b>V<sub>s,Rd</sub> = ${n(r.V1)} kN</b> (k = ${n(r.k, 3)})`],
+    ['Kaava 1: tangon raja', `A<sub>s</sub> · f<sub>sd</sub> / √3 = ${n(r.As, 0)} · ${n(r.fsd, 1)} / √3`, `<b>= ${n(r.Vlim)} kN</b>`],
+    ['Kaava 2: yksinkertaistettu', `f<sub>cd</sub> = ${n(acc, 2)} · ${fck} / ${n(gc, 2)} = ${n(r.fcd2, 2)} N/mm², V<sub>Rd</sub> = 1,2 · ${D}² · √(${n(r.fsd, 1)} · ${n(r.fcd2, 2)})`, `<b>V<sub>Rd</sub> = ${n(r.V2)} kN</b>`],
+    ['Mitoittava', `V<sub>Rd</sub> = min(${n(r.V1)} ; ${n(r.V2)} ; ${n(r.Vlim)})`, `<b>V<sub>Rd</sub> = ${n(r.V)} kN</b> → ${govTxt} (kaava 2 / kaava 1 = ${n(r.V2 / Math.min(r.V1, r.Vlim), 2)})`]
+  ];
+  $('steps').innerHTML = S.map((s, i) => `<div class="step"><span class="no">${String(i + 1).padStart(2, '0')}</span><div><h3>${s[0]}</h3><div class="math"><span class="s">${s[1]}</span><span class="r">${s[2]}</span></div></div></div>`).join('');
+  $('fig').innerHTML = fig(D, ev);
+  table(D, fck);
+}
+
+function table(Dsel, fsel) {
+  $('tabs').innerHTML = Object.entries(SETS).map(([k, s]) => `<button type="button" data-k="${k}" aria-pressed="${k === tab}">${s[0]}</button>`).join('');
+  $('tabs').querySelectorAll('button').forEach(b => b.onclick = () => { tab = b.dataset.k; table(+$('d').value, +$('c').value); });
+  const s = SETS[tab], same = tab === $('set').value;
+  $('tbl').innerHTML = `<thead><tr><th>Betoni</th>${DS.map(d => `<th>T${d}</th>`).join('')}</tr></thead><tbody>` +
+    CS.map(([nm, f]) => `<tr><td>${nm}</td>${DS.map(d => { const r = dowel(d, f, 500, s[1], s[2], s[3], 0.85, 0, 0); return `<td class="${same && d === Dsel && f === fsel ? 'sel' : ''}">${n(r.V)}<sup>${r.gov}</sup></td>`; }).join('')}</tr>`).join('') + '</tbody>';
+}
+calc();
+})();
+</script>
+</body>
+</html>

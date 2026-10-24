@@ -137,8 +137,8 @@ h2{font-family:var(--display);font-size:20px;font-weight:800;margin:0;text-wrap:
     <label for="gI">Jäyhyysmomentti I <span class="u">[mm⁴]</span><input type="number" id="gI" value="1800043.86" step="1000"></label>
     <label for="gMode">Mitoitusperuste<select id="gMode"><option value="f" selected>Vain taipuma</option><option value="all">Taipuma + kestävyys</option></select></label>
     <label for="gGF">Kuormakerroin γ<sub>F</sub> (MRT)<input type="number" id="gGF" value="1.5" step="0.05"></label>
-    <label for="gN">Taipumaraja L / n<select id="gN"><option value="200">L/200</option><option value="250">L/250</option><option value="300" selected>L/300</option><option value="400">L/400</option><option value="500">L/500</option></select></label>
-    <p class="hint">Syötä kuormat ominaisarvoina. Taipuma lasketaan ominaiskuormilla (KRT) ja kestävyys arvoilla γ<sub>F</sub> · kuorma (MRT). E, profiili ja raja-arvot ovat yhteisiä kaikille tapauksille.</p>
+    <label for="gN" class="wide">Taipumaraja (w<sub>max</sub>, KRT)<select id="gN"><optgroup label="SFS-EN 1993-1-1 + kansallinen liite, taulukko 3"><option value="300|150" selected>Pääkannattaja, katot ja katokset – L/300</option><option value="400|150">Pääkannattaja, välipohjat – L/400</option><option value="200|150">Katto-orret – L/200</option><option value="150|150">Seinäorret – L/150</option><option value="100|100">Muotolevy, katto (ei lammikoitumisriskiä) – L/100</option><option value="300|100">Muotolevy, välipohja – L/300</option><option value="100|100">Muotolevy, seinä – L/100</option></optgroup><optgroup label="Muu raja (uloke 2·L/n)"><option value="200|c">L/200</option><option value="250|c">L/250</option><option value="300|c">L/300</option><option value="400|c">L/400</option><option value="500|c">L/500</option></optgroup></select></label>
+    <p class="hint">Syötä kuormat ominaisarvoina. Taipuma lasketaan ominaiskuormilla (KRT) ja kestävyys arvoilla γ<sub>F</sub> · kuorma (MRT). E, profiili ja raja-arvot ovat yhteisiä kaikille tapauksille. Taipumarajat koskevat lopullista taipumaa w<sub>max</sub> ominaisyhdistelmällä (SFS-EN 1993-1-1 kohta 7.2.1 ja kansallinen liite, taulukko 3). Ulokkeen raja L/150 (muotolevyillä L/100) lasketaan ulokkeen pituudesta. Esikorotus w<sub>c</sub> saa kompensoida pysyvien kuormien taipumaa.</p>
   </div>
   <div class="picker" id="picker"></div>
   <div class="case" id="case"></div>
@@ -428,21 +428,22 @@ function calcCase(){
   /* ---------- Mitoitus ---------- */
   const st=(t,lines,note)=>{no++;return `<div class="step"><span class="no">${String(no).padStart(2,'0')}</span><h3>${t}</h3><div class="math">${lines.map(([k,x])=>`<span class="${k}">${x}</span>`).join('')}</div>${note?`<p class="note">${note}</p>`:''}</div>`;};
   const U=(u)=>`<span class="${cls(u)}">${n(u*100,0)} %</span> → ${VDH(u)}`;
-  const mode=$('gMode').value,p=curProfile(),fy=+$('gFy').value,gF=+$('gGF').value,nlim=+$('gN').value,gM0=1.0;
+  const mode=$('gMode').value,p=curProfile(),fy=+$('gFy').value,gF=+$('gGF').value,nlim=+$('gN').value.split('|')[0],nu=$('gN').value.split('|')[1],gM0=1.0;
+  const limf=(span,cant)=>!cant?{lim:span/nlim,f:'f<sub>lim</sub> = L / n',s:`f<sub>lim</sub> = ${n(span)} / ${nlim}`}:nu==='c'?{lim:2*span/nlim,f:'f<sub>lim</sub> = 2 · L<sub>u</sub> / n  (uloke)',s:`f<sub>lim</sub> = 2 · ${n(span)} / ${nlim}`}:{lim:span/+nu,f:`f<sub>lim</sub> = L<sub>u</sub> / ${nu}  (uloke, kansallinen liite)`,s:`f<sub>lim</sub> = ${n(span)} / ${nu}`};
   const util=[];
   // taipumat (KRT)
   h+=`<div class="sec">Taipumamitoitus (KRT, ominaiskuormat)</div>`;
   for(const r of o.filter(r=>/^f/.test(r[1]))){
-    const [span,cant]=fspan(c.id,r[1],v),lim=(cant?2*span:span)/nlim,u=Math.abs(r[4])/lim;util.push(['f',u]);
+    const [span,cant]=fspan(c.id,r[1],v),L=limf(span,cant),lim=L.lim,u=Math.abs(r[4])/lim;util.push(['f',u]);
     h+=st(`Taipumaraja, ${r[1]}`,[
-      ['f',cant?`f<sub>lim</sub> = 2 · L<sub>u</sub> / n  (uloke)`:`f<sub>lim</sub> = L / n`],
-      ['s',`f<sub>lim</sub> = ${cant?'2 · ':''}${n(span)} / ${nlim}`],
+      ['f',L.f],
+      ['s',L.s],
       ['r',`f<sub>lim</sub> = ${n(lim)} mm`],
       ['r',`Käyttöaste: |${r[1]}| / f<sub>lim</sub> = ${n(Math.abs(r[4]))} / ${n(lim)} = ${U(u)}  (= L/${n(span/Math.max(Math.abs(r[4]),1e-9),0)})`]]);
   }
   // vaadittava jäyhyysmomentti ja profiiliehdotukset
   let Ireq=0;
-  for(const r of o.filter(r=>/^f/.test(r[1]))){const [span,cant]=fspan(c.id,r[1],v),lim=(cant?2*span:span)/nlim;Ireq=Math.max(Ireq,I*Math.abs(r[4])/lim);}
+  for(const r of o.filter(r=>/^f/.test(r[1]))){const [span,cant]=fspan(c.id,r[1],v),lim=limf(span,cant).lim;Ireq=Math.max(Ireq,I*Math.abs(r[4])/lim);}
   const Mq=Math.max(...o.filter(r=>r[5]==='kNm'&&!/^M\(x/.test(r[1])).map(r=>Math.abs(r[4])))*(+$('gGF').value);
   const qm=q=>{const fyq=FY[$('gGrade').value][q.tmax>40?1:0];return Mq/(q.Wply*fyq/1e6);};
   const pick=FAMS.map(f=>PROFILES.filter(x=>x.fam===f&&x.Iy>=Ireq).sort((a,b)=>a.g-b.g)[0]||null);
@@ -530,7 +531,7 @@ function calcCase(){
     `<div class="tile"><span class="k">max |M<sub>k</sub>|</span><span class="v">${n(Mk2)} <span class="u">kNm</span></span><span class="s">V<sub>k</sub> = ${n(VK[c.id](v)[2])} kN</span></div>`+
     `<div class="tile"><span class="k">max |f|</span><span class="v">${n(fmax)} <span class="u">mm</span></span><span class="s">${p?p.name:'oma I'}</span></div>`+
     `<div class="tile"><span class="k">I<sub>req</sub></span><span class="v">${n(Ireq/1e4,1)} <span class="u">cm⁴</span></span><span class="s">${lightest?'kevein: '+lightest.name+' ('+n(lightest.g,1)+' kg/m)':'ei riittävää profiilia'}</span></div>`+
-    tl('Taivutus',best('M'))+tl('Leikkaus',best('V'))+tl('Taipuma',best('f'),`raja L/${nlim}`);
+    tl('Taivutus',best('M'))+tl('Leikkaus',best('V'))+tl('Taipuma',best('f'),`raja L/${nlim}${nu!=='c'?`, uloke L/${nu}`:''}`);
 }
 const cls=u=>u<=0.9?'ok':u<=1?'warn':'bad';
 const VD=u=>u<=1?'OK!':'TARKASTA, EI OK!';

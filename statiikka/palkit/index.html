@@ -66,6 +66,13 @@ td button{font:600 11.5px var(--body);color:var(--accent);background:none;border
 .calc-head{display:flex;flex-direction:column;gap:12px}
 h2{font-family:var(--display);font-size:20px;font-weight:800;margin:0;text-wrap:balance}
 .fig svg{width:100%;height:auto;display:block}
+.figbar{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;margin-bottom:8px}
+.figbar b{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tg{display:flex;flex-wrap:wrap;gap:4px;margin-left:auto}
+.tg button{font:600 11.5px var(--body);padding:3px 9px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer}
+.tg button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.subfig+.subfig{border-top:1px dashed var(--line);margin-top:6px;padding-top:6px}
+@media print{.tg{display:none}}
 .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
 .tile{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
 .tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
@@ -241,6 +248,62 @@ function momentSVG(g,Mf){
   return o;
 }
 
+/* ---------- Kuvaajat: momentti, taipuma, tukireaktiot ---------- */
+const FIG={M:true,f:true,R:true};
+const FIGL={M:'Momentti',f:'Taipuma',R:'Tukireaktiot'};
+let lastFig=null;
+function renderFigToggles(){
+  $('figtg').innerHTML=Object.keys(FIG).map(k=>`<button type="button" data-k="${k}" aria-pressed="${FIG[k]}">${FIGL[k]}</button>`).join('');
+  $('figtg').querySelectorAll('button').forEach(b=>b.onclick=()=>{FIG[b.dataset.k]=!FIG[b.dataset.k];b.setAttribute('aria-pressed',FIG[b.dataset.k]);if(lastFig)drawFigs(...lastFig);});
+}
+// Taipumaviiva integroimalla käyrys M/(EI) kahdesti; vakiot tukiehdoista (pienimmän neliösumman ratkaisu)
+function deflection(g,Mf,E,I){
+  const N=800,L=g.Lt,dx=L/N,xs=[],th=[0],y=[0];
+  for(let i=0;i<=N;i++)xs.push(i*dx);
+  const k=xs.map(x=>-Mf(x)*1e6/(E*I)); // y alas positiivinen: y'' = −M/EI (M kNm → Nmm)
+  for(let i=1;i<=N;i++){th[i]=th[i-1]+(k[i-1]+k[i])/2*dx;y[i]=y[i-1]+(th[i-1]+th[i])/2*dx;}
+  const at=(arr,p)=>{const j=Math.min(N,Math.max(0,Math.round(p/dx)));return arr[j];};
+  // ehdot: y(p)+C1·p+C2 = 0, fix: θ(p)+C1 = 0
+  const rows=[];for(const sp of g.sup){rows.push([sp.p,1,-at(y,sp.p)]);if(sp.t==='fix')rows.push([1,0,-at(th,sp.p)]);}
+  let a=0,b=0,c=0,d=0,e=0;for(const [r1,r2,rh] of rows){a+=r1*r1;b+=r1*r2;c+=r2*r2;d+=r1*rh;e+=r2*rh;}
+  const det=a*c-b*b,C1=det?(d*c-b*e)/det:0,C2=det?(a*e-b*d)/det:(c?e/c:0);
+  return xs.map((x,i)=>[x,y[i]+C1*x+C2]);
+}
+function reactions(g,Mf){
+  const h=g.Lt*2e-6,V=x=>(x<=0||x>=g.Lt)?0:(Mf(Math.min(g.Lt,x+h))-Mf(Math.max(0,x-h)))/(Math.min(g.Lt,x+h)-Math.max(0,x-h))*1e3; // kN
+  const e=g.Lt*1e-4;
+  return g.sup.map(sp=>{const R=V(sp.p+e)-V(sp.p-e);return {...sp,R,M:sp.t==='fix'?Mf(sp.p):null};});
+}
+function deflSVG(g,pts){
+  const W=600,H=150,x0=50,x1=550,y0=55;let mx=0,px=0;for(const [x,y] of pts)if(Math.abs(y)>Math.abs(mx)){mx=y;px=x;}
+  const sc=(Math.abs(mx)>1e-9?55/Math.abs(mx):0),X=x=>x0+(x1-x0)*x/g.Lt,Y=y=>y0+y*sc;
+  const path='M'+pts.filter((_,i)=>i%4===0||i===pts.length-1).map(([x,y])=>`${X(x).toFixed(1)},${Y(y).toFixed(1)}`).join(' L');
+  let o=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Taipumaviiva"><line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 4"/>`;
+  for(const sp of g.sup){const XX=X(sp.p);o+=`<polygon points="${XX},${y0+2} ${XX-7},${y0+13} ${XX+7},${y0+13}" fill="none" stroke="var(--ink)" stroke-width="1.5"/>`;}
+  o+=`<path d="${path}" fill="none" stroke="var(--ok)" stroke-width="2.4"/>`;
+  if(Math.abs(mx)>1e-9){const xx=Math.min(Math.max(X(px),x0+40),x1-40);o+=`<circle cx="${X(px)}" cy="${Y(mx)}" r="3.5" fill="var(--ok)"/><text x="${xx}" y="${Y(mx)+(mx>=0?18:-8)}" text-anchor="middle" style="font:600 12px Arial,Helvetica,sans-serif;fill:var(--ink)">f = ${n(mx)} mm (x = ${n(px,0)} mm)</text>`;}
+  o+=`<text x="${x0}" y="${H-6}" style="font:11px Arial,Helvetica,sans-serif;fill:var(--muted)">Taipumaviiva (KRT), pystysuunta skaalattu, alaspäin +</text></svg>`;
+  return o;
+}
+function reactSVG(g,rs){
+  const W=600,H=135,x0=50,x1=550,y0=40,X=x=>x0+(x1-x0)*x/g.Lt;
+  let o=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tukireaktiot"><line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="var(--ink)" stroke-width="4"/>`;
+  for(const r of rs){const XX=X(r.p),up=r.R>=0,anc=XX<x0+40?'start':XX>x1-40?'end':'middle',tx=anc==='start'?XX-6:anc==='end'?XX+6:XX;
+    o+=up?`<line x1="${XX}" y1="${y0+52}" x2="${XX}" y2="${y0+10}" stroke="var(--accent)" stroke-width="3"/><polygon points="${XX},${y0+4} ${XX-7},${y0+16} ${XX+7},${y0+16}" fill="var(--accent)"/>`
+         :`<line x1="${XX}" y1="${y0+6}" x2="${XX}" y2="${y0+46}" stroke="var(--accent)" stroke-width="3"/><polygon points="${XX},${y0+52} ${XX-7},${y0+40} ${XX+7},${y0+40}" fill="var(--accent)"/>`;
+    o+=`<text x="${tx}" y="${y0+70}" text-anchor="${anc}" style="font:600 12.5px Arial,Helvetica,sans-serif;fill:var(--ink)">${r.n||'R'} = ${n(Math.abs(r.R))} kN ${up?'↑':'↓'}</text>`;
+    if(r.M!=null&&Math.abs(r.M)>1e-9)o+=`<text x="${tx}" y="${y0+86}" text-anchor="${anc}" style="font:12px Arial,Helvetica,sans-serif;fill:var(--muted)">M<tspan baseline-shift="sub" font-size="9">${r.n||''}</tspan> = ${n(r.M)} kNm</text>`;}
+  o+=`<text x="${x0}" y="${H-6}" style="font:11px Arial,Helvetica,sans-serif;fill:var(--muted)">Tukireaktiot ominaiskuormista (ylöspäin ↑)</text></svg>`;
+  return o;
+}
+function drawFigs(g,Mf,E,I){
+  lastFig=[g,Mf,E,I];const parts=[];
+  if(FIG.M)parts.push(momentSVG(g,Mf));
+  if(FIG.f)parts.push(deflSVG(g,deflection(g,Mf,E,I)));
+  if(FIG.R)parts.push(reactSVG(g,reactions(g,Mf)));
+  $('mfig').innerHTML=parts.length?parts.map(x=>`<div class="subfig">${x}</div>`).join(''):'<p class="note" style="margin:0">Valitse yläkulmasta näytettävät tiedot.</p>';
+}
+
 /* ---------- Kuormitustapaukset (Statiikkaa-välilehti) ---------- */
 const C=[
 {id:'u1',grp:'Uloke',name:'Uloke, pistekuorma',
@@ -298,9 +361,10 @@ const C=[
   ['Momentti välillä C–B','M(x₁)','F · a / L · x₁',`${n(v.F)} · ${n(a)} / ${n(L)} · ${n(v.x1/1e3)}`,v.F*a/L*v.x1/1e3,'kNm'],
   ['Maksimimomentti (kuorman kohdalla)','M<sub>max</sub>','F · a · b / L',`${n(v.F)} · ${n(a)} · ${n(b)} / ${n(L)}`,v.F*a*b/L,'kNm'],
   ['Taipuma kuorman kohdalla','f','F · a² · b² / (3 · E · I · L)',`${n(v.F*1e3)} · ${n(v.a)}² · ${n(bm)}² / (3 · ${n(E)} · ${n(I)} · ${n(v.L)})`,v.F*1e3*v.a**2*bm**2/(3*E*I*v.L),'mm'],
+  ['Suurin taipuma','f<sub>max</sub>','F · c · (L² − c²)<sup>3/2</sup> / (9 · √3 · E · I · L),  c = min(a ; b)',`${n(v.F*1e3)} · ${n(Math.min(v.a,bm))} · (${n(v.L)}² − ${n(Math.min(v.a,bm))}²)<sup>3/2</sup> / (9 · √3 · ${n(E)} · ${n(I)} · ${n(v.L)})`,v.F*1e3*Math.min(v.a,bm)*(v.L**2-Math.min(v.a,bm)**2)**1.5/(9*Math.sqrt(3)*E*I*v.L),'mm'],
   ['Tukireaktio A','A','F · b / L',`${n(v.F)} · ${n(b)} / ${n(L)}`,v.F*b/L,'kN'],
   ['Tukireaktio B','B','F · a / L',`${n(v.F)} · ${n(a)} / ${n(L)}`,v.F*a/L,'kN']];},
- note:'Taipuma f on kuorman kohdalla. Kun a ≠ b, suurin taipuma on hieman suurempi ja sijaitsee pidemmällä osuudella.'},
+ note:'Taipuma f on kuorman kohdalla. Kun a ≠ b, suurin taipuma f<sub>max</sub> on suurempi kuin taipuma kuorman kohdalla ja sijaitsee pidemmällä osuudella; taipumamitoitus käyttää suurempaa arvoa.'},
 {id:'s2',grp:'1-aukkoinen',name:'Pistekuorma keskellä',
  inp:[['F','F','kN',1],['L','L','mm',1000],['x','x (tuelta A)','mm',200]],
  geo:v=>({Lt:v.L,sup:[{t:'pin',p:0,n:'A'},{t:'roll',p:v.L,n:'B'}],loads:[{t:'P',p:v.L/2}],dims:[{a:0,b:v.L/2,l:'L/2'},{a:v.L/2,b:v.L,l:'L/2'}],xmark:{p:v.x,l:'x'}}),
@@ -397,15 +461,16 @@ function renderCase(){
   const c=C.find(x=>x.id===cur);
   $('case').innerHTML=`<div class="side">
     <div class="panel"><div class="inputs">${c.inp.map(([k,l,u])=>`<label for="in-${c.id}-${k}">${l} <span class="u">[${u}]</span><input type="number" id="in-${c.id}-${k}" data-k="${k}" value="${vals[c.id][k]}" step="any"></label>`).join('')}</div></div>
-    <div class="panel fig" id="mfig"></div>
   </div>
   <div class="calc-head">
     <div><span class="grp">${c.grp}</span><h2>${c.name}</h2></div>
     <div class="panel fig" id="bfig"></div>
+    <div class="panel fig"><div class="figbar"><b>Kuvaaja</b><div class="tg" id="figtg"></div></div><div id="mfig"></div></div>
     <div id="warn"></div>
     <div class="summary" id="sum"></div>
     <div class="panel" id="steps"></div>
   </div>`;
+  renderFigToggles();
   $('case').querySelectorAll('input').forEach(i=>i.oninput=()=>{const v=parseFloat(i.value);if(isFinite(v)){vals[c.id][i.dataset.k]=v;calcCase();}});
   calcCase();
 }
@@ -414,7 +479,7 @@ function calcCase(){
   const g=c.geo(v);
   if(!(g.Lt>0&&E>0&&I>0)){$('warn').innerHTML='<div class="warnbox">Pituuksien, E:n ja I:n pitää olla positiivisia.</div>';$('steps').innerHTML='';$('sum').innerHTML='';return;}
   $('bfig').innerHTML=beamSVG(g,false);
-  $('mfig').innerHTML=momentSVG(g,p=>c.M(v,p));
+  drawFigs(g,p=>c.M(v,p),E,I);
   const w=c.chk?c.chk(v):'';$('warn').innerHTML=w?`<div class="warnbox">${w}</div>`:'';
   const o=c.out(v,E,I);
   const sec=u=>u==='kNm'?'Momentit':u==='mm'?'Taipumat ja geometria':'Tukireaktiot';

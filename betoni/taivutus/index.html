@@ -281,7 +281,7 @@ function sketch(p) {
   const yDim = yb + Math.max(18, 0.6 * hE) + 18;
   o += extK(X(0), yb, X(0), yDim + 4) + extK(X(p.L), yb, X(p.L), yDim + 4) + dimK(X(0), yDim, X(p.L), yDim, `L = ${p.L}`, 1);
   for (const xc of [0, p.L]) { const xl = X(xc - p.at / 2), xr = X(xc + p.at / 2); o += extK(xl, yb + 4, xl, yDim + 30) + extK(xr, yb + 4, xr, yDim + 30); if (xc === 0) o += dimK(xl, yDim + 26, xr, yDim + 26, `a = ${p.at}`, 1); }
-  o += lead(X(p.L * 0.45), Y(yMain), X(p.L * 0.45) + 40, yDim + 56, mainTxt + `, A<tspan baseline-shift="sub" font-size="8">s</tspan> = ${Math.round(p.As)} mm²`);
+  o += `<text x="${X(p.L / 2)}" y="${yb + 15}" text-anchor="middle" font-size="12" fill="${K}">${mode === 'l' ? `T${p.D}-k${p.mn}` : `${p.mn}T${p.D}`} (A<tspan baseline-shift="sub" font-size="8">s</tspan> = ${Math.round(p.As)} mm²)</text>`;
   if (p.reinf) o += lead(X(p.L * 0.18), Y(p.h / 2), X(p.L * 0.18) + 40, y0 - 26, swTxt);
   o += extK(X(p.L + p.at / 2), y0, X(p.L + p.at / 2) + 26, y0) + extK(X(p.L + p.at / 2), yb, X(p.L + p.at / 2) + 26, yb) + dimK(X(p.L + p.at / 2) + 22, y0, X(p.L + p.at / 2) + 22, yb, `h = ${p.h}`, 1);
   // Poikkileikkaus, yhtenäinen mittakaava

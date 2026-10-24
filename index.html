@@ -96,6 +96,27 @@
     .topics li.live a:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 2px; }
     .logo .word { fill: var(--fg); }
     .logo .accent { fill: var(--accent); }
+    .disclaimer {
+      box-sizing: border-box;
+      width: 100%;
+      margin: 0 0 2.5rem;
+      padding: 1rem 1.25rem;
+      border: 1px solid #2e2e2e;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      color: #9a9a9a;
+    }
+    .disclaimer h2 {
+      margin: 0 0 0.4rem;
+      font-family: Arial, sans-serif;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #f4f4f4;
+    }
+    .disclaimer p { margin: 0 0 0.5rem; max-width: 95ch; }
+    .disclaimer p:last-child { margin-bottom: 0; }
   </style>
 </head>
 <body>
@@ -120,6 +141,12 @@
     <li><div class="row"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 6h32v6H27v24h13v6H8v-6h13V12H8z" fill="#b9c0c6"/></svg></span><span class="tx"><h2>Teräsrakenteet</h2><span>Tulossa</span></span></div></li>
     <li><div class="row"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="#9a6a3a"/><circle cx="24" cy="24" r="19" fill="none" stroke="#6b4423" stroke-width="2.5"/><circle cx="24.5" cy="24.5" r="13" fill="none" stroke="#c99a62" stroke-width="1.6"/><circle cx="24" cy="25" r="8" fill="none" stroke="#c99a62" stroke-width="1.4"/><circle cx="24.5" cy="24.5" r="3" fill="#c99a62"/></svg></span><span class="tx"><h2>Puurakenteet</h2><span>Tulossa</span></span></div></li>
   </ul>
+  <section class="disclaimer" aria-labelledby="disc-h">
+    <h2 id="disc-h">Vastuuvapautuslauseke</h2>
+    <p>Lastutecin työkalut ovat suunnittelun apuvälineitä, jotka on tarkoitettu alustavaan mitoitukseen ja tarkistuslaskelmiin. Ne eivät korvaa pätevän rakennesuunnittelijan tekemää suunnittelua eivätkä ole rakennesuunnitelmia.</p>
+    <p>Laskelmat perustuvat eurokoodeihin, Suomen kansallisiin liitteisiin ja niistä tehtyihin yksinkertaistuksiin. Työkalujen oikeellisuuteen ja ajantasaisuuteen on pyritty kiinnittämään huolellisesti huomiota, mutta virheettömyyttä ei taata. Käyttäjä vastaa lähtötietojen oikeellisuudesta, tulosten tarkastamisesta ja siitä, että tulokset soveltuvat kyseiseen kohteeseen ja ovat voimassa olevien määräysten ja standardien mukaisia.</p>
+    <p>Työkalujen ylläpitäjä ei vastaa välittömistä tai välillisistä vahingoista, jotka aiheutuvat työkalujen tai niiden tulosten käytöstä. Käyttämällä työkaluja hyväksyt nämä ehdot.</p>
+  </section>
   </div>
   <script>
     (() => {

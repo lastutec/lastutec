@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Resurssiarvio – Lastutec</title>
+<meta name="description" content="Rakennesuunnittelun karkea tuntiarvio bruttoneliöistä, jako RAK18-tehtäväluettelon vaiheisiin ja S-käyrä henkilömäärästä kuukausittain.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+/* Layout: lähtötiedot ja tulosluvut ylhäällä, vaihetaulukko, S-käyrä, kuukausitaulukko */
+:root{
+  --bg:#000000; --paper:#141414; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e;
+  --accent:#F74902; --accent-soft:#3b1503; --ok:#5cc58a; --bad:#ff6b5a;
+  --body:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:800;margin:0}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.printbtn:hover{filter:brightness(1.1)}
+.intro{margin:0;max-width:80ch;color:var(--muted)}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px 14px}
+label{display:block;font-size:13px;color:var(--muted);min-width:0}
+select,input{display:block;margin-top:3px;font-family:var(--body);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input[type=number]{background:#2a1206;font-variant-numeric:tabular-nums}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:8px}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tile .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.tile .s{font-size:12px;color:var(--muted)}
+.tile.main{border-color:var(--accent)}
+.tile.main .v{color:var(--accent)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-size:12px;font-weight:600;color:var(--muted)}
+th:first-child,td:first-child{text-align:left}
+td input{width:76px;margin:0;padding:5px 6px;text-align:right}
+tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:0}
+.sumbad{color:var(--bad)} .sumok{color:var(--ok)}
+.bar{display:inline-block;height:8px;background:var(--accent);border-radius:2px;vertical-align:middle}
+.chart svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:10px;margin-right:6px;vertical-align:0}
+.foot{font-size:12.5px;color:var(--muted);margin:0;max-width:90ch}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.btn2{font:600 12.5px var(--body);padding:5px 12px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.btn2:hover{border-color:var(--accent)}
+@page{size:A4 landscape;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#c63a00;--accent-soft:#fde2d5;--ok:#1d6b3a;--bad:#b3261e;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back,.btnrow{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  input,select{background:#fff!important;color:#000!important;border-color:#bbb}
+  .panel,tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Projektinhallinta</a><h1>Resurssiarvio</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 1 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="intro">Hyvin karkea alkuvaiheen arvio rakennesuunnittelun tuntimäärästä bruttoneliöiden perusteella. Tunnit jaetaan RAK18-tehtäväluettelon vaiheisiin, ja vaiheiden kestoista muodostetaan S-käyrä sekä henkilömäärä kuukausittain. Kaikki oletusarvot ovat muokattavia kokemusperäisiä lähtöarvoja.</p>
+
+<section class="panel" aria-labelledby="h-in">
+  <h2 id="h-in">1. Tuntiarvio</h2>
+  <div class="inputs">
+    <label for="area">Bruttoala [brm²]<input type="number" id="area" value="5000" min="0" step="100"></label>
+    <label for="type">Rakennustyyppi<select id="type"></select></label>
+    <label for="hpm">Tuntia / brm²<input type="number" id="hpm" value="0.5" min="0" step="0.05"></label>
+    <label for="cx">Vaativuus<select id="cx"><option value="0.8">Helppo (×0,8)</option><option value="1" selected>Tavanomainen (×1,0)</option><option value="1.3">Vaativa (×1,3)</option><option value="1.6">Poikkeuksellisen vaativa (×1,6)</option></select></label>
+    <label for="hpp">Tuntia / henkilö / kk<input type="number" id="hpp" value="140" min="1" step="5"></label>
+    <label for="start">Aloituskuukausi<input type="month" id="start"></label>
+  </div>
+  <p class="hint">Rakennustyypin valinta asettaa tuntia/brm²-oletuksen, jota voi muuttaa. Kokonaistunnit = bruttoala · tuntia/brm² · vaativuuskerroin.</p>
+</section>
+
+<div class="tiles" id="tiles"></div>
+
+<section class="panel" aria-labelledby="h-ph">
+  <h2 id="h-ph">2. Jako RAK18-vaiheisiin</h2>
+  <p class="hint">Osuudet, alkukuukaudet ja kestot ovat muokattavia. Vaiheet voivat limittyä (esim. rakennuslupavaihe ja toteutussuunnittelu). Osuuksien summan tulee olla 100 %.</p>
+  <div class="tablewrap"><table id="phases"></table></div>
+  <div class="btnrow"><button type="button" class="btn2" id="reset">Palauta oletukset</button></div>
+</section>
+
+<section class="panel chart" aria-labelledby="h-s">
+  <h2 id="h-s">3. S-käyrä ja henkilömäärä</h2>
+  <div class="legend"><span><i style="background:var(--accent)"></i>Henkilömäärä / kk (vasen asteikko)</span><span><i style="background:var(--ink);height:3px"></i>Kertymä, % kokonaistunneista (oikea asteikko)</span></div>
+  <div id="chart"></div>
+</section>
+
+<section class="panel" aria-labelledby="h-m">
+  <h2 id="h-m">Kuukausittain</h2>
+  <div class="tablewrap"><table id="months"></table></div>
+</section>
+
+<p class="foot">Tuntia/brm²-arvot ja vaiheiden osuudet ovat karkeita kokemusperäisiä oletuksia, eivät RAK18:n tai muun julkaisun arvoja; RAK18 määrittelee tehtävät ja vaiheet, ei tuntimääriä. Säädä arvot oman toimiston toteumien mukaan. Tunnit jaetaan kunkin vaiheen kestolle tasaisesti. Henkilömäärä = kuukauden tunnit / tuntia per henkilö per kuukausi.</p>
+</div>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const n = (v, d = 0) => isFinite(v) ? v.toLocaleString('fi-FI', { minimumFractionDigits: d, maximumFractionDigits: d }) : '–';
+
+// Rakennustyyppikohtaiset oletukset, tuntia / brm² (karkeat, muokattavat)
+const TYPES = [
+  ['Asuinkerrostalo', 0.45], ['Rivitalo / pientaloryhmä', 0.55], ['Toimistorakennus', 0.5], ['Koulu / päiväkoti', 0.6],
+  ['Liikerakennus', 0.45], ['Hoitolaitos / sairaala', 0.8], ['Pysäköintilaitos', 0.35], ['Teollisuus / varasto', 0.25], ['Urheiluhalli', 0.4]
+];
+// RAK18-vaiheet: [nimi, osuus %, alkukk, kesto kk]
+const DEF = [
+  ['Tarveselvitys', 0, 0, 1],
+  ['Hankesuunnittelu', 2, 1, 2],
+  ['Suunnittelun valmistelu', 1, 3, 1],
+  ['Ehdotussuunnittelu', 5, 4, 2],
+  ['Yleissuunnittelu', 12, 6, 3],
+  ['Rakennuslupavaihe', 5, 8, 3],
+  ['Toteutussuunnittelu', 60, 9, 8],
+  ['Rakentamisen valmistelu', 3, 13, 2],
+  ['Rakentaminen', 10, 15, 12],
+  ['Käyttöönotto', 1, 27, 1],
+  ['Takuuaika', 1, 28, 12]
+];
+let PH = DEF.map(r => [...r]);
+
+$('type').innerHTML = TYPES.map(([t, v], i) => `<option value="${i}">${t} (${n(v, 2)} h/brm²)</option>`).join('');
+$('hpm').value = TYPES[0][1];
+$('type').onchange = () => { $('hpm').value = TYPES[+$('type').value][1]; calc(); };
+const d = new Date(); d.setMonth(d.getMonth() + 1);
+$('start').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+['area', 'hpm', 'cx', 'hpp', 'start'].forEach(id => $(id).addEventListener('input', calc));
+$('cx').onchange = calc;
+$('reset').onclick = () => { PH = DEF.map(r => [...r]); renderPhases(); calc(); };
+
+function renderPhases() {
+  $('phases').innerHTML = `<thead><tr><th>Vaihe (RAK18)</th><th>Osuus %</th><th>Alku kk</th><th>Kesto kk</th><th>Tunnit</th><th>Henkilöä keskim.</th><th style="text-align:left">Jakauma</th></tr></thead><tbody>` +
+    PH.map((r, i) => `<tr><td>${r[0]}</td>
+      <td><input type="number" id="p${i}" aria-label="${r[0]} osuus" value="${r[1]}" min="0" step="1" data-i="${i}" data-k="1"></td>
+      <td><input type="number" id="s${i}" aria-label="${r[0]} alku" value="${r[2]}" min="0" step="1" data-i="${i}" data-k="2"></td>
+      <td><input type="number" id="d${i}" aria-label="${r[0]} kesto" value="${r[3]}" min="0.5" step="0.5" data-i="${i}" data-k="3"></td>
+      <td id="h${i}"></td><td id="m${i}"></td><td style="text-align:left"><span class="bar" id="b${i}"></span></td></tr>`).join('') +
+    `</tbody><tfoot><tr><td>Yhteensä</td><td id="psum"></td><td></td><td id="dur"></td><td id="hsum"></td><td></td><td></td></tr></tfoot>`;
+  $('phases').querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => {
+    const v = parseFloat(inp.value); if (isFinite(v)) { PH[+inp.dataset.i][+inp.dataset.k] = v; calc(); }
+  }));
+}
+
+const monthLabel = k => {
+  const [y, m] = ($('start').value || '2026-11').split('-').map(Number);
+  const t = new Date(y, m - 1 + k, 1);
+  return `${t.getMonth() + 1}/${String(t.getFullYear()).slice(2)}`;
+};
+
+function calc() {
+  const A = Math.max(0, +$('area').value || 0), hpm = Math.max(0, +$('hpm').value || 0), cx = +$('cx').value, hpp = Math.max(1, +$('hpp').value || 140);
+  const H = A * hpm * cx;
+  const psum = PH.reduce((s, r) => s + r[1], 0);
+  const end = Math.max(...PH.filter(r => r[1] > 0).map(r => r[2] + r[3]), 1), M = Math.ceil(end);
+  const monthly = new Array(M).fill(0);
+  PH.forEach((r, i) => {
+    const h = H * r[1] / 100, s0 = r[2], dur = Math.max(r[3], 0.01);
+    for (let k = 0; k < M; k++) { const ov = Math.max(0, Math.min(k + 1, s0 + dur) - Math.max(k, s0)); monthly[k] += h * ov / dur; }
+    $('h' + i).textContent = n(h);
+    $('m' + i).textContent = r[1] > 0 ? n(h / dur / hpp, 1) : '–';
+    $('b' + i).style.width = (r[1] * 2.4) + 'px';
+  });
+  $('psum').innerHTML = `<span class="${Math.abs(psum - 100) < 1e-6 ? 'sumok' : 'sumbad'}">${n(psum, psum % 1 ? 1 : 0)} %${Math.abs(psum - 100) < 1e-6 ? ' OK!' : ' TARKASTA, EI OK!'}</span>`;
+  $('hsum').textContent = n(H * psum / 100);
+  $('dur').textContent = `${n(end, end % 1 ? 1 : 0)} kk`;
+
+  const tot = monthly.reduce((a, b) => a + b, 0) || 1;
+  let cum = 0; const cumP = monthly.map(h => (cum += h) / tot * 100);
+  const persons = monthly.map(h => h / hpp), peak = Math.max(...persons), peakK = persons.indexOf(peak);
+  const designEnd = PH[6][2] + PH[6][3];
+
+  $('tiles').innerHTML =
+    `<div class="tile main"><span class="k">Kokonaistunnit</span><span class="v">${n(H)} h</span><span class="s">${n(A)} brm² · ${n(hpm, 2)} h/brm² · ×${n(cx, 1)}</span></div>` +
+    `<div class="tile"><span class="k">Henkilötyökuukausia</span><span class="v">${n(H / hpp, 1)}</span><span class="s">${n(hpp)} h / henkilö / kk</span></div>` +
+    `<div class="tile"><span class="k">Huippu</span><span class="v">${n(peak, 1)} hlö</span><span class="s">${monthLabel(peakK)} (kk ${peakK + 1})</span></div>` +
+    `<div class="tile"><span class="k">Kesto</span><span class="v">${n(M)} kk</span><span class="s">${monthLabel(0)} – ${monthLabel(M - 1)}</span></div>` +
+    `<div class="tile"><span class="k">Toteutussuunnittelu valmis</span><span class="v">${monthLabel(Math.max(0, Math.ceil(designEnd) - 1))}</span><span class="s">kertymä ${n(cumP[Math.max(0, Math.ceil(designEnd) - 1)] || 0)} %</span></div>`;
+
+  drawChart(persons, cumP);
+  $('months').innerHTML = `<thead><tr><th>Kk</th><th>Kuukausi</th><th>Tunnit</th><th>Henkilöä</th><th>Kertymä h</th><th>Kertymä %</th></tr></thead><tbody>` +
+    monthly.map((h, k) => `<tr><td>${k + 1}</td><td>${monthLabel(k)}</td><td>${n(h)}</td><td>${n(persons[k], 1)}</td><td>${n(cumP[k] * tot / 100)}</td><td>${n(cumP[k])} %</td></tr>`).join('') + '</tbody>';
+}
+
+function drawChart(persons, cumP) {
+  const M = persons.length, W = 1000, Hh = 380, l = 52, r = 52, t = 16, b = 46, pw = W - l - r, ph = Hh - t - b;
+  const pmax = Math.max(...persons, 0.1);
+  const step = [0.25, 0.5, 1, 2, 5, 10, 20, 50].find(s => pmax / s <= 6) || 100, ytop = Math.ceil(pmax / step) * step;
+  const X = k => l + pw * k / M, Yp = p => t + ph * (1 - p / ytop), Yc = c => t + ph * (1 - c / 100);
+  let o = `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="S-käyrä ja henkilömäärä kuukausittain">`;
+  for (let v = 0; v <= ytop + 1e-9; v += step) o += `<line x1="${l}" x2="${W - r}" y1="${Yp(v)}" y2="${Yp(v)}" stroke="var(--line)" stroke-width="1"/><text x="${l - 8}" y="${Yp(v) + 4}" text-anchor="end" fill="var(--muted)" font-size="12">${n(v, step < 1 ? 2 : 0)}</text>`;
+  for (let c = 0; c <= 100; c += 25) o += `<text x="${W - r + 8}" y="${Yc(c) + 4}" fill="var(--muted)" font-size="12">${c} %</text>`;
+  const bw = Math.max(2, pw / M * 0.7);
+  persons.forEach((p, k) => { o += `<rect x="${X(k) + (pw / M - bw) / 2}" y="${Yp(p)}" width="${bw}" height="${Math.max(0, Yp(0) - Yp(p))}" fill="var(--accent)" rx="1.5"><title>${monthLabel(k)}: ${n(p, 1)} hlö</title></rect>`; });
+  const pts = [[X(0), Yc(0)], ...cumP.map((c, k) => [X(k + 1), Yc(c)])];
+  o += `<polyline points="${pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  pts.slice(1).forEach(([x, y]) => { o += `<circle cx="${x}" cy="${y}" r="2.6" fill="var(--ink)"/>`; });
+  const lab = Math.max(1, Math.ceil(M / 16));
+  for (let k = 0; k < M; k += lab) o += `<text x="${X(k) + pw / M / 2}" y="${Hh - b + 18}" text-anchor="middle" fill="var(--muted)" font-size="12">${monthLabel(k)}</text>`;
+  o += `<line x1="${l}" x2="${W - r}" y1="${Yp(0)}" y2="${Yp(0)}" stroke="var(--muted)" stroke-width="1"/>`;
+  o += `<text x="${l}" y="${Hh - 6}" fill="var(--muted)" font-size="12">Henkilöä</text><text x="${W - r}" y="${Hh - 6}" text-anchor="end" fill="var(--muted)" font-size="12">Kertymä</text></svg>`;
+  $('chart').innerHTML = o;
+}
+
+renderPhases(); calc();
+})();
+</script>
+</body>
+</html>

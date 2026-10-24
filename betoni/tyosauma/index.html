@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Työsauman leikkauskestävyys – Lastutec</title>
+<meta name="description" content="Eri aikaan valettujen betonien rajapinnan (työsauman) leikkauskestävyys SFS-EN 1992-1-1 kohdan 6.2.5 mukaan.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+/* Layout: lähtötiedot + apukuva vasemmalla, tulos ja vaiheet oikealla; alla valmiit taulukot */
+:root{
+  --bg:#000000; --paper:#141414; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e;
+  --accent:#F74902; --accent-soft:#3b1503; --ok:#5cc58a; --bad:#ff6b5a;
+  --body:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:800;margin:0}
+h3{font-size:14px;margin:0;font-weight:700}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.intro{margin:0;max-width:85ch;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px 12px}
+label{display:block;font-size:13px;color:var(--muted);min-width:0}
+.u{font-size:11px}
+select,input{display:block;margin-top:3px;font-family:var(--body);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input[type=number]{background:#2a1206;font-variant-numeric:tabular-nums}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.fig svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+.big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big .v{font-size:40px;font-weight:700;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.big .k{font-size:14px;color:var(--muted)}
+.verdict{border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:14px}
+.verdict.ok{border-color:var(--ok)} .verdict.nok{border-color:var(--bad)}
+.verdict b.ok{color:var(--ok)} .verdict b.nok{color:var(--bad)}
+.steps{display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:0 10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:0}
+.step .no{font-size:12px;color:var(--muted);padding-top:2px}
+.math{font-size:13.5px;overflow-x:auto;display:flex;flex-direction:column;gap:1px}
+.math .f{color:var(--accent)} .math .s{color:var(--muted)} .math .r{font-weight:700}
+.sec{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);padding-bottom:4px;border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{font:600 13px var(--body);padding:5px 14px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-size:12.5px;color:var(--muted);font-weight:600}
+th:first-child,td:first-child{text-align:left}
+td.sel{background:var(--accent);color:#111;font-weight:700}
+td sup{font-size:9px;color:var(--muted);margin-left:2px}
+td.sel sup{color:#111}
+.chk{display:flex;gap:8px;align-items:flex-start;color:var(--ink);font-size:13.5px}
+.chk input{width:16px;height:16px;margin:2px 0 0;flex:none;accent-color:var(--accent)}
+.foot{font-size:12.5px;color:var(--muted);margin:0;max-width:95ch}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#c63a00;--accent-soft:#fde2d5;--ok:#1d6b3a;--bad:#b3261e;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back,.tabs{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  input,select{background:#fff!important;color:#000!important}
+  .panel,tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Betonirakenteet</a><h1>Työsauman leikkauskestävyys</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 4 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="intro">Eri aikaan valettujen betonien rajapinnan leikkauskestävyys SFS-EN 1992-1-1 kohdan 6.2.5 mukaan: v<sub>Rdi</sub> = c·f<sub>ctd</sub> + μ·σ<sub>n</sub> + ρ·f<sub>yd</sub>·(μ·sin α + cos α) ≤ 0,5·ν·f<sub>cd</sub>. Tarkastelu tehdään saumaa pitkin metrin kaistalle.</p>
+
+<div class="grid">
+<section class="panel" aria-labelledby="h-in">
+  <h2 id="h-in">Lähtötiedot</h2>
+  <div class="inputs">
+    <label for="c">Betoni<select id="c"></select></label>
+    <label for="surf">Rajapinnan karheus<select id="surf">
+      <option value="0">Hyvin sileä (c 0,025 / μ 0,5)</option>
+      <option value="1">Sileä (c 0,2 / μ 0,6)</option>
+      <option value="2">Karhea (c 0,4 / μ 0,7)</option>
+      <option value="3">Vaarnattu (c 0,5 / μ 0,9)</option></select></label>
+    <label for="bi">Rajapinnan leveys b<sub>i</sub> <span class="u">[mm]</span><input type="number" id="bi" value="200" step="10" min="1"></label>
+    <label for="ved">V<sub>Ed</sub> saumaa pitkin <span class="u">[kN/m]</span><input type="number" id="ved" value="150" step="5" min="0"></label>
+    <label for="sn">σ<sub>n</sub> (puristus +, veto −) <span class="u">[N/mm²]</span><input type="number" id="sn" value="0" step="0.1"></label>
+    <label for="nb">Tankoja rinnakkain <span class="u">[kpl]</span><input type="number" id="nb" value="2" step="1" min="0"></label>
+    <label for="dia">Tangon Ø <span class="u">[mm]</span><select id="dia"><option>6</option><option>8</option><option selected>10</option><option>12</option><option>16</option><option>20</option><option>25</option></select></label>
+    <label for="sp">Jako k <span class="u">[mm]</span><input type="number" id="sp" value="150" step="10" min="1"></label>
+    <label for="al">Kulma α <span class="u">[°]</span><input type="number" id="al" value="90" step="5" min="45" max="90"></label>
+    <label for="fyk">f<sub>yk</sub> <span class="u">[N/mm²]</span><input type="number" id="fyk" value="500" step="10"></label>
+    <label for="gc">γ<sub>c</sub><input type="number" id="gc" value="1.5" step="0.05"></label>
+    <label for="gs">γ<sub>s</sub><input type="number" id="gs" value="1.15" step="0.05"></label>
+    <label for="acc">α<sub>cc</sub> (f<sub>cd</sub>)<input type="number" id="acc" value="0.85" step="0.05"></label>
+  </div>
+  <label class="chk" for="crack"><input type="checkbox" id="crack" checked><span>Sauma voi halkeilla merkittävästi (c = 0 sileissä ja karheissa, 0,5 vaarnatuissa)</span></label>
+  <label class="chk" for="dyn"><input type="checkbox" id="dyn"><span>Väsyttävä tai dynaaminen kuorma (c puolitetaan)</span></label>
+  <div class="fig" id="fig"></div>
+</section>
+
+<section class="panel" aria-labelledby="h-res">
+  <h2 id="h-res">Tulos</h2>
+  <div class="big"><span class="v" id="vrd">–</span><span class="k">kN/m · V<sub>Rdi</sub> saumaa pitkin</span></div>
+  <div class="verdict" id="verdict"></div>
+  <div class="sec">Laskenta</div>
+  <div class="steps" id="steps"></div>
+</section>
+</div>
+
+<p class="foot">Karheusluokat: hyvin sileä = teräs-, muovi- tai erikoiskäsiteltyä puumuottia vasten valettu; sileä = liukuvalettu tai ekstruuderipinta tai tärytyksen jälkeen jälkikäsittelemätön pinta; karhea = vähintään 3 mm karheus noin 40 mm välein (uritus, paljastettu kiviaines tai vastaava); vaarnattu = SFS-EN 1992-1-1 kuvan 6.9 hammastus (d ≥ 5 mm, hampaiden pituudet ≤ 10d). Jos σ<sub>n</sub> on vetoa, c·f<sub>ctd</sub> = 0. σ<sub>n</sub> &lt; 0,6 f<sub>cd</sub>. ρ = A<sub>s</sub> / A<sub>i</sub>. V<sub>Ed</sub> on saumaan kohdistuva leikkausvoima metriä kohden; palkeissa v<sub>Edi</sub> = β·V<sub>Ed</sub> / (z·b<sub>i</sub>) lasketaan erikseen. Tulokset tarkastaa laatija.</p>
+</div>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const n = (v, d = 2) => isFinite(v) ? v.toLocaleString('fi-FI', { minimumFractionDigits: 0, maximumFractionDigits: d }) : '–';
+const CS = [['C20/25', 20, 1.5], ['C25/30', 25, 1.8], ['C30/37', 30, 2.0], ['C35/45', 35, 2.2], ['C40/50', 40, 2.5], ['C45/55', 45, 2.7], ['C50/60', 50, 2.9]];
+const SURF = [['Hyvin sileä', 0.025, 0.5], ['Sileä', 0.2, 0.6], ['Karhea', 0.4, 0.7], ['Vaarnattu', 0.5, 0.9]];
+$('c').innerHTML = CS.map(([nm], i) => `<option value="${i}"${i === 2 ? ' selected' : ''}>${nm}</option>`).join('');
+['c', 'surf', 'dia', 'crack', 'dyn'].forEach(id => $(id).onchange = calc);
+['bi', 'ved', 'sn', 'nb', 'sp', 'al', 'fyk', 'gc', 'gs', 'acc'].forEach(id => $(id).oninput = calc);
+
+// Mittaviiva: päissä vinot viivat
+function dim(x1, y1, x2, y2, label, side = -1) {
+  const horiz = Math.abs(y2 - y1) < Math.abs(x2 - x1), t = 5;
+  let o = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink)" stroke-width="1"/>`;
+  for (const [x, y] of [[x1, y1], [x2, y2]]) o += `<line x1="${x - t}" y1="${y + t}" x2="${x + t}" y2="${y - t}" stroke="var(--ink)" stroke-width="1.6"/>`;
+  if (horiz) o += `<text x="${(x1 + x2) / 2}" y="${y1 + (side < 0 ? -6 : 15)}" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">${label}</text>`;
+  else o += `<text x="${x1 + (side < 0 ? -8 : 8)}" y="${(y1 + y2) / 2 + 4}" text-anchor="${side < 0 ? 'end' : 'start'}" font-size="12" font-weight="600" fill="var(--ink)">${label}</text>`;
+  return o;
+}
+const ext = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--muted)" stroke-width="0.8"/>`;
+const arr = (x1, y1, x2, y2) => { const a = Math.atan2(y2 - y1, x2 - x1), L = 10; return `<line x1="${x1}" y1="${y1}" x2="${x2 - Math.cos(a) * 7}" y2="${y2 - Math.sin(a) * 7}" stroke="var(--ink)" stroke-width="2.5"/><polygon points="${x2},${y2} ${x2 - L * Math.cos(a - 0.45)},${y2 - L * Math.sin(a - 0.45)} ${x2 - L * Math.cos(a + 0.45)},${y2 - L * Math.sin(a + 0.45)}" fill="var(--ink)"/>`; };
+
+function fig(si, al, sn) {
+  const W = 600, H = 250, x0 = 30, x1 = 470, yj = 130;
+  // rajapinnan profiili
+  let pts = [];
+  if (si === 3) { const p = 70; for (let x = x0; x < x1; x += p) pts.push([x, yj + 10], [x + 18, yj + 10], [x + 26, yj - 10], [x + 52, yj - 10], [x + 60, yj + 10]); pts.push([x1, yj + 10]); }
+  else if (si === 2) { for (let x = x0; x <= x1; x += 10) pts.push([x, yj + ((x / 10) % 2 ? -3 : 3)]); }
+  else if (si === 1) { for (let x = x0; x <= x1; x += 30) pts.push([x, yj + Math.sin(x / 13) * 1.2]); }
+  else pts = [[x0, yj], [x1, yj]];
+  const line = pts.map(p => p.join(',')).join(' ');
+  let o = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Työsauman apukuva">`;
+  o += `<defs><pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="10" stroke="var(--muted)" stroke-width="0.8"/></pattern></defs>`;
+  o += `<polygon points="${x0},40 ${x1},40 ${line.split(' ').reverse().join(' ')}" fill="url(#hatch)" stroke="none"/>`;
+  o += `<polygon points="${line} ${x1},215 ${x0},215" fill="#8f8f8f" fill-opacity="0.3"/>`;
+  o += `<polyline points="${line}" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
+  o += `<text x="${x0 + 6}" y="56" font-size="12" font-weight="600" fill="var(--ink)">Uusi betoni</text><text x="${x0 + 6}" y="206" font-size="12" font-weight="600" fill="var(--ink)">Vanha betoni</text>`;
+  // raudoitus kulmassa α
+  const xr = 330, a = al * Math.PI / 180, L = 80, dx = Math.cos(a) * L, dy = Math.sin(a) * L;
+  o += `<line x1="${xr - dx}" y1="${yj + dy}" x2="${xr + dx}" y2="${yj - dy}" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>`;
+  o += `<path d="M${xr + 30} ${yj} A30 30 0 0 0 ${xr + Math.cos(a) * 30} ${yj - Math.sin(a) * 30}" fill="none" stroke="var(--accent)" stroke-width="1.4"/><text x="${xr + 34}" y="${yj - 14}" font-size="12" font-weight="700" fill="var(--accent)">α = ${al}°</text>`;
+  o += `<text x="${xr + dx + 6}" y="${yj - dy + 4}" font-size="12" fill="var(--accent)">raudoitus</text>`;
+  // voimat
+  o += arr(130, 26, 200, 26) + `<text x="205" y="30" font-size="12" font-weight="700" fill="var(--ink)">V<tspan baseline-shift="sub" font-size="9">Ed</tspan></text>`;
+  o += arr(200, 234, 130, 234) + `<text x="96" y="238" font-size="12" font-weight="700" fill="var(--ink)">V<tspan baseline-shift="sub" font-size="9">Ed</tspan></text>`;
+  if (sn !== 0) { const c = sn > 0; o += c ? arr(250, 60, 250, yj - 14) + arr(250, 200, 250, yj + 16) : arr(250, yj - 14, 250, 60) + arr(250, yj + 16, 250, 200); o += `<text x="258" y="80" font-size="12" font-weight="700" fill="var(--ink)">σ<tspan baseline-shift="sub" font-size="9">n</tspan> ${c ? '(puristus)' : '(veto)'}</text>`; }
+  // vaarnatun mitat
+  if (si === 3) {
+    o += ext(x0 + 26, yj - 10, 500, yj - 10) + ext(x0 + 18, yj + 10, 500, yj + 10);
+    o += dim(495, yj - 10, 495, yj + 10, 'd ≥ 5 mm', 1);
+    o += ext(x0 + 26, yj - 10, x0 + 26, yj - 34) + ext(x0 + 52, yj - 10, x0 + 52, yj - 34) + dim(x0 + 26, yj - 30, x0 + 52, yj - 30, '≤ 10d');
+    o += ext(x0 + 70, yj + 10, x0 + 70, yj + 34) + ext(x0 + 88, yj + 10, x0 + 88, yj + 34) + dim(x0 + 70, yj + 30, x0 + 88, yj + 30, '≤ 10d', 1);
+  } else o += `<text x="${x1 + 10}" y="${yj + 4}" font-size="12" fill="var(--muted)">${SURF[si][0].toLowerCase()} rajapinta</text>`;
+  return o + `</svg>`;
+}
+
+function calc() {
+  const [cn, fck, fctk] = CS[+$('c').value], si = +$('surf').value, [sname, c0, mu] = SURF[si];
+  const bi = +$('bi').value, ved = Math.max(0, +$('ved').value || 0), sn = +$('sn').value || 0, nb = Math.max(0, +$('nb').value || 0), D = +$('dia').value, sp = +$('sp').value;
+  const al = Math.min(90, Math.max(45, +$('al').value || 90)), fyk = +$('fyk').value, gc = +$('gc').value, gs = +$('gs').value, acc = +$('acc').value;
+  const crack = $('crack').checked, dyn = $('dyn').checked;
+  let c = c0, cTxt = `c = ${n(c0, 3)} (${sname.toLowerCase()})`;
+  if (crack) { c = si === 3 ? 0.5 : 0; cTxt += ` → halkeileva sauma: c = ${n(c, 3)}`; }
+  if (dyn) { c = c / 2; cTxt += ` → dynaaminen kuorma: c / 2 = ${n(c, 3)}`; }
+  const fcd = acc * fck / gc, fctd = fctk / gc, fyd = fyk / gs, nu = 0.6 * (1 - fck / 250);
+  const As = nb * Math.PI * D * D / 4 * 1000 / sp, Ai = bi * 1000, rho = As / Ai, ar = al * Math.PI / 180;
+  const t1 = sn < 0 ? 0 : c * fctd, t2 = mu * sn, t3 = rho * fyd * (mu * Math.sin(ar) + Math.cos(ar));
+  const vcalc = t1 + t2 + t3, vmax = 0.5 * nu * fcd, vrdi = Math.min(vcalc, vmax);
+  const VRdm = vrdi * bi; // N/mm² · mm = N/mm = kN/m
+  const vedi = ved / bi, u = vedi / vrdi, ok = u <= 1, snOk = sn < 0.6 * fcd;
+  $('vrd').textContent = n(VRdm, 0);
+  const cls = ok && snOk ? 'ok' : 'nok';
+  $('verdict').className = 'verdict ' + cls;
+  $('verdict').innerHTML = `Käyttöaste v<sub>Edi</sub> / v<sub>Rdi</sub> = ${n(vedi)} / ${n(vrdi)} = <b class="${cls}">${n(u * 100, 0)} % · ${ok && snOk ? 'OK!' : 'TARKASTA, EI OK!'}</b>${snOk ? '' : `<br><b class="nok">σ<sub>n</sub> ≥ 0,6 f<sub>cd</sub> = ${n(0.6 * fcd)} N/mm²</b>`}`;
+  const S = [
+    ['Materiaalit', `f<sub>cd</sub> = ${n(acc)} · ${fck} / ${n(gc)} = ${n(fcd)} · f<sub>ctd</sub> = f<sub>ctk,0,05</sub> / γ<sub>c</sub> = ${n(fctk, 1)} / ${n(gc)} = ${n(fctd)} · f<sub>yd</sub> = ${fyk} / ${n(gs)} = ${n(fyd, 1)} N/mm²`, `ν = 0,6 · (1 − ${fck}/250) = ${n(nu, 3)}`],
+    ['Rajapinnan kertoimet', cTxt, `μ = ${n(mu, 2)}`],
+    ['Raudoitussuhde', `A<sub>s</sub> = ${nb} · π · ${D}² / 4 · 1000 / ${sp} = ${n(As, 0)} mm² · A<sub>i</sub> = ${bi} · 1000 = ${n(Ai, 0)} mm²`, `ρ = ${n(As, 0)} / ${n(Ai, 0)} = ${n(rho, 5)}`],
+    ['Kestävyys', `v<sub>Rdi</sub> = c·f<sub>ctd</sub> + μ·σ<sub>n</sub> + ρ·f<sub>yd</sub>·(μ·sin α + cos α)<br>= ${n(c, 3)} · ${n(fctd)}${sn < 0 ? ' (veto → 0)' : ''} + ${n(mu)} · ${n(sn)} + ${n(rho, 5)} · ${n(fyd, 1)} · (${n(mu)} · sin ${al}° + cos ${al}°)`, `= ${n(t1, 3)} + ${n(t2, 3)} + ${n(t3, 3)} = ${n(vcalc, 3)} N/mm²`],
+    ['Yläraja', `0,5 · ν · f<sub>cd</sub> = 0,5 · ${n(nu, 3)} · ${n(fcd)} = ${n(vmax, 3)} N/mm²`, `v<sub>Rdi</sub> = ${n(vrdi, 3)} N/mm² ${vcalc > vmax ? '(yläraja määrää)' : '≤ yläraja, OK'}`],
+    ['Kestävyys saumaa pitkin', `V<sub>Rdi</sub> = v<sub>Rdi</sub> · b<sub>i</sub> · 1000 mm = ${n(vrdi, 3)} · ${bi} · 1000`, `<b>V<sub>Rdi</sub> = ${n(VRdm, 1)} kN/m</b>`],
+    ['Rasitus', `v<sub>Edi</sub> = V<sub>Ed</sub> / (b<sub>i</sub> · 1000) = ${n(ved)} · 10³ / (${bi} · 1000)`, `v<sub>Edi</sub> = ${n(vedi, 3)} N/mm² · σ<sub>n</sub> = ${n(sn)} ${snOk ? '<' : '≥'} 0,6 f<sub>cd</sub> = ${n(0.6 * fcd)} N/mm²`]
+  ];
+  $('steps').innerHTML = S.map((s, i) => `<div class="step"><span class="no">${String(i + 1).padStart(2, '0')}</span><div><h3>${s[0]}</h3><div class="math"><span class="s">${s[1]}</span><span class="r">${s[2]}</span></div></div></div>`).join('');
+  $('fig').innerHTML = fig(si, al, sn);
+}
+$('surf').value = '0';
+calc();
+})();
+</script>
+</body>
+</html>

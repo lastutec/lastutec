@@ -31,6 +31,8 @@ h2{font-size:18px;font-weight:800;margin:0}
 .printbtn:hover{filter:brightness(1.1)}
 .intro{margin:0;max-width:80ch;color:var(--muted)}
 .panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.chk{display:flex;gap:8px;align-items:center;color:var(--ink);font-size:13.5px;align-self:end;padding-bottom:8px}
+.chk input{width:16px;height:16px;margin:0;accent-color:var(--accent)}
 .inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px 14px}
 label{display:block;font-size:13px;color:var(--muted);min-width:0}
 select,input{display:block;margin-top:3px;font-family:var(--body);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
@@ -96,6 +98,7 @@ tr.tasks ul{margin:2px 0 0;padding-left:18px;columns:2 260px;column-gap:24px;col
     <label for="hpp">Tuntia / henkilö / kk<input type="number" id="hpp" value="140" min="1" step="5"></label>
     <label for="start">Aloituskuukausi<input type="month" id="start"></label>
     <label for="dtime">Suunnitteluaika [kk]<input type="number" id="dtime" value="16" min="1" step="1"></label>
+    <label class="chk" for="vac"><input type="checkbox" id="vac" checked><span>Huomioi kesäloma (heinäkuu)</span></label>
   </div>
   <p class="hint">Rakennustyypin valinta asettaa tuntia/brm²-oletuksen, jota voi muuttaa. Kokonaistunnit = bruttoala · tuntia/brm² · vaativuuskerroin. Suunnitteluaika on hankesuunnittelun alusta toteutussuunnittelun loppuun: sen muuttaminen venyttää tai tiivistää suunnitteluvaiheiden kestot samassa suhteessa ja siirtää rakentamisvaiheet sen mukaan, jolloin S-käyrä muodostuu valitun suunnitteluajan mukaan.</p>
 </section>
@@ -125,7 +128,7 @@ tr.tasks ul{margin:2px 0 0;padding-left:18px;columns:2 260px;column-gap:24px;col
   <div class="tablewrap"><table id="months"></table></div>
 </section>
 
-<p class="foot">Tuntia/brm²-arvot ja vaiheiden osuudet ovat karkeita kokemusperäisiä oletuksia, eivät RAK18:n tai muun julkaisun arvoja; RAK18 määrittelee tehtävät ja vaiheet, ei tuntimääriä. Säädä arvot oman toimiston toteumien mukaan. Tunnit jaetaan kunkin vaiheen kestolle tasaisesti. Henkilömäärä = kuukauden tunnit / tuntia per henkilö per kuukausi.</p>
+<p class="foot">Tuntia/brm²-arvot ja vaiheiden osuudet ovat karkeita kokemusperäisiä oletuksia, eivät RAK18:n tai muun julkaisun arvoja; RAK18 määrittelee tehtävät ja vaiheet, ei tuntimääriä. Säädä arvot oman toimiston toteumien mukaan. Tunnit jaetaan kunkin vaiheen kestolle tasaisesti. Henkilömäärä = kuukauden tunnit / tuntia per henkilö per kuukausi. Kesäloma: kun valinta on päällä, heinäkuulle ei ajoiteta työtä, vaan vaiheen heinäkuun tunnit jaetaan vaiheen muille kuukausille.</p>
 </div>
 
 <script>
@@ -173,6 +176,7 @@ $('dtime').addEventListener('change', () => {
   renderPhases(); calc();
 });
 $('cx').onchange = calc;
+$('vac').onchange = calc;
 $('toggleTasks').onclick = () => { showTasks = !showTasks; $('toggleTasks').textContent = showTasks ? 'Piilota tehtävät' : 'Näytä tehtävät'; document.querySelectorAll('#phases tr.tasks').forEach(t => t.hidden = !showTasks); };
 $('reset').onclick = () => { PH = DEF.map(r => [...r]); renderPhases(); calc(); };
 
@@ -204,6 +208,8 @@ function renderPhases() {
   }));
 }
 
+const monthOf = k => { const [y, m] = ($('start').value || '2026-11').split('-').map(Number); return (m - 1 + k) % 12 + 1; };
+const isVac = k => $('vac').checked && monthOf(k) === 7;
 const monthLabel = k => {
   const [y, m] = ($('start').value || '2026-11').split('-').map(Number);
   const t = new Date(y, m - 1 + k, 1);
@@ -219,7 +225,11 @@ function calc() {
   const monthly = new Array(M).fill(0);
   PH.forEach((r, i) => {
     const h = H * r[1] / 100, s0 = r[2], dur = Math.max(r[3], 0.01);
-    for (let k = 0; k < M; k++) { const ov = Math.max(0, Math.min(k + 1, s0 + dur) - Math.max(k, s0)); monthly[k] += h * ov / dur; }
+    // kesäloma: heinäkuun osuus jaetaan vaiheen muille kuukausille; jos vaihe on kokonaan heinäkuussa, työ siirtyy seuraavaan kuukauteen
+    const w = []; let ws = 0;
+    for (let k = 0; k < M; k++) { const ov = Math.max(0, Math.min(k + 1, s0 + dur) - Math.max(k, s0)); w[k] = isVac(k) ? 0 : ov; ws += w[k]; }
+    if (ws > 0) for (let k = 0; k < M; k++) monthly[k] += h * w[k] / ws;
+    else if (h > 0) { let k = Math.min(M, Math.ceil(s0 + dur)); while (isVac(k)) k++; if (k >= monthly.length) monthly.length = k + 1, monthly.fill(0, M); monthly[k] += h; }
     $('h' + i).textContent = n(h);
     $('m' + i).textContent = r[1] > 0 ? n(h / dur / hpp, 1) : '–';
     $('b' + i).style.width = (r[1] * 2.4) + 'px';
@@ -228,6 +238,7 @@ function calc() {
   $('hsum').textContent = n(H * psum / 100);
   $('dur').textContent = `${n(end, end % 1 ? 1 : 0)} kk`;
 
+  for (let k = 0; k < monthly.length; k++) monthly[k] = monthly[k] || 0;
   const tot = monthly.reduce((a, b) => a + b, 0) || 1;
   let cum = 0; const cumP = monthly.map(h => (cum += h) / tot * 100);
   const persons = monthly.map(h => h / hpp), peak = Math.max(...persons), peakK = persons.indexOf(peak);
@@ -241,9 +252,9 @@ function calc() {
     `<div class="tile"><span class="k">Toteutussuunnittelu valmis</span><span class="v">${monthLabel(Math.max(0, Math.ceil(designEnd) - 1))}</span><span class="s">kertymä ${n(cumP[Math.max(0, Math.ceil(designEnd) - 1)] || 0)} %</span></div>`;
 
   drawChart(persons, cumP);
-  drawGantt(M);
+  drawGantt(monthly.length);
   $('months').innerHTML = `<thead><tr><th>Kk</th><th>Kuukausi</th><th>Tunnit</th><th>Henkilöä</th><th>Kertymä h</th><th>Kertymä %</th></tr></thead><tbody>` +
-    monthly.map((h, k) => `<tr><td>${k + 1}</td><td>${monthLabel(k)}</td><td>${n(h)}</td><td>${n(persons[k], 1)}</td><td>${n(cumP[k] * tot / 100)}</td><td>${n(cumP[k])} %</td></tr>`).join('') + '</tbody>';
+    monthly.map((h, k) => `<tr><td>${k + 1}</td><td>${monthLabel(k)}${isVac(k) ? ' (loma)' : ''}</td><td>${n(h)}</td><td>${n(persons[k], 1)}</td><td>${n(cumP[k] * tot / 100)}</td><td>${n(cumP[k])} %</td></tr>`).join('') + '</tbody>';
 }
 
 function drawGantt(M) {
@@ -253,6 +264,7 @@ function drawGantt(M) {
   const lab = Math.max(1, Math.ceil(M / 16));
   for (let k = 0; k <= M; k++) o += `<line x1="${X(k)}" x2="${X(k)}" y1="${t}" y2="${t + rows.length * rh}" stroke="var(--line)" stroke-width="${k % lab ? 0.5 : 1}"/>`;
   for (let k = 0; k < M; k += lab) o += `<text x="${X(k) + pw / M / 2}" y="${t + rows.length * rh + 18}" text-anchor="middle" fill="var(--muted)" font-size="12">${monthLabel(k)}</text>`;
+  for (let k = 0; k < M; k++) if (isVac(k)) o += `<rect x="${X(k)}" y="${t}" width="${pw / M}" height="${rows.length * rh}" fill="var(--muted)" fill-opacity="0.18"><title>Kesäloma ${monthLabel(k)}</title></rect><text x="${X(k) + pw / M / 2}" y="${t + rows.length * rh - 4}" text-anchor="middle" fill="var(--muted)" font-size="10">loma</text>`;
   const maxPct = Math.max(...rows.map(r => r.pct));
   rows.forEach((r, j) => {
     const y = t + j * rh + 4, x1 = X(r.s), x2 = X(Math.min(M, r.s + r.d)), w = Math.max(2, x2 - x1), hgt = rh - 8;
@@ -272,6 +284,7 @@ function drawChart(persons, cumP) {
   let o = `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="S-käyrä ja henkilömäärä kuukausittain">`;
   for (let v = 0; v <= ytop + 1e-9; v += step) o += `<line x1="${l}" x2="${W - r}" y1="${Yp(v)}" y2="${Yp(v)}" stroke="var(--line)" stroke-width="1"/><text x="${l - 8}" y="${Yp(v) + 4}" text-anchor="end" fill="var(--muted)" font-size="12">${n(v, step < 1 ? 2 : 0)}</text>`;
   for (let c = 0; c <= 100; c += 25) o += `<text x="${W - r + 8}" y="${Yc(c) + 4}" fill="var(--muted)" font-size="12">${c} %</text>`;
+  for (let k = 0; k < M; k++) if (isVac(k)) o += `<rect x="${X(k)}" y="${t}" width="${pw / M}" height="${ph}" fill="var(--muted)" fill-opacity="0.18"><title>Kesäloma ${monthLabel(k)}</title></rect><text x="${X(k) + pw / M / 2}" y="${t + 12}" text-anchor="middle" fill="var(--muted)" font-size="10">loma</text>`;
   const bw = Math.max(2, pw / M * 0.7);
   persons.forEach((p, k) => { o += `<rect x="${X(k) + (pw / M - bw) / 2}" y="${Yp(p)}" width="${bw}" height="${Math.max(0, Yp(0) - Yp(p))}" fill="var(--accent)" rx="1.5"><title>${monthLabel(k)}: ${n(p, 1)} hlö</title></rect>`; });
   const pts = [[X(0), Yc(0)], ...cumP.map((c, k) => [X(k + 1), Yc(c)])];

@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lumikuorma – Lastutec</title>
+<meta name="description" content="Katon lumikuorma SFS-EN 1991-1-3:n ja ympäristöministeriön asetuksen 6/16 (kansalliset valinnat) mukaan: pulpetti-, harja- ja sahakatot sekä kinostumat korkeampaa rakennusosaa ja estettä vasten.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<style>
+:root{
+  --bg:#000000; --panel:#141414; --panel2:#1c1c1c; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e; --line2:#262626;
+  --accent:#F74902; --accent-ink:#111111; --accent-soft:#3b1503; --input:#2a1206;
+  --ok:#5cc58a; --warn:#f5c86b; --bad:#ff6b5a;
+  --radius:6px; --mono:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+  --snow:#7fb2e6; --snow-ink:#bcd8f5; --press:#ff6b5a; --suct:#7fb2e6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+header.lt{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+header.lt .brand{display:flex;flex-direction:column;gap:2px}
+header.lt .back{font:600 13px Arial,Helvetica,sans-serif;color:var(--accent);text-decoration:none}
+header.lt .back:hover{text-decoration:underline}
+header.lt h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+header.lt .hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+header.lt .meta{font-size:12px;color:var(--muted)}
+.printbtn{font:600 13px Arial,Helvetica,sans-serif;color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.printbtn:hover{filter:brightness(1.1)}
+table,.num,.kpi .v{font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+.wrap{max-width:1300px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.crumb{font-size:13px;color:var(--muted)} .crumb a{color:var(--muted);text-decoration:none} .crumb a:hover{text-decoration:underline}
+h1{font-size:24px;line-height:1.2;margin:2px 0 4px}
+h2{font-size:17px;font-weight:800;margin:0 0 10px}
+h3{font-size:15px;margin:14px 0 6px}
+p.lead{margin:0 0 12px;color:var(--muted);max-width:85ch}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:8px 0 14px;flex-wrap:wrap}
+.tabs a{padding:8px 14px;text-decoration:none;color:var(--muted);border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;font-weight:600;font-size:14.5px}
+.tabs a.on{background:var(--panel);color:var(--ink);border-color:var(--line);margin-bottom:-1px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:950px){.grid{grid-template-columns:minmax(0,1fr)}}
+.field{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;margin:6px 0}
+.field>label{font-size:13.5px}
+.field .u{font-size:12px;color:var(--muted);margin-left:4px;display:inline-block;min-width:34px}
+input[type=number],input[type=text],select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);border-radius:4px;background:var(--input);color:var(--ink);min-width:0}
+select{background:var(--bg)!important}
+input[type=checkbox]{accent-color:var(--accent)}
+input[type=number]{width:92px}
+.field select{max-width:200px}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:6px;padding:6px 10px;font:inherit;font-size:13.5px;cursor:pointer;white-space:nowrap;line-height:1.2}
+.btn:hover{border-color:var(--accent)}.btn.primary{background:var(--accent);border-color:var(--accent);color:#111}.btn.ghost{background:transparent}.btn.danger{color:var(--bad)}
+.small{font-size:12.5px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 6px}
+.chips button{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:12px;padding:2px 9px;font-size:12.5px;cursor:pointer}
+.chips button:hover{border-color:var(--accent)}
+fieldset{border:1px solid var(--line);border-radius:6px;padding:6px 10px 8px;margin:10px 0}
+legend{font-size:12.5px;font-weight:600;color:var(--muted);padding:0 4px}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line2);padding:5px 7px;text-align:right;white-space:nowrap;vertical-align:middle}
+th{font-weight:600;color:var(--muted);font-size:12px;background:var(--panel)}
+td.l,th.l{text-align:left}
+td.expr{text-align:left;white-space:normal;font-family:var(--mono);font-size:12.5px;min-width:280px}
+.num{font-family:var(--mono)}
+.neg{color:var(--bad)}
+tr.gov td{background:var(--accent-soft)}
+tr.gov td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.x-term{color:#666;text-decoration:line-through}
+table.inp input[type=number]{width:80px;padding:3px 5px;text-align:right}
+table.inp input[type=text]{width:150px;padding:3px 5px}
+table.inp select{max-width:230px;padding:3px 5px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+.kpi{border:1px solid var(--line);border-radius:6px;padding:7px 9px;background:var(--panel2)}
+.kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)} .kpi .v{font:600 17px/1.3 var(--mono)}
+.kpi.hl{border-color:var(--accent);background:var(--accent-soft)}
+.calc{font-size:13.5px}
+.calc .row{display:grid;grid-template-columns:minmax(160px,250px) 1fr;gap:4px 14px;padding:3px 0;border-bottom:1px dashed var(--line2)}
+.calc .row .d{color:var(--muted)} .calc .row .f{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+.calc h4{margin:14px 0 2px;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.note{border-left:3px solid var(--warn);background:#2a1f08;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.info{border-left:3px solid var(--accent);background:#1f0d03;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.flex{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.right{margin-left:auto}
+.diag{width:100%;max-width:640px;height:auto;display:block;margin:6px 0}
+.diag text{font:12px system-ui,sans-serif;fill:var(--ink)}
+.diag .m{fill:var(--muted)}
+
+details.step{border:1px solid var(--line);border-radius:6px;margin:8px 0}
+details.step>summary{cursor:pointer;padding:7px 10px;font-weight:600}
+details.step>.calc{padding:0 12px 10px}
+.case{border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:10px 0}
+.case h3{margin:2px 0 6px}
+@media print{ :root{--bg:#fff;--panel:#fff;--panel2:#fff;--ink:#000;--muted:#444;--line:#bbb;--line2:#ddd;--accent:#c63a00;--accent-soft:#fde2d5;--input:#fff;--ok:#1d6b3a;--warn:#8a5a00;--bad:#b3261e;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back{display:none!important} .no-print{display:none!important} .card{border:0;padding:0} .grid{grid-template-columns:1fr} details.step{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="lt">
+    <div class="brand"><a href="../" class="back">← Kuormalaskenta</a><h1>Lumikuorma</h1></div>
+    <div class="hdr-r"><span class="meta">Työkalu 2 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+  </header>
+  <p class="lead">Katon lumikuorma SFS-EN 1991-1-3:n ja ympäristöministeriön asetuksen 6/16 (kansalliset valinnat) mukaan: pulpetti-, harja- ja sahakatot sekä kinostumat korkeampaa rakennusosaa ja estettä vasten. Laskelmat näytetään välivaiheineen.</p>
+  <!-- ===================== LUMIKUORMA ===================== -->
+  <section id="p-lumi">
+    <div class="grid">
+      <div class="card">
+        <h2>Lähtötiedot</h2>
+        <div class="field"><label>Maan lumikuorma s<sub>k</sub></label><span><input type="number" id="s-sk" step="0.05" value="2.5"><span class="u">kN/m²</span></span></div>
+        <div class="chips" id="s-skchips"></div>
+        <div class="small">s<sub>k</sub> luetaan kansallisen liitteen kuvasta 1 (arvot ovat vähimmäisarvoja, välialueilla interpoloidaan lineaarisesti).</div>
+        <div class="field"><label>Maastotyyppi</label><select id="s-terr"><option value="t">Tuulinen (C<sub>e</sub> = 0,8)</option><option value="n" selected>Normaali (Ce = 1,0)</option><option value="s">Suojainen (Ce = 1,2)</option></select></div>
+        <div class="field"><label>Katon lyhyempi sivu L<sub>1</sub></label><span><input type="number" id="s-L1" step="any" value="12"><span class="u">m</span></span></div>
+        <div class="field"><label>Katon pidempi sivu L<sub>2</sub></label><span><input type="number" id="s-L2" step="any" value="24"><span class="u">m</span></span></div>
+        <div class="field"><label>Lämpökerroin C<sub>t</sub></label><span><input type="number" id="s-Ct" step="0.05" value="1.0"><span class="u"></span></span></div>
+        <div class="field"><label>Lumen tilavuuspaino γ</label><span><input type="number" id="s-gam" step="0.1" value="2.0"><span class="u">kN/m³</span></span></div>
+        <fieldset><legend>Katon muoto</legend>
+          <div class="field"><label>Kattotyyppi</label><select id="s-type"><option value="mono">Pulpettikatto</option><option value="duo" selected>Harjakatto</option><option value="multi">Sahakatto / monijänteinen</option></select></div>
+          <div class="field"><label>Kaltevuus α<sub>1</sub></label><span><input type="number" id="s-a1" step="any" value="20"><span class="u">°</span></span></div>
+          <div class="field" id="s-a2row"><label>Kaltevuus α<sub>2</sub></label><span><input type="number" id="s-a2" step="any" value="20"><span class="u">°</span></span></div>
+          <label class="small"><input type="checkbox" id="s-guard"> Lumiesteet tai räystäskaide estävät lumen liukumisen (μ<sub>1</sub> ≥ 0,8)</label>
+        </fieldset>
+        <fieldset><legend><label><input type="checkbox" id="s-dr-on"> Kinostuma korkeampaa rakennusosaa vasten (5.3.6)</label></legend>
+          <div class="field"><label>Korkeusero h</label><span><input type="number" id="s-h" step="any" value="3"><span class="u">m</span></span></div>
+          <div class="field"><label>Ylemmän katon leveys b<sub>1</sub></label><span><input type="number" id="s-b1" step="any" value="12"><span class="u">m</span></span></div>
+          <div class="field"><label>Alemman katon leveys b<sub>2</sub></label><span><input type="number" id="s-b2" step="any" value="8"><span class="u">m</span></span></div>
+          <div class="field"><label>Ylemmän katon kaltevuus</label><span><input type="number" id="s-au" step="any" value="5"><span class="u">°</span></span></div>
+          <div class="field"><label>Alemman katon pinta-ala</label><span><input type="number" id="s-Alow" step="any" value="96"><span class="u">m²</span></span></div>
+          <div class="field"><label>μ<sub>s</sub> (liukuva lumi, jos α &gt; 15°)</label><span><input type="number" id="s-mus" step="any" value="0"><span class="u"></span></span></div>
+        </fieldset>
+        <fieldset><legend><label><input type="checkbox" id="s-ob-on"> Kinostuma esteen / kaiteen kohdalla (6.2)</label></legend>
+          <div class="field"><label>Esteen korkeus h</label><span><input type="number" id="s-hob" step="any" value="0.8"><span class="u">m</span></span></div>
+        </fieldset>
+      </div>
+      <div>
+        <div class="card">
+          <h2>Tulokset</h2>
+          <div class="kpis" id="s-kpis"></div>
+          <div id="s-cases"></div>
+        </div>
+        <div class="card">
+          <h2>Laskenta välivaiheineen</h2>
+          <div class="calc" id="s-steps"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="small">Työkalu on suunnittelun apuväline – katso etusivun vastuuvapautuslauseke. Viittaukset: SFS-EN 1991-1-3 ja YM 6/16.</p>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+function fmt(v,d){ if(v===null||v===undefined||!isFinite(v)) return '–'; if(Math.abs(v)<0.5*Math.pow(10,-d)) v=0;
+  let s=v.toFixed(d); let [i,f]=s.split('.'); const neg=i.startsWith('-'); if(neg)i=i.slice(1);
+  i=i.replace(/\B(?=(\d{3})+(?!\d))/g,' '); return (neg?'−':'')+i+(f?','+f:''); }
+const f2=v=>fmt(v,2), f3=v=>fmt(v,3);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=id=>{const v=parseFloat(String($(id).value).replace(',','.')); return isFinite(v)?v:0;};
+const row=(d,f)=>`<div class="row"><div class="d">${d}</div><div class="f">${f}</div></div>`;
+const lerp=(x,x0,x1,y0,y1)=>x1===x0?y0:y0+(y1-y0)*(x-x0)/(x1-x0);
+const LS='lastutec-kuormalaskenta-v1';
+let store={}; try{store=JSON.parse(localStorage.getItem(LS)||'{}')||{};}catch(e){}
+function persist(){ try{localStorage.setItem(LS,JSON.stringify(store));}catch(e){} }
+function bindPersist(ids,fn){ ids.forEach(id=>{ const el=$('#'+id); if(!el) return; if(store[id]!==undefined){ if(el.type==='checkbox') el.checked=store[id]; else el.value=store[id]; }
+  el.addEventListener(el.type==='checkbox'||el.tagName==='SELECT'?'change':'input',()=>{ store[id]=el.type==='checkbox'?el.checked:el.value; persist(); fn(); }); }); }
+
+/* =====================================================================
+   LUMIKUORMA
+   ===================================================================== */
+[2.0,2.5,2.75,3.0,3.5].forEach(v=>{ const b=document.createElement('button'); b.textContent=fmt(v,v%0.5?2:1)+' kN/m²'; b.type='button'; b.onclick=()=>{ $('#s-sk').value=v; $('#s-sk').dispatchEvent(new Event('input')); }; $('#s-skchips').appendChild(b); });
+function mu1(a,guard){ let m; if(a<=30) m=0.8; else if(a<60) m=0.8*(60-a)/30; else m=0; if(guard) m=Math.max(m,0.8); return m; }
+function mu1txt(a,guard){ if(a<=30) return 'α = '+fmt(a,1)+'° ≤ 30° → μ<sub>1</sub> = 0,8'; if(a<60) return '30° &lt; α = '+fmt(a,1)+'° &lt; 60° → μ<sub>1</sub> = 0,8·(60 − '+fmt(a,1)+')/30 = '+fmt(0.8*(60-a)/30,3)+(guard&&0.8*(60-a)/30<0.8?' → lumiesteet: μ<sub>1</sub> = 0,8':'');
+  return 'α = '+fmt(a,1)+'° ≥ 60° → μ<sub>1</sub> = 0'+(guard?' → lumiesteet: μ<sub>1</sub> = 0,8':''); }
+function mu2multi(a){ if(a<=30) return 0.8+0.8*a/30; return 1.6; }
+function snowCalc(){
+  const sk=num('#s-sk'), terr=$('#s-terr').value, L1=num('#s-L1'), L2=num('#s-L2'), Ct=num('#s-Ct')||1, gam=num('#s-gam')||2;
+  const type=$('#s-type').value, a1=num('#s-a1'), a2=num('#s-a2'), guard=$('#s-guard').checked;
+  $('#s-a2row').style.display=type==='mono'?'none':'';
+  let st='';
+  // Ce
+  const CeT={t:0.8,n:1.0,s:1.2}, terrN={t:'tuulinen',n:'normaali',s:'suojainen'};
+  let Ce0=CeT[terr]; const Ls=Math.min(L1,L2), Ll=Math.max(L1,L2); let kor=1, CeNote='';
+  if(Ls>=50){ if(terr==='t'){ Ce0=Math.max(Ce0,1.0); CeNote='laaja katto tuulisessa maastossa → C<sub>e</sub> ≥ 1,0; '; }
+    const r=Math.min(2,Math.max(1,Ll/Ls)), L=Math.min(100,Math.max(50,Ls));
+    const k1=L<=75?lerp(L,50,75,1.0,1.1):lerp(L,75,100,1.1,1.2), k2=L<=75?lerp(L,50,75,1.1,1.2):lerp(L,75,100,1.2,1.25);
+    kor=lerp(r,1,2,k1,k2); CeNote+='korotuskerroin (taulukko 1, L<sub>1</sub> = '+fmt(Ls,1)+' m, L<sub>2</sub>/L<sub>1</sub> = '+fmt(Ll/Ls,2)+') = '+fmt(kor,3); }
+  const Ce=Ce0*kor;
+  const base=Ce*Ct*sk;
+  st+='<h4>Perusarvot</h4>';
+  st+=row('Maan lumikuorma','s<sub>k</sub> = <b>'+fmt(sk,2)+' kN/m²</b>');
+  st+=row('Tuulensuojaisuuskerroin C<sub>e</sub>',terrN[terr]+' maasto → '+fmt(CeT[terr],1)+(CeNote?'; '+CeNote:'')+' → <b>C<sub>e</sub> = '+fmt(Ce,3)+'</b>');
+  st+=row('Lämpökerroin','C<sub>t</sub> = <b>'+fmt(Ct,2)+'</b>');
+  st+=row('C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub>',fmt(Ce,3)+'·'+fmt(Ct,2)+'·'+fmt(sk,2)+' = <b>'+fmt(base,3)+' kN/m²</b>');
+  st+=row('Katon lumikuorma','s = μ<sub>i</sub>·C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub> (5.2(3)a)');
+  const smin=s=>Ct<1?Math.max(s,0.5):s;
+  const cases=[]; const kp=[];
+  // muotokertoimet
+  st+='<h4>Muotokertoimet katolle</h4>';
+  if(type==='mono'){
+    const m=mu1(a1,guard); st+=row('μ<sub>1</sub>(α)',mu1txt(a1,guard)); const s=smin(m*base);
+    st+=row('s = μ<sub>1</sub>·C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub>',fmt(m,3)+'·'+fmt(base,3)+' = <b>'+fmt(s,3)+' kN/m²</b>');
+    cases.push({t:'Pulpettikatto – tasainen lumikuorma',svg:svgRoof('mono',a1,a1,[s],sk),txt:'s = '+fmt(s,2)+' kN/m²'}); kp.push(['s (pulpetti)',s]);
+  } else if(type==='duo'){
+    const m1=mu1(a1,guard), m2=mu1(a2,guard); st+=row('μ<sub>1</sub>(α<sub>1</sub>)',mu1txt(a1,guard)); st+=row('μ<sub>1</sub>(α<sub>2</sub>)',mu1txt(a2,guard));
+    const cs=[['(i) tasainen',m1,m2],['(ii) kinostunut',0.5*m1,m2],['(iii) kinostunut',m1,0.5*m2]];
+    cs.forEach(c=>{ const sL=smin(c[1]*base), sR=smin(c[2]*base);
+      st+=row('Tapaus '+c[0],'vasen μ = '+fmt(c[1],3)+' → s = '+fmt(c[1],3)+'·'+fmt(base,3)+' = <b>'+fmt(sL,3)+'</b>;  oikea μ = '+fmt(c[2],3)+' → s = <b>'+fmt(sR,3)+' kN/m²</b>');
+      cases.push({t:'Harjakatto – tapaus '+c[0],svg:svgRoof('duo',a1,a2,[sL,sR],sk),txt:'vasen '+fmt(sL,2)+' / oikea '+fmt(sR,2)+' kN/m²'}); });
+    kp.push(['s max (harja)',Math.max(m1,m2)*base]);
+  } else {
+    const m1=mu1(a1,guard), m2a=mu1(a2,guard), ab=(a1+a2)/2, m2=mu2multi(ab);
+    st+=row('μ<sub>1</sub>(α<sub>1</sub>), μ<sub>1</sub>(α<sub>2</sub>)',fmt(m1,3)+', '+fmt(m2a,3));
+    st+=row('ᾱ = (α<sub>1</sub>+α<sub>2</sub>)/2','('+fmt(a1,1)+' + '+fmt(a2,1)+')/2 = '+fmt(ab,2)+'°');
+    st+=row('μ<sub>2</sub>(ᾱ)',ab<=30?'0,8 + 0,8·ᾱ/30 = 0,8 + 0,8·'+fmt(ab,2)+'/30 = <b>'+fmt(m2,3)+'</b>':'ᾱ &gt; 30° → <b>μ<sub>2</sub> = 1,6</b>'+(ab>60?' (kansallinen liite: yli 60° kaltevuuksilla μ = 1,6)':''));
+    const sA=smin(Math.min(m1,m2a)*base), sV=smin(m2*base);
+    st+=row('Tapaus (i) tasainen','s = '+fmt(Math.min(m1,m2a),3)+'·'+fmt(base,3)+' = <b>'+fmt(sA,3)+' kN/m²</b>');
+    st+=row('Tapaus (ii) laakson kinostuma','laaksossa s = '+fmt(m2,3)+'·'+fmt(base,3)+' = <b>'+fmt(sV,3)+' kN/m²</b> (harjalla 0)');
+    cases.push({t:'Sahakatto – tapaus (i)',svg:svgMulti(sA,sA,false),txt:'s = '+fmt(sA,2)+' kN/m²'});
+    cases.push({t:'Sahakatto – tapaus (ii) laakson kinostuma',svg:svgMulti(sV,0,true),txt:'laakso '+fmt(sV,2)+' kN/m², harja 0'});
+    kp.push(['s laakso',sV]);
+  }
+  // kinostuma korkeampaa rakennusosaa vasten
+  if($('#s-dr-on').checked){
+    const h=num('#s-h'), b1=num('#s-b1'), b2=num('#s-b2'), au=num('#s-au'), Al=num('#s-Alow'); let mus=au<=15?0:num('#s-mus');
+    st+='<h4>Kinostuma korkeampaa rakennusosaa vasten (5.3.6)</h4>';
+    const muw0=h>0?(b1+b2)/(2*h):0, lim=h>0?gam*h/sk:0;
+    let up; if(Al>=6) up=2.5; else if(Al>=2) up=lerp(Al,2,6,1.5,2.5); else if(Al>1) up=lerp(Al,1,2,0.8,1.5); else up=0.8;
+    let muw=Math.min(muw0,lim); muw=Math.max(0.8,Math.min(up,muw));
+    let ls=2*h; const lsr=ls; ls=Math.max(5,Math.min(15,ls));
+    const mu2=mus+muw;
+    st+=row('μ<sub>w</sub> = (b<sub>1</sub>+b<sub>2</sub>)/(2h)','('+fmt(b1,2)+' + '+fmt(b2,2)+')/(2·'+fmt(h,2)+') = '+fmt(muw0,3));
+    st+=row('Yläraja γh/s<sub>k</sub>',fmt(gam,1)+'·'+fmt(h,2)+'/'+fmt(sk,2)+' = '+fmt(lim,3));
+    st+=row('Kansallinen raja (YM 6/16 §6)','alemman katon ala '+fmt(Al,1)+' m² → '+(Al<=1?'μ<sub>w</sub> = 0,8':'0,8 ≤ μ<sub>w</sub> ≤ '+fmt(up,2)));
+    st+=row('μ<sub>w</sub>','<b>'+fmt(muw,3)+'</b>');
+    st+=row('μ<sub>s</sub>',au<=15?'ylemmän katon kaltevuus '+fmt(au,1)+'° ≤ 15° → μ<sub>s</sub> = 0':'annettu μ<sub>s</sub> = '+fmt(mus,3)+' (50 % ylemmän katon viereisen lappeen suurimmasta lumikuormasta, 5.3.6(1))');
+    st+=row('μ<sub>2</sub> = μ<sub>s</sub> + μ<sub>w</sub>',fmt(mus,3)+' + '+fmt(muw,3)+' = <b>'+fmt(mu2,3)+'</b>');
+    st+=row('Kinostuman pituus l<sub>s</sub> = 2h','2·'+fmt(h,2)+' = '+fmt(lsr,2)+' m'+(lsr!==ls?' → rajoitus 5 m ≤ l<sub>s</sub> ≤ 15 m → ':' → ')+'<b>'+fmt(ls,2)+' m</b>');
+    const sMax=mu2*base, s1=0.8*base; let sEnd=s1, txtEnd='';
+    if(b2<ls){ sEnd=lerp(b2,0,ls,sMax,s1); txtEnd='b<sub>2</sub> &lt; l<sub>s</sub> → alemman katon päässä s = '+fmt(sEnd,3)+' kN/m² (lineaarinen)'; }
+    st+=row('Tapaus (i)','μ<sub>1</sub> = 0,8 → s = 0,8·'+fmt(base,3)+' = <b>'+fmt(s1,3)+' kN/m²</b>');
+    st+=row('Tapaus (ii)','seinän vieressä s = '+fmt(mu2,3)+'·'+fmt(base,3)+' = <b>'+fmt(sMax,3)+' kN/m²</b>, pienenee arvoon '+fmt(s1,3)+' matkalla l<sub>s</sub>'+(txtEnd?'; '+txtEnd:''));
+    cases.push({t:'Kinostuma korkeampaa rakennusosaa vasten – tapaus (ii)',svg:svgDrift(h,b2,ls,sMax,s1,'step'),txt:'s = '+fmt(sMax,2)+' → '+fmt(s1,2)+' kN/m², l<sub>s</sub> = '+fmt(ls,2)+' m'});
+    kp.push(['s kinostuma',sMax]);
+  }
+  if($('#s-ob-on').checked){
+    const h=num('#s-hob'); st+='<h4>Kinostuma esteen tai kaiteen kohdalla (6.2)</h4>';
+    const m2r=gam*h/sk, m2=Math.max(0.8,Math.min(2.0,m2r)); let ls=2*h; const lsr=ls; ls=Math.max(2,Math.min(6,ls));
+    st+=row('μ<sub>2</sub> = γh/s<sub>k</sub>',fmt(gam,1)+'·'+fmt(h,2)+'/'+fmt(sk,2)+' = '+fmt(m2r,3)+' → 0,8 ≤ μ<sub>2</sub> ≤ 2,0 → <b>'+fmt(m2,3)+'</b>');
+    st+=row('l<sub>s</sub> = 2h','2·'+fmt(h,2)+' = '+fmt(lsr,2)+' m → kansallinen liite 2 m ≤ l<sub>s</sub> ≤ 6 m → <b>'+fmt(ls,2)+' m</b>');
+    const sMax=m2*base, s1=0.8*base;
+    st+=row('Lumikuorma','esteen vieressä s = '+fmt(m2,3)+'·'+fmt(base,3)+' = <b>'+fmt(sMax,3)+' kN/m²</b>, muualla μ<sub>1</sub> = 0,8 → '+fmt(s1,3)+' kN/m²');
+    cases.push({t:'Kinostuma esteen kohdalla',svg:svgDrift(h,Math.max(ls*1.8,4),ls,sMax,s1,'obst'),txt:'s = '+fmt(sMax,2)+' → '+fmt(s1,2)+' kN/m², l<sub>s</sub> = '+fmt(ls,2)+' m'});
+    kp.push(['s este',sMax]);
+  }
+  if(Ct<1) st+=row('Vähimmäisarvo','C<sub>t</sub> &lt; 1 → lumikuorma s ≥ 0,5 kN/m² (YM 6/16)');
+  st+=row('Liitteet','Poikkeukselliset lumikuormat (tapaukset B1–B3) sekä liitteet B ja C eivät ole Suomessa käytössä. Räystäältä riippuvaa lunta ei yleensä tarvitse ottaa huomioon.');
+  $('#s-steps').innerHTML=st;
+  $('#s-kpis').innerHTML=`<div class="kpi"><div class="k">s<sub>k</sub></div><div class="v">${fmt(sk,2)} <span class="small">kN/m²</span></div></div><div class="kpi"><div class="k">C<sub>e</sub> · C<sub>t</sub></div><div class="v">${fmt(Ce,3)} · ${fmt(Ct,2)}</div></div>`+
+    kp.map((k,i)=>`<div class="kpi ${i===0?'hl':''}"><div class="k">${k[0]}</div><div class="v">${fmt(k[1],2)} <span class="small">kN/m²</span></div></div>`).join('');
+  $('#s-cases').innerHTML=cases.map(c=>`<div class="case"><h3>${c.t}</h3>${c.svg}<div class="small">${c.txt}</div></div>`).join('');
+}
+// --- lumikaaviot ---
+function svgRoof(kind,a1,a2,s,sk){
+  const W=560,H=200,x0=60,x1=500,yb=170; const span=x1-x0; const smax=Math.max(...s,0.01);
+  const hgt=(kind==='mono')?Math.min(90,Math.tan(a1*Math.PI/180)*span*0.5):Math.min(80,Math.tan(Math.max(a1,a2)*Math.PI/180)*span*0.35);
+  let roof, blocks='';
+  const sc=v=>v/smax*48;
+  if(kind==='mono'){ roof=`M${x0},${yb} L${x0},${yb-20} L${x1},${yb-20-hgt} L${x1},${yb}`;
+    const top=yb-20-hgt-14; blocks+=`<rect x="${x0}" y="${top-sc(s[0])}" width="${span}" height="${sc(s[0])}" fill="var(--snow)" opacity=".8"/><text x="${(x0+x1)/2}" y="${top-sc(s[0])-6}" text-anchor="middle">${fmt(s[0],2)} kN/m²</text>`;
+  } else { const xm=(x0+x1)/2; const hl=Math.tan(a1*Math.PI/180)*span/2*0.35, hr=Math.tan(a2*Math.PI/180)*span/2*0.35; const ht=Math.min(80,Math.max(hl,hr));
+    roof=`M${x0},${yb} L${x0},${yb-20} L${xm},${yb-20-ht} L${x1},${yb-20} L${x1},${yb}`; const top=yb-20-ht-14;
+    [[x0,xm,s[0]],[xm,x1,s[1]]].forEach(([a,b,v])=>{ blocks+=`<rect x="${a}" y="${top-sc(v)}" width="${b-a}" height="${sc(v)}" fill="var(--snow)" opacity=".8" stroke="var(--snow-ink)" stroke-width=".8"/><text x="${(a+b)/2}" y="${top-sc(v)-6}" text-anchor="middle">${fmt(v,2)}</text>`; }); }
+  return `<svg class="diag" viewBox="0 0 ${W} ${H}" role="img" aria-label="Lumikuorman jakauma"><path d="${roof}" fill="none" stroke="var(--ink)" stroke-width="2"/>${blocks}<line x1="30" y1="${yb}" x2="530" y2="${yb}" stroke="var(--muted)" stroke-dasharray="4 3"/></svg>`;
+}
+function svgMulti(sV,sR,valley){
+  const W=560,H=190,yb=160; let p=`M40,${yb-20}`; const xs=[40,150,260,370,480]; for(let i=0;i<4;i++){ p+=` L${(xs[i]+xs[i+1])/2},${yb-70} L${xs[i+1]},${yb-20}`; }
+  let blocks=''; const sm=Math.max(sV,sR,0.01);
+  if(!valley){ blocks=`<rect x="40" y="${yb-70-16-sV/sm*40}" width="440" height="${sV/sm*40}" fill="var(--snow)" opacity=".8"/><text x="260" y="${yb-70-22-sV/sm*40}" text-anchor="middle">${fmt(sV,2)} kN/m²</text>`; }
+  else { for(let i=1;i<4;i++){ const x=xs[i]; blocks+=`<path d="M${x-55},${yb-80} L${x},${yb-80-sV/sm*50} L${x+55},${yb-80} Z" fill="var(--snow)" opacity=".85" stroke="var(--snow-ink)" stroke-width=".8"/>`; } blocks+=`<text x="${xs[2]}" y="${yb-80-sV/sm*50-6}" text-anchor="middle">${fmt(sV,2)} kN/m²</text>`; }
+  return `<svg class="diag" viewBox="0 0 ${W} ${H}" role="img" aria-label="Lumikuorma sahakatolla">${blocks}<path d="${p}" fill="none" stroke="var(--ink)" stroke-width="2"/><line x1="40" y1="${yb}" x2="480" y2="${yb}" stroke="var(--muted)" stroke-dasharray="4 3"/></svg>`;
+}
+function svgDrift(h,b2,ls,sMax,s1,kind){
+  const W=560,H=220,xw=110,x1=520,yr=170; const L=Math.max(b2,ls); const px=(x1-xw)/L; const sc=v=>v/Math.max(sMax,0.01)*80;
+  const xe=xw+Math.min(ls,b2)*px; const sEnd=b2<ls?lerp(b2,0,ls,sMax,s1):s1; const xb=xw+b2*px;
+  let wall = kind==='step'?`<path d="M40,${yr-90} L${xw},${yr-90} L${xw},${yr}" fill="none" stroke="var(--ink)" stroke-width="2"/><text x="${xw-8}" y="${yr-40}" text-anchor="end" class="m">h = ${fmt(h,2)} m</text>`
+     :`<rect x="${xw-6}" y="${yr-34}" width="6" height="34" fill="var(--ink)"/><text x="${xw-10}" y="${yr-12}" text-anchor="end" class="m">h = ${fmt(h,2)} m</text>`;
+  const top=yr-6;
+  const poly=`M${xw},${top} L${xw},${top-sc(sMax)} L${xe},${top-sc(b2<ls?sEnd:s1)} L${xb},${top-sc(b2<ls?sEnd:s1)} L${xb},${top} Z`;
+  return `<svg class="diag" viewBox="0 0 ${W} ${H}" role="img" aria-label="Kinostuma"><path d="${poly}" fill="var(--snow)" opacity=".85" stroke="var(--snow-ink)" stroke-width=".8"/>${wall}
+   <line x1="${xw}" y1="${yr}" x2="${xb}" y2="${yr}" stroke="var(--ink)" stroke-width="2"/>
+   <text x="${xw+4}" y="${top-sc(sMax)-6}">${fmt(sMax,2)} kN/m²</text><text x="${xb-4}" y="${top-sc(b2<ls?sEnd:s1)-6}" text-anchor="end">${fmt(b2<ls?sEnd:s1,2)}</text>
+   <line x1="${xw}" y1="${yr+18}" x2="${xe}" y2="${yr+18}" stroke="var(--muted)"/><text x="${(xw+xe)/2}" y="${yr+34}" text-anchor="middle" class="m">l<tspan baseline-shift="sub" font-size="9">s</tspan> = ${fmt(ls,2)} m</text></svg>`;
+}
+bindPersist(['s-sk','s-terr','s-L1','s-L2','s-Ct','s-gam','s-type','s-a1','s-a2','s-guard','s-dr-on','s-h','s-b1','s-b2','s-au','s-Alow','s-mus','s-ob-on','s-hob'],snowCalc);
+snowCalc();
+
+})();
+</script>
+</body>
+</html>

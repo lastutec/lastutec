@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tuulikuorma – Lastutec</title>
+<meta name="description" content="Tuulikuorma SFS-EN 1991-1-4:n ja ympäristöministeriön asetuksen 7/16 (kansalliset valinnat) mukaan: puuskanopeuspaine, seinien ja tasakaton painekertoimet, nettopaineet sekä kerrosvoimat jäykistyslaskelmaan.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<style>
+:root{
+  --bg:#000000; --panel:#141414; --panel2:#1c1c1c; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e; --line2:#262626;
+  --accent:#F74902; --accent-ink:#111111; --accent-soft:#3b1503; --input:#2a1206;
+  --ok:#5cc58a; --warn:#f5c86b; --bad:#ff6b5a;
+  --radius:6px; --mono:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+  --snow:#7fb2e6; --snow-ink:#bcd8f5; --press:#ff6b5a; --suct:#7fb2e6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+header.lt{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+header.lt .brand{display:flex;flex-direction:column;gap:2px}
+header.lt .back{font:600 13px Arial,Helvetica,sans-serif;color:var(--accent);text-decoration:none}
+header.lt .back:hover{text-decoration:underline}
+header.lt h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+header.lt .hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+header.lt .meta{font-size:12px;color:var(--muted)}
+.printbtn{font:600 13px Arial,Helvetica,sans-serif;color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.printbtn:hover{filter:brightness(1.1)}
+table,.num,.kpi .v{font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+.wrap{max-width:1300px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.crumb{font-size:13px;color:var(--muted)} .crumb a{color:var(--muted);text-decoration:none} .crumb a:hover{text-decoration:underline}
+h1{font-size:24px;line-height:1.2;margin:2px 0 4px}
+h2{font-size:17px;font-weight:800;margin:0 0 10px}
+h3{font-size:15px;margin:14px 0 6px}
+p.lead{margin:0 0 12px;color:var(--muted);max-width:85ch}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:8px 0 14px;flex-wrap:wrap}
+.tabs a{padding:8px 14px;text-decoration:none;color:var(--muted);border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;font-weight:600;font-size:14.5px}
+.tabs a.on{background:var(--panel);color:var(--ink);border-color:var(--line);margin-bottom:-1px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:950px){.grid{grid-template-columns:minmax(0,1fr)}}
+.field{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;margin:6px 0}
+.field>label{font-size:13.5px}
+.field .u{font-size:12px;color:var(--muted);margin-left:4px;display:inline-block;min-width:34px}
+input[type=number],input[type=text],select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);border-radius:4px;background:var(--input);color:var(--ink);min-width:0}
+select{background:var(--bg)!important}
+input[type=checkbox]{accent-color:var(--accent)}
+input[type=number]{width:92px}
+.field select{max-width:200px}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:6px;padding:6px 10px;font:inherit;font-size:13.5px;cursor:pointer;white-space:nowrap;line-height:1.2}
+.btn:hover{border-color:var(--accent)}.btn.primary{background:var(--accent);border-color:var(--accent);color:#111}.btn.ghost{background:transparent}.btn.danger{color:var(--bad)}
+.small{font-size:12.5px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 6px}
+.chips button{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:12px;padding:2px 9px;font-size:12.5px;cursor:pointer}
+.chips button:hover{border-color:var(--accent)}
+fieldset{border:1px solid var(--line);border-radius:6px;padding:6px 10px 8px;margin:10px 0}
+legend{font-size:12.5px;font-weight:600;color:var(--muted);padding:0 4px}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line2);padding:5px 7px;text-align:right;white-space:nowrap;vertical-align:middle}
+th{font-weight:600;color:var(--muted);font-size:12px;background:var(--panel)}
+td.l,th.l{text-align:left}
+td.expr{text-align:left;white-space:normal;font-family:var(--mono);font-size:12.5px;min-width:280px}
+.num{font-family:var(--mono)}
+.neg{color:var(--bad)}
+tr.gov td{background:var(--accent-soft)}
+tr.gov td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.x-term{color:#666;text-decoration:line-through}
+table.inp input[type=number]{width:80px;padding:3px 5px;text-align:right}
+table.inp input[type=text]{width:150px;padding:3px 5px}
+table.inp select{max-width:230px;padding:3px 5px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+.kpi{border:1px solid var(--line);border-radius:6px;padding:7px 9px;background:var(--panel2)}
+.kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)} .kpi .v{font:600 17px/1.3 var(--mono)}
+.kpi.hl{border-color:var(--accent);background:var(--accent-soft)}
+.calc{font-size:13.5px}
+.calc .row{display:grid;grid-template-columns:minmax(160px,250px) 1fr;gap:4px 14px;padding:3px 0;border-bottom:1px dashed var(--line2)}
+.calc .row .d{color:var(--muted)} .calc .row .f{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+.calc h4{margin:14px 0 2px;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.note{border-left:3px solid var(--warn);background:#2a1f08;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.info{border-left:3px solid var(--accent);background:#1f0d03;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.flex{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.right{margin-left:auto}
+.diag{width:100%;max-width:640px;height:auto;display:block;margin:6px 0}
+.diag text{font:12px system-ui,sans-serif;fill:var(--ink)}
+.diag .m{fill:var(--muted)}
+
+details.step{border:1px solid var(--line);border-radius:6px;margin:8px 0}
+details.step>summary{cursor:pointer;padding:7px 10px;font-weight:600}
+details.step>.calc{padding:0 12px 10px}
+.case{border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:10px 0}
+.case h3{margin:2px 0 6px}
+@media print{ :root{--bg:#fff;--panel:#fff;--panel2:#fff;--ink:#000;--muted:#444;--line:#bbb;--line2:#ddd;--accent:#c63a00;--accent-soft:#fde2d5;--input:#fff;--ok:#1d6b3a;--warn:#8a5a00;--bad:#b3261e;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back{display:none!important} .no-print{display:none!important} .card{border:0;padding:0} .grid{grid-template-columns:1fr} details.step{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="lt">
+    <div class="brand"><a href="../" class="back">← Kuormalaskenta</a><h1>Tuulikuorma</h1></div>
+    <div class="hdr-r"><span class="meta">Työkalu 3 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+  </header>
+  <p class="lead">Tuulikuorma SFS-EN 1991-1-4:n ja ympäristöministeriön asetuksen 7/16 (kansalliset valinnat) mukaan: puuskanopeuspaine, seinien ja tasakaton painekertoimet, nettopaineet sekä kerrosvoimat jäykistyslaskelmaan. Laskelmat näytetään välivaiheineen.</p>
+  <!-- ===================== TUULIKUORMA ===================== -->
+  <section id="p-tuuli">
+    <div class="grid">
+      <div class="card">
+        <h2>Lähtötiedot</h2>
+        <fieldset><legend>Tuuli ja maasto</legend>
+          <div class="field"><label>Perusarvo v<sub>b,0</sub></label><span><input type="number" id="w-vb0" step="0.5" value="21"><span class="u">m/s</span></span></div>
+          <div class="field"><label>Maastoluokka</label><select id="w-cat"><option value="0">0 – meri, rannikko</option><option value="I">I – järvet, tasainen esteetön</option><option value="II" selected>II – matala kasvillisuus, yksittäiset esteet</option><option value="III">III – kylät, esikaupungit, metsä</option><option value="IV">IV – kaupunkialue (≥15 % rakennettu, h &gt; 15 m)</option></select></div>
+          <div class="field"><label>Suuntakerroin c<sub>dir</sub></label><span><input type="number" id="w-cdir" step="0.05" value="1"><span class="u"></span></span></div>
+          <div class="field"><label>Vuodenaikakerroin c<sub>season</sub></label><span><input type="number" id="w-cseason" step="0.05" value="1"><span class="u"></span></span></div>
+          <div class="field"><label>Pinnanmuotokerroin c<sub>o</sub></label><span><input type="number" id="w-co" step="0.05" value="1"><span class="u"></span></span></div>
+          <div class="field"><label>Ilman tiheys ρ</label><span><input type="number" id="w-rho" step="0.01" value="1.25"><span class="u">kg/m³</span></span></div>
+        </fieldset>
+        <fieldset><legend>Rakennus</legend>
+          <div class="field"><label>Pituus x-suunnassa L<sub>x</sub></label><span><input type="number" id="w-Lx" step="any" value="40"><span class="u">m</span></span></div>
+          <div class="field"><label>Leveys y-suunnassa L<sub>y</sub></label><span><input type="number" id="w-Ly" step="any" value="15"><span class="u">m</span></span></div>
+          <div class="field"><label>Korkeus h</label><span><input type="number" id="w-h" step="any" value="12"><span class="u">m</span></span></div>
+          <div class="field"><label>Kerroskorkeudet (alhaalta)</label><input type="text" id="w-stories" value="3; 3; 3; 3" style="width:120px"></div>
+          <div class="small">Kerrosvoimat lasketaan välipohjatasoille. Jos kerroskorkeuksien summa poikkeaa h:sta, ylin taso saa kuormaa korkeuteen h asti.</div>
+          <div class="field"><label>Rakennekerroin c<sub>s</sub>c<sub>d</sub></label><span><input type="number" id="w-cscd" step="0.05" value="1"><span class="u"></span></span></div>
+          <div class="field"><label>Kaiteen korkeus h<sub>p</sub> (tasakatto)</label><span><input type="number" id="w-hp" step="any" value="0"><span class="u">m</span></span></div>
+          <div class="field"><label>Kuormitettu ala (verhous)</label><span><input type="number" id="w-A" step="any" value="10"><span class="u">m²</span></span></div>
+          <div class="field"><label>Sisäpainekerroin c<sub>pi</sub></label><span><input type="text" id="w-cpi" value="+0,2 / −0,3" style="width:92px"><span class="u"></span></span></div>
+        </fieldset>
+      </div>
+      <div>
+        <div class="card">
+          <h2>Nopeuspaine</h2>
+          <div class="kpis" id="w-kpis"></div>
+          <details class="step" open><summary>Puuskanopeuspaine q<sub>p</sub>(h) välivaiheineen</summary><div class="calc" id="w-qpsteps"></div></details>
+          <details class="step"><summary>q<sub>p</sub>(z) korkeuden funktiona</summary><div class="tbl-wrap" style="padding:0 12px 10px"><table id="w-qptbl"></table></div></details>
+        </div>
+        <div id="w-dirs"></div>
+      </div>
+    </div>
+    <div class="card small">
+      <b>Kansalliset valinnat (YM 7/16):</b> v<sub>b,0</sub> = 21 m/s koko maassa, myös meri- ja tunturialueilla; maastoluokassa 0 ja merialueilla k<sub>r</sub> = 0,18; ρ = 1,25 kg/m³; seinillä, joilla h/d &gt; 5, käytetään arvon h/d = 5 kertoimia, ja suojan- ja sivuseinien nopeuspaine lasketaan samalla korkeudella z<sub>e</sub> kuin tuulenpuoleisella seinällä. Laskuri kattaa suorakaiteen muotoiset rakennukset (seinät, tasakatto ja kokonaistuulikuorma). Harja-, pulpetti- ja kaarikattojen kertoimet tarkistetaan standardin taulukoista.
+    </div>
+  </section>
+
+  <p class="small">Työkalu on suunnittelun apuväline – katso etusivun vastuuvapautuslauseke. Viittaukset: SFS-EN 1991-1-4 ja YM 7/16.</p>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+function fmt(v,d){ if(v===null||v===undefined||!isFinite(v)) return '–'; if(Math.abs(v)<0.5*Math.pow(10,-d)) v=0;
+  let s=v.toFixed(d); let [i,f]=s.split('.'); const neg=i.startsWith('-'); if(neg)i=i.slice(1);
+  i=i.replace(/\B(?=(\d{3})+(?!\d))/g,' '); return (neg?'−':'')+i+(f?','+f:''); }
+const f2=v=>fmt(v,2), f3=v=>fmt(v,3);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=id=>{const v=parseFloat(String($(id).value).replace(',','.')); return isFinite(v)?v:0;};
+const row=(d,f)=>`<div class="row"><div class="d">${d}</div><div class="f">${f}</div></div>`;
+const lerp=(x,x0,x1,y0,y1)=>x1===x0?y0:y0+(y1-y0)*(x-x0)/(x1-x0);
+const LS='lastutec-kuormalaskenta-v1';
+let store={}; try{store=JSON.parse(localStorage.getItem(LS)||'{}')||{};}catch(e){}
+function persist(){ try{localStorage.setItem(LS,JSON.stringify(store));}catch(e){} }
+function bindPersist(ids,fn){ ids.forEach(id=>{ const el=$('#'+id); if(!el) return; if(store[id]!==undefined){ if(el.type==='checkbox') el.checked=store[id]; else el.value=store[id]; }
+  el.addEventListener(el.type==='checkbox'||el.tagName==='SELECT'?'change':'input',()=>{ store[id]=el.type==='checkbox'?el.checked:el.value; persist(); fn(); }); }); }
+
+/* =====================================================================
+   TUULIKUORMA
+   ===================================================================== */
+const TC={'0':{z0:0.003,zmin:1},'I':{z0:0.01,zmin:1},'II':{z0:0.05,zmin:2},'III':{z0:0.3,zmin:5},'IV':{z0:1.0,zmin:10}};
+function windBase(){ const cat=$('#w-cat').value, t=TC[cat]; const vb0=num('#w-vb0'), cdir=num('#w-cdir'), cs=num('#w-cseason'), co=num('#w-co')||1, rho=num('#w-rho')||1.25;
+  const vb=cdir*cs*vb0; const kr=cat==='0'?0.18:0.19*Math.pow(t.z0/0.05,0.07);
+  const qp=z=>{ const zz=Math.max(z,t.zmin); const lnz=Math.log(zz/t.z0); const cr=kr*lnz, vm=cr*co*vb, Iv=1/(co*lnz); return {z,zz,lnz,cr,vm,Iv,q:(1+7*Iv)*0.5*rho*vm*vm/1000}; };
+  return {cat,t,vb0,cdir,cs,co,rho,vb,kr,qp}; }
+// seinien cpe (taulukko 7.1)
+const WALL={0.25:{A:[-1.2,-1.4],B:[-0.8,-1.1],C:[-0.5,-0.5],D:[0.7,1.0],E:[-0.3,-0.5]},1:{A:[-1.2,-1.4],B:[-0.8,-1.1],C:[-0.5,-0.5],D:[0.8,1.0],E:[-0.5,-0.5]},5:{A:[-1.2,-1.4],B:[-0.8,-1.1],C:[-0.5,-0.5],D:[0.8,1.0],E:[-0.7,-0.7]}};
+function cpeWall(hd){ const r=Math.min(5,Math.max(0.25,hd)); const [a,b]=r<=1?[0.25,1]:[1,5]; const o={};
+  ['A','B','C','D','E'].forEach(z=>{ o[z]=[0,1].map(j=>lerp(r,a,b,WALL[a][z][j],WALL[b][z][j])); }); return o; }
+const ROOF={0:{F:[-1.8,-2.5],G:[-1.2,-2.0],H:[-0.7,-1.2]},0.025:{F:[-1.6,-2.2],G:[-1.1,-1.8],H:[-0.7,-1.2]},0.05:{F:[-1.4,-2.0],G:[-0.9,-1.6],H:[-0.7,-1.2]},0.1:{F:[-1.2,-1.8],G:[-0.8,-1.4],H:[-0.7,-1.2]}};
+function cpeRoof(r){ r=Math.min(0.1,Math.max(0,r)); const ks=[0,0.025,0.05,0.1]; let i=0; while(i<2&&r>ks[i+1]) i++; const a=ks[i],b=ks[i+1]; const o={};
+  ['F','G','H'].forEach(z=>{ o[z]=[0,1].map(j=>lerp(r,a,b,ROOF[a][z][j],ROOF[b][z][j])); }); o.I=[0.2,-0.2]; return o; }
+const cpeA=(c10,c1,A)=>A<=1?c1:A>=10?c10:c1-(c1-c10)*Math.log10(A);
+function parseCpi(){ const s=$('#w-cpi').value.replace(/−/g,'-').replace(/,/g,'.'); const m=s.match(/[+-]?\d*\.?\d+/g)||['0.2','-0.3']; const v=m.map(Number).filter(isFinite); return v.length?v:[0.2,-0.3]; }
+function zeAt(z,b,h){ if(h<=b) return h; if(h<=2*b) return z<=b?b:h; if(z<=b) return b; if(z>=h-b) return h; return z; }
+function windCalc(){
+  const W=windBase(); const Lx=num('#w-Lx'), Ly=num('#w-Ly'); let h=num('#w-h'); const cscd=num('#w-cscd')||1, hp=num('#w-hp'), Aload=num('#w-A')||10; const cpi=parseCpi();
+  const stories=$('#w-stories').value.split(/[;\s]+/).map(s=>parseFloat(s.replace(',','.'))).filter(v=>v>0);
+  const Q=W.qp(h);
+  $('#w-kpis').innerHTML=[['v<sub>b</sub>',fmt(W.vb,2)+' m/s'],['k<sub>r</sub>',fmt(W.kr,4)],['v<sub>m</sub>(h)',fmt(Q.vm,2)+' m/s'],['I<sub>v</sub>(h)',fmt(Q.Iv,4)],['q<sub>p</sub>(h)',fmt(Q.q,3)+' kN/m²']]
+   .map((k,i)=>`<div class="kpi ${i===4?'hl':''}"><div class="k">${k[0]}</div><div class="v">${k[1]}</div></div>`).join('');
+  let st='';
+  st+=row('Tuulen nopeuden perusarvo','v<sub>b</sub> = c<sub>dir</sub>·c<sub>season</sub>·v<sub>b,0</sub> = '+fmt(W.cdir,2)+'·'+fmt(W.cs,2)+'·'+fmt(W.vb0,1)+' = <b>'+fmt(W.vb,2)+' m/s</b>');
+  st+=row('Maastoluokka '+W.cat,'z<sub>0</sub> = '+fmt(W.t.z0,3)+' m, z<sub>min</sub> = '+fmt(W.t.zmin,0)+' m');
+  st+=row('Maastokerroin k<sub>r</sub>',W.cat==='0'?'maastoluokka 0 → kansallinen liite: <b>k<sub>r</sub> = 0,18</b>':'0,19·(z<sub>0</sub>/z<sub>0,II</sub>)<sup>0,07</sup> = 0,19·('+fmt(W.t.z0,3)+'/0,05)<sup>0,07</sup> = <b>'+fmt(W.kr,4)+'</b>');
+  st+=row('Korkeus z','z = h = '+fmt(h,2)+' m'+(h<W.t.zmin?' &lt; z<sub>min</sub> → z = '+fmt(W.t.zmin,1)+' m':''));
+  st+=row('Rosoisuuskerroin','c<sub>r</sub>(z) = k<sub>r</sub>·ln(z/z<sub>0</sub>) = '+fmt(W.kr,4)+'·ln('+fmt(Q.zz,2)+'/'+fmt(W.t.z0,3)+') = '+fmt(W.kr,4)+'·'+fmt(Q.lnz,4)+' = <b>'+fmt(Q.cr,4)+'</b>');
+  st+=row('Keskituulen nopeus','v<sub>m</sub>(z) = c<sub>r</sub>·c<sub>o</sub>·v<sub>b</sub> = '+fmt(Q.cr,4)+'·'+fmt(W.co,2)+'·'+fmt(W.vb,2)+' = <b>'+fmt(Q.vm,3)+' m/s</b>');
+  st+=row('Turbulenssin voimakkuus','I<sub>v</sub>(z) = k<sub>I</sub>/(c<sub>o</sub>·ln(z/z<sub>0</sub>)) = 1,0/('+fmt(W.co,2)+'·'+fmt(Q.lnz,4)+') = <b>'+fmt(Q.Iv,4)+'</b>');
+  st+=row('Puuskanopeuspaine','q<sub>p</sub>(z) = (1 + 7·I<sub>v</sub>)·½·ρ·v<sub>m</sub>² = (1 + 7·'+fmt(Q.Iv,4)+')·0,5·'+fmt(W.rho,2)+'·'+fmt(Q.vm,3)+'² = '+fmt(Q.q*1000,1)+' N/m² = <b>'+fmt(Q.q,3)+' kN/m²</b>');
+  st+=row('Altistuskerroin','c<sub>e</sub>(z) = q<sub>p</sub>/q<sub>b</sub> = '+fmt(Q.q*1000,1)+'/'+fmt(0.5*W.rho*W.vb*W.vb,1)+' = '+fmt(Q.q*1000/(0.5*W.rho*W.vb*W.vb),3));
+  $('#w-qpsteps').innerHTML=st;
+  // qp-taulukko
+  const zs=[1,2,3,4,5,6,8,10,12,15,20,25,30,40,50,60,80,100].filter(z=>z<=Math.max(h,10)*1.5); if(!zs.includes(h)) zs.push(h); zs.sort((a,b)=>a-b);
+  $('#w-qptbl').innerHTML='<thead><tr><th class="l">z [m]</th><th>c<sub>r</sub></th><th>v<sub>m</sub> [m/s]</th><th>I<sub>v</sub></th><th>q<sub>p</sub> [kN/m²]</th></tr></thead><tbody>'+zs.map(z=>{const q=W.qp(z); return `<tr${z===h?' style="font-weight:600"':''}><td class="l">${fmt(z,1)}</td><td class="num">${fmt(q.cr,3)}</td><td class="num">${fmt(q.vm,2)}</td><td class="num">${fmt(q.Iv,3)}</td><td class="num">${fmt(q.q,3)}</td></tr>`;}).join('')+'</tbody>';
+  // suunnat
+  const dirs=[{k:'X',b:Ly,d:Lx,F:'F<sub>x</sub>'},{k:'Y',b:Lx,d:Ly,F:'F<sub>y</sub>'}];
+  let out=''; const floorF={X:[],Y:[]};
+  dirs.forEach(D=>{
+    const b=D.b, d=D.d, hd=d>0?h/d:0, e=Math.min(b,2*h); const cw=cpeWall(hd);
+    // seinävyöhykkeet
+    let zones; if(e<d) zones=[['A',e/5],['B',4*e/5],['C',d-e]]; else if(e<5*d) zones=[['A',e/5],['B',d-e/5]]; else zones=[['A',d]];
+    const fcor=hd>=5?1:hd<=1?0.85:lerp(hd,1,5,0.85,1);
+    // ze-profiili
+    let zeTxt; if(h<=b) zeTxt='h = '+fmt(h,2)+' ≤ b = '+fmt(b,2)+' → z<sub>e</sub> = h koko korkeudella'; else if(h<=2*b) zeTxt='b &lt; h ≤ 2b → alaosa (0…b): z<sub>e</sub> = b, yläosa: z<sub>e</sub> = h'; else zeTxt='h &gt; 2b → alaosa z<sub>e</sub> = b, yläosa z<sub>e</sub> = h, välissä z<sub>e</sub> = z (kaistat)';
+    const qh=W.qp(h).q;
+    let s='<div class="card"><h2>Tuulen suunta '+D.k+' – kuorma '+D.F+'</h2>';
+    s+=svgPlan(D.k,Lx,Ly,e,zones,d,b);
+    s+='<div class="calc">';
+    s+=row('Mitat','b (kohtisuoraan tuulta) = '+fmt(b,2)+' m, d (tuulen suunnassa) = '+fmt(d,2)+' m, h = '+fmt(h,2)+' m');
+    s+=row('h/d',fmt(h,2)+'/'+fmt(d,2)+' = <b>'+fmt(hd,3)+'</b>'+(hd>5?' → kansallinen liite: käytetään h/d = 5':''));
+    s+=row('e = min(b; 2h)','min('+fmt(b,2)+'; '+fmt(2*h,2)+') = <b>'+fmt(e,2)+' m</b>');
+    s+=row('Sivuseinien vyöhykkeet',zones.map(z=>z[0]+' = '+fmt(z[1],2)+' m').join(', '));
+    s+=row('Nopeuspaineen jakauma',zeTxt);
+    s+='</div>';
+    s+='<h3>Seinien painekertoimet ja paineet (q<sub>p</sub>(z<sub>e</sub> = h) = '+fmt(qh,3)+' kN/m²)</h3><div class="tbl-wrap"><table><thead><tr><th class="l">Vyöhyke</th><th>c<sub>pe,10</sub></th><th>c<sub>pe,1</sub></th><th>c<sub>pe</sub>(A = '+fmt(Aload,1)+' m²)</th><th>w<sub>e</sub> = q<sub>p</sub>·c<sub>pe,10</sub></th>'+cpi.map(c=>'<th>w<sub>net</sub> (c<sub>pi</sub> = '+fmt(c,1)+')</th>').join('')+'<th>w<sub>net</sub>(A) max</th></tr></thead><tbody>';
+    ['A','B','C','D','E'].forEach(z=>{ if('ABC'.includes(z)&&!zones.find(x=>x[0]===z)) return; const [c10,c1]=cw[z]; const cA=cpeA(c10,c1,Aload);
+      const nets=cpi.map(ci=>qh*(c10-ci)); const netsA=cpi.map(ci=>qh*(cA-ci)); const worst=netsA.reduce((a,v)=>Math.abs(v)>Math.abs(a)?v:a,0);
+      s+=`<tr><td class="l">${z}${z==='D'?' (tuulenpuoli)':z==='E'?' (suojanpuoli)':''}</td><td class="num">${fmt(c10,2)}</td><td class="num">${fmt(c1,2)}</td><td class="num">${fmt(cA,2)}</td><td class="num ${c10<0?'neg':''}">${fmt(qh*c10,3)}</td>${nets.map(v=>`<td class="num ${v<0?'neg':''}">${fmt(v,3)}</td>`).join('')}<td class="num ${worst<0?'neg':''}"><b>${fmt(worst,3)}</b></td></tr>`; });
+    s+='</tbody></table></div><div class="small">Paineet kN/m², + = paine pintaa kohti, − = imu. c<sub>pe</sub>(A) = c<sub>pe,1</sub> − (c<sub>pe,1</sub> − c<sub>pe,10</sub>)·log<sub>10</sub>A, kun 1 m² &lt; A &lt; 10 m².</div>';
+    // tasakatto
+    const cr=cpeRoof(h>0?hp/h:0); const zh=h+hp; const qr=W.qp(zh).q;
+    s+='<h3>Tasakatto (h<sub>p</sub>/h = '+fmt(h>0?hp/h:0,3)+', z<sub>e</sub> = h + h<sub>p</sub> = '+fmt(zh,2)+' m, q<sub>p</sub> = '+fmt(qr,3)+' kN/m²)</h3>';
+    s+='<div class="tbl-wrap"><table><thead><tr><th class="l">Vyöhyke</th><th class="l">Mitat</th><th>c<sub>pe,10</sub></th><th>c<sub>pe,1</sub></th><th>w<sub>e</sub> = q<sub>p</sub>·c<sub>pe,10</sub></th><th>w<sub>net</sub> max imu</th></tr></thead><tbody>';
+    const rz={F:'e/4 × e/10 = '+fmt(e/4,2)+' × '+fmt(e/10,2)+' m (nurkat)',G:'(b − e/2) × e/10 = '+fmt(Math.max(0,b-e/2),2)+' × '+fmt(e/10,2)+' m',H:'b × (e/2 − e/10) = '+fmt(b,2)+' × '+fmt(Math.min(d,e/2)-e/10,2)+' m',I:'b × (d − e/2) = '+fmt(b,2)+' × '+fmt(Math.max(0,d-e/2),2)+' m'};
+    ['F','G','H','I'].forEach(z=>{ const [c10,c1]=cr[z]; const worst=Math.min(...cpi.map(ci=>qr*(Math.min(c10,c1===undefined?c10:c10)-ci)));
+      if(z==='I'){ s+=`<tr><td class="l">I</td><td class="l small">${rz.I}</td><td class="num">+0,2 / −0,2</td><td class="num">+0,2 / −0,2</td><td class="num">${fmt(qr*0.2,3)} / ${fmt(-qr*0.2,3)}</td><td class="num neg">${fmt(qr*(-0.2-Math.max(...cpi)),3)}</td></tr>`; return; }
+      s+=`<tr><td class="l">${z}</td><td class="l small">${rz[z]}</td><td class="num">${fmt(c10,2)}</td><td class="num">${fmt(c1,2)}</td><td class="num neg">${fmt(qr*c10,3)}</td><td class="num neg"><b>${fmt(qr*(c10-Math.max(...cpi)),3)}</b></td></tr>`; });
+    s+='</tbody></table></div>';
+    // kokonaisvoima ja kerrosvoimat
+    const cD=cw.D[0], cE=cw.E[0];
+    const levels=[]; let acc=0; stories.forEach(hh=>{acc+=hh; levels.push(acc);}); if(!levels.length) levels.push(h);
+    const top=Math.max(h,levels[levels.length-1]);
+    const integ=(z1,z2)=>{ let sum=0; const n=Math.max(4,Math.ceil((z2-z1)/0.05)); const dz=(z2-z1)/n; for(let i=0;i<n;i++){ const z=z1+(i+0.5)*dz; sum+=W.qp(zeAt(z,b,h)).q*dz; } return sum; };
+    const fl=levels.map((z,i)=>{ const zlo=i===0?z/2:(levels[i-1]+z)/2; const zhi=i===levels.length-1?top:(z+levels[i+1])/2; const qint=integ(zlo,zhi);
+      const F=cscd*fcor*(cD-cE)*b*qint; return {i:i+1,z,zlo,zhi,qavg:qint/(zhi-zlo),F}; });
+    const Ftot=fl.reduce((a,o)=>a+o.F,0), zR=Ftot?fl.reduce((a,o)=>a+o.F*o.z,0)/Ftot:0;
+    floorF[D.k]=fl;
+    s+='<h3>Kokonaistuulikuorma ja kerrosvoimat ('+D.F+')</h3><div class="calc">';
+    s+=row('Nettokerroin','c<sub>pe,10,D</sub> − c<sub>pe,10,E</sub> = '+fmt(cD,2)+' − ('+fmt(cE,2)+') = <b>'+fmt(cD-cE,3)+'</b>');
+    s+=row('Korrelaatiokerroin f (7.2.2(3))',(hd>=5?'h/d ≥ 5 → 1,0':hd<=1?'h/d ≤ 1 → 0,85':'interpoloitu h/d = '+fmt(hd,2)+' → '+fmt(fcor,3))+' → <b>'+fmt(fcor,3)+'</b>');
+    s+=row('Kerrosvoima','F<sub>w,i</sub> = c<sub>s</sub>c<sub>d</sub>·f·(c<sub>pe,D</sub> − c<sub>pe,E</sub>)·b·∫q<sub>p</sub>(z<sub>e</sub>)dz kerroksen kuormitusalueelta');
+    s+='</div><div class="tbl-wrap"><table><thead><tr><th class="l">Taso</th><th>z [m]</th><th>kuormitusalue [m]</th><th>q<sub>p,keskim.</sub> [kN/m²]</th><th>laskelma</th><th>'+D.F+' [kN]</th><th class="no-print"></th></tr></thead><tbody>';
+    fl.forEach(o=>{ s+=`<tr><td class="l">${o.i}</td><td class="num">${fmt(o.z,2)}</td><td class="num">${fmt(o.zlo,2)} … ${fmt(o.zhi,2)}</td><td class="num">${fmt(o.qavg,3)}</td><td class="num small">${fmt(cscd,2)}·${fmt(fcor,3)}·${fmt(cD-cE,2)}·${fmt(b,2)}·${fmt(o.qavg,3)}·${fmt(o.zhi-o.zlo,2)}</td><td class="num"><b>${fmt(o.F,1)}</b></td><td class="no-print" data-lvl="${o.i}"></td></tr>`; });
+    s+=`</tbody><tfoot><tr><th class="l">Σ</th><th></th><th></th><th></th><th></th><th class="num">${fmt(Ftot,1)}</th><th class="no-print"></th></tr></tfoot></table></div>`;
+    s+='<div class="small">Alimman kerroksen alaosan (0 … '+fmt(levels[0]/2,2)+' m) tuulikuorma siirtyy suoraan perustuksille. Resultantin korkeus z = '+fmt(zR,2)+' m maanpinnasta. Epäsymmetrinen kuorma: kokonaisvoima vaikuttaa epäkeskisyydellä e = b/10 = '+fmt(b/10,2)+' m (7.1.2), mikä otetaan huomioon jäykistyslaskelmassa kuorman sijaintina.</div>';
+    s+='</div>';
+    out+=s;
+  });
+  // linkki leikkausseinätyökaluun
+  out+='<div class="card"><h2>Kerrosvoimat jäykistyslaskelmaan</h2><div class="small">Siirrä tason vaakavoimat vaakakuormien jakautumistyökaluun. F<sub>x</sub> ja F<sub>y</sub> ovat erillisiä kuormitustapauksia, joten molemmat siirtyvät samalla kertaa. Tarkista työkalussa kuorman sijainti (x<sub>F</sub>, y<sub>F</sub>).</div><div class="tbl-wrap" style="margin-top:6px"><table><thead><tr><th class="l">Taso</th><th>z [m]</th><th>F<sub>x</sub> [kN]</th><th>F<sub>y</sub> [kN]</th><th class="l no-print"></th></tr></thead><tbody>'+
+    floorF.X.map((o,i)=>{ const fy=floorF.Y[i]?floorF.Y[i].F:0; return `<tr><td class="l">${o.i}</td><td class="num">${fmt(o.z,2)}</td><td class="num">${fmt(o.F,1)}</td><td class="num">${fmt(fy,1)}</td><td class="l no-print"><a href="../../statiikka/vaakakuormat/?Fx=${o.F.toFixed(2)}&Fy=${fy.toFixed(2)}&taso=${o.i}">Avaa jäykistystyökalussa →</a></td></tr>`; }).join('')+'</tbody></table></div></div>';
+  $('#w-dirs').innerHTML=out;
+}
+function svgPlan(k,Lx,Ly,e,zones,d,b){
+  const W=560,H=230; const sc=Math.min(360/Math.max(Lx,0.1),150/Math.max(Ly,0.1)); const w=Lx*sc, hh=Ly*sc; const x0=(W-w)/2+20, y0=(H-hh)/2+5;
+  let z='';
+  if(k==='X'){ // tuuli vasemmalta → sivuseinät ylä- ja alareunat
+    let x=x0; zones.forEach(([n,len])=>{ const L=len*sc; [y0-12,y0+hh+4].forEach(yy=>{ z+=`<rect x="${x}" y="${yy}" width="${L}" height="8" fill="${n==='A'?'#c62828':n==='B'?'#ef8a62':'#fbc5a8'}"/>`; }); z+=`<text x="${x+L/2}" y="${y0-16}" text-anchor="middle">${n}</text>`; x+=L; });
+    z+=`<rect x="${x0-12}" y="${y0}" width="8" height="${hh}" fill="#2e7d32"/><text x="${x0-18}" y="${y0+hh/2+4}" text-anchor="end">D</text><rect x="${x0+w+4}" y="${y0}" width="8" height="${hh}" fill="#1f5fa8"/><text x="${x0+w+16}" y="${y0+hh/2+4}">E</text>`;
+    z+=[0.3,0.5,0.7].map(f=>`<path d="M${x0-70},${y0+hh*f} L${x0-26},${y0+hh*f}" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#ah${k})"/>`).join('');
+  } else {
+    let y=y0+hh; zones.forEach(([n,len])=>{ const L=len*sc; [x0-12,x0+w+4].forEach(xx=>{ z+=`<rect x="${xx}" y="${y-L}" width="8" height="${L}" fill="${n==='A'?'#c62828':n==='B'?'#ef8a62':'#fbc5a8'}"/>`; }); z+=`<text x="${x0-18}" y="${y-L/2+4}" text-anchor="end">${n}</text>`; y-=L; });
+    z+=`<rect x="${x0}" y="${y0+hh+4}" width="${w}" height="8" fill="#2e7d32"/><text x="${x0+w/2}" y="${y0+hh+26}" text-anchor="middle">D</text><rect x="${x0}" y="${y0-12}" width="${w}" height="8" fill="#1f5fa8"/><text x="${x0+w/2}" y="${y0-16}" text-anchor="middle">E</text>`;
+    z+=[0.3,0.5,0.7].map(f=>`<path d="M${x0+w*f},${y0+hh+60} L${x0+w*f},${y0+hh+30}" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#ah${k})"/>`).join('');
+  }
+  return `<svg class="diag" viewBox="0 0 ${W} ${H+ (k==='Y'?40:0)}" role="img" aria-label="Seinävyöhykkeet pohjassa"><defs><marker id="ah${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/></marker></defs>
+   <rect x="${x0}" y="${y0}" width="${w}" height="${hh}" fill="#1c1c1c" stroke="var(--ink)" stroke-width="1.5"/>${z}
+   <text x="${x0+w/2}" y="${y0+hh/2+4}" text-anchor="middle" class="m">${fmt(Lx,1)} × ${fmt(Ly,1)} m, e = ${fmt(e,2)} m</text></svg>`;
+}
+bindPersist(['w-vb0','w-cat','w-cdir','w-cseason','w-co','w-rho','w-Lx','w-Ly','w-h','w-stories','w-cscd','w-hp','w-A','w-cpi'],windCalc);
+windCalc();
+})();
+</script>
+</body>
+</html>

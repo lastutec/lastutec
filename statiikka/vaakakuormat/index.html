@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vaakakuormien jakautuminen leikkausseinille – Lastutec</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<meta name="description" content="Vaakakuormien jakautuminen jäykistäville leikkausseinille seinien taivutus- ja leikkausjäykkyyksien perusteella. ARK-pohjakuva PDF:nä, mittakaava, seinälinjojen piirto ja laskenta välivaiheineen.">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{
+  --bg:#000000; --panel:#141414; --panel2:#1c1c1c; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e; --line2:#262626;
+  --accent:#F74902; --accent-ink:#111111; --accent-soft:#3b1503; --input:#2a1206;
+  --ok:#5cc58a; --warn:#f5c86b; --bad:#ff6b5a;
+  --radius:6px; --mono:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+  --wy:#1f5fa8; --wx:#d9620a; --sel:#c2185b; --cs:#2e7d32; --load:#c62828;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+header.lt{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+header.lt .brand{display:flex;flex-direction:column;gap:2px}
+header.lt .back{font:600 13px Arial,Helvetica,sans-serif;color:var(--accent);text-decoration:none}
+header.lt .back:hover{text-decoration:underline}
+header.lt h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+header.lt .hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+header.lt .meta{font-size:12px;color:var(--muted)}
+.printbtn{font:600 13px Arial,Helvetica,sans-serif;color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.printbtn:hover{filter:brightness(1.1)}
+.num,table,.kpi .v{font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+.wrap{max-width:1500px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;margin-bottom:12px}
+.crumb{font-size:13px;color:var(--muted)}
+.crumb a{color:var(--muted);text-decoration:none}.crumb a:hover{text-decoration:underline}
+h1{font-size:24px;line-height:1.2;margin:2px 0 0}
+h2{font-size:17px;font-weight:800;margin:0 0 10px}
+h3{font-size:15px;margin:16px 0 6px}
+p.lead{margin:4px 0 0;color:var(--muted);max-width:80ch}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;align-items:start}
+@media (max-width:1050px){.layout{grid-template-columns:minmax(0,1fr)}}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px;border-bottom:1px solid var(--line);background:var(--panel2);border-radius:var(--radius) var(--radius) 0 0}
+.toolbar .sep{width:1px;height:26px;background:var(--line);margin:0 4px}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:6px;padding:6px 10px;font:inherit;font-size:13.5px;cursor:pointer;white-space:nowrap;line-height:1.2}
+.btn:hover{border-color:var(--accent)}
+.btn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#111;font-weight:600}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn kbd{font:11px var(--mono);opacity:.7;margin-left:4px}
+label.inline{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;color:var(--ink)}
+input[type=number],input[type=text],select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);border-radius:4px;background:var(--input);color:var(--ink);min-width:0}
+input[type=number]{width:90px}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+select{background:var(--bg)}
+input[type=checkbox]{accent-color:var(--accent)}
+.viewer{position:relative;padding:0;overflow:hidden}
+#cv-wrap{position:relative;height:min(72vh,780px);min-height:380px;background:#0b0b0b;touch-action:none}
+#cv{display:block;width:100%;height:100%;cursor:crosshair}
+.statusbar{display:flex;flex-wrap:wrap;gap:4px 18px;padding:6px 10px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);font-family:var(--mono)}
+.hint{position:absolute;left:10px;bottom:10px;max-width:min(520px,calc(100% - 20px));background:rgba(20,20,20,.95);border:1px solid var(--line);border-radius:6px;padding:7px 28px 7px 10px;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.hint[hidden]{display:none}
+.hint .x{position:absolute;right:4px;top:3px;border:0;background:transparent;font-size:16px;line-height:1;cursor:pointer;color:var(--muted);padding:2px 4px}
+.field{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;margin:6px 0}
+.field label{font-size:13.5px}
+.field .u{font-size:12px;color:var(--muted);margin-left:4px}
+.field input{width:100px}
+.small{font-size:12.5px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi{border:1px solid var(--line);border-radius:6px;padding:7px 9px;background:var(--panel2)}
+.kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kpi .v{font:600 16px/1.3 var(--mono)}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line2);padding:5px 7px;text-align:right;white-space:nowrap}
+th{font-weight:600;color:var(--muted);font-size:12.5px;background:var(--panel);position:sticky;top:0}
+td:first-child,th:first-child{text-align:left}
+td.l,th.l{text-align:left}
+tr.sel td{background:var(--accent-soft)}
+tbody tr:hover td{background:#1f1f1f}
+table.walls input[type=number]{width:74px;padding:3px 5px;font-size:13px;text-align:right}
+table.walls input[type=text]{width:58px;padding:3px 5px;font-size:13px}
+.num{font-family:var(--mono)}
+.pos{color:var(--ink)}.neg{color:var(--bad)}
+.badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:12px;font-weight:600}
+.badge{border:1px solid currentColor;background:transparent}.badge.ok{color:var(--ok)}.badge.bad{color:var(--bad)}.badge.warn{color:var(--warn)}
+details.step{border:1px solid var(--line);border-radius:6px;margin:6px 0;background:var(--panel)}
+details.step>summary{cursor:pointer;padding:7px 10px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:10px}
+details.step>summary::-webkit-details-marker{display:none}
+details.step>summary::before{content:"▸";margin-right:6px;color:var(--muted)}
+details.step[open]>summary::before{content:"▾"}
+details.step>summary .r{font-family:var(--mono);font-weight:500;color:var(--muted)}
+.calc{padding:4px 12px 10px;font-size:13.5px}
+.calc .row{display:grid;grid-template-columns:minmax(150px,230px) 1fr;gap:4px 14px;padding:3px 0;border-bottom:1px dashed var(--line2)}
+.calc .row:last-child{border-bottom:0}
+.calc .row .d{color:var(--muted)}
+.calc .row .f{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+.calc .row .f b{color:var(--ink)}
+.calc h4{margin:12px 0 2px;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:18px;height:4px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.modal-bg{position:fixed;inset:0;background:rgba(20,25,35,.35);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:16px 18px;max-width:380px;width:100%;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.modal h3{margin:0 0 8px}
+.note{border-left:3px solid var(--warn);background:#2a1f08;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.info{border-left:3px solid var(--accent);background:#1f0d03;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.theory p,.theory li{max-width:95ch}
+.theory code{font-family:var(--mono);font-size:13px;background:#222;padding:1px 4px;border-radius:4px}
+.flex{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.right{margin-left:auto}
+#pdfpage{width:58px}
+#scaleN{width:80px}
+@media print{
+  :root{--bg:#fff;--panel:#fff;--panel2:#fff;--ink:#000;--muted:#444;--line:#bbb;--line2:#ddd;--accent:#c63a00;--accent-soft:#fde2d5;--input:#fff;--ok:#1d6b3a;--warn:#8a5a00;--bad:#b3261e;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back{display:none!important}
+  body{font-size:11pt}
+  .no-print,.toolbar,.hint,.statusbar{display:none!important}
+  .layout{grid-template-columns:1fr}
+  .card{border:0;padding:0;margin-bottom:10px;break-inside:avoid-page}
+  #cv-wrap{height:auto;min-height:0;background:#fff}
+  #cv{display:none}
+  #printimg{display:block!important;width:100%;border:1px solid #ccc}
+  details.step{break-inside:avoid}
+  th{position:static}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="lt">
+    <div class="brand"><a href="../" class="back">← Statiikka ja mekaniikka</a><h1>Vaakakuormien jakautuminen leikkausseinille</h1></div>
+    <div class="hdr-r"><span class="meta">Työkalu 4 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" id="btn-print">Tulosta PDF</button></div>
+  </header>
+  <div class="flex" style="justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px">
+    <p class="lead" style="margin:0">Tuo arkkitehdin pohjakuva PDF:nä, anna mittakaava ja piirrä jäykistävät seinälinjat. Laskenta jakaa vaakakuorman seinille niiden taivutus- ja leikkausjäykkyyksien suhteessa ja ottaa huomioon jäykkyyskeskiön epäkeskisyydestä syntyvän vääntömomentin. Tuulikuorman kerrosvoimat saat <a href="../../kuormat/tuuli/">tuulikuormalaskurista</a>.</p>
+    <div class="flex no-print">
+      <button class="btn" id="btn-example" title="Lataa alkuperäisen Excel-laskentapohjan esimerkkiaineisto">Esimerkki</button>
+      <button class="btn" id="btn-save">Tallenna projekti</button>
+      <label class="btn" style="margin:0">Avaa projekti<input type="file" id="file-proj" accept=".json,application/json" hidden></label>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- Piirtoalue -->
+    <section class="card viewer">
+      <div class="toolbar no-print">
+        <label class="btn" style="margin:0" title="Tuo ARK-pohjakuva (PDF)">📄 Tuo PDF<input type="file" id="file-pdf" accept="application/pdf,.pdf" hidden></label>
+        <span id="pagectl" style="display:none" class="flex"><label class="inline">Sivu <input type="number" id="pdfpage" min="1" value="1"></label><span class="small" id="pagecount"></span></span>
+        <span class="sep"></span>
+        <label class="inline" title="Piirustuksen mittakaava, kun PDF on tulostuskokoinen (1 pt = 0,3528 mm paperilla)">Mittakaava 1 : <input type="number" id="scaleN" min="1" step="1" value="100"></label>
+        <button class="btn" data-tool="calib" title="Kalibroi mittakaava kahdella pisteellä ja tunnetulla mitalla">Kalibroi</button>
+        <span class="sep"></span>
+        <button class="btn on" data-tool="wall" title="Piirrä seinälinja: klikkaa alku- ja loppupiste">✏️ Seinä <kbd>S</kbd></button>
+        <button class="btn" data-tool="select" title="Valitse seinä / siirrä päätepistettä raahaamalla">↖ Valitse <kbd>V</kbd></button>
+        <button class="btn" data-tool="origin" title="Aseta koordinaatiston origo">⊕ Origo <kbd>O</kbd></button>
+        <button class="btn" data-tool="load" title="Aseta vaakakuorman resultantin sijainti (xF, yF)">➜ Kuorma <kbd>K</kbd></button>
+        <span class="sep"></span>
+        <label class="inline" title="Pakota vaaka-/pystysuora (Shift vaihtaa tilapäisesti)"><input type="checkbox" id="ortho" checked> Ortho</label>
+        <label class="inline" title="Kohdista päätepisteisiin"><input type="checkbox" id="snap" checked> Kohdistus</label>
+        <span class="sep"></span>
+        <button class="btn" id="btn-fit" title="Sovita näkymä">⤢</button>
+        <button class="btn" id="btn-undo" title="Kumoa (Ctrl+Z)">↶</button>
+        <button class="btn danger" id="btn-del" title="Poista valittu seinä (Del)">Poista</button>
+        <label class="inline right" title="Näytä seinien leikkausvoimat piirroksessa">Näytä
+          <select id="showres"><option value="">ei voimia</option><option value="Y" selected>KT Y: V [kN]</option><option value="X">KT X: V [kN]</option></select>
+        </label>
+      </div>
+      <div id="cv-wrap">
+        <canvas id="cv"></canvas>
+        <div class="hint no-print" id="hintbox"><button class="x" id="hint-x" title="Piilota ohje">×</button><span id="hint"></span></div>
+      </div>
+      <img id="printimg" alt="Pohjakuva ja seinälinjat" style="display:none">
+      <div class="statusbar"><span id="st-xy">x = –  y = –</span><span id="st-scale"></span><span id="st-len"></span></div>
+    </section>
+
+    <!-- Sivupaneeli -->
+    <aside>
+      <section class="card">
+        <h2>Kuormat</h2>
+        <div class="small" style="margin-bottom:4px">Kerroksen vaakavoimien resultantit ja niiden vaikutussuorat (kuten Excelissä).</div>
+        <div class="field"><label>F<sub>x</sub> (x-suuntainen)</label><span><input type="number" id="Fx" step="any" value="0"><span class="u">kN</span></span></div>
+        <div class="field"><label>y<sub>F</sub> – F<sub>x</sub>:n vaikutussuora</label><span><input type="number" id="yF" step="any" value="0"><span class="u">m</span></span></div>
+        <div class="field"><label>F<sub>y</sub> (y-suuntainen)</label><span><input type="number" id="Fy" step="any" value="0"><span class="u">kN</span></span></div>
+        <div class="field"><label>x<sub>F</sub> – F<sub>y</sub>:n vaikutussuora</label><span><input type="number" id="xF" step="any" value="0"><span class="u">m</span></span></div>
+        <div class="small">Vinkki: aseta (x<sub>F</sub>, y<sub>F</sub>) myös klikkaamalla työkalulla <b>Kuorma</b>.</div>
+      </section>
+      <section class="card">
+        <h2>Uusien seinien oletukset</h2>
+        <div class="field"><label>Paksuus b</label><span><input type="number" id="def-b" step="any" value="0.2"><span class="u">m</span></span></div>
+        <div class="field"><label>Korkeus H</label><span><input type="number" id="def-H" step="any" value="3.0"><span class="u">m</span></span></div>
+        <div class="field"><label>Betoni C (f<sub>ck</sub>)</label><span><input type="number" id="def-fck" step="1" value="30"><span class="u">MPa</span></span></div>
+        <button class="btn" id="btn-applydef" style="margin-top:4px">Päivitä kaikkiin seiniin</button>
+      </section>
+      <section class="card">
+        <h2>Tulokset</h2>
+        <div id="kpis" class="kpis"></div>
+        <div id="warns"></div>
+        <div class="legend"><span><i style="background:var(--wy)"></i>y-suuntainen seinä</span><span><i style="background:var(--wx)"></i>x-suuntainen seinä</span><span><i style="background:var(--cs);height:8px;width:8px;border-radius:50%"></i>jäykkyyskeskiö</span><span><i style="background:var(--load)"></i>kuorma</span></div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="card">
+    <div class="flex" style="margin-bottom:8px"><h2 style="margin:0">Seinät</h2><span class="small">Koordinaatit origosta, y ylöspäin. Kulma α x-akselista (0° = x-suuntainen, 90° = y-suuntainen). Arvoja voi muokata suoraan.</span><button class="btn right no-print" id="btn-addwall">+ Lisää seinä numeerisesti</button></div>
+    <div class="tbl-wrap"><table class="walls" id="tbl-walls"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Seinien leikkausvoimat</h2>
+    <div class="small">KT Y = kuormitustapaus F<sub>y</sub>, KT X = kuormitustapaus F<sub>x</sub>. V on seinän tason suuntainen leikkausvoima (merkki seinän suunnan mukaan: x-seinillä +x, y-seinillä +y).</div>
+    <div class="tbl-wrap" style="margin-top:8px"><table id="tbl-res"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Laskenta välivaiheineen</h2>
+    <div id="steps-global"></div>
+    <h3>Seinäkohtaiset laskelmat</h3>
+    <div class="flex no-print" style="margin-bottom:6px"><button class="btn" id="btn-openall">Avaa kaikki</button><button class="btn" id="btn-closeall">Sulje kaikki</button></div>
+    <div id="steps-walls"></div>
+  </section>
+
+  <section class="card theory">
+    <h2>Menetelmä ja oletukset</h2>
+    <p>Laskenta perustuu artikkeliin O. H. Krokstrand: <i>Precast concrete shear walls in multi storey buildings</i> (Nordisk Betong 5-1987) ja alkuperäiseen Excel-laskentapohjaan. Välipohja oletetaan tasossaan jäykäksi levyksi, ja seinät ehjiksi ulokkeiksi, joiden jäykkyys koostuu sarjaan kytketyistä taivutus- ja leikkausjäykkyyksistä.</p>
+    <ul>
+      <li>Kimmokerroin: <code>E = 22·((f<sub>ck</sub>+8)/10)<sup>0,3</sup>·1000 MN/m²</code> (E<sub>cm</sub>, EN 1992-1-1).</li>
+      <li>Poikkileikkaus: <code>A<sub>c</sub> = b·h</code>, <code>I<sub>0</sub> = b·h³/12</code>; vinon seinän jäyhyys jaetaan komponentteihin <code>I<sub>xx</sub> = I<sub>0</sub>·sin²α</code> (y-suuntaiset kuormat) ja <code>I<sub>yy</sub> = I<sub>0</sub>·cos²α</code> (x-suuntaiset kuormat).</li>
+      <li>Leikkausjäykkyys: <code>K<sub>s</sub> = A·E/(3H)·sin²α tai cos²α</code> (G = 0,4E, muotokerroin 1,2 → A·G/(1,2H) = A·E/(3H)).</li>
+      <li>Taivutusjäykkyys: <code>K<sub>b</sub> = 3·E·I/H³</code> (uloke, pistekuorma yläpäässä).</li>
+      <li>Kokonaisjäykkyys: <code>1/K = 1/K<sub>s</sub> + 1/K<sub>b</sub></code>.</li>
+      <li>Jäykkyyskeskiö: <code>x<sub>0</sub> = ΣK<sub>y</sub>x<sub>i</sub>/ΣK<sub>y</sub></code>, <code>y<sub>0</sub> = ΣK<sub>x</sub>y<sub>i</sub>/ΣK<sub>x</sub></code>; vääntöjäykkyys <code>J = Σ(K<sub>x</sub>a<sub>y</sub>² + K<sub>y</sub>a<sub>x</sub>²)</code>.</li>
+      <li>Seinän voimat (θ = M/J): <code>Q<sub>x,i</sub> = F<sub>x</sub>·K<sub>x,i</sub>/ΣK<sub>x</sub> − K<sub>x,i</sub>·a<sub>y,i</sub>·θ</code>, <code>Q<sub>y,i</sub> = F<sub>y</sub>·K<sub>y,i</sub>/ΣK<sub>y</sub> + K<sub>y,i</sub>·a<sub>x,i</sub>·θ</code>. Momentti jäykkyyskeskiön suhteen vastapäivään positiivinen: <code>M<sub>Y</sub> = −F<sub>y</sub>·(x<sub>0</sub> − x<sub>F</sub>)</code>, <code>M<sub>X</sub> = F<sub>x</sub>·(y<sub>0</sub> − y<sub>F</sub>)</code>.</li>
+      <li>Seinän tason suuntainen voima <code>V = Q<sub>x</sub>·cos α + Q<sub>y</sub>·sin α</code>. Vinojen seinien ristijäykkyys K<sub>xy</sub> jätetään huomiotta kuten Excelissä.</li>
+    </ul>
+    <div class="note"><b>Ero alkuperäiseen Exceliin:</b> Excelissä vääntöosuus lasketaan kaikille seinille muodossa <code>M·(K<sub>y</sub>a<sub>x</sub> + K<sub>x</sub>a<sub>y</sub>)/J</code>. x-suuntaisilla seinillä oikea etumerkki on <code>−M·K<sub>x</sub>a<sub>y</sub>/J</code>, joten tässä työkalussa vääntöosuuden merkki on korjattu. Ero näkyy x-seinissä kuormitustapauksessa F<sub>x</sub>: jäykkyyskeskiön puolella, jolla kuorma vaikuttaa, oleva seinä saa nyt oikein suuremman voiman. y-seinien tulokset ovat samat kuin Excelissä.</div>
+    <p class="small">Työkalu on suunnittelun apuväline. Katso etusivun vastuuvapautuslauseke.</p>
+  </section>
+</div>
+
+<div class="modal-bg" id="calib-modal">
+  <div class="modal">
+    <h3>Kalibroi mittakaava</h3>
+    <div class="small" id="calib-info"></div>
+    <div class="field"><label>Pisteiden todellinen etäisyys</label><span><input type="number" id="calib-d" step="any" min="0"><span class="u">m</span></span></div>
+    <div class="flex" style="justify-content:flex-end;margin-top:10px"><button class="btn" id="calib-cancel">Peruuta</button><button class="btn primary" id="calib-ok">Aseta</button></div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const PT_MM=25.4/72;           // 1 PDF-piste = 0,3528 mm paperilla
+const LS_KEY='lastutec-leikkausseinat-v1';
+if(window.pdfjsLib){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}
+
+/* ---------------- tila ---------------- */
+const S={
+  page:{w:1190.55,h:841.89}, bg:null, pdf:null, pdfName:'', pageNum:1,
+  scaleN:200, k:200*PT_MM/1000,          // k = metriä / PDF-piste
+  origin:{x:60,y:841.89-60},
+  walls:[], nextId:1, sel:null,
+  loadP:null, Fx:0, Fy:0,
+  def:{b:0.2,H:3.0,fck:30},
+  tool:'wall', ortho:true, snap:true,
+  view:{s:1,tx:0,ty:0},
+  draft:null, calib:null, cursor:null, res:null, showRes:'Y'
+};
+const undoStack=[];
+
+/* ---------------- muunnokset ---------------- */
+const toM=p=>({x:(p.x-S.origin.x)*S.k, y:(S.origin.y-p.y)*S.k});
+const toP=m=>({x:S.origin.x+m.x/S.k, y:S.origin.y-m.y/S.k});
+const scr=p=>({x:p.x*S.view.s+S.view.tx, y:p.y*S.view.s+S.view.ty});
+const unscr=q=>({x:(q.x-S.view.tx)/S.view.s, y:(q.y-S.view.ty)/S.view.s});
+
+/* ---------------- numeromuotoilu ---------------- */
+function fmt(v,d){ if(v===null||v===undefined||!isFinite(v)) return '–'; if(Math.abs(v)<0.5*Math.pow(10,-d)) v=0;
+  let s=v.toFixed(d); let [i,f]=s.split('.'); const neg=i.startsWith('-'); if(neg)i=i.slice(1);
+  i=i.replace(/\B(?=(\d{3})+(?!\d))/g,' '); return (neg?'−':'')+i+(f?','+f:''); }
+function fs(v){ // "älykäs" muotoilu
+  if(v===null||v===undefined||!isFinite(v)) return '–'; const a=Math.abs(v);
+  if(a===0) return '0'; if(a>=1e5) return fmt(v,0); if(a>=1000) return fmt(v,1); if(a>=10) return fmt(v,3); if(a>=0.01) return fmt(v,4);
+  return v.toExponential(3).replace('.',',').replace('e','·10^').replace('-','−'); }
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------------- laskenta ---------------- */
+function wallGeom(w){
+  const a=toM(w.p1), b=toM(w.p2); const dx=b.x-a.x, dy=b.y-a.y; const h=Math.hypot(dx,dy);
+  let al=Math.atan2(dy,dx)*180/Math.PI; al=((al%180)+180)%180; if(al>179.99999) al=0;
+  return {x1:a.x,y1:a.y,x2:b.x,y2:b.y,h,al,xi:(a.x+b.x)/2,yi:(a.y+b.y)/2};
+}
+function calc(){
+  const W=S.walls.map(w=>{
+    const g=wallGeom(w); const r=g.al*Math.PI/180;
+    let s2=Math.sin(r)**2, c2=Math.cos(r)**2; if(s2<1e-12)s2=0; if(c2<1e-12)c2=0;
+    const b=+w.b, H=+w.H, fck=+w.fck, h=g.h;
+    const E=22*Math.pow((fck+8)/10,0.3)*1000;
+    const Ac=b*h, Io=b*h**3/12, Ixx=Io*s2, Iyy=Io*c2;
+    const ok=H>0&&b>0&&h>0;
+    const Ksy=ok?E*Ac/(3*H)*s2:0, Kby=ok?3*E*Ixx/H**3:0, Ky=(Ksy>0&&Kby>0)?1/(1/Ksy+1/Kby):0;
+    const Ksx=ok?E*Ac/(3*H)*c2:0, Kbx=ok?3*E*Iyy/H**3:0, Kx=(Ksx>0&&Kbx>0)?1/(1/Ksx+1/Kbx):0;
+    return {id:w.id,name:w.name,w,...g,s2,c2,b,H,fck,E,Ac,Io,Ixx,Iyy,Ksy,Kby,Ky,Ksx,Kbx,Kx};
+  });
+  const sKx=W.reduce((a,o)=>a+o.Kx,0), sKy=W.reduce((a,o)=>a+o.Ky,0);
+  const sKyx=W.reduce((a,o)=>a+o.Ky*o.xi,0), sKxy=W.reduce((a,o)=>a+o.Kx*o.yi,0);
+  const x0=sKy>0?sKyx/sKy:NaN, y0=sKx>0?sKxy/sKx:NaN;
+  W.forEach(o=>{o.ax=o.xi-x0; o.ay=o.yi-y0; o.Kyax2=o.Ky*o.ax**2; o.Kxay2=o.Kx*o.ay**2;
+    o.py=sKy>0?o.Ky/sKy:0; o.px=sKx>0?o.Kx/sKx:0;});
+  const J=W.reduce((a,o)=>a+o.Kyax2+o.Kxay2,0);
+  const lm=S.loadP?toM(S.loadP):{x:0,y:0};
+  const Fx=S.Fx/1000, Fy=S.Fy/1000, xF=lm.x, yF=lm.y;      // MN, m
+  const MY=-Fy*(x0-xF), MX=Fx*(y0-yF);                     // MNm
+  const thY=J>0?MY/J:0, thX=J>0?MX/J:0;
+  W.forEach(o=>{
+    const ca=Math.cos(o.al*Math.PI/180), sa=Math.sin(o.al*Math.PI/180);
+    // KT Y
+    o.Y_tr=Fy*o.py; o.Y_ty=o.Ky*o.ax*thY; o.Y_tx=-o.Kx*o.ay*thY;
+    o.Y_Qy=o.Y_tr+o.Y_ty; o.Y_Qx=o.Y_tx; o.Y_V=o.Y_Qx*ca+o.Y_Qy*sa;
+    // KT X
+    o.X_tr=Fx*o.px; o.X_tx=-o.Kx*o.ay*thX; o.X_ty=o.Ky*o.ax*thX;
+    o.X_Qx=o.X_tr+o.X_tx; o.X_Qy=o.X_ty; o.X_V=o.X_Qx*ca+o.X_Qy*sa;
+    // Excel-vertailu (alkuperäinen kaava)
+    o.Y_xl=Fy*o.py+MY*(o.Ky*o.ax+o.Kx*o.ay)/(J||1);
+    o.X_xl=Fx*o.px+MX*(o.Ky*o.ax+o.Kx*o.ay)/(J||1);
+  });
+  const chk=t=>({Qx:W.reduce((a,o)=>a+o[t+'_Qx'],0),Qy:W.reduce((a,o)=>a+o[t+'_Qy'],0),M:W.reduce((a,o)=>a+o.ax*o[t+'_Qy']-o.ay*o[t+'_Qx'],0)});
+  return {W,sKx,sKy,sKyx,sKxy,x0,y0,J,Fx,Fy,xF,yF,MY,MX,thY,thX,
+    vx:sKx>0?Fx/sKx*1000:NaN, vy:sKy>0?Fy/sKy*1000:NaN, cY:chk('Y'), cX:chk('X')};
+}
+
+/* ---------------- canvas ---------------- */
+const cv=$('#cv'), ctx=cv.getContext('2d'), wrap=$('#cv-wrap');
+let CW=0,CH=0,DPR=1;
+function resize(){ const r=wrap.getBoundingClientRect(); DPR=window.devicePixelRatio||1; CW=r.width; CH=r.height;
+  cv.width=Math.round(CW*DPR); cv.height=Math.round(CH*DPR); draw(); }
+new ResizeObserver(resize).observe(wrap);
+function fit(){ const m=24; const s=Math.min((CW-2*m)/S.page.w,(CH-2*m)/S.page.h); S.view.s=s>0?s:1;
+  S.view.tx=(CW-S.page.w*S.view.s)/2; S.view.ty=(CH-S.page.h*S.view.s)/2; draw(); }
+
+function wallColor(o){ if(!o) return '#666'; return o.Ky>=o.Kx?getVar('--wy'):getVar('--wx'); }
+const cssCache={}; function getVar(n){ return cssCache[n]||(cssCache[n]=getComputedStyle(document.documentElement).getPropertyValue(n).trim()); }
+
+function draw(){
+  if(!CW) return;
+  ctx.setTransform(DPR,0,0,DPR,0,0); ctx.clearRect(0,0,CW,CH);
+  ctx.fillStyle='#0b0b0b'; ctx.fillRect(0,0,CW,CH);
+  // paperi
+  const p0=scr({x:0,y:0}), pw=S.page.w*S.view.s, ph=S.page.h*S.view.s;
+  ctx.save(); ctx.shadowColor='rgba(0,0,0,.6)'; ctx.shadowBlur=10; ctx.fillStyle='#fff'; ctx.fillRect(p0.x,p0.y,pw,ph); ctx.restore();
+  if(S.bg){ ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality='high'; ctx.drawImage(S.bg,p0.x,p0.y,pw,ph); }
+  else drawGrid(p0,pw,ph);
+  const R=S.res; const byId={}; if(R) R.W.forEach(o=>byId[o.id]=o);
+  // origo
+  const o=scr(S.origin); ctx.lineWidth=1.5; ctx.strokeStyle='#333'; ctx.fillStyle='#333';
+  arrow(o.x,o.y,o.x+46,o.y,'#333',1.5); arrow(o.x,o.y,o.x,o.y-46,'#333',1.5);
+  ctx.font='12px system-ui'; ctx.fillText('x',o.x+48,o.y+4); ctx.fillText('y',o.x-4,o.y-50);
+  ctx.beginPath(); ctx.arc(o.x,o.y,3,0,7); ctx.fill();
+  // seinät
+  S.walls.forEach(w=>{
+    const a=scr(w.p1), b=scr(w.p2); const r=byId[w.id]; const sel=S.sel===w.id;
+    const tpx=Math.max(3, (+w.b)/S.k*S.view.s);
+    ctx.lineCap='butt'; ctx.strokeStyle=sel?getVar('--sel'):wallColor(r); ctx.globalAlpha=0.85; ctx.lineWidth=tpx;
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); ctx.globalAlpha=1;
+    [a,b].forEach(p=>{ctx.fillStyle='#fff'; ctx.strokeStyle=sel?getVar('--sel'):'#333'; ctx.lineWidth=1.2; ctx.beginPath(); ctx.rect(p.x-3,p.y-3,6,6); ctx.fill(); ctx.stroke();});
+    // tunnus ja voima
+    const mx=(a.x+b.x)/2, my=(a.y+b.y)/2; const ang=Math.atan2(b.y-a.y,b.x-a.x);
+    let lbl=w.name; if(r&&S.showRes){ const V=r[S.showRes+'_V']*1000; if(Math.abs(V)>=0.05) lbl+=': '+fmt(V,1)+' kN'; }
+    label(lbl, mx, my, ang, tpx/2+9, sel?getVar('--sel'):'#1b2230');
+  });
+  // jäykkyyskeskiö
+  if(R&&isFinite(R.x0)&&isFinite(R.y0)){
+    const c=scr(toP({x:R.x0,y:R.y0})); ctx.strokeStyle=getVar('--cs'); ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(c.x,c.y,9,0,7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(c.x-14,c.y); ctx.lineTo(c.x+14,c.y); ctx.moveTo(c.x,c.y-14); ctx.lineTo(c.x,c.y+14); ctx.stroke();
+    ctx.fillStyle=getVar('--cs'); ctx.font='600 12px system-ui'; ctx.fillText('JK ('+fmt(R.x0,2)+'; '+fmt(R.y0,2)+')',c.x+12,c.y-12);
+  }
+  // kuorma
+  if(S.loadP){
+    const L=scr(S.loadP); const col=getVar('--load');
+    if(S.Fy) { const d=S.Fy>0?-1:1; arrow(L.x,L.y-d*60,L.x,L.y,col,2.5); }
+    if(S.Fx) { const d=S.Fx>0?1:-1; arrow(L.x-d*60,L.y,L.x,L.y,col,2.5); }
+    ctx.fillStyle=col; ctx.beginPath(); ctx.arc(L.x,L.y,4,0,7); ctx.fill();
+    ctx.font='600 12px system-ui'; ctx.fillText('F',L.x+7,L.y+15);
+  }
+  // luonnos
+  if(S.tool==='wall'&&S.draft&&S.cursor){ const a=scr(S.draft), b=scr(S.cursor);
+    ctx.setLineDash([6,4]); ctx.strokeStyle=getVar('--sel'); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); ctx.setLineDash([]);
+    const L=Math.hypot(S.cursor.x-S.draft.x,S.cursor.y-S.draft.y)*S.k; label(fmt(L,3)+' m',(a.x+b.x)/2,(a.y+b.y)/2,Math.atan2(b.y-a.y,b.x-a.x),14,getVar('--sel'));
+  }
+  if(S.tool==='calib'&&S.calib&&S.calib.p1){ const a=scr(S.calib.p1), b=scr(S.calib.p2||S.cursor||S.calib.p1);
+    ctx.strokeStyle='#7b1fa2'; ctx.lineWidth=2; ctx.setLineDash([4,3]); ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); ctx.setLineDash([]);
+    [a,b].forEach(p=>{ctx.beginPath(); ctx.arc(p.x,p.y,4,0,7); ctx.stroke();}); }
+  // kohdistusmerkki
+  if(S.snapHit){ const q=scr(S.snapHit); ctx.strokeStyle='#00897b'; ctx.lineWidth=2; ctx.beginPath(); ctx.rect(q.x-6,q.y-6,12,12); ctx.stroke(); }
+}
+function drawGrid(p0,pw,ph){
+  // ruudukko 1 m / 5 m
+  ctx.save(); ctx.beginPath(); ctx.rect(p0.x,p0.y,pw,ph); ctx.clip();
+  const stepM=(1/S.k*S.view.s)>=8?1:5;
+  [stepM,5].forEach((st,ix)=>{
+    const sp=st/S.k*S.view.s; if(sp<6) return;
+    ctx.strokeStyle=ix?'#d5dbe3':'#eef1f4'; ctx.lineWidth=1;
+    const o=scr(S.origin);
+    let x=o.x-Math.ceil((o.x-p0.x)/sp)*sp; ctx.beginPath(); for(;x<=p0.x+pw;x+=sp){ctx.moveTo(x,p0.y);ctx.lineTo(x,p0.y+ph);}
+    let y=o.y-Math.ceil((o.y-p0.y)/sp)*sp; for(;y<=p0.y+ph;y+=sp){ctx.moveTo(p0.x,y);ctx.lineTo(p0.x+pw,y);} ctx.stroke();
+  });
+  ctx.restore();
+}
+function arrow(x1,y1,x2,y2,col,w){ ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=w; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  const a=Math.atan2(y2-y1,x2-x1), L=9; ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-L*Math.cos(a-0.4),y2-L*Math.sin(a-0.4)); ctx.lineTo(x2-L*Math.cos(a+0.4),y2-L*Math.sin(a+0.4)); ctx.closePath(); ctx.fill(); }
+function label(t,x,y,ang,off,col){
+  let a=ang; if(a>Math.PI/2) a-=Math.PI; if(a<-Math.PI/2) a+=Math.PI;
+  ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.font='600 12px system-ui';
+  const w=ctx.measureText(t).width; ctx.fillStyle='rgba(255,255,255,.88)'; ctx.fillRect(-w/2-3,-off-11,w+6,15);
+  ctx.fillStyle=col; ctx.textAlign='center'; ctx.fillText(t,0,-off); ctx.restore(); }
+
+/* ---------------- osuma ja kohdistus ---------------- */
+function snapPoint(raw, from, shift){
+  let p={...raw}; S.snapHit=null;
+  const useOrtho = from && (S.ortho!==!!shift);
+  if(useOrtho){ if(Math.abs(p.x-from.x)>=Math.abs(p.y-from.y)) p.y=from.y; else p.x=from.x; }
+  if(S.snap){
+    const tol=10/S.view.s; let best=null, bd=tol;
+    const cands=[S.origin]; S.walls.forEach(w=>{cands.push(w.p1,w.p2);});
+    cands.forEach(c=>{ if(c===from) return; const d=Math.hypot(c.x-raw.x,c.y-raw.y); if(d<bd){bd=d;best=c;} });
+    if(best){
+      if(useOrtho){ if(p.y===from.y) p.x=best.x; else p.y=best.y; S.snapHit={...p}; }
+      else { p={x:best.x,y:best.y}; S.snapHit=p; }
+    }
+  }
+  return p;
+}
+function hitWall(pt){ const tol=8/S.view.s; let best=null,bd=Infinity;
+  S.walls.forEach(w=>{ const d=segDist(pt,w.p1,w.p2); const lim=Math.max(tol,(+w.b)/S.k/2+2/S.view.s); if(d<lim&&d<bd){bd=d;best=w;} }); return best; }
+function hitEnd(pt){ const tol=9/S.view.s; for(const w of S.walls){ if(Math.hypot(w.p1.x-pt.x,w.p1.y-pt.y)<tol) return {w,k:'p1'}; if(Math.hypot(w.p2.x-pt.x,w.p2.y-pt.y)<tol) return {w,k:'p2'}; } return null; }
+function segDist(p,a,b){ const dx=b.x-a.x,dy=b.y-a.y; const L2=dx*dx+dy*dy; let t=L2?((p.x-a.x)*dx+(p.y-a.y)*dy)/L2:0; t=Math.max(0,Math.min(1,t)); return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy); }
+
+/* ---------------- osoitin ---------------- */
+let ptr=null; // {sx,sy,moved,mode,...}
+let spaceDown=false;
+function evPt(e){ const r=cv.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+cv.addEventListener('pointerdown',e=>{
+  cv.setPointerCapture(e.pointerId); const q=evPt(e); const pt=unscr(q);
+  ptr={sx:q.x,sy:q.y,tx:S.view.tx,ty:S.view.ty,moved:false,mode:null,shift:e.shiftKey};
+  if(e.button===1||e.button===2||spaceDown){ ptr.mode='pan'; return; }
+  if(S.tool==='select'){ const he=hitEnd(pt); if(he){ pushUndo(); ptr.mode='drag'; ptr.he=he; S.sel=he.w.id; refreshAll(); return; } }
+  ptr.mode='click';
+});
+cv.addEventListener('pointermove',e=>{
+  const q=evPt(e); const pt=unscr(q);
+  if(ptr){
+    const d=Math.hypot(q.x-ptr.sx,q.y-ptr.sy); if(d>4) ptr.moved=true;
+    if(ptr.mode==='pan'||(ptr.mode==='click'&&ptr.moved)){ ptr.mode='pan'; S.view.tx=ptr.tx+(q.x-ptr.sx); S.view.ty=ptr.ty+(q.y-ptr.sy); draw(); return; }
+    if(ptr.mode==='drag'){ const w=ptr.he.w; const other=ptr.he.k==='p1'?w.p2:w.p1; w[ptr.he.k]=snapPoint(pt,other,e.shiftKey); S.res=calc(); draw(); updateStatus(pt); return; }
+  }
+  if(S.tool==='wall'){ S.cursor=S.draft?snapPoint(pt,S.draft,e.shiftKey):snapPoint(pt,null,false); }
+  else if(S.tool==='calib'){ S.cursor=snapPoint(pt,S.calib&&S.calib.p1&&!S.calib.p2?S.calib.p1:null,e.shiftKey); }
+  else if(S.tool==='origin'||S.tool==='load'){ S.cursor=snapPoint(pt,null,false); }
+  else { S.snapHit=null; S.cursor=pt; }
+  updateStatus(S.cursor||pt); draw();
+});
+cv.addEventListener('pointerup',e=>{
+  if(!ptr) return; const q=evPt(e); const pt=unscr(q); const p=ptr; ptr=null;
+  if(p.mode==='drag'){ refreshAll(); save(); return; }
+  if(p.mode!=='click'||p.moved) return;
+  if(S.tool==='wall'){
+    if(!S.draft){ S.draft=snapPoint(pt,null,false); }
+    else { const end=snapPoint(pt,S.draft,e.shiftKey); if(Math.hypot(end.x-S.draft.x,end.y-S.draft.y)*S.k>0.01){ pushUndo(); addWall(S.draft,end); } S.draft=null; }
+    draw();
+  } else if(S.tool==='select'){ const w=hitWall(pt); S.sel=w?w.id:null; refreshAll(); if(w) scrollRow(w.id); }
+  else if(S.tool==='origin'){ pushUndo(); S.origin=snapPoint(pt,null,false); refreshAll(); save(); }
+  else if(S.tool==='load'){ S.loadP=snapPoint(pt,null,false); syncLoadInputs(); refreshAll(); save(); }
+  else if(S.tool==='calib'){
+    if(!S.calib||!S.calib.p1||S.calib.p2){ S.calib={p1:snapPoint(pt,null,false)}; }
+    else { S.calib.p2=snapPoint(pt,S.calib.p1,e.shiftKey); openCalib(); }
+    draw();
+  }
+});
+cv.addEventListener('wheel',e=>{ e.preventDefault(); const q=evPt(e); const f=Math.exp(-e.deltaY*0.0015);
+  const s2=Math.min(80,Math.max(0.05,S.view.s*f)); const r=s2/S.view.s; S.view.tx=q.x-(q.x-S.view.tx)*r; S.view.ty=q.y-(q.y-S.view.ty)*r; S.view.s=s2; draw(); },{passive:false});
+// kahden sormen nipistys
+const touches=new Map(); let pinch=null;
+cv.addEventListener('pointerdown',e=>{ if(e.pointerType==='touch'){ touches.set(e.pointerId,evPt(e)); if(touches.size===2){ const [a,b]=[...touches.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y),s:S.view.s,tx:S.view.tx,ty:S.view.ty,c:{x:(a.x+b.x)/2,y:(a.y+b.y)/2}}; ptr=null; } } });
+cv.addEventListener('pointermove',e=>{ if(e.pointerType==='touch'&&touches.has(e.pointerId)){ touches.set(e.pointerId,evPt(e)); if(pinch&&touches.size===2){ const [a,b]=[...touches.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); const s2=Math.min(80,Math.max(0.05,pinch.s*d/pinch.d)); const r=s2/pinch.s; const c={x:(a.x+b.x)/2,y:(a.y+b.y)/2}; S.view.s=s2; S.view.tx=c.x-(pinch.c.x-pinch.tx)*r; S.view.ty=c.y-(pinch.c.y-pinch.ty)*r; draw(); } } });
+['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t,e=>{ touches.delete(e.pointerId); if(touches.size<2) pinch=null; }));
+
+document.addEventListener('keydown',e=>{
+  const typing=/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName);
+  if(e.code==='Space'&&!typing){ spaceDown=true; e.preventDefault(); }
+  if(typing) return;
+  if(e.key==='Escape'){ S.draft=null; S.calib=null; closeCalib(); draw(); }
+  else if((e.key==='Delete'||e.key==='Backspace')&&S.sel){ e.preventDefault(); delWall(S.sel); }
+  else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){ e.preventDefault(); undo(); }
+  else if(e.key==='s'||e.key==='S'){ setTool('wall'); } else if(e.key==='v'||e.key==='V'){ setTool('select'); }
+  else if(e.key==='o'||e.key==='O'){ setTool('origin'); } else if(e.key==='k'||e.key==='K'){ setTool('load'); }
+});
+document.addEventListener('keyup',e=>{ if(e.code==='Space') spaceDown=false; });
+
+function updateStatus(p){ if(!p) return; const m=toM(p); $('#st-xy').textContent='x = '+fmt(m.x,3)+' m   y = '+fmt(m.y,3)+' m';
+  if(S.tool==='wall'&&S.draft){ $('#st-len').textContent='pituus '+fmt(Math.hypot(p.x-S.draft.x,p.y-S.draft.y)*S.k,3)+' m'; } else $('#st-len').textContent=''; }
+
+/* ---------------- työkalut ---------------- */
+const HINTS={
+  wall:'<b>Seinä:</b> klikkaa seinälinjan alku- ja loppupiste. Ortho pakottaa vaaka/pysty (Shift vaihtaa). Kohdistus tarttuu päätepisteisiin. Siirrä näkymää raahaamalla, zoomaa rullalla. Esc peruu.',
+  select:'<b>Valitse:</b> klikkaa seinää valitaksesi sen; raahaa päätepistettä muuttaaksesi seinää. Del poistaa.',
+  origin:'<b>Origo:</b> klikkaa kohtaa, johon koordinaatiston origo (0; 0) asetetaan. x oikealle, y ylös.',
+  load:'<b>Kuorma:</b> klikkaa vaakakuormien resultantin sijaintia (x<sub>F</sub>, y<sub>F</sub>). F<sub>x</sub> vaikuttaa suoralla y = y<sub>F</sub> ja F<sub>y</sub> suoralla x = x<sub>F</sub>.',
+  calib:'<b>Kalibroi:</b> klikkaa kaksi pistettä, joiden välinen todellinen mitta tunnetaan (esim. mittaketju tai akseliväli), ja anna mitta metreinä.'
+};
+function showHint(h){ $('#hint').innerHTML=h; $('#hintbox').hidden=false; }
+$('#hint-x').addEventListener('click',()=>{$('#hintbox').hidden=true;});
+function setTool(t){ S.tool=t; S.draft=null; if(t!=='calib') S.calib=null; $$('[data-tool]').forEach(b=>b.classList.toggle('on',b.dataset.tool===t));
+  showHint(HINTS[t]); cv.style.cursor=t==='select'?'default':'crosshair'; draw(); }
+$$('[data-tool]').forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
+$('#ortho').addEventListener('change',e=>{S.ortho=e.target.checked;});
+$('#snap').addEventListener('change',e=>{S.snap=e.target.checked;});
+$('#btn-fit').addEventListener('click',fit);
+$('#btn-undo').addEventListener('click',undo);
+$('#btn-del').addEventListener('click',()=>{ if(S.sel) delWall(S.sel); });
+$('#showres').addEventListener('change',e=>{S.showRes=e.target.value; draw();});
+
+/* ---------------- mittakaava ---------------- */
+function setScaleN(n){ if(!(n>0)) return; S.scaleN=n; S.k=n*PT_MM/1000; $('#scaleN').value=+n.toFixed(2); refreshAll(); save(); }
+$('#scaleN').addEventListener('change',e=>{ pushUndo(); setScaleN(parseFloat(e.target.value)); });
+function openCalib(){ const c=S.calib; const dpt=Math.hypot(c.p2.x-c.p1.x,c.p2.y-c.p1.y);
+  $('#calib-info').textContent='Mitattu väli nykyisellä mittakaavalla: '+fmt(dpt*S.k,3)+' m. Anna todellinen mitta.';
+  $('#calib-modal').style.display='flex'; const i=$('#calib-d'); i.value=''; setTimeout(()=>i.focus(),30); }
+function closeCalib(){ $('#calib-modal').style.display='none'; }
+$('#calib-cancel').addEventListener('click',()=>{closeCalib(); S.calib=null; draw();});
+$('#calib-ok').addEventListener('click',applyCalib);
+$('#calib-d').addEventListener('keydown',e=>{ if(e.key==='Enter') applyCalib(); });
+function applyCalib(){ const d=parseFloat($('#calib-d').value); const c=S.calib; if(!(d>0)||!c) return;
+  const dpt=Math.hypot(c.p2.x-c.p1.x,c.p2.y-c.p1.y); if(dpt<=0) return; pushUndo();
+  S.k=d/dpt; S.scaleN=S.k*1000/PT_MM; $('#scaleN').value=+S.scaleN.toFixed(2); closeCalib(); S.calib=null; setTool('wall'); refreshAll(); save(); }
+
+/* ---------------- PDF ---------------- */
+$('#file-pdf').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return; e.target.value='';
+  if(!window.pdfjsLib){ alert('PDF-kirjasto ei latautunut (tarkista verkkoyhteys).'); return; }
+  const buf=await f.arrayBuffer();
+  try{ S.pdf=await pdfjsLib.getDocument({data:buf}).promise; }catch(err){ alert('PDF:n avaus epäonnistui: '+err.message); return; }
+  S.pdfName=f.name; S.pageNum=1; $('#pdfpage').max=S.pdf.numPages; $('#pdfpage').value=1; $('#pagecount').textContent='/ '+S.pdf.numPages;
+  $('#pagectl').style.display=S.pdf.numPages>1?'inline-flex':'none';
+  await renderPage(!S.walls.length);
+});
+$('#pdfpage').addEventListener('change',async e=>{ const n=Math.max(1,Math.min(S.pdf?S.pdf.numPages:1,parseInt(e.target.value)||1)); S.pageNum=n; e.target.value=n; await renderPage(false); });
+async function renderPage(resetOrigin){
+  const page=await S.pdf.getPage(S.pageNum); const vp1=page.getViewport({scale:1});
+  S.page={w:vp1.width,h:vp1.height};
+  const R=Math.min(6,4096/Math.max(vp1.width,vp1.height)); const vp=page.getViewport({scale:R});
+  const c=document.createElement('canvas'); c.width=Math.round(vp.width); c.height=Math.round(vp.height);
+  const cx=c.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,c.width,c.height);
+  showHint('Ladataan PDF-sivua…');
+  await page.render({canvasContext:cx,viewport:vp}).promise;
+  S.bg=c; if(resetOrigin) S.origin={x:40,y:S.page.h-40};
+  setTool(S.tool); fit(); refreshAll(); save();
+}
+
+/* ---------------- seinät ---------------- */
+function addWall(p1,p2,props){ const id=S.nextId++; S.walls.push({id,name:'S'+id,p1:{...p1},p2:{...p2},b:S.def.b,H:S.def.H,fck:S.def.fck,...(props||{})}); S.sel=id; refreshAll(); save(); }
+function delWall(id){ pushUndo(); S.walls=S.walls.filter(w=>w.id!==id); if(S.sel===id) S.sel=null; refreshAll(); save(); }
+function pushUndo(){ undoStack.push(JSON.stringify({walls:S.walls,origin:S.origin,k:S.k,scaleN:S.scaleN,nextId:S.nextId})); if(undoStack.length>100) undoStack.shift(); }
+function undo(){ const s=undoStack.pop(); if(!s) return; const o=JSON.parse(s); S.walls=o.walls; S.origin=o.origin; S.k=o.k; S.scaleN=o.scaleN; S.nextId=o.nextId; $('#scaleN').value=+S.scaleN.toFixed(2); refreshAll(); save(); }
+$('#btn-addwall').addEventListener('click',()=>{ pushUndo(); const c=unscr({x:CW/2,y:CH/2}); const L=5/S.k; addWall({x:c.x-L/2,y:c.y},{x:c.x+L/2,y:c.y}); });
+$('#btn-applydef').addEventListener('click',()=>{ pushUndo(); S.walls.forEach(w=>{w.b=S.def.b;w.H=S.def.H;w.fck=S.def.fck;}); refreshAll(); save(); });
+['b','H','fck'].forEach(k=>$('#def-'+k).addEventListener('change',e=>{ const v=parseFloat(e.target.value); if(v>0){S.def[k]=v; save();} }));
+
+function setWallFromGeom(w,xi,yi,h,al){ const r=al*Math.PI/180; const dx=h/2*Math.cos(r), dy=h/2*Math.sin(r);
+  w.p1=toP({x:xi-dx,y:yi-dy}); w.p2=toP({x:xi+dx,y:yi+dy}); }
+
+function buildWallTable(){
+  const R=S.res; const t=$('#tbl-walls');
+  let h='<thead><tr><th class="l">Tunnus</th><th>x<sub>i</sub> [m]</th><th>y<sub>i</sub> [m]</th><th>pituus h [m]</th><th>α [°]</th><th>paksuus b [m]</th><th>korkeus H [m]</th><th>C (f<sub>ck</sub>)</th><th class="l">alku → loppu [m]</th><th class="no-print"></th></tr></thead><tbody>';
+  if(!S.walls.length) h+='<tr><td colspan="10" class="l small">Ei seiniä. Piirrä seinälinjat pohjakuvaan tai lisää numeerisesti.</td></tr>';
+  S.walls.forEach(w=>{ const g=wallGeom(w);
+    h+=`<tr data-id="${w.id}" class="${S.sel===w.id?'sel':''}">
+    <td><input type="text" data-k="name" value="${esc(w.name)}"></td>
+    <td><input type="number" step="any" data-k="xi" value="${+g.xi.toFixed(3)}"></td>
+    <td><input type="number" step="any" data-k="yi" value="${+g.yi.toFixed(3)}"></td>
+    <td><input type="number" step="any" data-k="h" value="${+g.h.toFixed(3)}"></td>
+    <td><input type="number" step="any" data-k="al" value="${+g.al.toFixed(2)}"></td>
+    <td><input type="number" step="any" data-k="b" value="${w.b}"></td>
+    <td><input type="number" step="any" data-k="H" value="${w.H}"></td>
+    <td><input type="number" step="1" data-k="fck" value="${w.fck}"></td>
+    <td class="l num small">(${fmt(g.x1,2)}; ${fmt(g.y1,2)}) → (${fmt(g.x2,2)}; ${fmt(g.y2,2)})</td>
+    <td class="no-print"><button class="btn ghost danger" data-del="${w.id}" title="Poista">✕</button></td></tr>`; });
+  t.innerHTML=h+'</tbody>';
+}
+$('#tbl-walls').addEventListener('change',e=>{
+  const inp=e.target; const tr=inp.closest('tr'); if(!tr||!inp.dataset.k) return; const w=S.walls.find(x=>x.id==tr.dataset.id); if(!w) return;
+  pushUndo(); const k=inp.dataset.k;
+  if(k==='name'){ w.name=inp.value||('S'+w.id); }
+  else { const v=parseFloat(inp.value); if(!isFinite(v)) return;
+    if(['b','H','fck'].includes(k)) w[k]=v;
+    else { const g=wallGeom(w); const o={xi:g.xi,yi:g.yi,h:g.h,al:g.al}; o[k]=v; setWallFromGeom(w,o.xi,o.yi,o.h,o.al); } }
+  refreshAll(); save();
+});
+$('#tbl-walls').addEventListener('click',e=>{ const d=e.target.closest('[data-del]'); if(d){ delWall(+d.dataset.del); return; }
+  const tr=e.target.closest('tr[data-id]'); if(tr&&S.sel!==+tr.dataset.id){ S.sel=+tr.dataset.id; $$('#tbl-walls tr').forEach(r=>r.classList.toggle('sel',r===tr)); draw(); } });
+function scrollRow(id){ const r=document.querySelector('#tbl-walls tr[data-id="'+id+'"]'); if(r) r.classList.add('sel'); }
+
+/* ---------------- kuormat ---------------- */
+function syncLoadInputs(){ const m=S.loadP?toM(S.loadP):{x:0,y:0}; $('#xF').value=+m.x.toFixed(3); $('#yF').value=+m.y.toFixed(3); $('#Fx').value=S.Fx; $('#Fy').value=S.Fy; }
+['Fx','Fy'].forEach(k=>$('#'+k).addEventListener('input',e=>{ const v=parseFloat(e.target.value); S[k]=isFinite(v)?v:0; refreshAll(true); save(); }));
+['xF','yF'].forEach(k=>$('#'+k).addEventListener('change',()=>{ const x=parseFloat($('#xF').value)||0, y=parseFloat($('#yF').value)||0; S.loadP=toP({x,y}); refreshAll(true); save(); }));
+
+/* ---------------- tulokset ---------------- */
+function refreshAll(keepInputs){
+  S.res=calc(); if(!keepInputs){ buildWallTable(); syncLoadInputs(); }
+  renderKpis(); renderResTable(); renderSteps();
+  $('#st-scale').textContent='mittakaava 1:'+fmt(S.scaleN,S.scaleN%1?2:0)+'  ('+fmt(S.k*1000,4)+' mm/pt)';
+  draw();
+}
+function renderKpis(){
+  const R=S.res; const k=(t,v)=>`<div class="kpi"><div class="k">${t}</div><div class="v">${v}</div></div>`;
+  $('#kpis').innerHTML= k('x<sub>0</sub> jäykkyyskeskiö',fmt(R.x0,3)+' m')+k('y<sub>0</sub> jäykkyyskeskiö',fmt(R.y0,3)+' m')
+   +k('ΣK<sub>x</sub>',fs(R.sKx)+' MN/m')+k('ΣK<sub>y</sub>',fs(R.sKy)+' MN/m')
+   +k('J = Σ(K<sub>x</sub>a<sub>y</sub>²+K<sub>y</sub>a<sub>x</sub>²)',fs(R.J)+' MNm')+k('Seiniä',S.walls.length)
+   +k('M<sub>Y</sub> (KT Y)',fmt(R.MY*1000,1)+' kNm')+k('M<sub>X</sub> (KT X)',fmt(R.MX*1000,1)+' kNm')
+   +k('v<sub>y</sub> = F<sub>y</sub>/ΣK<sub>y</sub>',fmt(R.vy,4)+' mm')+k('v<sub>x</sub> = F<sub>x</sub>/ΣK<sub>x</sub>',fmt(R.vx,4)+' mm');
+  const w=[];
+  if(S.walls.length&&!(R.sKy>0)) w.push(['bad','Ei y-suunnassa jäykistäviä seiniä (ΣK<sub>y</sub> = 0).']);
+  if(S.walls.length&&!(R.sKx>0)) w.push(['bad','Ei x-suunnassa jäykistäviä seiniä (ΣK<sub>x</sub> = 0).']);
+  if(S.walls.length&&!(R.J>0)) w.push(['bad','Vääntöjäykkyys J = 0 – järjestelmä ei ole vääntöstabiili.']);
+  if(S.walls.length>=1&&S.walls.length<3) w.push(['warn','Vähintään kolme seinää, jotka eivät leikkaa samassa pisteessä, tarvitaan stabiiliin jäykistykseen.']);
+  if(!S.loadP&&(S.Fx||S.Fy)) w.push(['warn','Kuorman sijaintia ei ole annettu – käytetään origoa (0; 0).']);
+  const okY=Math.abs(R.cY.Qy-R.Fy)<1e-6&&Math.abs(R.cY.Qx)<1e-6, okX=Math.abs(R.cX.Qx-R.Fx)<1e-6&&Math.abs(R.cX.Qy)<1e-6;
+  if(S.walls.length&&R.J>0&&R.sKx>0&&R.sKy>0) w.push([okY&&okX?'ok':'bad', okY&&okX?'Tasapainotarkistus OK (ΣQ = F, ΣM = M).':'Tasapainotarkistus ei täsmää.']);
+  $('#warns').innerHTML=w.map(([c,t])=>`<div style="margin-top:6px"><span class="badge ${c}">${c==='ok'?'OK':c==='warn'?'Huom':'Virhe'}</span> <span class="small">${t}</span></div>`).join('');
+}
+function renderResTable(){
+  const R=S.res; const kn=v=>`<span class="num ${v<0?'neg':''}">${fmt(v*1000,1)}</span>`;
+  let h='<thead><tr><th class="l">Seinä</th><th>α [°]</th><th>h [m]</th><th>K<sub>x</sub> [MN/m]</th><th>K<sub>y</sub> [MN/m]</th><th>K<sub>x</sub>/ΣK<sub>x</sub></th><th>K<sub>y</sub>/ΣK<sub>y</sub></th><th>a<sub>x</sub> [m]</th><th>a<sub>y</sub> [m]</th><th>KT Y: Q<sub>x</sub></th><th>KT Y: Q<sub>y</sub></th><th>KT Y: V [kN]</th><th>KT X: Q<sub>x</sub></th><th>KT X: Q<sub>y</sub></th><th>KT X: V [kN]</th></tr></thead><tbody>';
+  R.W.forEach(o=>{ h+=`<tr class="${S.sel===o.id?'sel':''}"><td>${esc(o.name)}</td><td class="num">${fmt(o.al,1)}</td><td class="num">${fmt(o.h,3)}</td><td class="num">${fs(o.Kx)}</td><td class="num">${fs(o.Ky)}</td><td class="num">${fmt(o.px*100,2)} %</td><td class="num">${fmt(o.py*100,2)} %</td><td class="num">${fmt(o.ax,3)}</td><td class="num">${fmt(o.ay,3)}</td><td>${kn(o.Y_Qx)}</td><td>${kn(o.Y_Qy)}</td><td><b>${kn(o.Y_V)}</b></td><td>${kn(o.X_Qx)}</td><td>${kn(o.X_Qy)}</td><td><b>${kn(o.X_V)}</b></td></tr>`; });
+  h+=`</tbody><tfoot><tr><th class="l">Σ</th><th></th><th></th><th>${fs(R.sKx)}</th><th>${fs(R.sKy)}</th><th>${R.sKx>0?'100 %':''}</th><th>${R.sKy>0?'100 %':''}</th><th></th><th></th><th>${kn(R.cY.Qx)}</th><th>${kn(R.cY.Qy)}</th><th></th><th>${kn(R.cX.Qx)}</th><th>${kn(R.cX.Qy)}</th><th></th></tr></tfoot>`;
+  $('#tbl-res').innerHTML=h;
+}
+function row(d,f){ return `<div class="row"><div class="d">${d}</div><div class="f">${f}</div></div>`; }
+function renderSteps(){
+  const R=S.res; const W=R.W;
+  let g='<div class="calc" style="padding-left:0">';
+  g+='<h4>1. Seinien jäykkyyksien summat</h4>';
+  g+=row('ΣK<sub>x</sub>', W.length?W.map(o=>fs(o.Kx)).join(' + ')+' = <b>'+fs(R.sKx)+' MN/m</b>':'–');
+  g+=row('ΣK<sub>y</sub>', W.length?W.map(o=>fs(o.Ky)).join(' + ')+' = <b>'+fs(R.sKy)+' MN/m</b>':'–');
+  g+='<h4>2. Jäykkyyskeskiö</h4>';
+  g+=row('ΣK<sub>y</sub>·x<sub>i</sub>', W.map(o=>fs(o.Ky)+'·'+fmt(o.xi,3)).join(' + ')+' = <b>'+fs(R.sKyx)+' MN</b>');
+  g+=row('x<sub>0</sub> = ΣK<sub>y</sub>x<sub>i</sub> / ΣK<sub>y</sub>', fs(R.sKyx)+' / '+fs(R.sKy)+' = <b>'+fmt(R.x0,3)+' m</b>');
+  g+=row('ΣK<sub>x</sub>·y<sub>i</sub>', W.map(o=>fs(o.Kx)+'·'+fmt(o.yi,3)).join(' + ')+' = <b>'+fs(R.sKxy)+' MN</b>');
+  g+=row('y<sub>0</sub> = ΣK<sub>x</sub>y<sub>i</sub> / ΣK<sub>x</sub>', fs(R.sKxy)+' / '+fs(R.sKx)+' = <b>'+fmt(R.y0,3)+' m</b>');
+  g+='<h4>3. Vääntöjäykkyys jäykkyyskeskiön suhteen</h4>';
+  g+=row('J = Σ(K<sub>x</sub>a<sub>y</sub>² + K<sub>y</sub>a<sub>x</sub>²)', W.map(o=>fs(o.Kxay2+o.Kyax2)).join(' + ')+' = <b>'+fs(R.J)+' MNm</b>');
+  g+='<h4>4. Kuormat ja vääntömomentit</h4>';
+  g+=row('Kuormat', 'F<sub>x</sub> = '+fmt(R.Fx,4)+' MN, y<sub>F</sub> = '+fmt(R.yF,3)+' m;  F<sub>y</sub> = '+fmt(R.Fy,4)+' MN, x<sub>F</sub> = '+fmt(R.xF,3)+' m');
+  g+=row('Epäkeskisyydet', 'e<sub>x</sub> = x<sub>F</sub> − x<sub>0</sub> = '+fmt(R.xF-R.x0,3)+' m;  e<sub>y</sub> = y<sub>F</sub> − y<sub>0</sub> = '+fmt(R.yF-R.y0,3)+' m');
+  g+=row('M<sub>Y</sub> = −F<sub>y</sub>·(x<sub>0</sub> − x<sub>F</sub>)', '−'+fmt(R.Fy,4)+'·('+fmt(R.x0,3)+' − '+fmt(R.xF,3)+') = <b>'+fmt(R.MY,4)+' MNm</b> = '+fmt(R.MY*1000,1)+' kNm');
+  g+=row('M<sub>X</sub> = F<sub>x</sub>·(y<sub>0</sub> − y<sub>F</sub>)', fmt(R.Fx,4)+'·('+fmt(R.y0,3)+' − '+fmt(R.yF,3)+') = <b>'+fmt(R.MX,4)+' MNm</b> = '+fmt(R.MX*1000,1)+' kNm');
+  g+='<h4>5. Siirtymät</h4>';
+  g+=row('v<sub>x</sub> = F<sub>x</sub>/ΣK<sub>x</sub>', fmt(R.Fx,4)+' / '+fs(R.sKx)+' · 1000 = <b>'+fmt(R.vx,4)+' mm</b>');
+  g+=row('v<sub>y</sub> = F<sub>y</sub>/ΣK<sub>y</sub>', fmt(R.Fy,4)+' / '+fs(R.sKy)+' · 1000 = <b>'+fmt(R.vy,4)+' mm</b>');
+  g+=row('φ<sub>Y</sub> = M<sub>Y</sub>/J', fmt(R.MY,4)+' / '+fs(R.J)+' = <b>'+fs(R.thY)+' rad</b>');
+  g+=row('φ<sub>X</sub> = M<sub>X</sub>/J', fmt(R.MX,4)+' / '+fs(R.J)+' = <b>'+fs(R.thX)+' rad</b>');
+  g+='<h4>6. Tasapainotarkistus</h4>';
+  g+=row('KT Y', 'ΣQ<sub>y</sub> = '+fmt(R.cY.Qy*1000,2)+' kN (F<sub>y</sub> = '+fmt(R.Fy*1000,2)+'),  ΣQ<sub>x</sub> = '+fmt(R.cY.Qx*1000,2)+' kN,  Σ(a<sub>x</sub>Q<sub>y</sub> − a<sub>y</sub>Q<sub>x</sub>) = '+fmt(R.cY.M*1000,2)+' kNm (M<sub>Y</sub> = '+fmt(R.MY*1000,2)+')');
+  g+=row('KT X', 'ΣQ<sub>x</sub> = '+fmt(R.cX.Qx*1000,2)+' kN (F<sub>x</sub> = '+fmt(R.Fx*1000,2)+'),  ΣQ<sub>y</sub> = '+fmt(R.cX.Qy*1000,2)+' kN,  Σ(a<sub>x</sub>Q<sub>y</sub> − a<sub>y</sub>Q<sub>x</sub>) = '+fmt(R.cX.M*1000,2)+' kNm (M<sub>X</sub> = '+fmt(R.MX*1000,2)+')');
+  g+='</div>';
+  $('#steps-global').innerHTML=g;
+
+  const openSet=new Set($$('#steps-walls details[open]').map(d=>d.dataset.id));
+  let s='';
+  W.forEach(o=>{
+    const sa=Math.sin(o.al*Math.PI/180), ca=Math.cos(o.al*Math.PI/180);
+    s+=`<details class="step" data-id="${o.id}" ${openSet.has(String(o.id))?'open':''}><summary><span>${esc(o.name)} – h = ${fmt(o.h,3)} m, α = ${fmt(o.al,1)}°</span><span class="r">V<sub>Y</sub> = ${fmt(o.Y_V*1000,1)} kN · V<sub>X</sub> = ${fmt(o.X_V*1000,1)} kN</span></summary><div class="calc">`;
+    s+='<h4>Lähtötiedot</h4>';
+    s+=row('Sijainti (keskipiste)','x<sub>i</sub> = '+fmt(o.xi,3)+' m, y<sub>i</sub> = '+fmt(o.yi,3)+' m');
+    s+=row('Mitat','h = '+fmt(o.h,3)+' m, b = '+fmt(o.b,3)+' m, H = '+fmt(o.H,3)+' m, α = '+fmt(o.al,2)+'°, C'+fmt(o.fck,0));
+    s+='<h4>Materiaali ja poikkileikkaus</h4>';
+    s+=row('E = 22·((f<sub>ck</sub>+8)/10)<sup>0,3</sup>·1000','22·(('+fmt(o.fck,0)+'+8)/10)<sup>0,3</sup>·1000 = <b>'+fmt(o.E,1)+' MN/m²</b>');
+    s+=row('A<sub>c</sub> = b·h',fmt(o.b,3)+'·'+fmt(o.h,3)+' = <b>'+fs(o.Ac)+' m²</b>');
+    s+=row('I<sub>0</sub> = b·h³/12',fmt(o.b,3)+'·'+fmt(o.h,3)+'³/12 = <b>'+fs(o.Io)+' m⁴</b>');
+    s+=row('sin²α ; cos²α',fs(o.s2)+' ; '+fs(o.c2));
+    s+=row('I<sub>xx</sub> = I<sub>0</sub>·sin²α',fs(o.Io)+'·'+fs(o.s2)+' = <b>'+fs(o.Ixx)+' m⁴</b>');
+    s+=row('I<sub>yy</sub> = I<sub>0</sub>·cos²α',fs(o.Io)+'·'+fs(o.c2)+' = <b>'+fs(o.Iyy)+' m⁴</b>');
+    s+='<h4>Jäykkyys y-suuntaan</h4>';
+    s+=row('K<sub>sy</sub> = A·E/(3H)·sin²α',fs(o.Ac)+'·'+fmt(o.E,1)+'/(3·'+fmt(o.H,3)+')·'+fs(o.s2)+' = <b>'+fs(o.Ksy)+' MN/m</b>');
+    s+=row('K<sub>by</sub> = 3·E·I<sub>xx</sub>/H³','3·'+fmt(o.E,1)+'·'+fs(o.Ixx)+'/'+fmt(o.H,3)+'³ = <b>'+fs(o.Kby)+' MN/m</b>');
+    s+=row('K<sub>y</sub> = 1/(1/K<sub>sy</sub> + 1/K<sub>by</sub>)',o.Ky?('1/(1/'+fs(o.Ksy)+' + 1/'+fs(o.Kby)+') = <b>'+fs(o.Ky)+' MN/m</b>'):'<b>0</b> (ei jäykkyyttä y-suuntaan)');
+    s+='<h4>Jäykkyys x-suuntaan</h4>';
+    s+=row('K<sub>sx</sub> = A·E/(3H)·cos²α',fs(o.Ac)+'·'+fmt(o.E,1)+'/(3·'+fmt(o.H,3)+')·'+fs(o.c2)+' = <b>'+fs(o.Ksx)+' MN/m</b>');
+    s+=row('K<sub>bx</sub> = 3·E·I<sub>yy</sub>/H³','3·'+fmt(o.E,1)+'·'+fs(o.Iyy)+'/'+fmt(o.H,3)+'³ = <b>'+fs(o.Kbx)+' MN/m</b>');
+    s+=row('K<sub>x</sub> = 1/(1/K<sub>sx</sub> + 1/K<sub>bx</sub>)',o.Kx?('1/(1/'+fs(o.Ksx)+' + 1/'+fs(o.Kbx)+') = <b>'+fs(o.Kx)+' MN/m</b>'):'<b>0</b> (ei jäykkyyttä x-suuntaan)');
+    s+='<h4>Osuudet ja sijainti jäykkyyskeskiöstä</h4>';
+    s+=row('K<sub>y</sub>/ΣK<sub>y</sub>',fs(o.Ky)+' / '+fs(R.sKy)+' = <b>'+fmt(o.py*100,3)+' %</b>');
+    s+=row('K<sub>x</sub>/ΣK<sub>x</sub>',fs(o.Kx)+' / '+fs(R.sKx)+' = <b>'+fmt(o.px*100,3)+' %</b>');
+    s+=row('a<sub>x</sub> = x<sub>i</sub> − x<sub>0</sub>',fmt(o.xi,3)+' − '+fmt(R.x0,3)+' = <b>'+fmt(o.ax,3)+' m</b>');
+    s+=row('a<sub>y</sub> = y<sub>i</sub> − y<sub>0</sub>',fmt(o.yi,3)+' − '+fmt(R.y0,3)+' = <b>'+fmt(o.ay,3)+' m</b>');
+    s+=row('K<sub>y</sub>a<sub>x</sub>² ; K<sub>x</sub>a<sub>y</sub>²',fs(o.Kyax2)+' ; '+fs(o.Kxay2)+' MNm');
+    s+='<h4>Kuormitustapaus Y (F<sub>y</sub>)</h4>';
+    s+=row('Siirtymäosuus F<sub>y</sub>·K<sub>y</sub>/ΣK<sub>y</sub>',fmt(R.Fy,4)+'·'+fmt(o.py,5)+' = '+fmt(o.Y_tr*1000,2)+' kN');
+    s+=row('Vääntöosuus M<sub>Y</sub>·K<sub>y</sub>·a<sub>x</sub>/J',fmt(R.MY,4)+'·'+fs(o.Ky)+'·'+fmt(o.ax,3)+' / '+fs(R.J)+' = '+fmt(o.Y_ty*1000,2)+' kN');
+    s+=row('Q<sub>y</sub>',fmt(o.Y_tr*1000,2)+' + '+fmt(o.Y_ty*1000,2)+' = <b>'+fmt(o.Y_Qy*1000,2)+' kN</b>');
+    s+=row('Q<sub>x</sub> = −M<sub>Y</sub>·K<sub>x</sub>·a<sub>y</sub>/J','−'+fmt(R.MY,4)+'·'+fs(o.Kx)+'·'+fmt(o.ay,3)+' / '+fs(R.J)+' = <b>'+fmt(o.Y_Qx*1000,2)+' kN</b>');
+    s+=row('V = Q<sub>x</sub>cos α + Q<sub>y</sub>sin α',fmt(o.Y_Qx*1000,2)+'·'+fmt(ca,4)+' + '+fmt(o.Y_Qy*1000,2)+'·'+fmt(sa,4)+' = <b>'+fmt(o.Y_V*1000,2)+' kN</b>');
+    s+='<h4>Kuormitustapaus X (F<sub>x</sub>)</h4>';
+    s+=row('Siirtymäosuus F<sub>x</sub>·K<sub>x</sub>/ΣK<sub>x</sub>',fmt(R.Fx,4)+'·'+fmt(o.px,5)+' = '+fmt(o.X_tr*1000,2)+' kN');
+    s+=row('Vääntöosuus −M<sub>X</sub>·K<sub>x</sub>·a<sub>y</sub>/J','−'+fmt(R.MX,4)+'·'+fs(o.Kx)+'·'+fmt(o.ay,3)+' / '+fs(R.J)+' = '+fmt(o.X_tx*1000,2)+' kN');
+    s+=row('Q<sub>x</sub>',fmt(o.X_tr*1000,2)+' + '+fmt(o.X_tx*1000,2)+' = <b>'+fmt(o.X_Qx*1000,2)+' kN</b>');
+    s+=row('Q<sub>y</sub> = M<sub>X</sub>·K<sub>y</sub>·a<sub>x</sub>/J',fmt(R.MX,4)+'·'+fs(o.Ky)+'·'+fmt(o.ax,3)+' / '+fs(R.J)+' = <b>'+fmt(o.X_Qy*1000,2)+' kN</b>');
+    s+=row('V = Q<sub>x</sub>cos α + Q<sub>y</sub>sin α',fmt(o.X_Qx*1000,2)+'·'+fmt(ca,4)+' + '+fmt(o.X_Qy*1000,2)+'·'+fmt(sa,4)+' = <b>'+fmt(o.X_V*1000,2)+' kN</b>');
+    s+=row('<span class="small">Alkuperäinen Excel-kaava</span>','<span class="small">Q<sub>Y</sub> = '+fmt(o.Y_xl*1000,2)+' kN, Q<sub>X</sub> = '+fmt(o.X_xl*1000,2)+' kN</span>');
+    s+='</div></details>';
+  });
+  $('#steps-walls').innerHTML=s||'<div class="small">Ei seiniä.</div>';
+}
+$('#btn-openall').addEventListener('click',()=>$$('#steps-walls details').forEach(d=>d.open=true));
+$('#btn-closeall').addEventListener('click',()=>$$('#steps-walls details').forEach(d=>d.open=false));
+
+/* ---------------- tallennus ---------------- */
+function snapshot(){ return {v:1,page:S.page,pdfName:S.pdfName,pageNum:S.pageNum,scaleN:S.scaleN,k:S.k,origin:S.origin,walls:S.walls,nextId:S.nextId,loadP:S.loadP,Fx:S.Fx,Fy:S.Fy,def:S.def}; }
+function restore(o){ if(!o||!o.walls) return; S.page=S.bg?S.page:(o.page||S.page); S.scaleN=o.scaleN; S.k=o.k; S.origin=o.origin; S.walls=o.walls; S.nextId=o.nextId||(Math.max(0,...o.walls.map(w=>w.id))+1);
+  S.loadP=o.loadP||null; S.Fx=o.Fx||0; S.Fy=o.Fy||0; if(o.def) S.def=o.def; S.pdfName=o.pdfName||''; S.pageNum=o.pageNum||1;
+  $('#scaleN').value=+S.scaleN.toFixed(2); ['b','H','fck'].forEach(k=>$('#def-'+k).value=S.def[k]); }
+function save(){ try{ localStorage.setItem(LS_KEY,JSON.stringify(snapshot())); }catch(e){} }
+$('#btn-save').addEventListener('click',()=>{ const blob=new Blob([JSON.stringify(snapshot(),null,1)],{type:'application/json'}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=(S.pdfName?S.pdfName.replace(/\.pdf$/i,''):'leikkausseinat')+'_jakautuminen.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); });
+$('#file-proj').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return; e.target.value=''; try{ const o=JSON.parse(await f.text()); pushUndo(); restore(o); refreshAll(); fit(); save();
+  if(o.pdfName&&!S.bg) showHint('Projekti avattu. Tuo sama pohjakuva <b>'+esc(o.pdfName)+'</b> (sivu '+(o.pageNum||1)+'), niin seinät asettuvat sen päälle.'); }catch(err){ alert('Tiedoston luku epäonnistui.'); } });
+
+/* ---------------- esimerkki (Excelin aineisto) ---------------- */
+$('#btn-example').addEventListener('click',()=>{
+  if(S.walls.length&&!confirm('Korvataanko nykyiset seinät esimerkkiaineistolla?')) return;
+  pushUndo(); S.bg=null; S.pdf=null; S.pdfName=''; $('#pagectl').style.display='none';
+  S.page={w:1190.55,h:841.89};   // tyhjä A3-arkki, mittakaava 1:200
+  S.scaleN=200; S.k=200*PT_MM/1000; $('#scaleN').value=200; S.origin={x:70,y:841.89-70};
+  const D=[['1',90,15.67,0.2,7.205,42.884],['2',90,2.3,0.2,44.654,43.4],['3',90,2.3,0.2,46.754,43.4],['4',0,1.9,0.2,45.704,44.45],['5',0,1.9,0.2,45.704,42.35],
+    ['6',90,14.895,0.3,57.159,43.498],['7',90,18.1,0.3,65.815,41.897],['8',0,58.86,0.2,32.057,50.784],['9',0,58.86,0.2,28.63,34.95]];
+  S.walls=[]; S.nextId=1;
+  D.forEach(d=>{ const w={id:S.nextId++,name:'S'+d[0],p1:{x:0,y:0},p2:{x:0,y:0},b:d[3],H:1.29,fck:30}; setWallFromGeom(w,d[4],d[5],d[2],d[1]); S.walls.push(w); });
+  S.Fx=0; S.Fy=2625; S.loadP=toP({x:55,y:7}); S.def={b:0.2,H:1.29,fck:30}; ['b','H','fck'].forEach(k=>$('#def-'+k).value=S.def[k]);
+  S.sel=null; refreshAll(); fit(); save();
+});
+
+/* ---------------- tulostus ---------------- */
+$('#btn-print').addEventListener('click',()=>{ $$('#steps-walls details').forEach(d=>d.open=true); try{ $('#printimg').src=cv.toDataURL('image/png'); }catch(e){} setTimeout(()=>window.print(),150); });
+
+/* ---------------- käynnistys ---------------- */
+(function init(){
+  let o=null; try{ o=JSON.parse(localStorage.getItem(LS_KEY)||'null'); }catch(e){}
+  if(o) restore(o);
+  // kuormat URL-parametreista (esim. tuulikuormalaskurista)
+  const qs=new URLSearchParams(location.search); let fromUrl=false;
+  ['Fx','Fy'].forEach(k=>{ if(qs.has(k)){ const v=parseFloat(qs.get(k)); if(isFinite(v)){ S[k]=v; fromUrl=true; } } });
+  setTool('wall'); resize(); fit(); refreshAll();
+  if(fromUrl){ save(); showHint('Kuormat tuotu tuulikuormalaskurista'+(qs.get('taso')?' (taso '+esc(qs.get('taso'))+')':'')+': F<sub>x</sub> = '+fmt(S.Fx,1)+' kN, F<sub>y</sub> = '+fmt(S.Fy,1)+' kN. Tarkista kuorman sijainti (x<sub>F</sub>, y<sub>F</sub>).'); history.replaceState(null,'',location.pathname); return; }
+  if(o&&o.pdfName) showHint('Edellinen työ palautettu. Tuo pohjakuva <b>'+esc(o.pdfName)+'</b> uudelleen, niin seinät asettuvat sen päälle.');
+  else if(!o) showHint('Aloita tuomalla ARK-pohjakuva (<b>📄 Tuo PDF</b>) ja tarkista mittakaava. Voit myös kokeilla <b>Esimerkki</b>-aineistoa (alkuperäisen Excelin seinät).');
+})();
+window.__S=S; window.__calc=calc;
+})();
+</script>
+</body>
+</html>

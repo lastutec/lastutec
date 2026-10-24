@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../');}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kuormalaskenta – Lastutec</title>
+<meta name="description" content="Kuormalaskennan työkalut: kuormayhdistelmät, lumikuorma ja tuulikuorma eurokoodien ja Suomen kansallisten liitteiden mukaan.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#000000; --paper:#141414; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e; --accent:#F74902;
+  --body:Arial,Helvetica,sans-serif; --mono:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:20px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+.meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.tools{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem}
+.tools li{border-left:6px solid var(--accent);background:#2a1105;border-radius:4px}
+.tools li.soon{background:var(--paper);border-left-color:var(--line)}
+.tools a,.tools .in{display:block;padding:1.1rem 1.25rem;color:inherit;text-decoration:none}
+.tools a:hover{background:#3a1606}
+.tools a:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:2px}
+.no{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.tools h2{margin:.15rem 0 0;font-size:1.15rem;font-weight:800}
+.tools p{margin:.35rem 0 0;font-size:13.5px;color:var(--muted)}
+.tools span{display:block;margin-top:.5rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent)}
+.tools li.soon span{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Lastutec</a><h1>Kuormalaskenta</h1></div>
+  <span class="meta">Laatinut: INS Atte Lastuvirta</span>
+</header>
+<ul class="tools">
+  <li><a href="yhdistelmat/">
+    <div class="no">Työkalu 1</div>
+    <h2>Kuormayhdistelmät</h2>
+    <p>Murtorajatilan (STR/GEO, EQU), onnettomuustilanteen ja käyttörajatilojen yhdistelmät K<sub>FI</sub>- ja ψ-kertoimin. Määräävät yhdistelmät korostetaan, ja taulukon voi ladata CSV:nä.</p>
+    <span>Avaa generaattori →</span>
+  </a></li>
+  <li><a href="lumi/">
+    <div class="no">Työkalu 2</div>
+    <h2>Lumikuorma</h2>
+    <p>Pulpetti-, harja- ja sahakatot, kinostumat korkeampaa rakennusosaa ja estettä vasten sekä C<sub>e</sub> ja laajojen kattojen korotus (SFS-EN 1991-1-3, YM 6/16).</p>
+    <span>Avaa laskuri →</span>
+  </a></li>
+  <li><a href="tuuli/">
+    <div class="no">Työkalu 3</div>
+    <h2>Tuulikuorma</h2>
+    <p>Puuskanopeuspaine q<sub>p</sub>(z), seinien ja tasakaton vyöhykkeet, nettopaineet sekä kerrosvoimat jäykistyslaskelmaan (SFS-EN 1991-1-4, YM 7/16).</p>
+    <span>Avaa laskuri →</span>
+  </a></li>
+</ul>
+</div>
+</body>
+</html>

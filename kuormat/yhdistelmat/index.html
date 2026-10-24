@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kuormayhdistelmät – Lastutec</title>
+<meta name="description" content="Kuormayhdistelmien muodostus SFS-EN 1990:n ja Suomen kansallisen liitteen mukaan: murtorajatilat STR/GEO ja EQU, onnettomuustilanne ja käyttörajatilat. KFI- ja ψ-kertoimet, määräävät yhdistelmät ja CSV-vienti.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<style>
+:root{
+  --bg:#000000; --panel:#141414; --panel2:#1c1c1c; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e; --line2:#262626;
+  --accent:#F74902; --accent-ink:#111111; --accent-soft:#3b1503; --input:#2a1206;
+  --ok:#5cc58a; --warn:#f5c86b; --bad:#ff6b5a;
+  --radius:6px; --mono:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+  --snow:#7fb2e6; --snow-ink:#bcd8f5; --press:#ff6b5a; --suct:#7fb2e6;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+header.lt{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+header.lt .brand{display:flex;flex-direction:column;gap:2px}
+header.lt .back{font:600 13px Arial,Helvetica,sans-serif;color:var(--accent);text-decoration:none}
+header.lt .back:hover{text-decoration:underline}
+header.lt h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+header.lt .hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+header.lt .meta{font-size:12px;color:var(--muted)}
+.printbtn{font:600 13px Arial,Helvetica,sans-serif;color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.printbtn:hover{filter:brightness(1.1)}
+table,.num,.kpi .v{font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+.wrap{max-width:1300px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.crumb{font-size:13px;color:var(--muted)} .crumb a{color:var(--muted);text-decoration:none} .crumb a:hover{text-decoration:underline}
+h1{font-size:24px;line-height:1.2;margin:2px 0 4px}
+h2{font-size:17px;font-weight:800;margin:0 0 10px}
+h3{font-size:15px;margin:14px 0 6px}
+p.lead{margin:0 0 12px;color:var(--muted);max-width:85ch}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:8px 0 14px;flex-wrap:wrap}
+.tabs a{padding:8px 14px;text-decoration:none;color:var(--muted);border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;font-weight:600;font-size:14.5px}
+.tabs a.on{background:var(--panel);color:var(--ink);border-color:var(--line);margin-bottom:-1px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:950px){.grid{grid-template-columns:minmax(0,1fr)}}
+.field{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;margin:6px 0}
+.field>label{font-size:13.5px}
+.field .u{font-size:12px;color:var(--muted);margin-left:4px;display:inline-block;min-width:34px}
+input[type=number],input[type=text],select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);border-radius:4px;background:var(--input);color:var(--ink);min-width:0}
+select{background:var(--bg)!important}
+input[type=checkbox]{accent-color:var(--accent)}
+input[type=number]{width:92px}
+.field select{max-width:200px}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:6px;padding:6px 10px;font:inherit;font-size:13.5px;cursor:pointer;white-space:nowrap;line-height:1.2}
+.btn:hover{border-color:var(--accent)}.btn.primary{background:var(--accent);border-color:var(--accent);color:#111}.btn.ghost{background:transparent}.btn.danger{color:var(--bad)}
+.small{font-size:12.5px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin:2px 0 6px}
+.chips button{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:12px;padding:2px 9px;font-size:12.5px;cursor:pointer}
+.chips button:hover{border-color:var(--accent)}
+fieldset{border:1px solid var(--line);border-radius:6px;padding:6px 10px 8px;margin:10px 0}
+legend{font-size:12.5px;font-weight:600;color:var(--muted);padding:0 4px}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line2);padding:5px 7px;text-align:right;white-space:nowrap;vertical-align:middle}
+th{font-weight:600;color:var(--muted);font-size:12px;background:var(--panel)}
+td.l,th.l{text-align:left}
+td.expr{text-align:left;white-space:normal;font-family:var(--mono);font-size:12.5px;min-width:280px}
+.num{font-family:var(--mono)}
+.neg{color:var(--bad)}
+tr.gov td{background:var(--accent-soft)}
+tr.gov td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.x-term{color:#666;text-decoration:line-through}
+table.inp input[type=number]{width:80px;padding:3px 5px;text-align:right}
+table.inp input[type=text]{width:150px;padding:3px 5px}
+table.inp select{max-width:230px;padding:3px 5px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+.kpi{border:1px solid var(--line);border-radius:6px;padding:7px 9px;background:var(--panel2)}
+.kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)} .kpi .v{font:600 17px/1.3 var(--mono)}
+.kpi.hl{border-color:var(--accent);background:var(--accent-soft)}
+.calc{font-size:13.5px}
+.calc .row{display:grid;grid-template-columns:minmax(160px,250px) 1fr;gap:4px 14px;padding:3px 0;border-bottom:1px dashed var(--line2)}
+.calc .row .d{color:var(--muted)} .calc .row .f{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+.calc h4{margin:14px 0 2px;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.note{border-left:3px solid var(--warn);background:#2a1f08;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.info{border-left:3px solid var(--accent);background:#1f0d03;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.flex{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.right{margin-left:auto}
+.diag{width:100%;max-width:640px;height:auto;display:block;margin:6px 0}
+.diag text{font:12px system-ui,sans-serif;fill:var(--ink)}
+.diag .m{fill:var(--muted)}
+
+details.step{border:1px solid var(--line);border-radius:6px;margin:8px 0}
+details.step>summary{cursor:pointer;padding:7px 10px;font-weight:600}
+details.step>.calc{padding:0 12px 10px}
+.case{border:1px solid var(--line);border-radius:6px;padding:8px 12px;margin:10px 0}
+.case h3{margin:2px 0 6px}
+@media print{ :root{--bg:#fff;--panel:#fff;--panel2:#fff;--ink:#000;--muted:#444;--line:#bbb;--line2:#ddd;--accent:#c63a00;--accent-soft:#fde2d5;--input:#fff;--ok:#1d6b3a;--warn:#8a5a00;--bad:#b3261e;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back{display:none!important} .no-print{display:none!important} .card{border:0;padding:0} .grid{grid-template-columns:1fr} details.step{break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="lt">
+    <div class="brand"><a href="../" class="back">← Kuormalaskenta</a><h1>Kuormayhdistelmät</h1></div>
+    <div class="hdr-r"><span class="meta">Työkalu 1 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+  </header>
+  <p class="lead">Kuormayhdistelmien muodostus SFS-EN 1990:n ja Suomen kansallisen liitteen mukaan: murtorajatilat STR/GEO ja EQU, onnettomuustilanne ja käyttörajatilat. K<sub>FI</sub>- ja ψ-kertoimet, määräävät yhdistelmät ja CSV-vienti. Laskelmat näytetään välivaiheineen.</p>
+  <!-- ===================== KUORMAYHDISTELMÄT ===================== -->
+  <section id="p-yhdistelmat">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2>Lähtötiedot</h2>
+          <div class="field"><label>Seuraamusluokka</label><select id="c-cc"><option value="0.9">CC1 – K<sub>FI</sub> = 0,9</option><option value="1.0" selected>CC2 – KFI = 1,0</option><option value="1.1">CC3 – KFI = 1,1</option></select></div>
+          <div class="field"><label>Kuormien yksikkö</label><input type="text" id="c-unit" value="kN/m²" style="width:92px"></div>
+          <fieldset><legend>Rajatilat</legend>
+            <label class="small"><input type="checkbox" id="c-str" checked> MRT STR/GEO (6.10a, 6.10b)</label><br>
+            <label class="small"><input type="checkbox" id="c-equ"> MRT EQU (staattinen tasapaino)</label><br>
+            <label class="small"><input type="checkbox" id="c-acc"> Onnettomuustilanne</label><br>
+            <label class="small"><input type="checkbox" id="c-kar" checked> KRT ominaisyhdistelmä</label><br>
+            <label class="small"><input type="checkbox" id="c-tav" checked> KRT tavallinen yhdistelmä</label><br>
+            <label class="small"><input type="checkbox" id="c-pit" checked> KRT pitkäaikaisyhdistelmä</label><br>
+            <label class="small"><input type="checkbox" id="c-fav" checked> Myös yhdistelmät, joissa pysyvä kuorma on edullinen</label>
+          </fieldset>
+          <div class="field" id="c-acc-row"><label>Onnettomuuskuorma A<sub>d</sub></label><span><input type="number" id="c-Ad" step="any" value="0"></span></div>
+          <div class="field"><label>Onnettomuustilanteen määräävä kuorma</label><select id="c-accpsi"><option value="1" selected>ψ<sub>1,1</sub>·Q<sub>k,1</sub></option><option value="2">ψ2,1·Qk,1</option></select></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="flex"><h2 style="margin:0">Pysyvät kuormat G<sub>k</sub></h2><button class="btn right" id="c-addG">+ Lisää</button></div>
+          <div class="tbl-wrap"><table class="inp" id="c-G"></table></div>
+          <div class="flex" style="margin-top:12px"><h2 style="margin:0">Muuttuvat kuormat Q<sub>k</sub></h2><button class="btn right" id="c-addQ">+ Lisää</button></div>
+          <div class="tbl-wrap"><table class="inp" id="c-Q"></table></div>
+          <div class="small" style="margin-top:6px">ψ-kertoimet SFS-EN 1990 kansallisen liitteen taulukon A1.1(FI) mukaan; ne voi tarvittaessa muuttaa. Arvot voivat olla myös negatiivisia (esim. tuulen imu). Jätä arvot nolliksi, jos tarvitset vain yhdistelmien lausekkeet.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="flex"><h2 style="margin:0">Kuormayhdistelmät</h2><span class="small" id="c-count"></span><button class="btn right no-print" id="c-csv">Lataa CSV</button></div>
+      <div id="c-kpis" class="kpis" style="margin-top:10px"></div>
+      <div class="tbl-wrap"><table id="c-out"></table></div>
+      <div class="small" style="margin-top:6px">Lukuarvo lasketaan seuraavasti: kun pysyvä kuorma on epäedullinen (G<sub>sup</sub>), mukaan otetaan vain positiiviset muuttuvat kuormat. Kun pysyvä kuorma on edullinen (G<sub>inf</sub>), mukaan otetaan vain negatiiviset muuttuvat kuormat. Pois jätetyt termit näkyvät yliviivattuina. Korostettu rivi määrää kyseisessä rajatilassa.</div>
+      <details class="step"><summary>Yhdistelmien yleiset lausekkeet (SFS-EN 1990 + kansallinen liite)</summary><div class="calc" id="c-formulas"></div></details>
+    </div>
+  </section>
+
+  <p class="small">Työkalu on suunnittelun apuväline – katso etusivun vastuuvapautuslauseke. Viittaukset: SFS-EN 1990 + A1 + AC ja kansallinen liite.</p>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+function fmt(v,d){ if(v===null||v===undefined||!isFinite(v)) return '–'; if(Math.abs(v)<0.5*Math.pow(10,-d)) v=0;
+  let s=v.toFixed(d); let [i,f]=s.split('.'); const neg=i.startsWith('-'); if(neg)i=i.slice(1);
+  i=i.replace(/\B(?=(\d{3})+(?!\d))/g,' '); return (neg?'−':'')+i+(f?','+f:''); }
+const f2=v=>fmt(v,2), f3=v=>fmt(v,3);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=id=>{const v=parseFloat(String($(id).value).replace(',','.')); return isFinite(v)?v:0;};
+const row=(d,f)=>`<div class="row"><div class="d">${d}</div><div class="f">${f}</div></div>`;
+const lerp=(x,x0,x1,y0,y1)=>x1===x0?y0:y0+(y1-y0)*(x-x0)/(x1-x0);
+const LS='lastutec-kuormalaskenta-v1';
+let store={}; try{store=JSON.parse(localStorage.getItem(LS)||'{}')||{};}catch(e){}
+function persist(){ try{localStorage.setItem(LS,JSON.stringify(store));}catch(e){} }
+function bindPersist(ids,fn){ ids.forEach(id=>{ const el=$('#'+id); if(!el) return; if(store[id]!==undefined){ if(el.type==='checkbox') el.checked=store[id]; else el.value=store[id]; }
+  el.addEventListener(el.type==='checkbox'||el.tagName==='SELECT'?'change':'input',()=>{ store[id]=el.type==='checkbox'?el.checked:el.value; persist(); fn(); }); }); }
+
+/* =====================================================================
+   KUORMAYHDISTELMÄT
+   ===================================================================== */
+const CATS=[
+ ['A','Hyötykuorma A – asuintilat',0.7,0.5,0.3],
+ ['B','Hyötykuorma B – toimistot',0.7,0.5,0.3],
+ ['C','Hyötykuorma C – kokoontumistilat',0.7,0.7,0.3],
+ ['D','Hyötykuorma D – myymälät',0.7,0.7,0.6],
+ ['E','Hyötykuorma E – varastot',1.0,0.9,0.8],
+ ['F','Liikennealue F (ajoneuvo ≤ 30 kN)',0.7,0.7,0.6],
+ ['G','Liikennealue G (30–160 kN)',0.7,0.5,0.3],
+ ['H','Katot H',0,0,0],
+ ['S1','Lumi, sk < 2,75 kN/m²',0.7,0.4,0.2],
+ ['S2','Lumi, sk ≥ 2,75 kN/m²',0.7,0.5,0.2],
+ ['J','Jääkuorma',0.7,0.3,0],
+ ['W','Tuulikuorma',0.6,0.2,0],
+ ['T','Lämpötila (ei palo)',0.6,0.5,0],
+ ['X','Muu (anna ψ itse)',1.0,1.0,1.0]];
+const catById=id=>CATS.find(c=>c[0]===id)||CATS[CATS.length-1];
+let G=store.G||[{n:'Omapaino',v:5.0}];
+let Q=store.Q||[{n:'Lumi',c:'S1',v:2.0,p:[0.7,0.4,0.2]},{n:'Tuuli',c:'W',v:0.6,p:[0.6,0.2,0]},{n:'Hyötykuorma',c:'A',v:2.0,p:[0.7,0.5,0.3]}];
+function saveCQ(){ store.G=G; store.Q=Q; persist(); }
+function buildG(){ let h='<thead><tr><th class="l">Nimi</th><th>G<sub>k</sub></th><th></th></tr></thead><tbody>';
+  G.forEach((g,i)=>{ h+=`<tr><td class="l"><input type="text" data-i="${i}" data-k="n" value="${esc(g.n)}"></td><td><input type="number" step="any" data-i="${i}" data-k="v" value="${g.v}"></td><td><button class="btn ghost danger" data-del="${i}" title="Poista">✕</button></td></tr>`; });
+  $('#c-G').innerHTML=h+'</tbody>'; }
+function buildQ(){ let h='<thead><tr><th class="l">Nimi</th><th class="l">Luokka</th><th>Q<sub>k</sub></th><th>ψ<sub>0</sub></th><th>ψ<sub>1</sub></th><th>ψ<sub>2</sub></th><th></th></tr></thead><tbody>';
+  Q.forEach((q,i)=>{ h+=`<tr><td class="l"><input type="text" data-i="${i}" data-k="n" value="${esc(q.n)}"></td><td class="l"><select data-i="${i}" data-k="c">${CATS.map(c=>`<option value="${c[0]}" ${c[0]===q.c?'selected':''}>${c[1]}</option>`).join('')}</select></td>
+   <td><input type="number" step="any" data-i="${i}" data-k="v" value="${q.v}"></td>${[0,1,2].map(j=>`<td><input type="number" step="0.05" data-i="${i}" data-k="p${j}" value="${q.p[j]}" style="width:60px"></td>`).join('')}<td><button class="btn ghost danger" data-del="${i}" title="Poista">✕</button></td></tr>`; });
+  if(!Q.length) h+='<tr><td colspan="7" class="l small">Ei muuttuvia kuormia.</td></tr>';
+  $('#c-Q').innerHTML=h+'</tbody>'; }
+$('#c-G').addEventListener('input',e=>{ const t=e.target; if(t.dataset.i===undefined) return; const g=G[+t.dataset.i]; if(t.dataset.k==='n') g.n=t.value; else g.v=parseFloat(t.value)||0; saveCQ(); genComb(); });
+$('#c-Q').addEventListener('input',e=>{ const t=e.target; if(t.dataset.i===undefined) return; const q=Q[+t.dataset.i]; const k=t.dataset.k;
+  if(k==='n') q.n=t.value; else if(k==='v') q.v=parseFloat(t.value)||0; else if(k[0]==='p') q.p[+k[1]]=parseFloat(t.value)||0; saveCQ(); genComb(); });
+$('#c-Q').addEventListener('change',e=>{ const t=e.target; if(t.dataset.k!=='c') return; const q=Q[+t.dataset.i]; q.c=t.value; const c=catById(q.c); q.p=[c[2],c[3],c[4]]; buildQ(); saveCQ(); genComb(); });
+$('#c-G').addEventListener('click',e=>{ const d=e.target.closest('[data-del]'); if(!d) return; G.splice(+d.dataset.del,1); buildG(); saveCQ(); genComb(); });
+$('#c-Q').addEventListener('click',e=>{ const d=e.target.closest('[data-del]'); if(!d) return; Q.splice(+d.dataset.del,1); buildQ(); saveCQ(); genComb(); });
+$('#c-addG').addEventListener('click',()=>{ G.push({n:'G'+(G.length+1),v:0}); buildG(); saveCQ(); genComb(); });
+$('#c-addQ').addEventListener('click',()=>{ Q.push({n:'Q'+(Q.length+1),c:'B',v:0,p:[0.7,0.5,0.3]}); buildQ(); saveCQ(); genComb(); });
+
+let lastComb=[];
+function genComb(){
+  const K=parseFloat($('#c-cc').value), unit=$('#c-unit').value, fav=$('#c-fav').checked, Ad=num('#c-Ad');
+  const Gs=G.reduce((a,g)=>a+(+g.v||0),0);
+  const gName=G.length===1?G[0].n:'ΣG<sub>k</sub>';
+  const rows=[];
+  // termi: {c: kerroin, s: symbolinen kerroin, kind:'G'|'Q'|'A', i}
+  const mk=(ls,id,lead,mode,terms)=>rows.push({ls,id,lead,mode,terms:terms.map(t=>({...t}))});
+  const varTerms=(lead,fLead,sLead,fAcc,sAcc,psiAcc)=>Q.map((q,i)=>i===lead?{kind:'Q',i,c:fLead,s:sLead}:{kind:'Q',i,c:fAcc*(psiAcc>=0?q.p[psiAcc]:1),s:sAcc(q)}).filter(t=>t.c!==0||t.i===lead);
+  const kfi='KFI';
+  if($('#c-str').checked){
+    mk('MRT STR/GEO','6.10a','–','max',[{kind:'G',c:1.35*K,s:'1,35·'+kfi}]);
+    if(fav) mk('MRT STR/GEO','6.10a','–','min',[{kind:'G',c:0.9,s:'0,9'}]);
+    Q.forEach((q,i)=>{
+      const vt=varTerms(i,1.5*K,'1,5·'+kfi,1.5*K,qq=>'1,5·'+kfi+'·ψ₀',0);
+      mk('MRT STR/GEO','6.10b',q.n,'max',[{kind:'G',c:1.15*K,s:'1,15·'+kfi},...vt]);
+      if(fav) mk('MRT STR/GEO','6.10b',q.n,'min',[{kind:'G',c:0.9,s:'0,9'},...vt]);
+    });
+  }
+  if($('#c-equ').checked){
+    if(!Q.length) mk('MRT EQU','EQU','–','max',[{kind:'G',c:1.1*K,s:'1,1·'+kfi}]);
+    Q.forEach((q,i)=>{ const vt=varTerms(i,1.5*K,'1,5·'+kfi,1.5*K,()=> '1,5·'+kfi+'·ψ₀',0);
+      mk('MRT EQU','EQU',q.n,'max',[{kind:'G',c:1.1*K,s:'1,1·'+kfi},...vt]);
+      mk('MRT EQU','EQU',q.n,'min',[{kind:'G',c:0.9,s:'0,9'},...vt]); });
+  }
+  if($('#c-acc').checked){
+    const pa=+$('#c-accpsi').value;
+    if(!Q.length) mk('Onnettomuus','6.11b','–','max',[{kind:'G',c:1,s:'1,0'},{kind:'A',c:1,s:'1,0'}]);
+    Q.forEach((q,i)=>{ const vt=Q.map((qq,j)=>j===i?{kind:'Q',i:j,c:qq.p[pa],s:'ψ'+(pa===1?'₁,₁':'₂,₁')}:{kind:'Q',i:j,c:qq.p[2],s:'ψ₂'}).filter(t=>t.c!==0);
+      mk('Onnettomuus','6.11b',q.n,'max',[{kind:'G',c:1,s:'1,0'},{kind:'A',c:1,s:'1,0'},...vt]); });
+  }
+  if($('#c-kar').checked){
+    if(!Q.length) mk('KRT ominais','6.14b','–','max',[{kind:'G',c:1,s:'1,0'}]);
+    Q.forEach((q,i)=>{ const vt=Q.map((qq,j)=>j===i?{kind:'Q',i:j,c:1,s:'1,0'}:{kind:'Q',i:j,c:qq.p[0],s:'ψ₀'}).filter(t=>t.c!==0);
+      mk('KRT ominais','6.14b',q.n,'max',[{kind:'G',c:1,s:'1,0'},...vt]); });
+  }
+  if($('#c-tav').checked){
+    if(!Q.length) mk('KRT tavallinen','6.15b','–','max',[{kind:'G',c:1,s:'1,0'}]);
+    Q.forEach((q,i)=>{ const vt=Q.map((qq,j)=>j===i?{kind:'Q',i:j,c:qq.p[1],s:'ψ₁,₁'}:{kind:'Q',i:j,c:qq.p[2],s:'ψ₂'}).filter(t=>t.c!==0);
+      mk('KRT tavallinen','6.15b',q.n,'max',[{kind:'G',c:1,s:'1,0'},...vt]); });
+  }
+  if($('#c-pit').checked){
+    const vt=Q.map((qq,j)=>({kind:'Q',i:j,c:qq.p[2],s:'ψ₂'})).filter(t=>t.c!==0);
+    mk('KRT pitkäaikais','6.16b','–','max',[{kind:'G',c:1,s:'1,0'},...vt]);
+  }
+  // arvot
+  rows.forEach(r=>{ let v=0; r.terms.forEach(t=>{ const val=t.kind==='G'?Gs:t.kind==='A'?Ad:(+Q[t.i].v||0); t.val=val;
+      t.used = t.kind!=='Q' || (r.mode==='max'? val>0 : val<0);
+      if(t.used) v+=t.c*val; }); r.v=v; });
+  // määräävät
+  const gov={}; rows.forEach((r,ix)=>{ const k=r.ls+'|'+r.mode; if(!(k in gov)||(r.mode==='max'?r.v>rows[gov[k]].v:r.v<rows[gov[k]].v)) gov[k]=ix; });
+  const govSet=new Set(Object.values(gov));
+  const anyVal=Gs!==0||Q.some(q=>+q.v)||Ad;
+  let h=`<thead><tr><th class="l">#</th><th class="l">Rajatila</th><th class="l">Kaava</th><th class="l">Määräävä muuttuva kuorma</th><th class="l">G</th><th class="l">Yhdistelmä (kertoimet laskettu, KFI = ${fmt(K,1)})</th><th>E<sub>d</sub> [${esc(unit)}]</th></tr></thead><tbody>`;
+  rows.forEach((r,ix)=>{
+    const expr=r.terms.map(t=>{ const name=t.kind==='G'?gName:t.kind==='A'?'A<sub>d</sub>':esc(Q[t.i].n); const s=fmt(t.c,3).replace(/,?0+$/,'').replace(/,$/,'')+'·'+name;
+      return (anyVal&&!t.used)?`<span class="x-term">${s}</span>`:s; }).join(' + ');
+    h+=`<tr class="${anyVal&&govSet.has(ix)?'gov':''}"><td class="l">${ix+1}</td><td class="l">${r.ls}</td><td class="l">${r.id}</td><td class="l">${esc(r.lead)}</td><td class="l">${r.mode==='max'?'epäedull.':'edull.'}</td><td class="expr">${expr}</td><td class="num ${r.v<0?'neg':''}"><b>${anyVal?fmt(r.v,3):'–'}</b></td></tr>`; });
+  $('#c-out').innerHTML=h+'</tbody>';
+  $('#c-count').textContent=rows.length+' yhdistelmää';
+  // kpi
+  const kp=[]; Object.entries(gov).forEach(([k,ix])=>{ const [ls,mode]=k.split('|'); kp.push(`<div class="kpi ${mode==='max'&&ls.startsWith('MRT STR')?'hl':''}"><div class="k">${ls} ${mode==='max'?'max':'min'} (#${ix+1})</div><div class="v">${anyVal?fmt(rows[ix].v,2):'–'} <span class="small">${esc(unit)}</span></div></div>`); });
+  $('#c-kpis').innerHTML=anyVal?kp.join(''):'';
+  lastComb=rows.map((r,ix)=>({n:ix+1,ls:r.ls,id:r.id,lead:r.lead,mode:r.mode,expr:r.terms.map(t=>(t.used?'':'(')+fmt(t.c,3)+'*'+(t.kind==='G'?'G':t.kind==='A'?'Ad':Q[t.i].n)+(t.used?'':')')).join(' + '),v:r.v}));
+  // kaavat
+  $('#c-formulas').innerHTML=
+   '<h4>Murtorajatila STR/GEO (taulukko A1.2(B)(FI))</h4>'+
+   row('(6.10a)','1,35·K<sub>FI</sub>·G<sub>kj,sup</sub> + 0,9·G<sub>kj,inf</sub>')+
+   row('(6.10b)','1,15·K<sub>FI</sub>·G<sub>kj,sup</sub> + 0,9·G<sub>kj,inf</sub> + 1,5·K<sub>FI</sub>·Q<sub>k,1</sub> + 1,5·K<sub>FI</sub>·Σψ<sub>0,i</sub>·Q<sub>k,i</sub>')+
+   row('Mitoittava','epäedullisempi lausekkeista (6.10a) ja (6.10b)')+
+   '<h4>Murtorajatila EQU (taulukko A1.2(A)(FI))</h4>'+
+   row('EQU','1,1·K<sub>FI</sub>·G<sub>kj,sup</sub> + 0,9·G<sub>kj,inf</sub> + 1,5·K<sub>FI</sub>·Q<sub>k,1</sub> + 1,5·K<sub>FI</sub>·Σψ<sub>0,i</sub>·Q<sub>k,i</sub>')+
+   '<h4>Onnettomuustilanne (6.11b)</h4>'+
+   row('','ΣG<sub>k,j</sub> + A<sub>d</sub> + (ψ<sub>1,1</sub> tai ψ<sub>2,1</sub>)·Q<sub>k,1</sub> + Σψ<sub>2,i</sub>·Q<sub>k,i</sub>')+
+   '<h4>Käyttörajatilat</h4>'+
+   row('Ominaisyhdistelmä (6.14b)','ΣG<sub>k,j</sub> + Q<sub>k,1</sub> + Σψ<sub>0,i</sub>·Q<sub>k,i</sub>')+
+   row('Tavallinen (6.15b)','ΣG<sub>k,j</sub> + ψ<sub>1,1</sub>·Q<sub>k,1</sub> + Σψ<sub>2,i</sub>·Q<sub>k,i</sub>')+
+   row('Pitkäaikainen (6.16b)','ΣG<sub>k,j</sub> + Σψ<sub>2,i</sub>·Q<sub>k,i</sub>')+
+   '<h4>Kuormakerroin K<sub>FI</sub></h4>'+
+   row('Seuraamusluokat','CC3: K<sub>FI</sub> = 1,1 · CC2: 1,0 · CC1: 0,9 (vain murtorajatilan epäedullisille kuormille)')+
+   '<div class="small" style="margin-top:6px">Kukin muuttuva kuorma vuorollaan on määräävä (Q<sub>k,1</sub>). Katon hyötykuormaa (luokka H) ei yhdistetä lumi- eikä tuulikuorman kanssa (SFS-EN 1991-1-1, 3.3.2).</div>';
+}
+$('#c-csv').addEventListener('click',()=>{ const lines=['#;Rajatila;Kaava;Määräävä;G;Yhdistelmä;Ed'].concat(lastComb.map(r=>[r.n,r.ls,r.id,r.lead,r.mode==='max'?'epäedullinen':'edullinen','"'+r.expr+'"',String(r.v.toFixed(4)).replace('.',',')].join(';')));
+  const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='kuormayhdistelmat.csv'; a.click(); });
+bindPersist(['c-cc','c-unit','c-str','c-equ','c-acc','c-kar','c-tav','c-pit','c-fav','c-Ad','c-accpsi'],genComb);
+buildG(); buildQ(); genComb();
+
+})();
+</script>
+</body>
+</html>

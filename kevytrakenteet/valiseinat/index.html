@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Väliseinävalitsin – Lastutec</title>
+<meta name="description" content="Gyprocin ja Knaufin teräsrankaisten väliseinätyyppien valitsin ääniluokan, paloluokan, seinäkorkeuden ja paksuuden mukaan.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+/* Layout: vaatimukset vasemmalla, sopivat seinätyypit leikkauskuvineen oikealla */
+:root{
+  --bg:#000000; --paper:#141414; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e;
+  --accent:#F74902; --accent-soft:#2a1105; --ok:#5cc58a; --bad:#ff6b5a;
+  --board:#cfc8b6; --wool:#e0b33a; --steel:#8c99a1;
+  --body:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:800;margin:0}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.intro{margin:0;max-width:85ch;color:var(--muted)}
+.grid{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.filters{position:sticky;top:12px}
+@media (max-width:900px){.filters{position:static}}
+.sec{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);padding-bottom:4px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.grp{display:flex;flex-direction:column}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{font:600 13px var(--body);padding:5px 12px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+.presets{display:flex;flex-direction:column;gap:6px}
+.preset{display:flex;justify-content:space-between;gap:10px;text-align:left;font:14px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:8px 10px;cursor:pointer}
+.preset small{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.preset[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.preset[aria-pressed="true"] small{color:var(--accent)}
+.range-row{display:flex;align-items:center;gap:10px}
+.range-row input{flex:1;min-width:0;accent-color:var(--accent)}
+.range-row output{font-size:14px;font-weight:700;min-width:72px;text-align:right;font-variant-numeric:tabular-nums}
+.reset{align-self:flex-start;background:none;border:0;padding:0;color:var(--accent);font:600 13px var(--body);cursor:pointer;text-decoration:underline}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.res-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.count{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.res-bar label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+select{font:14px var(--body);padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink)}
+.results{display:flex;flex-direction:column;gap:10px}
+.wall{background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--line);border-radius:4px;display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:16px;padding:14px 16px}
+.wall.g{border-left-color:#5aa9c9}
+.wall.k{border-left-color:var(--accent)}
+@media (max-width:620px){.wall{grid-template-columns:minmax(0,1fr)}}
+.mf{font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.wall h3{font:700 15px/1.35 var(--body);margin:4px 0 6px;word-break:break-word}
+.desc{font-size:13.5px;color:var(--muted);margin:0 0 10px}
+.stats{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:12px;color:var(--muted)}
+.stats b{display:block;font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
+.stats .hl b{color:var(--accent)}
+.note{font-size:12.5px;color:var(--wool);margin:8px 0 0}
+.note.bad{color:var(--bad)}
+.side svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+.side .cap{font-size:11px;color:var(--muted);margin-top:4px;text-align:center}
+.empty{border:1px dashed var(--line);border-radius:6px;padding:24px;text-align:center;color:var(--muted)}
+.more{align-self:center;font:600 13px var(--body);color:var(--accent);background:none;border:1px solid var(--accent);border-radius:4px;padding:7px 14px;cursor:pointer}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.legend i{width:14px;height:10px;display:inline-block;border:1px solid var(--line)}
+.foot{font-size:12.5px;color:var(--muted);margin:0;max-width:95ch}
+.foot a{color:var(--accent)}
+details.codes{font-size:13px;color:var(--muted)}
+details.codes summary{cursor:pointer;color:var(--ink);font-weight:700}
+.codes table{border-collapse:collapse;margin-top:8px;font-size:13px}
+.codes td{padding:3px 12px 3px 0;vertical-align:top}
+.codes td:first-child{color:var(--accent);font-weight:700}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#c63a00;--accent-soft:#fde2d5;--board:#e6e0d0;--wool:#b8860b;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back,.more,.reset{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  .filters{position:static}
+  .wall{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Kevytrakenteet</a><h1>Väliseinävalitsin</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 1 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="intro">Hae teräsrankainen kipsilevyväliseinä vaatimusten mukaan. Valitsimessa ovat Knaufin LPR- ja RX-seinätyypit sekä Gyprocin XR- ja GS-seinätyypit. Ääniluokat D<sub>nT,w</sub>, paloluokat ja suurimmat seinäkorkeudet ovat valmistajien taulukoista.</p>
+
+<div class="grid">
+  <div class="panel filters">
+    <div class="grp"><div class="sec">Käyttökohde</div>
+      <div class="presets" id="presets">
+        <button type="button" class="preset" data-s="30" data-f="0" aria-pressed="false">Asunnon sisäinen seinä <small>≥30 dB</small></button>
+        <button type="button" class="preset" data-s="40" data-f="30" aria-pressed="false">Toimistohuoneiden välinen <small>≥40 dB · EI 30</small></button>
+        <button type="button" class="preset" data-s="40" data-f="60" aria-pressed="false">Asunto – porrashuone, ovi <small>≥39 dB · EI 60</small></button>
+        <button type="button" class="preset" data-s="55" data-f="60" aria-pressed="false">Huoneistojen välinen <small>≥55 dB · EI 60</small></button>
+      </div>
+    </div>
+    <div class="grp"><div class="sec">Valmistaja</div>
+      <div class="chips" id="mfChips"><button type="button" data-v="all" aria-pressed="true">Molemmat</button><button type="button" data-v="Gyproc" aria-pressed="false">Gyproc</button><button type="button" data-v="Knauf" aria-pressed="false">Knauf</button></div>
+    </div>
+    <div class="grp"><div class="sec"><label for="snd">Ääneneristys D<sub>nT,w</sub> vähintään</label></div>
+      <div class="range-row"><input id="snd" type="range" min="20" max="65" step="1" value="20"><output id="sndOut" for="snd"></output></div>
+    </div>
+    <div class="grp"><div class="sec">Paloluokka vähintään</div>
+      <div class="chips" id="fireChips"><button type="button" data-v="0" aria-pressed="true">Ei vaat.</button><button type="button" data-v="30" aria-pressed="false">EI 30</button><button type="button" data-v="60" aria-pressed="false">EI 60</button><button type="button" data-v="90" aria-pressed="false">EI 90</button><button type="button" data-v="120" aria-pressed="false">EI 120</button></div>
+    </div>
+    <div class="grp"><div class="sec"><label for="hgt">Seinän korkeus</label></div>
+      <div class="range-row"><input id="hgt" type="range" min="2000" max="7000" step="100" value="2600"><output id="hgtOut" for="hgt"></output></div>
+    </div>
+    <div class="grp"><div class="sec"><label for="thk">Seinän paksuus enintään</label></div>
+      <div class="range-row"><input id="thk" type="range" min="80" max="320" step="5" value="320"><output id="thkOut" for="thk"></output></div>
+    </div>
+    <button type="button" class="reset" id="reset">Tyhjennä valinnat</button>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+    <div class="res-bar"><div class="count" id="count" aria-live="polite"></div>
+      <label for="sort">Järjestys <select id="sort"><option value="snd">Ääniluokka</option><option value="thk">Ohuin ensin</option><option value="idx">Hintaindeksi</option></select></label></div>
+    <div class="legend"><span><i style="background:var(--board)"></i>kipsilevy</span><span><i style="background:var(--steel);opacity:.6"></i>erikoislevy (ääni)</span><span><i style="background:var(--wool)"></i>mineraalivilla</span><span><i style="background:var(--bg);border-color:var(--ink)"></i>teräsranka</span></div>
+    <div class="results" id="results"></div>
+  </div>
+</div>
+
+<details class="codes">
+  <summary>Seinätyyppimerkintöjen selitys</summary>
+  <table>
+    <tr><td>RX 95/95 (600)</td><td>rankajärjestelmä, kiskon/rangan leveys mm, rankajako mm. 95/66 = siksak-runko, 66/66x2 = kaksinkertainen runko.</td></tr>
+    <tr><td>KN-NK</td><td>levyt rungon kummallakin puolella uloimmasta sisimpään; 0 = ei levyä toisella puolella.</td></tr>
+    <tr><td>M70 · A66 · MR</td><td>mineraalivillan paksuus mm · ääneneristysvilla · villakaista.</td></tr>
+    <tr><td>Knauf</td><td>N KN13 · K KEK13 · U Ultra Board · R KR13 · P KPS15 · H KH13 · S Silentboard · V Vidiwall</td></tr>
+    <tr><td>Gyproc</td><td>N GN 13 Normaali · K GEK 13 · R GR 13 Erikoiskova · H GH 13 Habito · P FireLine-palolevy</td></tr>
+  </table>
+</details>
+
+<p class="foot">Lähteet: Knauf Oy, <a href="https://assets.knauf.com/content/dam/knauf-gypsum/knauf-finland/documents/non-product-related-documents/Valiseinarakenteiden_aani-_ja_paloluokat_esite.pdf" rel="noopener">Väliseinärakenteiden ääni- ja paloluokat</a>; Gyproc Käsikirja, Gypsteel XR -esite sekä gyproc.fi- ja gyproc.ee-rakennetiedot. Gyprocin seinätyypeistä valitsimessa on osa. Paksuus on laskettu rangasta ja levyistä, jos valmistaja ei sitä ilmoita. Korkeus on paloluokitellun seinän raja, kun paloluokka on valittu. Hintaindeksit ovat valmistajakohtaisia (Knauf: LPR 66/66 N-N M0, Gyproc: GS 66/66 N-N M0 = 100) eivätkä vertailukelpoisia keskenään. Ääniluokka edellyttää valmistajan ohjeiden mukaista toteutusta ja sivutiesiirtymien huomioimista. Tarkista lopullinen rakenne valmistajan voimassa olevasta käsikirjasta ja palosertifikaatista.</p>
+</div>
+
+<script>
+const KNAUF=[{"m": "Knauf", "name": "Knauf LPR 66/66 (600) N-N M0", "snd": "25-30", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 3800, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) N-N M0", "snd": "30", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 5000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) N-N M0", "snd": "30", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 3800, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) K-K M0", "snd": "30", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 3800, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) N-N M0", "snd": "30-35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) N-N M0", "snd": "30-35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 5000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) N-N M0", "snd": "30-35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) K-K M0", "snd": "30-35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) K-K M0", "snd": "30-35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 3800, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) N-N M50", "snd": "35", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 3800, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) K-K M0", "snd": "35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) K-K M0", "snd": "35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) K-K M0", "snd": "35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) P-P M0", "snd": "35", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 3900, "hEI": 3000, "idx": 97}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) U-U M0", "snd": "35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 3800, "hEI": 3800, "idx": 91}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) U-U M0", "snd": "35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 4000, "idx": 120}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) P-P M0", "snd": "35", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 4000, "hEI": 3000, "idx": 97}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) U-U M0", "snd": "35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 3800, "hEI": 3800, "idx": 91}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) U-U M0", "snd": "35", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 4000, "idx": 120}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) N-N M50", "snd": "35-40", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 3800, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) P-P M0", "snd": "35-40", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5500, "hEI": 3000, "idx": 126}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) K-K M50", "snd": "35-40", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 4000, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) P-P M0", "snd": "35-40", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3000, "idx": 151}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) P-P M0", "snd": "35-40", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5500, "hEI": 3000, "idx": 126}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) U-U M0", "snd": "35-40", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 4000, "idx": 145}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) U-U M0", "snd": "35-40", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 4000, "idx": 145}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) V-V M0", "snd": "35-40", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 4200, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) NN-NN M0", "snd": "35-40", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 4000, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) V-V M0", "snd": "35-40", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 4200, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) N-N M70", "snd": "40", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 5000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) N-N M70", "snd": "40", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 5000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) N-N M95", "snd": "40", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) K-K M70", "snd": "40", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) K-K M50", "snd": "40", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 4000, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) P-P M0", "snd": "40", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3000, "idx": 151}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) K-K M70", "snd": "40", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) V-V M0", "snd": "40", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) P-P M50", "snd": "40", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 4000, "hEI": 3000, "idx": 97}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) U-U M50", "snd": "40", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 3800, "hEI": 3800, "idx": 91}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) V-V M0", "snd": "40", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) NN-NN M0", "snd": "40", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5900, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) V-V M0", "snd": "40", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) P-P M50", "snd": "40", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 4000, "hEI": 3000, "idx": 97}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) NN-NN M0", "snd": "40", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 4000, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) V-V M0", "snd": "40", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) KN-NK M0", "snd": "40", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 4700, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) K-K M95", "snd": "40-44", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) P-P M70", "snd": "40-44", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5500, "hEI": 3000, "idx": 126}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) U-U M66", "snd": "40-44", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6000, "hEI": 4000, "idx": 120}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) NN-NN M0", "snd": "40-44", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 6500, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) U-U M50", "snd": "40-44", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 3800, "hEI": 3800, "idx": 91}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) NN-NN M0", "snd": "40-44", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5900, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) KN-NK M0", "snd": "40-44", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) V-V M50", "snd": "40-44", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 4200, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) KN-NK M0", "snd": "40-44", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 4700, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) UN-NU M0", "snd": "40-44", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 4700, "hEI": 4000, "idx": 116}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) S-S M50", "snd": "40-44", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 3200, "hEI": 3200, "idx": 92}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) N-N M95", "snd": "44", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) R-R M70", "snd": "44", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) K-K M95", "snd": "44", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) P-P M70", "snd": "44", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5500, "hEI": 3000, "idx": 126}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) U-U M66", "snd": "44", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6000, "hEI": 4000, "idx": 145}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) NN-NN M0", "snd": "44", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 6500, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) U-U M50", "snd": "44", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6000, "hEI": 4000, "idx": 120}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) P-P M95", "snd": "44", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3000, "idx": 151}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) U-U M66", "snd": "44", "star": false, "ei": 30, "eiUp": 60, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6000, "hEI": 4000, "idx": 145}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) P-P M95", "snd": "44", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3000, "idx": 151}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) KN-NK M0", "snd": "44", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) KN-NK M0", "snd": "44", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) V-V M70", "snd": "44", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) NN-NN M50", "snd": "44", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 4000, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) KN-NK M0", "snd": "44", "star": false, "ei": 60, "eiUp": 90, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 7000, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) V-V M50", "snd": "44", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 4200, "hEI": 3800, "idx": 92}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) V-V M95", "snd": "44", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) KN-NK M50", "snd": "44", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 4700, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) UN-NU M0", "snd": "44", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 4000, "idx": 145}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) UN-NU M0", "snd": "44", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 4700, "hEI": 4000, "idx": 116}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) UN-NU M0", "snd": "44", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 4000, "idx": 170}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) NV-VN M0", "snd": "44", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5000, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) S-S M50", "snd": "44", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 3200, "hEI": 3200, "idx": 92}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) NN-NN M70", "snd": "44-46", "star": false, "ei": 60, "eiUp": 90, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 5900, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) V-V M70", "snd": "44-46", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) V-V M95", "snd": "44-46", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) NV-VN M0", "snd": "44-46", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) PP-PP M0", "snd": "44-46", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 4600, "hEI": 3800, "idx": 128}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) PP-PP M0", "snd": "44-46", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 157}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) S-S M70", "snd": "44-46", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 3200, "hEI": 3200, "idx": 121}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) S-S M95", "snd": "44-46", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) NN-NN M50", "snd": "44-48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 4000, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) KN-NK M70", "snd": "44-48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) UN-NU M0", "snd": "44-48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 4000, "idx": 145}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) UN-NU M50", "snd": "44-48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 4700, "hEI": 4000, "idx": 116}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) NV-VN M0", "snd": "44-48", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) PP-PP M0", "snd": "44-48", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 4600, "hEI": 3800, "idx": 128}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) PP-PP M0", "snd": "44-48", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 182}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) KV-VK M0", "snd": "44-48", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5000, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) PP-PP M0", "snd": "44-48", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 182}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) KV-VK M0", "snd": "44-48", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) NN-NN M95", "snd": "46-48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6500, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) KN-NK M95", "snd": "46-48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) S-S M70", "snd": "46-48", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 4700, "hEI": 3800, "idx": 121}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) S-S M95", "snd": "46-48", "star": false, "ei": 30, "eiUp": null, "eiNote": null, "h": 6000, "hEI": 3800, "idx": 146}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) NN-NN M70", "snd": "48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 5900, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf LPR 95/66 (600) NN-NN M50", "snd": "48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 3500, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) KN-NK M50", "snd": "48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 4700, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) NN-NN M95", "snd": "48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 6500, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) RN-NR M50", "snd": "48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 4700, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) UN-NU M0", "snd": "48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 4000, "idx": 170}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) KN-NK M70", "snd": "48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) UN-NU M66", "snd": "48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 4000, "idx": 145}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) UN-NU M50", "snd": "48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 4700, "hEI": 4000, "idx": 116}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) UN-NU M66", "snd": "48", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 4000, "idx": 170}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) PP-PP M0", "snd": "48", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 157}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) KV-VK M0", "snd": "48", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) NV-VN M50", "snd": "48", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5000, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) PP-PP M50", "snd": "48", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 4600, "hEI": 3800, "idx": 128}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) NV-VN M70", "snd": "48-50", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) NV-VN M50", "snd": "48-50", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5000, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) PP-PP M70", "snd": "48-50", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 157}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) PP-PP M50", "snd": "48-50", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 4600, "hEI": 3800, "idx": 128}, {"m": "Knauf", "name": "Knauf LPR 66/66 (600) KS-SK M50", "snd": "48-50", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 4300, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf LPR 95/66 (600) KN-NK M50", "snd": "48-52", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 3500, "hEI": 3500, "idx": 147}, {"m": "Knauf", "name": "Knauf LPR 95/66 (600) UN-NU M50", "snd": "48-52", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 3300, "hEI": 3300, "idx": 145}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) NV-VN M95", "snd": "48-52", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) PP-PP M70", "snd": "48-52", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 157}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) PP-PP M95", "snd": "48-52", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 182}, {"m": "Knauf", "name": "Knauf LPR 95/95 (600) KS-SK M70", "snd": "50-52", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5900, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf LPR 120/95 (600) NN-NN M70", "snd": "52", "star": false, "ei": 60, "eiUp": 90, "eiNote": "runkotilan täyttävällä kivivillalla", "h": 3700, "hEI": 3700, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) KK-KK M95", "snd": "52", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) UN-NU M66", "snd": "52", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 7000, "hEI": 4000, "idx": 145}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) RR-RR M70", "snd": "52", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) NV-VN M70", "snd": "52", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) NV-VN M95", "snd": "52", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) PP-PP M95", "snd": "52", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 3800, "idx": 182}, {"m": "Knauf", "name": "Knauf RX 66/66 (600) KS-SK M50", "snd": "52", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 4300, "hEI": 3800, "idx": 118}, {"m": "Knauf", "name": "Knauf LPR 120/120 (600) KS-SK M95", "snd": "52", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 6500, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf LPR 120/95 (600) KN-NK M95", "snd": "52-54", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 4000, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 95/95 (600) KS-SK M70", "snd": "52-54", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 5900, "hEI": 3800, "idx": 147}, {"m": "Knauf", "name": "Knauf LPR 120/95 (600) UN-NU M95", "snd": "52-55", "star": true, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 4000, "hEI": 3800, "idx": 170}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) UU-UU M95", "snd": "52-55", "star": true, "ei": 60, "eiUp": null, "eiNote": null, "h": 7000, "hEI": 4000, "idx": 170}, {"m": "Knauf", "name": "Knauf LPR 120/95 (600) KV-VK M95", "snd": "54-55", "star": true, "ei": 60, "eiUp": null, "eiNote": null, "h": 4200, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf LPR 120/95 (600) RS-SR M95", "snd": "55", "star": true, "ei": 60, "eiUp": null, "eiNote": null, "h": 4200, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf RX 120/120 (600) SS-SS M95", "snd": "55", "star": true, "ei": 60, "eiUp": null, "eiNote": null, "h": 6500, "hEI": 3800, "idx": 172}, {"m": "Knauf", "name": "Knauf LPR 120/95 (600) SS-SS M95", "snd": "56", "star": true, "ei": 60, "eiUp": null, "eiNote": null, "h": 3700, "hEI": 3700, "idx": 172}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) NN-NN M100", "snd": "57-60", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 204}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) KN-NK M100", "snd": "57-60", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 3500, "hEI": 3500, "idx": 204}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) UN-NU M100", "snd": "57-60", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 3300, "hEI": 3300, "idx": 205}, {"m": "Knauf", "name": "Knauf RX 66/66x2 (600) UN-NU M100", "snd": "57-60", "star": false, "ei": 60, "eiUp": 90, "eiNote": "KEK13-levyillä tai kivivillalla", "h": 3300, "hEI": 3300, "idx": 205}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) PP-PP M100", "snd": "57-60", "star": false, "ei": 120, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 206}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) NV-VN M100", "snd": "60-65", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 3700, "hEI": 3700, "idx": 204}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) NNN-NNN M100", "snd": "60-65", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 230}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) KNN-NNK M100", "snd": "60-65", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 230}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) UNN-NNU M100", "snd": "60-65", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 230}, {"m": "Knauf", "name": "Knauf RX 66/66x2 (600) UNN-NNU M100", "snd": "60-65", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 230}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) UNN-NNU M170", "snd": "65", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 280}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) NVN-NVN M100", "snd": "65", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 3700, "hEI": 3700, "idx": 230}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) KS-SK M100", "snd": "65", "star": false, "ei": 60, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 204}, {"m": "Knauf", "name": "Knauf RX 66/66x2 (600) UNN-NNU M170", "snd": "65", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 280}, {"m": "Knauf", "name": "Knauf RX 66/66x2 (600) UNN-NNU M190", "snd": "65", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 330}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) KSN-NSK M100", "snd": "67", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 230}, {"m": "Knauf", "name": "Knauf LPR 66/66x2 (600) KSS-SSK M100", "snd": "70", "star": false, "ei": 90, "eiUp": null, "eiNote": null, "h": 3500, "hEI": 3500, "idx": 230}];
+const GYPROC=[
+{"m":"Gyproc","name":"Gyproc XR 66/66 (450) N-0 M0","snd":"20-25","ei":0,"h":2200,"t":78,"idx":66,"code":"3.1.1:101"},
+{"m":"Gyproc","name":"Gyproc XR 66/66 (450) R-0 M0","snd":"20-25","ei":15,"h":2300,"t":78,"code":"3.1.1:101"},
+{"m":"Gyproc","name":"Gyproc XR 66/66 (600) R-0 M0","snd":"25","ei":15,"h":2100,"t":78,"idx":75,"code":"3.1.1:101"},
+{"m":"Gyproc","name":"Gyproc XR 95/95 (600) H-H M0","snd":"35","ei":30,"h":6000,"t":120,"idx":139,"code":"3.1.1:102"},
+{"m":"Gyproc","name":"Gyproc XR 95/95 (450) K-K MR","snd":"35","ei":30,"h":6000,"code":"3.1.1:103"},
+{"m":"Gyproc","name":"Gyproc XR 66/66 (600) H-H M50","snd":"40","ei":30,"h":4000,"hEI":3000,"t":91,"idx":150,"code":"3.1.1:104"},
+{"m":"Gyproc","name":"Gyproc XR 66/66 (600) R-R M50","snd":"40","ei":30,"h":4200,"hEI":3000,"t":91,"idx":161,"code":"3.1.1:104"},
+{"m":"Gyproc","name":"Gyproc GS 95/95 (600) P-P M70","snd":"40","ei":60,"h":6000,"t":126,"idx":156,"code":"3.1.6:103"},
+{"m":"Gyproc","name":"Gyproc XR 120/120 (450) K-K M50","snd":"40","ei":30,"t":145,"idx":142,"code":"3.1.1:104"},
+{"m":"Gyproc","name":"Gyproc XR 66/66 (600) K-K M50","snd":"40-44","ei":30,"code":"3.1.1:104"},
+{"m":"Gyproc","name":"Gyproc XR 95/95 (600) R-R M70","snd":"44","ei":30,"eiUp":60,"eiNote":"GKF 15 -palolevyillä (P-P)","h":6000,"t":120,"idx":142,"code":"3.1.1:104"},
+{"m":"Gyproc","name":"Gyproc XR 95/95 (450) HN-NH M0","snd":"44","ei":60,"eiUp":120,"eiNote":"GKF 15 -palolevyillä (PP-PP)","h":7000,"code":"3.1.1:105"},
+{"m":"Gyproc","name":"Gyproc XR 66/66 (600) NN-NN M50","snd":"44-48","ei":60,"h":4000,"code":"3.1.1:107"},
+{"m":"Gyproc","name":"Gyproc XR 95/95 (600) NN-NN MR","snd":"44-48","ei":60,"h":5900,"t":145,"idx":160,"code":"3.1.1:106"},
+{"m":"Gyproc","name":"Gyproc XR 95/95 (450) NN-NN MR","snd":"44-48","ei":60,"h":6800,"t":145,"idx":160,"code":"3.1.1:106"},
+{"m":"Gyproc","name":"Gyproc GS 95/95 (600) RN-NR M70","snd":"48","ei":60,"h":7000,"t":145,"idx":180,"code":"3.1.6:106"},
+{"m":"Gyproc","name":"Gyproc XR 120/120 (600) RN-NR M50","snd":"55","ei":60,"h":7000,"hEI":5000,"t":170,"idx":210,"code":"3.1.1:107"},
+{"m":"Gyproc","name":"Gyproc XR 66/66x2 (600) HN-NH M100","snd":"55","ei":60,"h":3200,"hEI":3000,"t":205,"idx":227,"code":"3.1.1:110"},
+{"m":"Gyproc","name":"Gyproc XR 66/66x2 (600) RNN-NNR M140","snd":"60-65","ei":90,"h":3500,"code":"3.1.1:111"},
+{"m":"Gyproc","name":"Gyproc XR 66/66x2 (600) KNN-NNK A132","snd":"60-65","ei":90,"h":3550,"hEI":3550,"t":230,"idx":315},
+{"m":"Gyproc","name":"Gyproc XR 66/66x2 (600) HNN-NNH A132","snd":"60-65","ei":90,"h":3550,"hEI":3550,"t":230,"idx":350},
+{"m":"Gyproc","name":"Gyproc XR 66/66x2 (600) RNN-NNR A132","snd":"60-65","ei":90,"h":3500,"hEI":3550,"t":230,"idx":324}
+]
+;
+const BOARDS={
+  Knauf:{N:"KN13",K:"KEK13",U:"Ultra Board 13",R:"KR13",P:"KPS15",H:"KH13",S:"Silentboard",V:"Vidiwall"},
+  Gyproc:{N:"GN 13 Normaali",K:"GEK 13",R:"GR 13 Erikoiskova",H:"GH 13 Habito",P:"FireLine 15",D:"GD 13",F:"GF 15 FireLine"}
+};
+const BT={P:15.5,F:15.4};
+const bThk=(m,c)=>(m==="Gyproc"&&c==="P")?15.4:(BT[c]||12.5);
+function parse(w){
+  const m=w.name.match(/(LPR|RX|XR|GS) (\d+)\/(\d+)(x2)? \((\d+)\) ([A-Z]+)-([A-Z0]+) (\S+)/);
+  const sys=m[1],rail=+m[2],stud=+m[3],dbl=!!m[4],k=+m[5],L=m[6],R=m[7]==="0"?"":m[7],wool=m[8];
+  const frame=dbl?stud*2+20:rail;
+  const sum=s=>[...s].reduce((a,c)=>a+bThk(w.m,c),0);
+  const t=w.t||Math.round(frame+sum(L)+sum(R));
+  const woolMm=/^[MA]\d+$/.test(wool)?+wool.slice(1):0;
+  return Object.assign({},w,{sys,rail,stud,dbl,k,L,R,wool,woolMm,frame,t,sMin:+w.snd.split("-")[0],hEI:w.hEI||w.h});
+}
+const ALL=[...GYPROC,...KNAUF].map(parse);
+
+function frameText(w){
+  const sysName={LPR:"LPR-ranka",RX:"RX-ääneneristysranka",XR:"XR-ääneneristysranka",GS:"Gypsteel ELPR -ranka"}[w.sys];
+  const kind=w.dbl?`kaksinkertainen runko 2 × ${w.stud} mm`:(w.rail!==w.stud?`siksak-runko, ranka ${w.stud} mm kiskossa ${w.rail} mm`:`runko ${w.stud} mm`);
+  return `${sysName}, ${kind}, k${w.k}`;
+}
+function boardText(w){
+  const B=BOARDS[w.m]; const names=s=>[...s].map(c=>B[c]||c).join(" + ");
+  const sym=w.R&&w.R===[...w.L].reverse().join("");
+  const lv=w.R?(sym?`Molemmin puolin ${names(w.L)}`:`${names(w.L)} / ${names(w.R)}`):`Toispuoleinen ${names(w.L)}`;
+  const wool=w.wool==="M0"?"ei villaa":w.wool==="MR"?"villakaista":`${w.woolMm} mm ${w.wool[0]==="A"?"ääneneristysvilla":"mineraalivilla"}`;
+  return `${lv}; ${wool}`;
+}
+function section(w){
+  const W=200,pad=8,len=W-2*pad,sc=Math.min(.55,110/w.t);
+  let y=pad,g="";
+  const board=c=>{const h=bThk(w.m,c)*sc,sp=c==="S"||c==="R";g+=`<rect x="${pad}" y="${y.toFixed(1)}" width="${len}" height="${h.toFixed(1)}" fill="${sp?"var(--steel)":"var(--board)"}" fill-opacity="${sp?.6:1}" stroke="#000" stroke-width=".7"/>`;y+=h;};
+  [...w.L].forEach(board);
+  const fTop=y,fH=w.frame*sc,sh=w.stud*sc;
+  if(w.woolMm||w.wool==="MR"){const wh=w.wool==="MR"?Math.min(fH,10*sc):Math.min(fH,w.woolMm*sc);g+=`<rect x="${pad}" y="${(fTop+(fH-wh)/2).toFixed(1)}" width="${len}" height="${wh.toFixed(1)}" fill="var(--wool)" opacity=".85"/>`;}
+  const stud=(x,top)=>{g+=`<path d="M${(x+6).toFixed(1)} ${(top+.8).toFixed(1)}h-6v${(sh-1.6).toFixed(1)}h6" fill="none" stroke="var(--ink)" stroke-width="1.6"/>`;};
+  if(w.dbl){[.25,.75].forEach(p=>{stud(pad+len*p,fTop);stud(pad+len*p,fTop+fH-sh);});}
+  else if(w.rail!==w.stud){stud(pad+len*.25,fTop);stud(pad+len*.75,fTop+fH-sh);}
+  else [.25,.75].forEach(p=>stud(pad+len*p,fTop));
+  g+=`<path d="M${pad} ${fTop.toFixed(1)}h${len}M${pad} ${(fTop+fH).toFixed(1)}h${len}" stroke="var(--line)" stroke-dasharray="2 3"/>`;
+  y=fTop+fH;[...w.R].forEach(board);
+  return `<svg viewBox="0 0 ${W} ${(y+pad).toFixed(0)}" role="img" aria-label="Vaakaleikkaus, paksuus ${w.t} mm">${g}</svg>`;
+}
+
+const st={mf:"all",snd:20,fire:0,h:2600,thk:320,sort:"snd",limit:25};
+try{const s=JSON.parse(sessionStorage.getItem("lt-valiseinat")||"null");if(s)Object.assign(st,s,{limit:25});}catch(e){}
+const $=id=>document.getElementById(id);
+const fireOK=w=>st.fire===0||w.ei>=st.fire||(w.eiUp&&w.eiUp>=st.fire);
+const hOK=w=>w.h==null||(st.fire?w.hEI:w.h)>=st.h;
+const idx=w=>w.idx??999;
+function filtered(){
+  return ALL.filter(w=>(st.mf==="all"||w.m===st.mf)&&w.sMin>=st.snd&&fireOK(w)&&hOK(w)&&(st.thk>=320||w.t<=st.thk))
+   .sort((a,b)=>(st.snd>=55?(a.star-b.star):0)||(st.sort==="thk"?a.t-b.t||a.sMin-b.sMin:st.sort==="idx"?idx(a)-idx(b)||a.sMin-b.sMin:a.sMin-b.sMin||a.t-b.t||idx(a)-idx(b)));
+}
+function card(w){
+  const hTxt=w.h==null?"–":((st.fire?w.hEI:w.h)+" mm");
+  const notes=[];
+  if(w.eiUp&&st.fire>w.ei)notes.push([`EI ${w.eiUp} edellyttää: ${w.eiNote}.`,""]);
+  else if(w.eiUp)notes.push([`EI ${w.eiUp} mahdollinen: ${w.eiNote}.`,""]);
+  if(w.star)notes.push(["Valmistaja ei suosittele huoneistojen väliseksi seinäksi.","bad"]);
+  if(w.h==null)notes.push(["Suurin seinäkorkeus: tarkista valmistajan rakennetiedoista.",""]);
+  return `<article class="wall ${w.m==="Gyproc"?"g":"k"}"><div style="min-width:0">
+    <div class="mf">${w.m}${w.code?" · rakennetyyppi "+w.code:""}</div>
+    <h3>${w.name}</h3>
+    <p class="desc">${frameText(w)}. ${boardText(w)}.</p>
+    <div class="stats"><span class="hl"><b>${w.snd} dB</b>D<sub>nT,w</sub></span><span><b>${w.ei?"EI "+w.ei:"–"}</b>paloluokka</span><span><b>${hTxt}</b>max korkeus${st.fire?" (palo)":""}</span><span><b>${w.t} mm</b>paksuus</span>${w.idx?`<span><b>${w.idx}</b>hintaindeksi</span>`:""}</div>
+    ${notes.map(([n,c])=>`<p class="note ${c}">${n}</p>`).join("")}
+  </div><div class="side">${section(w)}<div class="cap">vaakaleikkaus · ${w.t} mm</div></div></article>`;
+}
+function render(){
+  const list=filtered();
+  $("count").textContent=list.length?`${list.length} seinätyyppiä`:"Ei sopivia seinätyyppejä";
+  $("results").innerHTML=list.length?list.slice(0,st.limit).map(card).join("")+(list.length>st.limit?`<button type="button" class="more" id="more">Näytä lisää (${list.length-st.limit})</button>`:""):
+    `<div class="empty">Yksikään seinätyyppi ei täytä kaikkia ehtoja. Laske seinän korkeutta, salli paksumpi seinä tai valitse matalampi ääni- tai paloluokka.</div>`;
+}
+function sync(){
+  $("sndOut").textContent=st.snd<=20?"ei vaat.":`≥ ${st.snd} dB`;
+  $("hgtOut").textContent=st.h+" mm";
+  $("thkOut").textContent=st.thk>=320?"ei rajaa":`≤ ${st.thk} mm`;
+  document.querySelectorAll("#mfChips button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===st.mf));
+  document.querySelectorAll("#fireChips button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.v===st.fire));
+  document.querySelectorAll(".preset").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.s===st.snd&&+b.dataset.f===st.fire));
+  $("snd").value=st.snd;$("hgt").value=st.h;$("thk").value=st.thk;$("sort").value=st.sort;
+  try{const {limit,...s}=st;sessionStorage.setItem("lt-valiseinat",JSON.stringify(s));}catch(e){}
+}
+const upd=()=>{st.limit=25;sync();render();};
+$("snd").addEventListener("input",e=>{st.snd=+e.target.value;upd();});
+$("hgt").addEventListener("input",e=>{st.h=+e.target.value;upd();});
+$("thk").addEventListener("input",e=>{st.thk=+e.target.value;upd();});
+$("sort").addEventListener("change",e=>{st.sort=e.target.value;upd();});
+$("mfChips").addEventListener("click",e=>{const b=e.target.closest("button");if(b){st.mf=b.dataset.v;upd();}});
+$("fireChips").addEventListener("click",e=>{const b=e.target.closest("button");if(b){st.fire=+b.dataset.v;upd();}});
+$("presets").addEventListener("click",e=>{const b=e.target.closest(".preset");if(b){st.snd=+b.dataset.s;st.fire=+b.dataset.f;upd();}});
+$("reset").addEventListener("click",()=>{Object.assign(st,{mf:"all",snd:20,fire:0,h:2600,thk:320,sort:"snd"});upd();});
+$("results").addEventListener("click",e=>{if(e.target.id==="more"){st.limit+=25;render();}});
+sync();render();
+</script>
+</body>
+</html>

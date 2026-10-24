@@ -137,8 +137,9 @@ details.step>.calc{padding:0 12px 10px}
         <fieldset><legend><label><input type="checkbox" id="k-a-on" checked> A. Korkeampaa rakennusosaa vasten (5.3.6)</label></legend>
           <div class="field"><label>Korkeusero h</label><span><input type="number" id="k-h" step="any" value="3"><span class="u">m</span></span></div>
           <div class="field"><label>Ylemmän katon leveys b<sub>1</sub></label><span><input type="number" id="k-b1" step="any" value="12"><span class="u">m</span></span></div>
-          <div class="field"><label>Alemman katon leveys b<sub>2</sub></label><span><input type="number" id="k-b2" step="any" value="8"><span class="u">m</span></span></div>
-          <div class="field"><label>Alemman katon pinta-ala</label><span><input type="number" id="k-A" step="any" value="96"><span class="u">m²</span></span></div>
+          <div class="field"><label>Alemman katon syvyys b<sub>2</sub> (seinästä ulospäin)</label><span><input type="number" id="k-b2" step="any" value="8"><span class="u">m</span></span></div>
+          <div class="field"><label>Alemman katon pituus L (seinän suunnassa)</label><span><input type="number" id="k-L" step="any" value="12"><span class="u">m</span></span></div>
+          <div class="field"><label>Alemman katon pinta-ala A = b<sub>2</sub> · L</label><span><b id="k-Aout" class="num">–</b><span class="u">m²</span></span></div>
           <div class="field"><label>Ylemmän katon kaltevuus α</label><span><input type="number" id="k-au" step="any" value="5"><span class="u">°</span></span></div>
           <div class="field"><label>Alemmalle katolle viettävän lappeen vaakapituus</label><span><input type="number" id="k-bs" step="any" value="6"><span class="u">m</span></span></div>
           <div class="small">Lappeen pituutta käytetään vain, kun α &gt; 15° (liukuva lumi, μ<sub>s</sub>).</div>
@@ -227,8 +228,10 @@ function kinosCalc(){
   const B=basePart(); const {sk,gam,base}=B; let st=B.st; const cases=[], kp=[]; let scA=null, scB=null;
   // ---- A ----
   if($('#k-a-on').checked){
-    const h=num('#k-h'), b1=num('#k-b1'), b2=num('#k-b2'), A=num('#k-A'), au=num('#k-au'), bs=num('#k-bs');
+    const h=num('#k-h'), b1=num('#k-b1'), b2=num('#k-b2'), Lk=num('#k-L'), A=b2*Lk, au=num('#k-au'), bs=num('#k-bs');
+    $('#k-Aout').textContent=fmt(A,1);
     st+='<h4>A. Kinostuma korkeampaa rakennusosaa vasten (5.3.6)</h4>';
+    st+=row('Alemman katon pinta-ala A = b<sub>2</sub> · L',fmt(b2,2)+' · '+fmt(Lk,2)+' = <b>'+fmt(A,1)+' m²</b>');
     let ls=2*h; const lsr=ls; ls=Math.max(5,Math.min(15,ls));
     st+=row('Kinostuman pituus l<sub>s</sub> = 2h','2·'+fmt(h,2)+' = '+fmt(lsr,2)+' m'+(lsr!==ls?' → rajoitus 5 m ≤ l<sub>s</sub> ≤ 15 m → ':' → ')+'<b>'+fmt(ls,2)+' m</b>');
     const muw0=h>0?(b1+b2)/(2*h):0, lim=h>0?gam*h/sk:0;
@@ -249,7 +252,7 @@ function kinosCalc(){
     let sEnd=s1, xEnd=ls; if(b2<ls){ sEnd=lerp(b2,0,ls,sMax,s1); xEnd=b2; }
     st+=row('Tapaus (ii)','seinän vieressä s = μ<sub>2</sub>·C<sub>e</sub>C<sub>t</sub>s<sub>k</sub> = '+fmt(mu2,3)+'·'+fmt(base,3)+' = <b>'+fmt(sMax,3)+' kN/m²</b>, pienenee lineaarisesti arvoon '+fmt(s1,3)+' kN/m² matkalla l<sub>s</sub>'+(b2<ls?'; b<sub>2</sub> &lt; l<sub>s</sub> → alemman katon reunalla s = '+fmt(sEnd,3)+' kN/m²':''));
     const tot=(sMax+sEnd)/2*xEnd+(b2>xEnd?s1*(b2-xEnd):0);
-    scA={h,b1,b2,A,au,bs,ls,gam,sMax,sEnd,s1,tot,su:mu1(au,false)*base};
+    scA={h,b1,b2,A,Lk,au,bs,ls,gam,sMax,sEnd,s1,tot,su:mu1(au,false)*base};
     st+=row('Kokonaiskuorma alemmalla katolla','tapaus (ii): ∫s dx = '+fmt(tot,2)+' kN/m (seinän pituusmetriä kohti), tapaus (i): '+fmt(s1*b2,2)+' kN/m');
     cases.push({t:'A. Kinostuma korkeampaa rakennusosaa vasten – tapaus (ii)',svg:svgDrift(h,b2,ls,sMax,s1,'step',1),txt:'s = '+fmt(sMax,2)+' → '+fmt(s1,2)+' kN/m², l<sub>s</sub> = '+fmt(ls,2)+' m, kokonaiskuorma '+fmt(tot,1)+' kN/m'});
     kp.push(['A: s<sub>max</sub>',fmt(sMax,2)+' <span class="small">kN/m²</span>'],['A: l<sub>s</sub>',fmt(ls,2)+' <span class="small">m</span>']);
@@ -352,9 +355,9 @@ function sceneA(o){
   g+=dimH(V.X(-b1),V.X(0),gY+20,'b₁ = '+fmt(b1,2)+' m')+dimH(V.X(0),V.X(b2),gY+20,'b₂ = '+fmt(b2,2)+' m');
   g+=dimH(V.X(0),V.X(xeM),gY+42,'l<tspan baseline-shift="sub" font-size="8">s</tspan> = '+fmt(ls,2)+' m'+(ls>b2?' (> b₂)':''));
   g+=scaleNote(V,8,V.H-6);
-  const Lw=b2>0&&o.A>0?o.A/b2:b2;
+  const Lw=o.Lk>0?o.Lk:b2;
   let out=`<h3>A. Kinostuma korkeampaa rakennusosaa vasten</h3>`+scene3DA(o,Lw,roof,xr,t,du,dMax,dEnd,xeM)+
-    `<div class="small">3D-kuva mittakaavassa: lumi sinisellä, kuorma s (kN/m²) punaisina nuolina etureunalla. Rakennusten pituus seinän suunnassa A/b₂.</div>`+
+    `<div class="small">3D-kuva mittakaavassa: lumi sinisellä, kuorma s (kN/m²) punaisina nuolina etureunalla. Rakennusten pituus seinän suunnassa on alemman katon pituus L.</div>`+
     `<h3>Leikkaus kohtisuoraan seinää vastaan</h3><svg class="diag scene" viewBox="0 0 ${V.W} ${V.H}" role="img" aria-label="Kinostuma alemmalla katolla mittakaavassa">${g}</svg>`;
   out+=`<div class="small">Täyttö = tapaus (ii) kinostuma, katkoviiva = tapaus (i) tasainen lumi d = ${fmt(d1,2)} m. Ylemmän katon lumi μ<sub>1</sub>-kuorman mukaan.</div>`;
   // tasokuva alemmasta katosta
@@ -366,7 +369,7 @@ function sceneA(o){
     qrow('Syvyys kinoksen ulkopuolella',fmt(d1,2)+' m')+
     qrow('Lunta / seinän jm',fmt(o.tot/gam,2)+' m³ ≈ '+fmt(o.tot/G,2)+' t')+
     qrow('josta kinoksen lisälunta',fmt(extra/gam,2)+' m³ ≈ '+fmt(extra/G,2)+' t')+
-    qrow('Alemman katon pituus A/b₂',fmt(Lw,2)+' m')+
+    qrow('Alemman katon pituus L',fmt(Lw,2)+' m')+
     qrow('Lunta alemmalla katolla yht.',fmt(totAll/gam,1)+' m³ ≈ '+fmt(totAll/G,1)+' t')+
     (du>0.001?qrow('Ylemmän katon lumi / seinän jm',fmt(o.su*b1/gam,2)+' m³ ≈ '+fmt(o.su*b1/G,2)+' t'):'')+
     `</div>`;
@@ -490,9 +493,10 @@ function scene3DA(o,Lw,roof,xr,t,du,dMax,dEnd,xeM){
     g+=dim3(T,[-b1,-1.6,-hb],[0,-1.6,-hb],'b₁ = '+fmt(b1,2)+' m',[0,16]);
     g+=dim3(T,[0,-1.6,-hb],[b2,-1.6,-hb],'b₂ = '+fmt(b2,2)+' m',[0,16]);
     g+=dim3(T,[0,-5,-hb],[xeM,-5,-hb],'l<tspan baseline-shift="sub" font-size="9">s</tspan> = '+fmt(ls,2)+' m',[0,16]);
-    g+=dim3(T,[b2+1.6,0,-hb],[b2+1.6,Lw,-hb],fmt(Lw,2)+' m',[34,10]);
+    g+=dim3(T,[b2+1.6,0,-hb],[b2+1.6,Lw,-hb],'L = '+fmt(Lw,2)+' m',[40,10]);
     g+=dim3(T,[0,-1.6,0],[0,-1.6,h],'h = '+fmt(h,2)+' m',[-36,4]);
     g+=lbl(T,[0,0,dMax],'d = '+fmt(dMax,2)+' m','end',-6,10);
+    if(o.au>0){ const xa=-Math.min(xr,b1)*0.85; g+=lbl(T,[xa,0,zR(xa)],'α = '+fmt(o.au,0)+'°','middle',-10,26,'m'); }
     return g; }};
   return render3D(groups,ann,'3D-kuva kinostumasta alemmalla katolla');
 }
@@ -555,7 +559,8 @@ function svgEave(a,se){
    <path d="M${x0-12},${y0-50} L${x0-12},${y0+20}" stroke="var(--press)" stroke-width="2.5" marker-end="url(#ahe)"/><defs><marker id="ahe" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--press)"/></marker></defs>
    <text x="${x0-4}" y="${y0-56}">s<tspan baseline-shift="sub" font-size="9">e</tspan> = ${fmt(se,2)} kN/m</text></svg>`;
 }
-bindPersist(['s-sk','s-terr','s-L1','s-L2','s-Ct','s-gam','k-a-on','k-h','k-b1','k-b2','k-A','k-au','k-bs','k-b-on','k-ho','k-opos','k-ao','k-c-on','k-ac','k-bc','k-d-on','k-ad'],kinosCalc);
+if(store['k-A']!==undefined&&store['k-L']===undefined&&parseFloat(store['k-b2']||8)>0){ store['k-L']=String(Math.round(parseFloat(store['k-A'])/parseFloat(store['k-b2']||8)*100)/100); }
+bindPersist(['s-sk','s-terr','s-L1','s-L2','s-Ct','s-gam','k-a-on','k-h','k-b1','k-b2','k-L','k-au','k-bs','k-b-on','k-ho','k-opos','k-ao','k-c-on','k-ac','k-bc','k-d-on','k-ad'],kinosCalc);
 const lk=window.LumiKartta&&LumiKartta.mount($('#s-map'),{onPick:p=>{ $('#s-sk').value=p.sk; store['s-sk']=String(p.sk); store['s-place']=p.alias||p.name; persist();
   $('#s-place').innerHTML='Paikkakunta: <b>'+esc(p.label)+'</b> → s<sub>k</sub> = '+fmt(p.sk,2)+' kN/m² (kansallisen liitteen kuva 1). Arvoa voi muokata.'; kinosCalc(); }});
 if(lk&&store['s-place']) lk.setPlace(store['s-place']);

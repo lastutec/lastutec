@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lujuusoppi – Lastutec</title>
-<meta name="description" content="Lujuusopin peruslaskut: normaali-, leikkaus- ja taivutusjännitykset, pienahitsin mitoitus, yhdistetyt jännitykset ja yksikkömuunnokset.">
+<meta name="description" content="Lujuusopin peruslaskut: normaali-, leikkaus- ja taivutusjännitykset, yhdistetyt jännitykset ja yksikkömuunnoslaskuri.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
 <style>
 /* Layout: laskentapohja – yhteiset E ja I ylhäällä, kuormitustapausten valitsin, valitun tapauksen kuva, lähtötiedot ja vaiheittainen laskenta */
@@ -104,6 +104,7 @@ h2{font-family:var(--display);font-size:20px;font-weight:800;margin:0;text-wrap:
 .calc .desc{font-size:13px;color:var(--muted);margin:0}
 .calc .fig svg{width:100%;max-width:460px;height:auto;display:block;margin:0 auto;background:var(--bg);border:1px solid var(--line);border-radius:4px}
 .psel select{margin-top:3px}
+.conv .inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:8px 12px}
 .units{width:100%;border-collapse:collapse;font-size:13.5px}
 .units td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}
 .units td:first-child{color:var(--accent);font-weight:600;white-space:nowrap}
@@ -211,7 +212,7 @@ const sc=(vals,px)=>{const m=Math.max(...vals.map(Math.abs),1e-9);return px/m;};
 
 /* ---------- Laskurit ---------- */
 const G=[
-{grp:'Jännitykset ja pienahitsi',items:[
+{grp:'Jännitykset (normaali-, leikkaus- ja taivutusjännitys)',items:[
  {id:'nor',name:'Normaalijännitys',desc:'Normaalivoima N (veto +, puristus −) poikkipinnalla A.',inp:[['N','N','kN',100],['A','A','mm²',2000]],
   prof:p=>({A:p.A}),
   out:v=>[['σ','N / A',`${n(v.N)} · 10³ / ${n(v.A)}`,v.N*1e3/v.A,'N/mm²']],
@@ -247,24 +248,7 @@ const G=[
     let o=secShape(p,80,yt+hh/2,hh)+`<line x1="25" y1="${yna}" x2="135" y2="${yna}" stroke="var(--ink)" stroke-dasharray="4 3"/><text x="27" y="${yna-5}" class="tl">N.A.</text>`;
     o+=`<text x="150" y="${yt+(yna-yt)/2+4}" class="tl">e₁</text><text x="150" y="${yna+(yb-yna)/2+4}" class="tl">e₂</text>`;
     const k=sc([s1,s2],70);o+=linDiag(250,yt,yb,s1*k,s2*k,1,`σr1 = ${n(s1)}`,`σr2 = ${n(s2)}`);
-    o+=`<text x="250" y="${FH-4}" text-anchor="middle" class="tl">N/mm², puristus −, veto +</text>`;return sv(o);}},
- {id:'weld',name:'Pienahitsi (yksinkertaistettu menetelmä)',desc:'SFS-EN 1993-1-8, 4.5.3.3: F<sub>w,Rd</sub> = f<sub>vw,d</sub> · a, f<sub>vw,d</sub> = (f<sub>u</sub>/√3) / (β<sub>w</sub> · γ<sub>M2</sub>). F<sub>Ed</sub> on hitsiliitokseen kohdistuva voimien resultantti, L yhden hitsin pituus ja n hitsien lukumäärä (kaksipuolinen = 2). Päätyjen vähennys 1 = tehollinen pituus L − 2a.',
-  sel:{label:'Teräslaji',opts:[['S235',{fu:360,bw:0.8}],['S275',{fu:430,bw:0.85}],['S355',{fu:490,bw:0.9}],['S420',{fu:520,bw:1.0}],['S460',{fu:540,bw:1.0}]],def:2},
-  inp:[['F','F<sub>Ed</sub>','kN',150],['a','a','mm',5],['L','L','mm',100],['nw','n','kpl',2],['ne','Päätyjen vähennys (0/1)','–',1],['fu','f<sub>u</sub>','N/mm²',490],['bw','β<sub>w</sub>','–',0.9],['gM2','γ<sub>M2</sub>','–',1.25]],
-  out:v=>{const fvw=v.fu/Math.sqrt(3)/(v.bw*v.gM2),Le=Math.max(0,v.nw*(v.L-(v.ne?2*v.a:0))),FwRd=fvw*v.a,FwEd=v.F*1e3/Le,u=FwEd/FwRd;
-   return[['f<sub>vw,d</sub>','(f<sub>u</sub> / √3) / (β<sub>w</sub> · γ<sub>M2</sub>)',`(${n(v.fu)} / √3) / (${n(v.bw)} · ${n(v.gM2)})`,fvw,'N/mm²'],
-          ['ΣL<sub>eff</sub>',v.ne?'n · (L − 2a)':'n · L',v.ne?`${n(v.nw)} · (${n(v.L)} − 2 · ${n(v.a)})`:`${n(v.nw)} · ${n(v.L)}`,Le,'mm'],
-          ['F<sub>w,Rd</sub>','f<sub>vw,d</sub> · a',`${n(fvw)} · ${n(v.a)}`,FwRd,'N/mm'],
-          ['F<sub>w,Ed</sub>','F<sub>Ed</sub> / ΣL<sub>eff</sub>',`${n(v.F)} · 10³ / ${n(Le)}`,FwEd,'N/mm'],
-          ['Käyttöaste','F<sub>w,Ed</sub> / F<sub>w,Rd</sub>',`${n(FwEd)} / ${n(FwRd)}`,u,'%'],
-          ['a<sub>req</sub>','F<sub>w,Ed</sub> / f<sub>vw,d</sub>',`${n(FwEd)} / ${n(fvw)}  (a ≥ 3 mm)`,Math.max(3,FwEd/fvw),'mm']];},
-  fig:v=>{const fvw=v.fu/Math.sqrt(3)/(v.bw*v.gM2),Le=Math.max(0,v.nw*(v.L-(v.ne?2*v.a:0))),u=v.F*1e3/Le/(fvw*v.a);
-    let o=`<rect x="30" y="95" width="200" height="18" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/><rect x="120" y="25" width="16" height="70" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/>`;
-    o+=`<polygon points="136,95 136,73 158,95" fill="var(--accent)"/><polygon points="120,95 120,73 98,95" fill="var(--accent)"/><line x1="136" y1="95" x2="147" y2="84" stroke="var(--ink)" stroke-width="1.2"/><text x="150" y="80" class="ta">a</text>`;
-    o+=arrow(128,8,128,24,'var(--ink)')+`<text x="140" y="16" class="tv">F<tspan baseline-shift="sub" font-size="9">Ed</tspan> = ${n(v.F)} kN</text>`;
-    o+=`<text x="30" y="135" class="tl">Poikkileikkaus: kaksipuolinen pienahitsi, a-mitta = kolmion korkeus</text>`;
-    const ok=u<=1;o+=`<text x="260" y="50" class="tl">Käyttöaste</text><text x="260" y="76" style="font:700 22px Arial,Helvetica,sans-serif;fill:${ok?'var(--ok)':'var(--bad)'}">${n(u*100,0)} %</text><text x="260" y="98" style="font:700 13px Arial,Helvetica,sans-serif;fill:${ok?'var(--ok)':'var(--bad)'}">${ok?'OK!':'TARKASTA, EI OK!'}</text>`;
-    return sv(o);}}
+    o+=`<text x="250" y="${FH-4}" text-anchor="middle" class="tl">N/mm², puristus −, veto +</text>`;return sv(o);}}
 ]},
 {grp:'Yhdistetyt jännitykset',items:[
  {id:'comb',name:'Normaalivoima ja taivutus kahteen suuntaan',desc:'Pääakselit (I<sub>yz</sub> = 0). y ja z ovat tarkastelupisteen koordinaatit painopisteestä. Kuvaaja näyttää jännityksen z-suunnassa (reunat ±z) annetulla y:n arvolla.',inp:[['N','N','kN',-200],['A','A','mm²',5381],['My','M<sub>y</sub>','kNm',40],['Iy','I<sub>y</sub>','mm⁴',83560000],['z','z','mm',150],['Mz','M<sub>z</sub>','kNm',5],['Iz','I<sub>z</sub>','mm⁴',6038000],['y','y','mm',75]],
@@ -276,6 +260,20 @@ const G=[
     const k=sc([st,sb],70);o+=linDiag(260,yt,yb,st*k,sb*k,1,`−z: ${n(st)}`,`+z: ${n(sb)}`)+`<text x="260" y="${FH-4}" text-anchor="middle" class="tl">σ(z), N/mm²</text>`;return sv(o);}},
 ]}
 ];
+// Yksikkömuunnokset: kerroin perusyksikköön
+const GRAV=9.81;
+const UC={
+ 'Jännitys ja paine':{u:[['N/mm² = MPa',1e6],['kN/m² = kPa',1e3],['N/m² = Pa',1],['MN/m²',1e6],['GPa',1e9],['bar',1e5],['kN/cm²',1e7]]},
+ 'Voima':{u:[['N',1],['kN',1e3],['MN',1e6],['kg (massa)',GRAV],['t (massa)',GRAV*1e3]],note:'Massa muunnetaan voimaksi: g = 9,81 m/s².'},
+ 'Viivakuorma':{u:[['kN/m = N/mm',1e3],['N/m',1],['kN/mm',1e6],['kg/m (massa)',GRAV]],note:'Massa muunnetaan voimaksi: g = 9,81 m/s².'},
+ 'Pintakuorma':{u:[['kN/m²',1e3],['N/m²',1],['N/mm²',1e6],['kg/m² (massa)',GRAV]],note:'Massa muunnetaan voimaksi: g = 9,81 m/s².'},
+ 'Momentti':{u:[['kNm',1e3],['Nm',1],['Nmm',1e-3],['kNmm',1],['MNm',1e6]]},
+ 'Pituus':{u:[['mm',1e-3],['cm',1e-2],['m',1],['km',1e3]]},
+ 'Pinta-ala':{u:[['mm²',1e-6],['cm²',1e-4],['m²',1]]},
+ 'Taivutusvastus ja tilavuus':{u:[['mm³',1e-9],['cm³',1e-6],['dm³ = l',1e-3],['m³',1]]},
+ 'Jäyhyysmomentti':{u:[['mm⁴',1e-12],['cm⁴',1e-8],['m⁴',1]]},
+ 'Tilavuuspaino':{u:[['kN/m³',1e3],['N/m³',1],['kg/m³ (tiheys)',GRAV]],note:'Tiheys muunnetaan tilavuuspainoksi: g = 9,81 m/s².'}
+};
 const vals={},psel={};G.forEach(g=>g.items.forEach(c=>{vals[c.id]={};c.inp.forEach(([k,,,d])=>vals[c.id][k]=d);psel[c.id]='';}));
 const profOpts=`<option value="">– oma poikkileikkaus –</option>`+STEEL_FAMS.map(f=>`<optgroup label="${f}">${PROFILES.filter(p=>p.fam===f).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</optgroup>`).join('');
 function render(){
@@ -284,13 +282,28 @@ function render(){
   h+=`<div class="grp-h">Yksikkömuunnokset</div><div class="panel"><table class="units"><tbody>
    <tr><td>kPa</td><td>= kN/m²</td></tr><tr><td>MPa</td><td>= N/mm² = MN/m² = 1 000 kN/m²</td></tr><tr><td>GPa</td><td>= 1 000 MPa</td></tr>
    <tr><td>1 bar</td><td>= 100 kPa = 100 kN/m² = 0,1 MPa</td></tr><tr><td>1 kN/m</td><td>= 1 N/mm</td></tr><tr><td>1 kNm</td><td>= 1 · 10⁶ Nmm</td></tr>
-   <tr><td>100 kg</td><td>≈ 1 kN (g ≈ 10 m/s²)</td></tr><tr><td>1 t</td><td>≈ 10 kN (g ≈ 10 m/s²)</td></tr></tbody></table></div>`;
+   <tr><td>100 kg</td><td>≈ 1 kN (g ≈ 10 m/s²)</td></tr><tr><td>1 t</td><td>≈ 10 kN (g ≈ 10 m/s²)</td></tr></tbody></table></div>
+   <div class="grp-h">Yksikkömuunnoslaskuri</div><div class="panel conv"><div class="inputs">
+   <label for="uc-cat">Suure<select id="uc-cat">${Object.keys(UC).map(k=>`<option>${k}</option>`).join('')}</select></label>
+   <label for="uc-val">Arvo<input type="number" id="uc-val" value="1" step="any"></label>
+   <label for="uc-from">Yksikkö<select id="uc-from"></select></label></div>
+   <table class="units" id="uc-out"></table><p class="desc" id="uc-note"></p></div>`;
   $('sections').innerHTML=h;
   document.querySelectorAll('#sections input').forEach(i=>i.oninput=()=>{const v=parseFloat(i.value);if(isFinite(v)){vals[i.dataset.c][i.dataset.k]=v;calc(i.dataset.c);}});
   document.querySelectorAll('#sections select[data-g]').forEach(s=>s.onchange=()=>{const id=s.dataset.g,c=G.flatMap(g=>g.items).find(x=>x.id===id),nv=c.sel.opts[+s.value][1];for(const k in nv){vals[id][k]=nv[k];const el=$(`i-${id}-${k}`);if(el)el.value=nv[k];}calc(id);});
   document.querySelectorAll('#sections select[data-c]').forEach(s=>s.onchange=()=>{const id=s.dataset.c,c=G.flatMap(g=>g.items).find(x=>x.id===id),p=PF(s.value);psel[id]=s.value;
     if(p){const nv=c.prof(p,vals[id]);for(const k in nv){vals[id][k]=+nv[k].toPrecision(6);const el=$(`i-${id}-${k}`);if(el)el.value=vals[id][k];}}calc(id);});
   G.forEach(g=>g.items.forEach(c=>calc(c.id)));
+  const fill=()=>{const u=UC[$('uc-cat').value].u;$('uc-from').innerHTML=u.map(([nm],i)=>`<option value="${i}">${nm}</option>`).join('');convert();};
+  $('uc-cat').onchange=fill;$('uc-val').oninput=convert;$('uc-from').onchange=convert;fill();
+}
+function convert(){
+  const c=UC[$('uc-cat').value],x=parseFloat($('uc-val').value),f=c.u[+$('uc-from').value||0];
+  if(!isFinite(x)){$('uc-out').innerHTML='';return;}
+  const base=x*f[1];
+  const fmt=v=>{const a=Math.abs(v);if(a!==0&&(a>=1e9||a<1e-4)){const [m,e]=v.toExponential(4).split('e'),sup={'-':'⁻','+':'','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};return m.replace('.',',')+' · 10'+[...e].map(ch=>sup[ch]).join('');}return n(v,a>=100?2:a>=1?4:6);};
+  $('uc-out').innerHTML='<tbody>'+c.u.map(([nm,k],i)=>`<tr${i===+$('uc-from').value?' style="background:var(--accent-soft)"':''}><td>${nm}</td><td>${fmt(base/k)}</td></tr>`).join('')+'</tbody>';
+  $('uc-note').textContent=c.note||'';
 }
 function calc(id){
   const c=G.flatMap(g=>g.items).find(x=>x.id===id),v=vals[id],el=document.querySelector(`#c-${id}`),box=el.querySelector('.res');

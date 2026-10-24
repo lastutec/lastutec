@@ -95,6 +95,11 @@ td.sel sup{color:#111}
   body.print-sketch #sketchPanel .skhead button{display:none}
   #printSketch{display:none}
 }
+.cnrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn2{font:600 12.5px var(--body);padding:5px 12px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;text-decoration:none}
+.btn2:hover{border-color:var(--accent)}
+input:disabled{opacity:.75}
+@media print{.cnrow .btn2{display:none}}
 </style>
 </head>
 <body>
@@ -113,17 +118,28 @@ td.sel sup{color:#111}
   <div class="inputs">
     <label for="b">Leveys b <span class="u">[mm]</span><input type="number" id="b" value="1000" step="10" min="1"></label>
     <label for="h">Korkeus h <span class="u">[mm]</span><input type="number" id="h" value="200" step="10" min="1"></label>
+    <label for="dm">Tehollinen korkeus<select id="dm"><option value="0">Syötä d</option><option value="1">Laske betonipeitteestä</option></select></label>
     <label for="d">Tehollinen korkeus d <span class="u">[mm]</span><input type="number" id="d" value="155" step="1" min="1"></label>
+    <label for="cn" id="lcn" hidden>Betonipeite c<sub>nom</sub> <span class="u">[mm]</span><input type="number" id="cn" value="25" step="5" min="0"></label>
     <label for="c">Betoni<select id="c"></select></label>
     <label for="fyk">f<sub>yk</sub> <span class="u">[N/mm²]</span><input type="number" id="fyk" value="500" step="10"></label>
     <label for="gc">γ<sub>c</sub><input type="number" id="gc" value="1.5" step="0.05"></label>
     <label for="gs">γ<sub>s</sub><input type="number" id="gs" value="1.15" step="0.05"></label>
     <label for="acc">α<sub>cc</sub><input type="number" id="acc" value="0.85" step="0.05"></label>
   </div>
+  <div class="cnrow" id="cnrow" hidden><button type="button" class="btn2" id="cnImport">Tuo rasitusluokkatyökalusta</button><a class="btn2" href="../rasitusluokat/">Laske betonipeite →</a><span class="hint" id="cnInfo"></span></div>
   <div class="sec">Pääraudoitus (vetopinta)</div>
   <div class="inputs">
     <label for="md">Ø <span class="u">[mm]</span><select id="md"></select></label>
     <label for="mn" id="lmn">Jako k <span class="u">[mm]</span><input type="number" id="mn" value="150" step="5" min="1"></label>
+  </div>
+  <div id="topin">
+  <div class="sec">Yläpinnan työteräkset (palkki)</div>
+  <div class="inputs">
+    <label for="tn">Tankojen määrä <span class="u">[kpl]</span><input type="number" id="tn" value="2" step="1" min="0"></label>
+    <label for="tD">Ø <span class="u">[mm]</span><select id="tD"><option>8</option><option>10</option><option selected>12</option><option>16</option><option>20</option></select></label>
+  </div>
+  <p class="hint">Työteräkset (asennusteräkset) kannattelevat hakoja; niitä ei huomioida taivutuskestävyydessä.</p>
   </div>
   <div class="sec">Kuormitus</div>
   <div class="inputs">
@@ -142,6 +158,15 @@ td.sel sup{color:#111}
     <label for="ss">Jako s <span class="u">[mm]</span><input type="number" id="ss" value="150" step="10" min="1"></label>
     <label for="cot">cot θ (1,0–2,5)<input type="number" id="cot" value="2.5" step="0.1" min="1" max="2.5"></label>
   </div>
+  <div class="sec">Ankkurointi tuella</div>
+  <div class="inputs">
+    <label for="at">Tuen leveys t <span class="u">[mm]</span><input type="number" id="at" value="200" step="10" min="1"></label>
+    <label for="ac">Päätypeite <span class="u">[mm]</span><input type="number" id="ac" value="30" step="5" min="0"></label>
+    <label for="ab">Tartuntaolosuhde<select id="ab"><option value="1">Hyvä (η₁ = 1,0)</option><option value="0.7">Muu (η₁ = 0,7)</option></select></label>
+    <label for="ae">Tangon pää<select id="ae"><option value="1">Suora (α₁ = 1,0)</option><option value="0.7">Koukku (α₁ = 0,7)</option></select></label>
+    <label for="a5">α₅ (tukipaine)<input type="number" id="a5" value="1" step="0.05" min="0.7" max="1"></label>
+  </div>
+  <p class="hint">Kaikki alapinnan tangot oletetaan vietäviksi tuelle. Ankkurointipituus mitataan tuen reunasta tuen sisään. α₅ = 1 − 0,04p ≥ 0,7 tukipaineen p mukaan, oletus 1,0 on varmalla puolella.</p>
   <div class="fig" id="fig"></div>
 </section>
 
@@ -154,6 +179,8 @@ td.sel sup{color:#111}
   <div class="steps" id="s2"></div>
   <div class="sec">Leikkaus</div>
   <div class="steps" id="s3"></div>
+  <div class="sec">Ankkurointi tuella</div>
+  <div class="steps" id="s4"></div>
 </section>
 </div>
 
@@ -162,7 +189,7 @@ td.sel sup{color:#111}
   <div class="sketch" id="sketch"></div>
 </section>
 
-<p class="foot">EC2:n mukainen prosessi: betonin reunapuristuma ≤ 3,5 ‰, teräksen muodonmuutoksia ei rajoiteta; μ = M<sub>Ed</sub> / (b d² f<sub>cd</sub>), β = 1 − √(1 − 2μ), A<sub>s</sub> = β b d f<sub>cd</sub> / f<sub>yd</sub>, sitkeä murtotapa kun β &lt; β<sub>bd</sub> (γ<sub>s</sub> 1,15 → 0,493, 1,10 → 0,485). Likimääräismenetelmä: sisäinen momenttivarsi 0,9d (laatat) tai 0,8d (palkit); p<sub>d</sub> on tasaisen kuorman kantokyky nivelellisesti tuetulla yksiaukkoisella rakenteella (M = pL²/8). Leikkaus: V<sub>Rd,c</sub> = [C<sub>Rd,c</sub> k (100 ρ<sub>l</sub> f<sub>ck</sub>)<sup>1/3</sup> + k<sub>1</sub> σ<sub>cp</sub>] b<sub>w</sub> d ≥ (v<sub>min</sub> + k<sub>1</sub> σ<sub>cp</sub>) b<sub>w</sub> d, C<sub>Rd,c</sub> = 0,18/γ<sub>c</sub>, k = 1 + √(200/d) ≤ 2, ρ<sub>l</sub> ≤ 0,02, k<sub>1</sub> = 0,15, v<sub>min</sub> = 0,035 k<sup>3/2</sup> f<sub>ck</sub><sup>1/2</sup>; V<sub>Rd,s</sub> = f<sub>ywd</sub> (A<sub>sw</sub>/s) z cot θ (pystyhaat), V<sub>Rd,max</sub> = ν f<sub>cd</sub> b z / (tan θ + cot θ), z = 0,9d, ν = 0,6 (1 − f<sub>ck</sub>/250). Tulokset tarkastaa laatija.</p>
+<p class="foot">EC2:n mukainen prosessi: betonin reunapuristuma ≤ 3,5 ‰, teräksen muodonmuutoksia ei rajoiteta; μ = M<sub>Ed</sub> / (b d² f<sub>cd</sub>), β = 1 − √(1 − 2μ), A<sub>s</sub> = β b d f<sub>cd</sub> / f<sub>yd</sub>, sitkeä murtotapa kun β &lt; β<sub>bd</sub> (γ<sub>s</sub> 1,15 → 0,493, 1,10 → 0,485). Likimääräismenetelmä: sisäinen momenttivarsi 0,9d (laatat) tai 0,8d (palkit); p<sub>d</sub> on tasaisen kuorman kantokyky nivelellisesti tuetulla yksiaukkoisella rakenteella (M = pL²/8). Ankkurointi tuella: F<sub>E</sub> = V<sub>Ed</sub> a<sub>l</sub>/z (9.2.1.3–9.2.1.4), l<sub>b,rqd</sub> = (Ø/4)(σ<sub>sd</sub>/f<sub>bd</sub>), f<sub>bd</sub> = 2,25 η<sub>1</sub> η<sub>2</sub> f<sub>ctd</sub>, l<sub>bd</sub> = α<sub>1</sub>α<sub>5</sub> l<sub>b,rqd</sub> ≥ l<sub>b,min</sub> (8.4); α<sub>2</sub>, α<sub>3</sub> ja α<sub>4</sub> = 1,0 (varmalla puolella). Leikkaus: V<sub>Rd,c</sub> = [C<sub>Rd,c</sub> k (100 ρ<sub>l</sub> f<sub>ck</sub>)<sup>1/3</sup> + k<sub>1</sub> σ<sub>cp</sub>] b<sub>w</sub> d ≥ (v<sub>min</sub> + k<sub>1</sub> σ<sub>cp</sub>) b<sub>w</sub> d, C<sub>Rd,c</sub> = 0,18/γ<sub>c</sub>, k = 1 + √(200/d) ≤ 2, ρ<sub>l</sub> ≤ 0,02, k<sub>1</sub> = 0,15, v<sub>min</sub> = 0,035 k<sup>3/2</sup> f<sub>ck</sub><sup>1/2</sup>; V<sub>Rd,s</sub> = f<sub>ywd</sub> (A<sub>sw</sub>/s) z cot θ (pystyhaat), V<sub>Rd,max</sub> = ν f<sub>cd</sub> b z / (tan θ + cot θ), z = 0,9d, ν = 0,6 (1 − f<sub>ck</sub>/250). Tulokset tarkastaa laatija.</p>
 </div>
 
 <script>
@@ -174,7 +201,7 @@ const DIA = [8, 10, 12, 16, 20, 25, 32];
 $('c').innerHTML = CS.map(([nm, f]) => `<option value="${f}"${f === 30 ? ' selected' : ''}>${nm}</option>`).join('');
 $('md').innerHTML = DIA.map(d => `<option value="${d}"${d === 10 ? ' selected' : ''}>${d}</option>`).join('');
 let mode = 'l';
-const DEF = { l: { b: 1000, h: 200, d: 155, md: 10, mn: 150, med: 25, ved: 50, L: 4000 }, p: { b: 280, h: 580, d: 527, md: 25, mn: 2, med: 150, ved: 120, L: 6900 } };
+const DEF = { l: { b: 1000, h: 200, d: 155, md: 10, mn: 150, med: 25, ved: 50, L: 4000, at: 200 }, p: { b: 280, h: 580, d: 527, md: 25, mn: 2, med: 150, ved: 120, L: 6900, at: 400 } };
 $('modes').querySelectorAll('button').forEach(bt => bt.onclick = () => {
   mode = bt.dataset.m; $('modes').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === bt));
   const D = DEF[mode]; for (const k in D) $(k).value = D[k];
@@ -195,7 +222,7 @@ function dim(x1, y1, x2, y2, label, side = -1) {
 }
 const ext = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--muted)" stroke-width="0.8"/>`;
 
-function fig(b, h, d, D, nb, beta, sw) {
+function fig(b, h, d, D, nb, beta, sw, tn, tD, ctop) {
   const W = 600, H = 250, maxW = 260, maxH = 170, sc = Math.min(maxW / b, maxH / h), w = b * sc, hh = h * sc, x0 = 110, y0 = 40;
   let o = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Poikkileikkaus ja jännitysjakauma">`;
   o += `<rect x="${x0}" y="${y0}" width="${w}" height="${hh}" fill="#8f8f8f" fill-opacity="0.35" stroke="var(--ink)" stroke-width="1.5"/>`;
@@ -203,6 +230,7 @@ function fig(b, h, d, D, nb, beta, sw) {
   if (mode === 'p' && sw) { const c = (h - d) * sc - r; o += `<rect x="${x0 + c}" y="${y0 + c}" width="${w - 2 * c}" height="${hh - 2 * c}" rx="5" fill="none" stroke="var(--accent)" stroke-width="1.6"/>`; }
   const m = Math.min(nb, 12);
   for (let i = 0; i < m; i++) { const x = x0 + w * (m === 1 ? 0.5 : (0.12 + 0.76 * i / (m - 1))); o += `<circle cx="${x}" cy="${ys}" r="${r}" fill="var(--accent)"/>`; }
+  if (tn > 0) { const yt = y0 + ctop * sc, rt = Math.max(2.5, Math.min(6, tD * sc / 2)), mt = Math.min(tn, 12); for (let i = 0; i < mt; i++) { const x = x0 + w * (mt === 1 ? 0.5 : (0.12 + 0.76 * i / (mt - 1))); o += `<circle cx="${x}" cy="${yt}" r="${rt}" fill="none" stroke="var(--accent)" stroke-width="1.6"/>`; } }
   o += ext(x0, y0 + hh, x0, y0 + hh + 26) + ext(x0 + w, y0 + hh, x0 + w, y0 + hh + 26) + dim(x0, y0 + hh + 22, x0 + w, y0 + hh + 22, `b = ${b}`, 1);
   o += ext(x0, y0, x0 - 50, y0) + ext(x0, y0 + hh, x0 - 50, y0 + hh) + dim(x0 - 46, y0, x0 - 46, y0 + hh, `h = ${h}`, -1);
   o += ext(x0 + w, y0, x0 + w + 26, y0) + ext(x0 + w - 4, ys, x0 + w + 26, ys) + dim(x0 + w + 22, y0, x0 + w + 22, ys, `d = ${d}`, 1);
@@ -216,7 +244,7 @@ function fig(b, h, d, D, nb, beta, sw) {
 }
 // Mustavalkoinen rakennekuva (skitsi)
 function sketch(p) {
-  const K = '#000', W = 1000, H = 430;
+  const K = '#000', W = 1000, H = 450;
   const dimK = (x1, y1, x2, y2, label, side = -1) => {
     const horiz = Math.abs(y2 - y1) < Math.abs(x2 - x1), t = 5;
     let o = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${K}" stroke-width="0.9"/>`;
@@ -239,7 +267,7 @@ function sketch(p) {
   for (const x of [x0 + 12, x1 - 12]) o += `<polygon points="${x},${yb} ${x - 12},${yb + 18} ${x + 12},${yb + 18}" fill="none" stroke="${K}" stroke-width="1.4"/><line x1="${x - 16}" y1="${yb + 22}" x2="${x + 16}" y2="${yb + 22}" stroke="${K}" stroke-width="1.2"/>`;
   // pääraudoitus koukuin
   o += `<path d="M${x0 + cv} ${y0 + hh * 0.45} V${yb - cv} H${x1 - cv} V${y0 + hh * 0.45}" fill="none" stroke="${K}" stroke-width="3"/>`;
-  if (mode === 'p') o += `<line x1="${x0 + cv}" y1="${y0 + cv}" x2="${x1 - cv}" y2="${y0 + cv}" stroke="${K}" stroke-width="1.4"/>`;
+  if (p.tn > 0) { o += `<path d="M${x0 + cv} ${y0 + hh * 0.4} V${y0 + cv} H${x1 - cv} V${y0 + hh * 0.4}" fill="none" stroke="${K}" stroke-width="1.8"/>`; o += lead(x1 - 140, y0 + cv, x1 - 100, y0 - 30, `${p.tn}T${p.tD} yläpinta (työteräs)`); }
   if (p.reinf) { const nS = Math.min(90, Math.max(2, Math.round(p.L / p.ss))), st = (x1 - x0 - 2 * cv) / nS; for (let i = 0; i <= nS; i++) { const x = x0 + cv + i * st; o += `<line x1="${x}" y1="${y0 + cv * 0.6}" x2="${x}" y2="${yb - cv * 0.6}" stroke="${K}" stroke-width="0.9"/>`; } }
   o += extK(x0 + 12, yb + 24, x0 + 12, yb + 52) + extK(x1 - 12, yb + 24, x1 - 12, yb + 52) + dimK(x0 + 12, yb + 48, x1 - 12, yb + 48, `L = ${p.L}`, 1);
   o += lead((x0 + x1) / 2 + 40, yb - cv, (x0 + x1) / 2 + 80, yb + 78, mainTxt + `, A<tspan baseline-shift="sub" font-size="8">s</tspan> = ${Math.round(p.As)} mm²`);
@@ -252,13 +280,15 @@ function sketch(p) {
   const ys = cy0 + p.d * sc, r = Math.max(2.5, Math.min(7, p.D * sc / 2)), m = Math.min(p.nb, 14);
   if (p.reinf) { const c = Math.max(4, (p.h - p.d) * sc - r - 1); o += `<rect x="${cx0 + c}" y="${cy0 + c}" width="${w - 2 * c}" height="${ch - 2 * c}" rx="4" fill="none" stroke="${K}" stroke-width="1.1"/>`; }
   for (let i = 0; i < m; i++) { const x = cx0 + w * (m === 1 ? 0.5 : (0.1 + 0.8 * i / (m - 1))); o += `<circle cx="${x}" cy="${ys}" r="${r}" fill="${K}"/>`; }
+  if (p.tn > 0) { const yt = cy0 + p.ctop * sc, rt = Math.max(2.5, Math.min(6, p.tD * sc / 2)), mt = Math.min(p.tn, 14); for (let i = 0; i < mt; i++) { const x = cx0 + w * (mt === 1 ? 0.5 : (0.1 + 0.8 * i / (mt - 1))); o += `<circle cx="${x}" cy="${yt}" r="${rt}" fill="#fff" stroke="${K}" stroke-width="1.5"/>`; } }
   o += extK(cx0, cy0 + ch, cx0, cy0 + ch + 24) + extK(cx0 + w, cy0 + ch, cx0 + w, cy0 + ch + 24) + dimK(cx0, cy0 + ch + 20, cx0 + w, cy0 + ch + 20, `b = ${p.b}`, 1);
   o += extK(cx0, cy0, cx0 - 26, cy0) + extK(cx0, cy0 + ch, cx0 - 26, cy0 + ch) + dimK(cx0 - 22, cy0, cx0 - 22, cy0 + ch, `h = ${p.h}`, -1);
   o += extK(cx0 + w, cy0, cx0 + w + 26, cy0) + extK(cx0 + w, ys, cx0 + w + 26, ys) + dimK(cx0 + w + 22, cy0, cx0 + w + 22, ys, `d = ${p.d}`, 1);
   // Tietolaatikko
   const ty = 330;
-  o += `<rect x="${x0}" y="${ty}" width="${W - 2 * x0 + 0}" height="80" fill="none" stroke="${K}" stroke-width="1.2"/><line x1="${x0 + 450}" y1="${ty}" x2="${x0 + 450}" y2="${ty + 80}" stroke="${K}" stroke-width="0.8"/>`;
-  const L1 = [`Betoni ${p.cls}, B${p.fyk}B`, `Pääraudoitus: ${mainTxt}`, `Leikkaus: ${swTxt}`, `Betonipeite noin ${Math.round(p.cover)} mm (h − d − Ø/2${p.reinf ? ' − Ø<tspan baseline-shift="sub" font-size="8">haka</tspan>' : ''})`];
+  o += `<rect x="${x0}" y="${ty}" width="${W - 2 * x0 + 0}" height="100" fill="none" stroke="${K}" stroke-width="1.2"/><line x1="${x0 + 450}" y1="${ty}" x2="${x0 + 450}" y2="${ty + 100}" stroke="${K}" stroke-width="0.8"/>`;
+  const L1 = [`Betoni ${p.cls}, B${p.fyk}B`, `Pääraudoitus: ${mainTxt}${p.tn > 0 ? `, yläpinta ${p.tn}T${p.tD}` : ''}`, `Leikkaus: ${swTxt}`, (p.cnom != null ? `Betonipeite c<tspan baseline-shift="sub" font-size="8">nom</tspan> = ${p.cnom} mm${cnSrc ? ' (' + cnSrc + ')' : ''}` : `Betonipeite noin ${Math.round(p.cover)} mm (h − d − Ø/2${p.reinf ? ' − Ø<tspan baseline-shift="sub" font-size="8">haka</tspan>' : ''})`)];
+  L1.push(`Ankkurointi tuella: l<tspan baseline-shift="sub" font-size="8">bd</tspan> = ${Math.round(p.lbd)} mm, käytössä ${Math.round(p.lav)} mm (t = ${p.at})`);
   const L2 = [`M<tspan baseline-shift="sub" font-size="8">Ed</tspan> = ${n(p.MEd)} kNm, M<tspan baseline-shift="sub" font-size="8">Rd</tspan> = ${n(p.MRd)} kNm (${Math.round(p.uM * 100)} %)`, `V<tspan baseline-shift="sub" font-size="8">Ed</tspan> = ${n(p.VEd)} kN, V<tspan baseline-shift="sub" font-size="8">Rd</tspan> = ${n(p.VRdv)} kN (${Math.round(p.uV * 100)} %)`, `Lastutec · Taivutus ja leikkaus · ${new Date().toLocaleDateString('fi-FI')}`, 'Alustava skitsi, ei toteutuspiirustus'];
   L1.forEach((t, i) => o += `<text x="${x0 + 10}" y="${ty + 18 + i * 18}" font-size="12" fill="${K}">${t}</text>`);
   L2.forEach((t, i) => o += `<text x="${x0 + 460}" y="${ty + 18 + i * 18}" font-size="12" fill="${K}" ${i === 3 ? 'font-style="italic"' : ''}>${t}</text>`);
@@ -268,6 +298,10 @@ const step = (t, f, s, r) => `<div class="step"><span class="no"></span><div><h3
 const vd = u => `<b class="${u <= 1 ? 'ok' : 'nok'}">${n(u * 100, 0)} % · ${u <= 1 ? 'OK!' : 'TARKASTA, EI OK!'}</b>`;
 
 function calc() {
+  const dmode = $('dm').value === '1', reinf0 = $('shm').value === '1';
+  $('lcn').hidden = $('cnrow').hidden = !dmode; $('d').disabled = dmode; $('topin').hidden = mode !== 'p';
+  if (dmode) { const v = +$('h').value - (+$('cn').value || 0) - (reinf0 ? +$('sw').value : 0) - (+$('md').value) / 2; $('d').value = Math.round(v * 10) / 10; }
+  const tn = mode === 'p' ? Math.max(0, +$('tn').value || 0) : 0, tD = +$('tD').value;
   const b = +$('b').value, h = +$('h').value, d = +$('d').value, fck = +$('c').value, fyk = +$('fyk').value, gc = +$('gc').value, gs = +$('gs').value, acc = +$('acc').value;
   const D = +$('md').value, mn = +$('mn').value, MEd = Math.max(0, +$('med').value || 0), VEd = Math.max(0, +$('ved').value || 0), L = +$('L').value, NEd = +$('ned').value || 0;
   const swD = +$('sw').value, sl = Math.max(0, +$('sl').value || 0), ss = +$('ss').value, cot = Math.min(2.5, Math.max(1, +$('cot').value || 2.5));
@@ -308,14 +342,34 @@ function calc() {
       `ν = ${n(nu, 3)} · V<sub>Rd,max</sub> = ${n(nu, 3)} · ${n(fcd, 2)} · ${b} · ${n(z, 1)} / (${n(1 / cot, 3)} + ${n(cot, 2)}) · 10⁻³`, `V<sub>Rd,max</sub> = ${n(VRdmax)} kN`) +
     step('Leikkausraudoitettu, mitoittava', 'V<sub>Rd</sub> = min(V<sub>Rd,s</sub> ; V<sub>Rd,max</sub>)', `V<sub>Rd</sub> = min(${n(VRds)} ; ${n(VRdmax)})`, `V<sub>Rd</sub> = ${n(VRd)} kN → ${vd(VEd / VRd)}`);
   $('s3').innerHTML = s3c + (reinf ? s3s : '');
+  // Ankkurointi tuella: SFS-EN 1992-1-1 9.2.1.4 (palkit), 9.3.1.2 (laatat), 8.4
+  const at = +$('at').value || 0, ac = Math.max(0, +$('ac').value || 0), eta1 = +$('ab').value, a1 = +$('ae').value, a5 = Math.min(1, Math.max(0.7, +$('a5').value || 1));
+  const fctk = { 20: 1.5, 25: 1.8, 30: 2.0, 35: 2.2, 40: 2.5, 45: 2.7, 50: 2.9 }[fck] || 0.7 * 0.3 * fck ** (2 / 3), fctd = fctk / gc;
+  const eta2 = D <= 32 ? 1 : (132 - D) / 100, fbd = 2.25 * eta1 * eta2 * fctd;
+  const al = reinf ? z * cot / 2 : d, FE = VEd * al / z + Math.max(0, -NEd), ssd = Math.min(fyd, FE * 1e3 / As);
+  const lbrqd = D / 4 * ssd / fbd, lbmin = Math.max(0.3 * lbrqd, 10 * D, 100), lbd = Math.max(a1 * a5 * lbrqd, lbmin), lav = Math.max(0, at - ac), uA = lbd / lav;
+  const share = mode === 'l' ? 0.5 : 0.25;
+  $('s4').innerHTML =
+    step('Ankkuroitava voima', `F<sub>E</sub> = V<sub>Ed</sub> · a<sub>l</sub> / z, a<sub>l</sub> = ${reinf ? 'z · cot θ / 2 (pystyhaat)' : 'd (ei leikkausraudoitusta)'}`, `a<sub>l</sub> = ${n(al, 0)} mm, z = ${n(z, 0)} mm, F<sub>E</sub> = ${n(VEd)} · ${n(al, 0)} / ${n(z, 0)}${NEd < 0 ? ` + ${n(-NEd)} (veto)` : ''}`, `F<sub>E</sub> = ${n(FE)} kN`) +
+    step('Tankojen jännitys tuella', 'σ<sub>sd</sub> = F<sub>E</sub> / A<sub>s</sub> ≤ f<sub>yd</sub>', `σ<sub>sd</sub> = ${n(FE)} · 10³ / ${n(As, 0)}`, `σ<sub>sd</sub> = ${n(ssd)} N/mm²`) +
+    step('Tartuntalujuus', 'f<sub>bd</sub> = 2,25 η<sub>1</sub> η<sub>2</sub> f<sub>ctd</sub>', `f<sub>ctd</sub> = ${n(fctk, 1)} / ${n(gc, 2)} = ${n(fctd, 2)}, f<sub>bd</sub> = 2,25 · ${n(eta1, 1)} · ${n(eta2, 2)} · ${n(fctd, 2)}`, `f<sub>bd</sub> = ${n(fbd, 2)} N/mm²`) +
+    step('Ankkurointipituus', 'l<sub>b,rqd</sub> = (Ø/4)(σ<sub>sd</sub>/f<sub>bd</sub>), l<sub>bd</sub> = α<sub>1</sub> α<sub>5</sub> l<sub>b,rqd</sub> ≥ l<sub>b,min</sub> = max(0,3 l<sub>b,rqd</sub>; 10Ø; 100)',
+      `l<sub>b,rqd</sub> = (${D}/4) · (${n(ssd)} / ${n(fbd, 2)}) = ${n(lbrqd, 0)} mm, l<sub>b,min</sub> = ${n(lbmin, 0)} mm, α<sub>1</sub> = ${n(a1, 1)}, α<sub>5</sub> = ${n(a5, 2)}`, `l<sub>bd</sub> = ${n(lbd, 0)} mm`) +
+    step('Käytettävissä oleva pituus', 'l<sub>av</sub> = t − päätypeite', `l<sub>av</sub> = ${at} − ${ac}`, `l<sub>av</sub> = ${n(lav, 0)} mm → l<sub>bd</sub> / l<sub>av</sub> = ${lav > 0 ? vd(uA) : '<b class="nok">TARKASTA, EI OK!</b>'}`) +
+    step('Tuelle vietävä raudoitus', `vähintään ${share * 100} % kentän alapinnan raudoituksesta (${mode === 'l' ? '9.3.1.2' : '9.2.1.4'})`, `vietävä ≥ ${share * 100} % · ${n(As, 0)} = ${n(share * As, 0)} mm²`, 'kaikki tangot viedään tuelle → <b class="ok">OK!</b>');
   const uM = MEd / MRd1, uV = reinf ? VEd / VRd : VEd / VRdc;
   const tile = (k, v, s, u) => `<div class="tile"><span class="k">${k}</span><span class="v">${v}</span><span class="s">${s}</span>${u != null ? `<span class="s">${vd(u)}</span>` : ''}</div>`;
   $('tiles').innerHTML = tile('M<sub>Rd</sub> (EC2)', `${n(MRd1)} kNm`, `A<sub>s</sub> = ${n(As, 0)} mm²`, uM) + tile('A<sub>s,req</sub>', `${n(AsReq, 0)} mm²`, `likimäär. ${n(AsL, 0)} mm²`, null) +
-    tile(reinf ? 'V<sub>Rd</sub> (haoilla)' : 'V<sub>Rd,c</sub>', `${n(reinf ? VRd : VRdc)} kN`, reinf ? `V<sub>Rd,c</sub> = ${n(VRdc)} kN` : 'leikkausraudoittamaton', uV) + tile('p<sub>d,max</sub>', `${n(pd)} ${mode === 'l' ? 'kN/m²' : 'kN/m'}`, `L = ${L} mm`, null);
+    tile(reinf ? 'V<sub>Rd</sub> (haoilla)' : 'V<sub>Rd,c</sub>', `${n(reinf ? VRd : VRdc)} kN`, reinf ? `V<sub>Rd,c</sub> = ${n(VRdc)} kN` : 'leikkausraudoittamaton', uV) + tile('Ankkurointi l<sub>bd</sub>', `${n(lbd, 0)} mm`, `tuella käytössä ${n(lav, 0)} mm`, lav > 0 ? uA : 9) + tile('p<sub>d,max</sub>', `${n(pd)} ${mode === 'l' ? 'kN/m²' : 'kN/m'}`, `L = ${L} mm`, null);
   document.querySelectorAll('.step .no').forEach((e, i) => e.textContent = String(i + 1).padStart(2, '0'));
-  $('fig').innerHTML = fig(b, h, d, D, nb, muOk ? betaP : 0.5, reinf && sl > 0);
-  $('sketch').innerHTML = sketch({ b, h, d, D, mn, nb, As, L, reinf, swD, sl, ss, cls: CS.find(c => c[1] === fck)[0], fyk, MEd, VEd, MRd: MRd1, VRdv: reinf ? VRd : VRdc, uM, uV, cover: h - d - D / 2 - (reinf ? swD : 0) });
+  const ctop = h - d - D / 2 + tD / 2;
+  $('fig').innerHTML = fig(b, h, d, D, nb, muOk ? betaP : 0.5, reinf && sl > 0, tn, tD, ctop);
+  $('sketch').innerHTML = sketch({ b, h, d, D, mn, nb, As, L, reinf, tn, tD, ctop, lbd, lav, at, cnom: dmode ? +$('cn').value : null, swD, sl, ss, cls: CS.find(c => c[1] === fck)[0], fyk, MEd, VEd, MRd: MRd1, VRdv: reinf ? VRd : VRdc, uM, uV, cover: h - d - D / 2 - (reinf ? swD : 0) });
 }
+let cnSrc = '';
+const applyCn = (o, src) => { if (!o || !(+o.cnom >= 0)) return false; $('dm').value = '1'; $('cn').value = o.cnom; cnSrc = o.rl ? `${o.rl}, ${o.life >= 100 ? (o.life > 100 ? 'yli 100' : '100') : 'alle 100'} v` : ''; $('cnInfo').textContent = `${src}: c_nom = ${o.cnom} mm${cnSrc ? ' · ' + cnSrc : ''}`; calc(); return true; };
+$('cnImport').onclick = () => { let o = null; try { o = JSON.parse(localStorage.getItem('lastutec.cnom')); } catch (e) {} if (!applyCn(o, 'Tuotu rasitusluokkatyökalusta')) $('cnInfo').textContent = 'Rasitusluokkatyökalussa ei ole vielä laskettua betonipeitettä tällä laitteella. Avaa se ja laske peite ensin.'; };
+{ const q = new URLSearchParams(location.search); if (q.has('cnom')) { const m = q.get('mode'); if (m === 'p') document.querySelector('#modes button[data-m="p"]').click(); applyCn({ cnom: +q.get('cnom'), rl: q.get('rl') || '', life: +q.get('ika') || 50 }, 'Tuotu rasitusluokkatyökalusta'); } }
 $('printSketch').onclick = () => { document.body.classList.add('print-sketch'); window.print(); };
 window.addEventListener('afterprint', () => document.body.classList.remove('print-sketch'));
 calc();

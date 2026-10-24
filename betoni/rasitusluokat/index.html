@@ -109,6 +109,9 @@ tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
   .result,[style*="sticky"],thead th,th,td{position:static!important}
   .panel,.tablewrap,.step,tr{break-inside:avoid}
 }
+.toTool{display:inline-block;align-self:flex-start;font:600 13px var(--body);color:#111;background:var(--accent);border-radius:4px;padding:6px 12px;text-decoration:none}
+.toTool:hover{filter:brightness(1.1)}
+@media print{.toTool{display:none}}
 </style>
 </head>
 <body>
@@ -161,6 +164,7 @@ tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
     <h2 id="h-res">Vaadittu betonipeite</h2>
     <div class="classes" id="chips"></div>
     <div class="big"><span class="v" id="cnom">–</span><span class="u">mm</span><span class="k">c<sub>nom</sub></span></div>
+    <a class="toTool" id="toTaiv" href="../taivutus/">Käytä taivutus- ja leikkauslaskurissa →</a>
     <div class="tiles">
       <div class="tile"><span class="k">c<sub>min,dur</sub></span><span class="v" id="tDur">–</span></div>
       <div class="tile"><span class="k">c<sub>min,b</sub></span><span class="v" id="tB">–</span></div>
@@ -300,6 +304,9 @@ function render(){
   const govSet = new Set([gov.c]);
   $('chips').innerHTML = (all.length ? all : ['X0']).map(c=>`<span class="chip${govSet.has(c)?' gov':''}">${c}</span>`).join('');
   $('cnom').textContent = cnom;
+  { const rl = (all.length ? all : ['X0']).join(','), life = $('life').value;
+    try { localStorage.setItem('lastutec.cnom', JSON.stringify({ cnom, rl, life, t: Date.now() })); } catch (e) {}
+    $('toTaiv').href = `../taivutus/?cnom=${cnom}&rl=${encodeURIComponent(rl)}&ika=${life}`; }
   // Lujuustarkistus
   const reqList = (all.length ? all : ['X0']).filter(c=>FMIN[c]);
   const reqCls = reqList.reduce((a,c)=> !a || fckOf(FMIN[c]) > fckOf(FMIN[a]) ? c : a, null) || 'X0';

@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Taivutus ja leikkaus – Lastutec</title>
+<meta name="description" content="Teräsbetonilaatan ja -palkin yksinkertaistettu taivutus- ja leikkausmitoitus (EC2 6.1, 6.2.2, 6.2.3).">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+/* Layout: lähtötiedot + apukuva vasemmalla, tulos ja vaiheet oikealla; alla valmiit taulukot */
+:root{
+  --bg:#000000; --paper:#141414; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e;
+  --accent:#F74902; --accent-soft:#3b1503; --ok:#5cc58a; --bad:#ff6b5a;
+  --body:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:800;margin:0}
+h3{font-size:14px;margin:0;font-weight:700}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.intro{margin:0;max-width:85ch;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px 12px}
+label{display:block;font-size:13px;color:var(--muted);min-width:0}
+.u{font-size:11px}
+select,input{display:block;margin-top:3px;font-family:var(--body);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input[type=number]{background:#2a1206;font-variant-numeric:tabular-nums}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.fig+.fig{margin-top:-4px}
+.fig svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+.big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big .v{font-size:40px;font-weight:700;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.big .k{font-size:14px;color:var(--muted)}
+.verdict{border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:14px}
+.verdict.ok{border-color:var(--ok)} .verdict.nok{border-color:var(--bad)}
+.verdict b.ok{color:var(--ok)} .verdict b.nok{color:var(--bad)}
+.steps{display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:0 10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:0}
+.step .no{font-size:12px;color:var(--muted);padding-top:2px}
+.math{font-size:13.5px;overflow-x:auto;display:flex;flex-direction:column;gap:1px}
+.math .f{color:var(--accent)} .math .s{color:var(--muted)} .math .r{font-weight:700}
+.sec{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);padding-bottom:4px;border-bottom:1px solid var(--line)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{font:600 13px var(--body);padding:5px 14px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-size:12.5px;color:var(--muted);font-weight:600}
+th:first-child,td:first-child{text-align:left}
+td.sel{background:var(--accent);color:#111;font-weight:700}
+td sup{font-size:9px;color:var(--muted);margin-left:2px}
+td.sel sup{color:#111}
+.chk{display:flex;gap:8px;align-items:flex-start;color:var(--ink);font-size:13.5px}
+.chk input{width:16px;height:16px;margin:2px 0 0;flex:none;accent-color:var(--accent)}
+.modes{display:flex;gap:6px;flex-wrap:wrap}
+.modes button{font:600 13px var(--body);padding:5px 14px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.modes button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px}
+.tile{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:1px}
+.tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.tile .v{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.tile .s{font-size:12px;color:var(--muted)}
+.math b.ok{color:var(--ok)} .math b.nok,.tile b.nok{color:var(--bad)} .tile b.ok{color:var(--ok)}
+.foot{font-size:12.5px;color:var(--muted);margin:0;max-width:95ch}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#c63a00;--accent-soft:#fde2d5;--ok:#1d6b3a;--bad:#b3261e;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back,.tabs{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  input,select{background:#fff!important;color:#000!important}
+  .panel,tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Betonirakenteet</a><h1>Taivutus ja leikkaus</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 5 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="intro">Teräsbetonilaatan (1 m kaista) tai -palkin yksinkertaistettu taivutus- ja leikkausmitoitus: EC2:n mukainen taivutusmitoitus (μ, β), likimääräismenetelmä, leikkausraudoittamaton kestävyys V<sub>Rd,c</sub> (6.2.2) sekä leikkausraudoitettu kestävyys V<sub>Rd,s</sub> ja yläraja V<sub>Rd,max</sub> (6.2.3).</p>
+
+<div class="grid">
+<section class="panel" aria-labelledby="h-in">
+  <h2 id="h-in">Lähtötiedot</h2>
+  <div class="modes" id="modes"><button type="button" data-m="l" aria-pressed="true">Laatta (1 m kaista)</button><button type="button" data-m="p" aria-pressed="false">Palkki</button></div>
+  <div class="sec">Poikkileikkaus ja materiaalit</div>
+  <div class="inputs">
+    <label for="b">Leveys b <span class="u">[mm]</span><input type="number" id="b" value="1000" step="10" min="1"></label>
+    <label for="h">Korkeus h <span class="u">[mm]</span><input type="number" id="h" value="200" step="10" min="1"></label>
+    <label for="d">Tehollinen korkeus d <span class="u">[mm]</span><input type="number" id="d" value="155" step="1" min="1"></label>
+    <label for="c">Betoni<select id="c"></select></label>
+    <label for="fyk">f<sub>yk</sub> <span class="u">[N/mm²]</span><input type="number" id="fyk" value="500" step="10"></label>
+    <label for="gc">γ<sub>c</sub><input type="number" id="gc" value="1.5" step="0.05"></label>
+    <label for="gs">γ<sub>s</sub><input type="number" id="gs" value="1.15" step="0.05"></label>
+    <label for="acc">α<sub>cc</sub><input type="number" id="acc" value="0.85" step="0.05"></label>
+  </div>
+  <div class="sec">Pääraudoitus (vetopinta)</div>
+  <div class="inputs">
+    <label for="md">Ø <span class="u">[mm]</span><select id="md"></select></label>
+    <label for="mn" id="lmn">Jako k <span class="u">[mm]</span><input type="number" id="mn" value="150" step="5" min="1"></label>
+  </div>
+  <div class="sec">Kuormitus</div>
+  <div class="inputs">
+    <label for="med">M<sub>Ed</sub> <span class="u">[kNm]</span><input type="number" id="med" value="25" step="1" min="0"></label>
+    <label for="ved">V<sub>Ed</sub> <span class="u">[kN]</span><input type="number" id="ved" value="50" step="1" min="0"></label>
+    <label for="L">Jänneväli L <span class="u">[mm]</span><input type="number" id="L" value="4000" step="100" min="1"></label>
+    <label for="ned">N<sub>Ed</sub> puristus <span class="u">[kN]</span><input type="number" id="ned" value="0" step="1"></label>
+  </div>
+  <div class="sec">Leikkausraudoitus</div>
+  <div class="inputs">
+    <label for="sw">Hakojen Ø <span class="u">[mm]</span><select id="sw"><option>6</option><option>8</option><option selected>10</option><option>12</option></select></label>
+    <label for="sl">Leikkeisyys <span class="u">[kpl]</span><input type="number" id="sl" value="2" step="1" min="1"></label>
+    <label for="ss">Jako s <span class="u">[mm]</span><input type="number" id="ss" value="150" step="10" min="1"></label>
+    <label for="cot">cot θ (1,0–2,5)<input type="number" id="cot" value="2.5" step="0.1" min="1" max="2.5"></label>
+  </div>
+  <div class="fig" id="fig"></div>
+</section>
+
+<section class="panel" aria-labelledby="h-res">
+  <h2 id="h-res">Tulokset</h2>
+  <div class="tiles" id="tiles"></div>
+  <div class="sec">Taivutus, EC2:n mukainen prosessi</div>
+  <div class="steps" id="s1"></div>
+  <div class="sec">Taivutus, likimääräismenetelmä</div>
+  <div class="steps" id="s2"></div>
+  <div class="sec">Leikkaus</div>
+  <div class="steps" id="s3"></div>
+</section>
+</div>
+
+<p class="foot">EC2:n mukainen prosessi: betonin reunapuristuma ≤ 3,5 ‰, teräksen muodonmuutoksia ei rajoiteta; μ = M<sub>Ed</sub> / (b d² f<sub>cd</sub>), β = 1 − √(1 − 2μ), A<sub>s</sub> = β b d f<sub>cd</sub> / f<sub>yd</sub>, sitkeä murtotapa kun β &lt; β<sub>bd</sub> (γ<sub>s</sub> 1,15 → 0,493, 1,10 → 0,485). Likimääräismenetelmä: sisäinen momenttivarsi 0,9d (laatat) tai 0,8d (palkit); p<sub>d</sub> on tasaisen kuorman kantokyky nivelellisesti tuetulla yksiaukkoisella rakenteella (M = pL²/8). Leikkaus: V<sub>Rd,c</sub> = [C<sub>Rd,c</sub> k (100 ρ<sub>l</sub> f<sub>ck</sub>)<sup>1/3</sup> + k<sub>1</sub> σ<sub>cp</sub>] b<sub>w</sub> d ≥ (v<sub>min</sub> + k<sub>1</sub> σ<sub>cp</sub>) b<sub>w</sub> d, C<sub>Rd,c</sub> = 0,18/γ<sub>c</sub>, k = 1 + √(200/d) ≤ 2, ρ<sub>l</sub> ≤ 0,02, k<sub>1</sub> = 0,15, v<sub>min</sub> = 0,035 k<sup>3/2</sup> f<sub>ck</sub><sup>1/2</sup>; V<sub>Rd,s</sub> = f<sub>ywd</sub> (A<sub>sw</sub>/s) z cot θ (pystyhaat), V<sub>Rd,max</sub> = ν f<sub>cd</sub> b z / (tan θ + cot θ), z = 0,9d, ν = 0,6 (1 − f<sub>ck</sub>/250). Tulokset tarkastaa laatija.</p>
+</div>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const n = (v, d = 1) => isFinite(v) ? v.toLocaleString('fi-FI', { minimumFractionDigits: 0, maximumFractionDigits: d }) : '–';
+const CS = [['C20/25', 20], ['C25/30', 25], ['C30/37', 30], ['C35/45', 35], ['C40/50', 40], ['C45/55', 45], ['C50/60', 50]];
+const DIA = [8, 10, 12, 16, 20, 25, 32];
+$('c').innerHTML = CS.map(([nm, f]) => `<option value="${f}"${f === 30 ? ' selected' : ''}>${nm}</option>`).join('');
+$('md').innerHTML = DIA.map(d => `<option value="${d}"${d === 10 ? ' selected' : ''}>${d}</option>`).join('');
+let mode = 'l';
+const DEF = { l: { b: 1000, h: 200, d: 155, md: 10, mn: 150, med: 25, ved: 50, L: 4000 }, p: { b: 280, h: 580, d: 527, md: 25, mn: 2, med: 150, ved: 120, L: 6900 } };
+$('modes').querySelectorAll('button').forEach(bt => bt.onclick = () => {
+  mode = bt.dataset.m; $('modes').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === bt));
+  const D = DEF[mode]; for (const k in D) $(k).value = D[k];
+  $('lmn').firstChild.textContent = mode === 'l' ? 'Jako k ' : 'Tankojen määrä ';
+  $('lmn').querySelector('.u').textContent = mode === 'l' ? '[mm]' : '[kpl]';
+  calc();
+});
+document.querySelectorAll('input,select').forEach(e => e.addEventListener('input', calc));
+
+function dim(x1, y1, x2, y2, label, side = -1) {
+  const horiz = Math.abs(y2 - y1) < Math.abs(x2 - x1), t = 5;
+  let o = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink)" stroke-width="1"/>`;
+  for (const [x, y] of [[x1, y1], [x2, y2]]) o += `<line x1="${x - t}" y1="${y + t}" x2="${x + t}" y2="${y - t}" stroke="var(--ink)" stroke-width="1.6"/>`;
+  if (horiz) o += `<text x="${(x1 + x2) / 2}" y="${y1 + (side < 0 ? -6 : 15)}" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">${label}</text>`;
+  else o += `<text x="${x1 + (side < 0 ? -8 : 8)}" y="${(y1 + y2) / 2 + 4}" text-anchor="${side < 0 ? 'end' : 'start'}" font-size="12" font-weight="600" fill="var(--ink)">${label}</text>`;
+  return o;
+}
+const ext = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--muted)" stroke-width="0.8"/>`;
+
+function fig(b, h, d, D, nb, beta, sw) {
+  const W = 600, H = 250, maxW = 260, maxH = 170, sc = Math.min(maxW / b, maxH / h), w = b * sc, hh = h * sc, x0 = 110, y0 = 40;
+  let o = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Poikkileikkaus ja jännitysjakauma">`;
+  o += `<rect x="${x0}" y="${y0}" width="${w}" height="${hh}" fill="#8f8f8f" fill-opacity="0.35" stroke="var(--ink)" stroke-width="1.5"/>`;
+  const ys = y0 + d * sc, r = Math.max(3, Math.min(8, D * sc / 2));
+  if (mode === 'p' && sw) { const c = (h - d) * sc - r; o += `<rect x="${x0 + c}" y="${y0 + c}" width="${w - 2 * c}" height="${hh - 2 * c}" rx="5" fill="none" stroke="var(--accent)" stroke-width="1.6"/>`; }
+  const m = Math.min(nb, 12);
+  for (let i = 0; i < m; i++) { const x = x0 + w * (m === 1 ? 0.5 : (0.12 + 0.76 * i / (m - 1))); o += `<circle cx="${x}" cy="${ys}" r="${r}" fill="var(--accent)"/>`; }
+  o += ext(x0, y0 + hh, x0, y0 + hh + 26) + ext(x0 + w, y0 + hh, x0 + w, y0 + hh + 26) + dim(x0, y0 + hh + 22, x0 + w, y0 + hh + 22, `b = ${b}`, 1);
+  o += ext(x0, y0, x0 - 50, y0) + ext(x0, y0 + hh, x0 - 50, y0 + hh) + dim(x0 - 46, y0, x0 - 46, y0 + hh, `h = ${h}`, -1);
+  o += ext(x0 + w, y0, x0 + w + 26, y0) + ext(x0 + w - 4, ys, x0 + w + 26, ys) + dim(x0 + w + 22, y0, x0 + w + 22, ys, `d = ${d}`, 1);
+  // jännitysjakauma (suorakaidelohko)
+  const sx = x0 + w + 110, xc = Math.min(Math.max(beta, 0.02), 0.6) * d * sc;
+  o += `<line x1="${sx}" y1="${y0}" x2="${sx}" y2="${y0 + hh}" stroke="var(--muted)"/>`;
+  o += `<rect x="${sx}" y="${y0}" width="40" height="${xc}" fill="var(--accent)" fill-opacity="0.35" stroke="var(--accent)"/><text x="${sx + 46}" y="${y0 + xc / 2 + 4}" font-size="12" fill="var(--ink)">f<tspan baseline-shift="sub" font-size="9">cd</tspan>, βd = ${n(beta * d, 0)}</text>`;
+  o += `<line x1="${sx}" y1="${ys}" x2="${sx + 50}" y2="${ys}" stroke="var(--accent)" stroke-width="3"/><polygon points="${sx + 58},${ys} ${sx + 48},${ys - 5} ${sx + 48},${ys + 5}" fill="var(--accent)"/><text x="${sx + 62}" y="${ys + 4}" font-size="12" fill="var(--ink)">A<tspan baseline-shift="sub" font-size="9">s</tspan>f<tspan baseline-shift="sub" font-size="9">yd</tspan></text>`;
+  o += `<text x="${sx}" y="22" font-size="12" font-weight="700" fill="var(--accent)">JÄNNITYKSET</text><text x="${x0}" y="22" font-size="12" font-weight="700" fill="var(--accent)">POIKKILEIKKAUS</text>`;
+  return o + `</svg>`;
+}
+const step = (t, f, s, r) => `<div class="step"><span class="no"></span><div><h3>${t}</h3><div class="math">${f ? `<span class="f">${f}</span>` : ''}<span class="s">${s}</span><span class="r">${r}</span></div></div></div>`;
+const vd = u => `<b class="${u <= 1 ? 'ok' : 'nok'}">${n(u * 100, 0)} % · ${u <= 1 ? 'OK!' : 'TARKASTA, EI OK!'}</b>`;
+
+function calc() {
+  const b = +$('b').value, h = +$('h').value, d = +$('d').value, fck = +$('c').value, fyk = +$('fyk').value, gc = +$('gc').value, gs = +$('gs').value, acc = +$('acc').value;
+  const D = +$('md').value, mn = +$('mn').value, MEd = Math.max(0, +$('med').value || 0), VEd = Math.max(0, +$('ved').value || 0), L = +$('L').value, NEd = +$('ned').value || 0;
+  const swD = +$('sw').value, sl = Math.max(0, +$('sl').value || 0), ss = +$('ss').value, cot = Math.min(2.5, Math.max(1, +$('cot').value || 2.5));
+  if (!(b > 0 && h > 0 && d > 0 && d < h + 1e-9 && mn > 0 && ss > 0 && L > 0)) { $('tiles').innerHTML = '<div class="verdict nok"><b class="nok">Tarkista mitat: b, h, d (d ≤ h), jako/määrä, s ja L ovat positiivisia.</b></div>'; ['s1', 's2', 's3'].forEach(i => $(i).innerHTML = ''); return; }
+  const fcd = acc * fck / gc, fyd = fyk / gs, Ab = Math.PI * D * D / 4;
+  const As = mode === 'l' ? Ab * 1000 / mn * b / 1000 : Ab * mn, nb = mode === 'l' ? Math.max(1, Math.round(b / mn)) : mn;
+  const asTxt = mode === 'l' ? `T${D}-k${mn}: A<sub>s</sub> = ${n(Ab, 1)} · 1000 / ${mn}${b !== 1000 ? ` · ${b}/1000` : ''}` : `${mn}T${D}: A<sub>s</sub> = ${mn} · ${n(Ab, 1)}`;
+  // EC2-prosessi
+  const mu = MEd * 1e6 / (b * d * d * fcd), bbd = gs >= 1.15 ? 0.493 : 0.485, beta = 1 - Math.sqrt(Math.max(0, 1 - 2 * mu)), AsReq = beta * b * d * fcd / fyd;
+  const betaP = As * fyd / (b * d * fcd), MRd1 = betaP * (1 - betaP / 2) * b * d * d * fcd / 1e6;
+  const muOk = mu < 0.5;
+  $('s1').innerHTML =
+    step('Mitoituslujuudet', '', `f<sub>cd</sub> = ${n(acc, 2)} · ${fck} / ${n(gc, 2)} = ${n(fcd, 2)} N/mm² · f<sub>yd</sub> = ${fyk} / ${n(gs, 2)} = ${n(fyd, 1)} N/mm²`, '') +
+    step('Suhteellinen momentti', 'μ = M<sub>Ed</sub> / (b d² f<sub>cd</sub>)', `μ = ${n(MEd)} · 10⁶ / (${b} · ${d}² · ${n(fcd, 2)})`, `μ = ${n(mu, 4)}`) +
+    step('Puristuspinnan suhteellinen korkeus', 'β = 1 − √(1 − 2μ)', muOk ? `β = 1 − √(1 − 2 · ${n(mu, 4)})` : 'μ ≥ 0,5: poikkileikkaus ei riitä', muOk ? `β = ${n(beta, 4)} ${beta < bbd ? '<' : '≥'} β<sub>bd</sub> = ${bbd} → ${beta < bbd ? '<b class="ok">sitkeä murtotapa, OK!</b>' : '<b class="nok">hauras murtotapa, TARKASTA, EI OK!</b>'}` : '<b class="nok">TARKASTA, EI OK!</b>') +
+    step('Vaadittu raudoitus', 'A<sub>s,req</sub> = β b d f<sub>cd</sub> / f<sub>yd</sub>', `A<sub>s,req</sub> = ${n(beta, 4)} · ${b} · ${d} · ${n(fcd, 2)} / ${n(fyd, 1)}`, `A<sub>s,req</sub> = ${n(AsReq, 0)} mm² · valittu ${asTxt} = ${n(As, 0)} mm² → ${vd(AsReq / As)}`) +
+    step('Momenttikestävyys valitulla raudoituksella', 'β = A<sub>s</sub> f<sub>yd</sub> / (b d f<sub>cd</sub>), M<sub>Rd</sub> = β (1 − β/2) b d² f<sub>cd</sub>', `β = ${n(betaP, 4)}, M<sub>Rd</sub> = ${n(betaP, 4)} · (1 − ${n(betaP, 4)}/2) · ${b} · ${d}² · ${n(fcd, 2)} · 10⁻⁶`, `M<sub>Rd</sub> = ${n(MRd1)} kNm → ${vd(MEd / MRd1)}`);
+  // likimääräismenetelmä
+  const zf = mode === 'l' ? 0.9 : 0.8, kp = 8 * zf, AsL = MEd * 1e6 / (zf * d * fyd), MRd2 = As * zf * d * fyd / 1e6, pd = As * kp * d * fyd / (L * L);
+  $('s2').innerHTML =
+    step('Vaadittu raudoitus', `A<sub>s</sub> = M<sub>Ed</sub> / (${n(zf, 1)} d f<sub>yd</sub>)`, `A<sub>s</sub> = ${n(MEd)} · 10⁶ / (${n(zf, 1)} · ${d} · ${n(fyd, 1)})`, `A<sub>s,req</sub> = ${n(AsL, 0)} mm² → ${vd(AsL / As)}`) +
+    step('Momenttikestävyys', `M<sub>Rd</sub> = A<sub>s</sub> · ${n(zf, 1)} d · f<sub>yd</sub>`, `M<sub>Rd</sub> = ${n(As, 0)} · ${n(zf, 1)} · ${d} · ${n(fyd, 1)} · 10⁻⁶`, `M<sub>Rd</sub> = ${n(MRd2)} kNm → ${vd(MEd / MRd2)}`) +
+    step(mode === 'l' ? 'Tasaisen kuorman kantokyky (1 m kaista)' : 'Tasaisen kuorman kantokyky', `p<sub>d</sub> = A<sub>s</sub> · ${n(kp, 1)} d f<sub>yd</sub> / L²`, `p<sub>d</sub> = ${n(As, 0)} · ${n(kp, 1)} · ${d} · ${n(fyd, 1)} / ${L}²`, `p<sub>d,max</sub> = ${n(pd)} ${mode === 'l' ? 'kN/m²' : 'kN/m'}`);
+  // leikkaus
+  const k = Math.min(2, 1 + Math.sqrt(200 / d)), rho = Math.min(0.02, As / (b * d)), CRd = 0.18 / gc, scp = Math.min(NEd * 1e3 / (b * h), 0.2 * fcd);
+  const vc = CRd * k * Math.cbrt(100 * rho * fck) + 0.15 * scp, vmin = 0.035 * k ** 1.5 * Math.sqrt(fck) + 0.15 * scp, VRdc = Math.max(vc, vmin) * b * d / 1e3;
+  const z = 0.9 * d, Asw = sl * Math.PI * swD * swD / 4, fywd = fyd, VRds = fywd * Asw / ss * z * cot / 1e3, nu = 0.6 * (1 - fck / 250), VRdmax = nu * fcd * b * z / (1 / cot + cot) / 1e3, VRd = Math.min(VRds, VRdmax);
+  const needSw = VEd > VRdc;
+  $('s3').innerHTML =
+    step('Leikkausraudoittamaton kestävyys (6.2.2)', 'V<sub>Rd,c</sub> = [C<sub>Rd,c</sub> k (100 ρ<sub>l</sub> f<sub>ck</sub>)<sup>1/3</sup> + k<sub>1</sub> σ<sub>cp</sub>] b d ≥ (v<sub>min</sub> + k<sub>1</sub> σ<sub>cp</sub>) b d',
+      `C<sub>Rd,c</sub> = 0,18 / ${n(gc, 2)} = ${n(CRd, 3)} · k = 1 + √(200 / ${d}) = ${n(k, 3)} · ρ<sub>l</sub> = ${n(As, 0)} / (${b} · ${d}) = ${n(rho * 100, 2)} % · σ<sub>cp</sub> = ${n(scp, 2)} · v<sub>min</sub> = ${n(vmin, 3)} N/mm²`,
+      `V<sub>Rd,c</sub> = ${n(Math.max(vc, vmin), 3)} · ${b} · ${d} · 10⁻³ = ${n(VRdc)} kN → ${needSw ? `V<sub>Ed</sub> = ${n(VEd)} kN > V<sub>Rd,c</sub> → leikkausraudoitus tarvitaan (mitoitus alla)` : `${vd(VEd / VRdc)} · leikkausraudoitusta ei tarvita laskennallisesti`}`) +
+    step('Leikkausraudoitettu kestävyys (6.2.3)', 'V<sub>Rd,s</sub> = f<sub>ywd</sub> (A<sub>sw</sub> / s) z cot θ, z = 0,9d',
+      `A<sub>sw</sub> = ${sl} · π · ${swD}² / 4 = ${n(Asw, 1)} mm² · V<sub>Rd,s</sub> = ${n(fywd, 1)} · (${n(Asw, 1)} / ${ss}) · ${n(z, 1)} · ${n(cot, 2)} · 10⁻³`, `V<sub>Rd,s</sub> = ${n(VRds)} kN`) +
+    step('Leikkauskestävyyden yläraja', 'V<sub>Rd,max</sub> = ν f<sub>cd</sub> b z / (tan θ + cot θ), ν = 0,6 (1 − f<sub>ck</sub>/250)',
+      `ν = ${n(nu, 3)} · V<sub>Rd,max</sub> = ${n(nu, 3)} · ${n(fcd, 2)} · ${b} · ${n(z, 1)} / (${n(1 / cot, 3)} + ${n(cot, 2)}) · 10⁻³`, `V<sub>Rd,max</sub> = ${n(VRdmax)} kN`) +
+    step('Leikkausraudoitettu, mitoittava', 'V<sub>Rd</sub> = min(V<sub>Rd,s</sub> ; V<sub>Rd,max</sub>)', `V<sub>Rd</sub> = min(${n(VRds)} ; ${n(VRdmax)})`, `V<sub>Rd</sub> = ${n(VRd)} kN → ${vd(VEd / VRd)}`);
+  const uM = MEd / MRd1, uV = needSw ? VEd / VRd : VEd / VRdc;
+  const tile = (k, v, s, u) => `<div class="tile"><span class="k">${k}</span><span class="v">${v}</span><span class="s">${s}</span>${u != null ? `<span class="s">${vd(u)}</span>` : ''}</div>`;
+  $('tiles').innerHTML = tile('M<sub>Rd</sub> (EC2)', `${n(MRd1)} kNm`, `A<sub>s</sub> = ${n(As, 0)} mm²`, uM) + tile('A<sub>s,req</sub>', `${n(AsReq, 0)} mm²`, `likimäär. ${n(AsL, 0)} mm²`, null) +
+    tile(needSw ? 'V<sub>Rd</sub> (haoilla)' : 'V<sub>Rd,c</sub>', `${n(needSw ? VRd : VRdc)} kN`, needSw ? `V<sub>Rd,c</sub> = ${n(VRdc)} kN` : 'ei leikkausraudoitusta', uV) + tile('p<sub>d,max</sub>', `${n(pd)} ${mode === 'l' ? 'kN/m²' : 'kN/m'}`, `L = ${L} mm`, null);
+  document.querySelectorAll('.step .no').forEach((e, i) => e.textContent = String(i + 1).padStart(2, '0'));
+  $('fig').innerHTML = fig(b, h, d, D, nb, muOk ? betaP : 0.5, mode === 'p' && sl > 0);
+}
+calc();
+})();
+</script>
+</body>
+</html>

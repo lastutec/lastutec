@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Statiikkalaskuri – Lastutec</title>
-<meta name="description" content="Palkkien statiikka, teräsprofiilikirjasto ja taipumamitoitus. Kaavat ja välivaiheet näkyvissä.">
+<meta name="description" content="Palkkien statiikka, teräsprofiilikirjasto ja alustava mitoitus taipuman perusteella. Kaavat ja välivaiheet näkyvissä.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23f5a623'%3EL%3C/text%3E%3C/svg%3E">
 <style>
 /* Layout: laskentapohja – yhteiset E ja I ylhäällä, kuormitustapausten valitsin, valitun tapauksen kuva, lähtötiedot ja vaiheittainen laskenta */
@@ -131,14 +131,10 @@ h2{font-family:var(--display);font-size:20px;font-weight:800;margin:0;text-wrap:
 <section id="view-palkit" role="tabpanel">
   <div class="panel global">
     <label for="gProf" class="wide">Profiili<select id="gProf"></select></label>
-    <label for="gGrade">Teräslaji<select id="gGrade"><option>S235</option><option>S275</option><option selected>S355</option><option>S420</option><option>S460</option></select></label>
-    <label for="gFy">f<sub>y</sub> <span class="u">[N/mm²]</span><input type="number" id="gFy" value="355" step="5"></label>
     <label for="gE">Kimmokerroin E <span class="u">[N/mm²]</span><input type="number" id="gE" value="210000" step="1000"></label>
     <label for="gI">Jäyhyysmomentti I <span class="u">[mm⁴]</span><input type="number" id="gI" value="1800043.86" step="1000"></label>
-    <label for="gMode">Mitoitusperuste<select id="gMode"><option value="f" selected>Vain taipuma</option><option value="all">Taipuma + kestävyys</option></select></label>
-    <label for="gGF">Kuormakerroin γ<sub>F</sub> (MRT)<input type="number" id="gGF" value="1.5" step="0.05"></label>
     <label for="gN" class="wide">Taipumaraja (w<sub>max</sub>, KRT)<select id="gN"><optgroup label="SFS-EN 1993-1-1 + kansallinen liite, taulukko 3"><option value="300|150" selected>Pääkannattaja, katot ja katokset – L/300</option><option value="400|150">Pääkannattaja, välipohjat – L/400</option><option value="200|150">Katto-orret – L/200</option><option value="150|150">Seinäorret – L/150</option><option value="100|100">Muotolevy, katto (ei lammikoitumisriskiä) – L/100</option><option value="300|100">Muotolevy, välipohja – L/300</option><option value="100|100">Muotolevy, seinä – L/100</option></optgroup><optgroup label="Muu raja (uloke 2·L/n)"><option value="200|c">L/200</option><option value="250|c">L/250</option><option value="300|c">L/300</option><option value="400|c">L/400</option><option value="500|c">L/500</option></optgroup></select></label>
-    <p class="hint">Syötä kuormat ominaisarvoina. Taipuma lasketaan ominaiskuormilla (KRT) ja kestävyys arvoilla γ<sub>F</sub> · kuorma (MRT). E, profiili ja raja-arvot ovat yhteisiä kaikille tapauksille. Taipumarajat koskevat lopullista taipumaa w<sub>max</sub> ominaisyhdistelmällä (SFS-EN 1993-1-1 kohta 7.2.1 ja kansallinen liite, taulukko 3). Ulokkeen raja L/150 (muotolevyillä L/100) lasketaan ulokkeen pituudesta. Esikorotus w<sub>c</sub> saa kompensoida pysyvien kuormien taipumaa.</p>
+    <p class="hint"><b>Laskuri on tarkoitettu alustavaan mitoitukseen taipuman perusteella.</b> Murtorajatilan kestävyys (taivutus, leikkaus, kiepahdus, stabiilius) on tarkistettava erikseen. Syötä kuormat ominaisarvoina; taipuma lasketaan ominaisyhdistelmällä (KRT). E, profiili ja raja-arvot ovat yhteisiä kaikille tapauksille. Taipumarajat koskevat lopullista taipumaa w<sub>max</sub> ominaisyhdistelmällä (SFS-EN 1993-1-1 kohta 7.2.1 ja kansallinen liite, taulukko 3). Ulokkeen raja L/150 (muotolevyillä L/100) lasketaan ulokkeen pituudesta. Esikorotus w<sub>c</sub> saa kompensoida pysyvien kuormien taipumaa.</p>
   </div>
   <div class="picker" id="picker"></div>
   <div class="case" id="case"></div>
@@ -382,7 +378,6 @@ function fspan(id,sym,v){
   if((id==='ua1'||id==='ua2')&&/2/.test(sym))return[v.a,true];
   return[v.L,false];
 }
-const FY={S235:[235,215],S275:[275,255],S355:[355,335],S420:[420,390],S460:[460,430]};
 
 const vals={}; C.forEach(c=>{vals[c.id]={};c.inp.forEach(([k,,,d])=>vals[c.id][k]=d);});
 let cur='s1';
@@ -428,7 +423,7 @@ function calcCase(){
   /* ---------- Mitoitus ---------- */
   const st=(t,lines,note)=>{no++;return `<div class="step"><span class="no">${String(no).padStart(2,'0')}</span><h3>${t}</h3><div class="math">${lines.map(([k,x])=>`<span class="${k}">${x}</span>`).join('')}</div>${note?`<p class="note">${note}</p>`:''}</div>`;};
   const U=(u)=>`<span class="${cls(u)}">${n(u*100,0)} %</span> → ${VDH(u)}`;
-  const mode=$('gMode').value,p=curProfile(),fy=+$('gFy').value,gF=+$('gGF').value,nlim=+$('gN').value.split('|')[0],nu=$('gN').value.split('|')[1],gM0=1.0;
+  const p=curProfile(),nlim=+$('gN').value.split('|')[0],nu=$('gN').value.split('|')[1];
   const limf=(span,cant)=>!cant?{lim:span/nlim,f:'f<sub>lim</sub> = L / n',s:`f<sub>lim</sub> = ${n(span)} / ${nlim}`}:nu==='c'?{lim:2*span/nlim,f:'f<sub>lim</sub> = 2 · L<sub>u</sub> / n  (uloke)',s:`f<sub>lim</sub> = 2 · ${n(span)} / ${nlim}`}:{lim:span/+nu,f:`f<sub>lim</sub> = L<sub>u</sub> / ${nu}  (uloke, kansallinen liite)`,s:`f<sub>lim</sub> = ${n(span)} / ${nu}`};
   const util=[];
   // taipumat (KRT)
@@ -444,8 +439,6 @@ function calcCase(){
   // vaadittava jäyhyysmomentti ja profiiliehdotukset
   let Ireq=0;
   for(const r of o.filter(r=>/^f/.test(r[1]))){const [span,cant]=fspan(c.id,r[1],v),lim=limf(span,cant).lim;Ireq=Math.max(Ireq,I*Math.abs(r[4])/lim);}
-  const Mq=Math.max(...o.filter(r=>r[5]==='kNm'&&!/^M\(x/.test(r[1])).map(r=>Math.abs(r[4])))*(+$('gGF').value);
-  const qm=q=>{const fyq=FY[$('gGrade').value][q.tmax>40?1:0];return Mq/(q.Wply*fyq/1e6);};
   const pick=FAMS.map(f=>PROFILES.filter(x=>x.fam===f&&x.Iy>=Ireq).sort((a,b)=>a.g-b.g)[0]||null);
   const lightest=pick.filter(Boolean).sort((a,b)=>a.g-b.g)[0]||null;
   h+=`<div class="sec">Profiilin valinta taipuman perusteella</div>`;
@@ -454,73 +447,11 @@ function calcCase(){
     ['s',`I<sub>req</sub> = ${n(I)} · ${n(Ireq/I,3)}`],
     ['r',`I<sub>req</sub> = ${n(Ireq)} mm⁴ = ${n(Ireq/1e4,1)} cm⁴`]],
     'Taipuma on kääntäen verrannollinen jäyhyysmomenttiin, joten vaadittava I saadaan suoraan nykyisen I:n ja käyttöasteen tulona.');
-  h+=`<div class="tablewrap" style="margin:6px 0 4px 52px"><table><thead><tr><th>Sarja</th><th>Kevein riittävä</th><th>I<sub>y</sub> cm⁴</th><th>g kg/m</th><th>Taipuma</th><th>Taivutus*</th><th></th></tr></thead><tbody>`+
-    FAMS.map((f,i)=>{const q=pick[i];if(!q)return `<tr><td>${f}</td><td colspan="6" style="text-align:left">ei riittävää profiilia kirjastossa</td></tr>`;
-      const u=Ireq/q.Iy;return `<tr class="${p&&q.id===p.id?'sel':''}"><td>${f}</td><td>${q.name}${q===lightest?' ★':''}</td><td>${n(q.Iy/1e4,1)}</td><td>${n(q.g,1)}</td><td class="${cls(u)}">${n(u*100,0)} % ${VD(u)}</td><td class="${cls(qm(q))}">${n(qm(q)*100,0)} % ${VD(qm(q))}</td><td><button type="button" data-pick="${q.id}">${p&&q.id===p.id?'Valittu':'Valitse'}</button></td></tr>`;}).join('')+
-    `</tbody></table></div><p class="note" style="margin-left:52px">★ = kevein kaikista sarjoista. *Taivutus = pikatarkistus M<sub>Ed</sub> / (W<sub>pl,y</sub> · f<sub>y</sub>) teräslajilla ${$('gGrade').value} ja γ<sub>F</sub> = ${n(+$('gGF').value)}, ilman luokitusta ja kiepahdusta. Yli 100 % tarkoittaa, että taipuma ei ole mitoittava. Taipuma ei riipu teräslajista, joten valinta on sama kaikilla lujuuksilla.</p>`;
-  if(mode==='f'){
-    h+=`<p class="note" style="margin-top:10px">Mitoitusperusteena on vain taipuma. Taivutus- ja leikkauskestävyys saadaan näkyviin valitsemalla mitoitusperusteeksi "Taipuma + kestävyys". Tarkista kestävyys ainakin kerran, jos jänne on lyhyt tai kuorma suuri.</p>`;
-  }else if(!p){
-    h+=`<div class="sec">Kestävyys (MRT)</div><p class="note" style="margin:8px 0 0">Taivutus- ja leikkaustarkastelu vaatii profiilin. Valitse profiili kirjastosta yläosan valikosta.</p>`;
-  }else if(!(fy>0&&gF>0)){
-    h+=`<p class="note">Syötä positiiviset f<sub>y</sub> ja γ<sub>F</sub>.</p>`;
-  }else{
-    const eps=Math.sqrt(235/fy);
-    h+=`<div class="sec">Poikkileikkausluokka (${p.name}, ${$('gGrade').value})</div>`;
-    h+=st('Materiaalikerroin ε',[['f','ε = √(235 / f<sub>y</sub>)'],['s',`ε = √(235 / ${n(fy)})`],['r',`ε = ${n(eps,3)}`]]);
-    let cf,cw,lf,lw,tF,tW,flab,wlab;
-    if(p.kind==='I'){cf=(p.b-p.tw-2*p.r)/2;tF=p.tf;cw=p.h-2*p.tf-2*p.r;tW=p.tw;lf=[9,10,14];lw=[72,83,124];
-      flab=['c = (b − t<sub>w</sub> − 2r) / 2',`c = (${n(p.b)} − ${n(p.tw)} − 2·${n(p.r)}) / 2`,'t<sub>f</sub>'];
-      wlab=['c = h − 2t<sub>f</sub> − 2r',`c = ${n(p.h)} − 2·${n(p.tf)} − 2·${n(p.r)}`,'t<sub>w</sub>'];}
-    else{cf=p.b-3*p.t;tF=p.t;cw=p.h-3*p.t;tW=p.t;lf=[33,38,42];lw=[72,83,124];
-      flab=['c = b − 3t',`c = ${n(p.b)} − 3·${n(p.t)}`,'t'];wlab=['c = h − 3t',`c = ${n(p.h)} − 3·${n(p.t)}`,'t'];}
-    const klass=(rat,l)=>rat<=l[0]*eps?1:rat<=l[1]*eps?2:rat<=l[2]*eps?3:4;
-    const kf=klass(cf/tF,lf),kw=klass(cw/tW,lw),kl=Math.max(kf,kw);
-    h+=st(`Puristettu laippa ${p.kind==='I'?'(ulokeosa)':'(sisäosa)'}`,[['f',flab[0]],['s',flab[1]+` = ${n(cf)} mm`],
-      ['f',`c / ${flab[2]} ≤ ${lf[0]}ε / ${lf[1]}ε / ${lf[2]}ε  (luokka 1 / 2 / 3)`],
-      ['r',`c / ${flab[2]} = ${n(cf)} / ${n(tF)} = ${n(cf/tF)}  ↔  ${n(lf[0]*eps)} / ${n(lf[1]*eps)} / ${n(lf[2]*eps)}  →  luokka ${kf}`]],'SFS-EN 1993-1-1, taulukko 5.2');
-    h+=st('Uuma (taivutus)',[['f',wlab[0]],['s',wlab[1]+` = ${n(cw)} mm`],
-      ['f',`c / ${wlab[2]} ≤ ${lw[0]}ε / ${lw[1]}ε / ${lw[2]}ε`],
-      ['r',`c / ${wlab[2]} = ${n(cw)} / ${n(tW)} = ${n(cw/tW)}  ↔  ${n(lw[0]*eps)} / ${n(lw[1]*eps)} / ${n(lw[2]*eps)}  →  luokka ${kw}`],
-      ['r',`Poikkileikkausluokka: ${kl}`]]);
-    // taivutus
-    const Mk=Math.max(...o.filter(r=>r[5]==='kNm'&&!/^M\(x/.test(r[1])).map(r=>Math.abs(r[4])));
-    const MEd=gF*Mk,Vk=VK[c.id](v),VEd=gF*Vk[2];
-    h+=`<div class="sec">Taivutuskestävyys (MRT)</div>`;
-    h+=st('Mitoittava momentti',[['f','M<sub>Ed</sub> = γ<sub>F</sub> · max|M<sub>k</sub>|'],['s',`M<sub>Ed</sub> = ${n(gF)} · ${n(Mk)}`],['r',`M<sub>Ed</sub> = ${n(MEd)} kNm`]]);
-    let MRd=NaN,Wuse;
-    if(kl<=3){const pl=kl<=2;Wuse=pl?p.Wply:p.Wely;MRd=Wuse*fy/gM0/1e6;
-      h+=st(`Momenttikestävyys (luokka ${kl}, ${pl?'plastinen':'kimmoinen'})`,[
-        ['f',`M<sub>c,Rd</sub> = W<sub>${pl?'pl':'el'},y</sub> · f<sub>y</sub> / γ<sub>M0</sub>`],
-        ['s',`M<sub>c,Rd</sub> = ${n(Wuse)} · ${n(fy)} / ${n(gM0)} · 10⁻⁶`],
-        ['r',`M<sub>c,Rd</sub> = ${n(MRd)} kNm`],
-        ['r',`Käyttöaste: ${n(MEd)} / ${n(MRd)} = ${U(MEd/MRd)}`]],'SFS-EN 1993-1-1, 6.2.5. γ<sub>M0</sub> = 1,0 (Suomen kansallinen liite).');
-      util.push(['M',MEd/MRd]);
-    }else{h+=st('Momenttikestävyys',[['r','<span class="bad">Luokka 4 – tehollisen poikkileikkauksen laskentaa ei ole toteutettu.</span> → <b class="bad">TARKASTA, EI OK!</b>']]);util.push(['M',9]);}
-    // leikkaus
-    h+=`<div class="sec">Leikkauskestävyys (MRT)</div>`;
-    h+=st('Mitoittava leikkausvoima',[['f',`V<sub>k</sub> = ${Vk[0]}`],['s',`V<sub>k</sub> = ${Vk[1]} = ${n(Vk[2])} kN`],['f','V<sub>Ed</sub> = γ<sub>F</sub> · V<sub>k</sub>'],['r',`V<sub>Ed</sub> = ${n(gF)} · ${n(Vk[2])} = ${n(VEd)} kN`]]);
-    const Vpl=p.Av*fy/(Math.sqrt(3)*gM0)/1e3;
-    const avs=p.kind==='I'?`A<sub>v</sub> = ${n(p.A)} − 2·${n(p.b)}·${n(p.tf)} + (${n(p.tw)} + 2·${n(p.r)})·${n(p.tf)}  (≥ 1,0·${n(p.h-2*p.tf)}·${n(p.tw)})`:`A<sub>v</sub> = ${n(p.A)} · ${n(p.h)} / (${n(p.b)} + ${n(p.h)})`;
-    h+=st('Leikkauspinta-ala',[['f',`A<sub>v</sub> = ${p.Avf}`],['s',avs],['r',`A<sub>v</sub> = ${n(p.Av)} mm²`]],'SFS-EN 1993-1-1, 6.2.6(3). η = 1,0 (varmalla puolella).');
-    h+=st('Plastinen leikkauskestävyys',[['f','V<sub>pl,Rd</sub> = A<sub>v</sub> · (f<sub>y</sub> / √3) / γ<sub>M0</sub>'],['s',`V<sub>pl,Rd</sub> = ${n(p.Av)} · (${n(fy)} / √3) / ${n(gM0)} · 10⁻³`],['r',`V<sub>pl,Rd</sub> = ${n(Vpl)} kN`],['r',`Käyttöaste: ${n(VEd)} / ${n(Vpl)} = ${U(VEd/Vpl)}`]],'SFS-EN 1993-1-1, 6.2.6(2)');
-    util.push(['V',VEd/Vpl]);
-    const hw=p.kind==='I'?p.h-2*p.tf:p.h-2*p.t,tw=p.kind==='I'?p.tw:p.t,lb=72*eps/1.0;
-    h+=st('Uuman leikkauslommahdus',[['f','h<sub>w</sub> / t<sub>w</sub> ≤ 72 · ε / η'],['r',`${n(hw)} / ${n(tw)} = ${n(hw/tw)} ${hw/tw<=lb?'≤':'>'} ${n(lb)}  →  ${hw/tw<=lb?'<span class="ok">ei lommahdustarkastelua</span>':'<span class="bad">tarkastettava EN 1993-1-5 mukaan</span>'}</span><span class="r">Käyttöaste: ${n(hw/tw)} / ${n(lb)} = ${U((hw/tw)/lb)}`]],'SFS-EN 1993-1-1, 6.2.6(6)');
-    // yhteisvaikutus
-    h+=`<div class="sec">Taivutuksen ja leikkauksen yhteisvaikutus</div>`;
-    if(VEd<=0.5*Vpl){
-      h+=st('Leikkauksen vaikutus momenttikestävyyteen',[['f','V<sub>Ed</sub> ≤ 0,5 · V<sub>pl,Rd</sub>  →  ei pienennystä'],['r',`${n(VEd)} ≤ 0,5 · ${n(Vpl)} = ${n(0.5*Vpl)}  →  <span class="ok">ei vaikutusta</span>`]],'SFS-EN 1993-1-1, 6.2.8(2)');
-    }else if(isFinite(MRd)){
-      const rho=(2*VEd/Vpl-1)**2;let MV,lines;
-      if(p.kind==='I'&&kl<=2){const Aw=hw*tw;MV=Math.min((p.Wply-rho*Aw*Aw/(4*tw))*fy/gM0/1e6,MRd);
-        lines=[['f','M<sub>y,V,Rd</sub> = (W<sub>pl,y</sub> − ρ · A<sub>w</sub>² / (4 · t<sub>w</sub>)) · f<sub>y</sub> / γ<sub>M0</sub>,  A<sub>w</sub> = h<sub>w</sub> · t<sub>w</sub>'],['s',`M<sub>y,V,Rd</sub> = (${n(p.Wply)} − ${n(rho,3)} · ${n(Aw)}² / (4 · ${n(tw)})) · ${n(fy)} · 10⁻⁶`]];}
-      else{MV=(1-rho)*MRd;lines=[['f','M<sub>V,Rd</sub> = (1 − ρ) · M<sub>c,Rd</sub>  (varmalla puolella)'],['s',`M<sub>V,Rd</sub> = (1 − ${n(rho,3)}) · ${n(MRd)}`]];}
-      h+=st('Pienennetty momenttikestävyys',[['f','ρ = (2 · V<sub>Ed</sub> / V<sub>pl,Rd</sub> − 1)²'],['s',`ρ = (2 · ${n(VEd)} / ${n(Vpl)} − 1)² = ${n(rho,3)}`],...lines,['r',`M<sub>V,Rd</sub> = ${n(MV)} kNm`],['r',`Käyttöaste: ${n(MEd)} / ${n(MV)} = ${U(MEd/MV)}`]],'SFS-EN 1993-1-1, 6.2.8(3)–(5). Suurin momentti ja leikkausvoima yhdistetään, mikä on varmalla puolella.');
-      util.push(['MV',MEd/MV]);
-    }
-    h+=`<p class="note" style="margin-top:10px">Oletukset: palkin puristettu laippa on tuettu sivusuunnassa (kiepahdusta ei tarkastella), kuormat vaikuttavat profiilin vahvemman akselin suunnassa (y–y), eikä profiilin omaa painoa lisätä automaattisesti. Profiilin oma paino on ${n(p.g,1)} kg/m ≈ ${n(p.g*9.81/1000,3)} kN/m.</p>`;
-  }
+  h+=`<div class="tablewrap" style="margin:6px 0 4px 52px"><table><thead><tr><th>Sarja</th><th>Kevein riittävä</th><th>I<sub>y</sub> cm⁴</th><th>g kg/m</th><th>Taipuma</th><th></th></tr></thead><tbody>`+
+    FAMS.map((f,i)=>{const q=pick[i];if(!q)return `<tr><td>${f}</td><td colspan="5" style="text-align:left">ei riittävää profiilia kirjastossa</td></tr>`;
+      const u=Ireq/q.Iy;return `<tr class="${p&&q.id===p.id?'sel':''}"><td>${f}</td><td>${q.name}${q===lightest?' ★':''}</td><td>${n(q.Iy/1e4,1)}</td><td>${n(q.g,1)}</td><td class="${cls(u)}">${n(u*100,0)} % ${VD(u)}</td><td><button type="button" data-pick="${q.id}">${p&&q.id===p.id?'Valittu':'Valitse'}</button></td></tr>`;}).join('')+
+    `</tbody></table></div><p class="note" style="margin-left:52px">★ = kevein kaikista sarjoista. Taipuma ei riipu teräslajista, joten valinta on sama kaikilla lujuuksilla.</p>`;
+  h+=`<div class="warnbox" style="margin-top:14px">Alustava mitoitus: profiili on valittu vain taipuman perusteella. Murtorajatilan kestävyys (taivutus, leikkaus, kiepahdus, paikalliset ilmiöt) ja liitokset on tarkistettava erikseen. Profiilin omaa painoa ei lisätä automaattisesti${p?` (${p.name}: ${n(p.g,1)} kg/m ≈ ${n(p.g*9.81/1000,3)} kN/m)`:''}.</div>`;
   $('steps').innerHTML=h;
   $('steps').querySelectorAll('button[data-pick]').forEach(bt=>bt.onclick=()=>{$('gProf').value=bt.dataset.pick;applyProfile();toast(`${curProfile().name} valittu`);});
   // yhteenveto
@@ -531,7 +462,7 @@ function calcCase(){
     `<div class="tile"><span class="k">max |M<sub>k</sub>|</span><span class="v">${n(Mk2)} <span class="u">kNm</span></span><span class="s">V<sub>k</sub> = ${n(VK[c.id](v)[2])} kN</span></div>`+
     `<div class="tile"><span class="k">max |f|</span><span class="v">${n(fmax)} <span class="u">mm</span></span><span class="s">${p?p.name:'oma I'}</span></div>`+
     `<div class="tile"><span class="k">I<sub>req</sub></span><span class="v">${n(Ireq/1e4,1)} <span class="u">cm⁴</span></span><span class="s">${lightest?'kevein: '+lightest.name+' ('+n(lightest.g,1)+' kg/m)':'ei riittävää profiilia'}</span></div>`+
-    tl('Taivutus',best('M'))+tl('Leikkaus',best('V'))+tl('Taipuma',best('f'),`raja L/${nlim}${nu!=='c'?`, uloke L/${nu}`:''}`);
+    tl('Taipuma',best('f'),`raja L/${nlim}${nu!=='c'?`, uloke L/${nu}`:''}`);
 }
 const cls=u=>u<=0.9?'ok':u<=1?'warn':'bad';
 const VD=u=>u<=1?'OK!':'TARKASTA, EI OK!';
@@ -598,12 +529,11 @@ const FAMS=['IPE','HEA','HEB','SHS','RHS'];
 function fillProfSelect(){
   $('gProf').innerHTML=`<option value="">Oma poikkileikkaus (vain taipuma)</option>`+FAMS.map(f=>`<optgroup label="${f}">${PROFILES.filter(p=>p.fam===f).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</optgroup>`).join('');
 }
-function setFy(){const p=curProfile(),t=p?p.tmax:0;$('gFy').value=FY[$('gGrade').value][t>40?1:0];}
 function applyProfile(){
   const p=curProfile();
   $('gI').disabled=!!p;
   if(p)$('gI').value=p.Iy.toFixed(0);
-  setFy();calcCase();renderLib();
+  calcCase();renderLib();
 }
 let libFam='IPE';
 function renderLib(){
@@ -623,10 +553,8 @@ function tab(which){
   if(which==='palkit')calcCase();
 }
 $('tab-palkit').onclick=()=>tab('palkit');$('tab-lib').onclick=()=>tab('lib');$('tab-pl').onclick=()=>tab('pl');
-['gE','gI','gFy','gGF'].forEach(id=>$(id).oninput=calcCase);
+['gE','gI'].forEach(id=>$(id).oninput=calcCase);
 $('gN').onchange=calcCase;
-$('gMode').onchange=calcCase;
-$('gGrade').onchange=()=>{setFy();calcCase();};
 $('gProf').onchange=applyProfile;
 fillProfSelect();$('gProf').value='IPE300';
 renderPicker();renderCase();renderSections();applyProfile();

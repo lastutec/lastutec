@@ -138,7 +138,7 @@ details.step>summary .r{font-family:var(--mono);font-weight:500;color:var(--mute
     <div class="hdr-r"><span class="meta">Työkalu 4 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" id="btn-print">Tulosta PDF</button></div>
   </header>
   <div class="flex" style="justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px">
-    <p class="lead" style="margin:0">Tuo arkkitehdin pohjakuva PDF:nä, anna mittakaava ja piirrä jäykistävät seinälinjat. Laskenta jakaa vaakakuorman seinille niiden taivutus- ja leikkausjäykkyyksien suhteessa ja ottaa huomioon jäykkyyskeskiön epäkeskisyydestä syntyvän vääntömomentin. Tuulikuorman kerrosvoimat saat <a href="../../kuormat/tuuli/">tuulikuormalaskurista</a>.</p>
+    <p class="lead" style="margin:0">Tuo arkkitehdin pohjakuva PDF:nä, anna mittakaava ja piirrä jäykistävät seinälinjat. Laskenta jakaa vaakakuorman seinille niiden taivutus- ja leikkausjäykkyyksien suhteessa ja ottaa huomioon jäykkyyskeskiön epäkeskisyydestä syntyvän vääntömomentin. Tuulikuorman kerrosvoimat saat <a href="../../kuormat/tuulivoima/">voimakerroinmenetelmän tuulikuormalaskurista</a>.</p>
     <div class="flex no-print">
       <button class="btn" id="btn-example" title="Lataa alkuperäisen Excel-laskentapohjan esimerkkiaineisto">Esimerkki</button>
       <button class="btn" id="btn-save">Tallenna projekti</button>
@@ -755,8 +755,9 @@ $('#btn-print').addEventListener('click',()=>{ $$('#steps-walls details').forEac
   // kuormat URL-parametreista (esim. tuulikuormalaskurista)
   const qs=new URLSearchParams(location.search); let fromUrl=false;
   ['Fx','Fy'].forEach(k=>{ if(qs.has(k)){ const v=parseFloat(qs.get(k)); if(isFinite(v)){ S[k]=v; fromUrl=true; } } });
+  if(qs.has('xF')&&qs.has('yF')){ const x=parseFloat(qs.get('xF')), y=parseFloat(qs.get('yF')); if(isFinite(x)&&isFinite(y)) S.loadP=toP({x,y}); }
   setTool('wall'); resize(); fit(); refreshAll();
-  if(fromUrl){ save(); showHint('Kuormat tuotu tuulikuormalaskurista'+(qs.get('taso')?' (taso '+esc(qs.get('taso'))+')':'')+': F<sub>x</sub> = '+fmt(S.Fx,1)+' kN, F<sub>y</sub> = '+fmt(S.Fy,1)+' kN. Tarkista kuorman sijainti (x<sub>F</sub>, y<sub>F</sub>).'); history.replaceState(null,'',location.pathname); return; }
+  if(fromUrl){ save(); showHint('Kuormat tuotu tuulikuormalaskurista'+(qs.get('taso')?' (taso '+esc(qs.get('taso'))+')':'')+': F<sub>x</sub> = '+fmt(S.Fx,1)+' kN, F<sub>y</sub> = '+fmt(S.Fy,1)+' kN. Kuorman sijainti on asetettu rakennuksen keskilinjoille (origo rakennuksen nurkassa); tutki myös epäkeskisyys ± b/10.'); history.replaceState(null,'',location.pathname); return; }
   if(o&&o.pdfName) showHint('Edellinen työ palautettu. Tuo pohjakuva <b>'+esc(o.pdfName)+'</b> uudelleen, niin seinät asettuvat sen päälle.');
   else if(!o) showHint('Aloita tuomalla ARK-pohjakuva (<b>📄 Tuo PDF</b>) ja tarkista mittakaava. Voit myös kokeilla <b>Esimerkki</b>-aineistoa (alkuperäisen Excelin seinät).');
 })();

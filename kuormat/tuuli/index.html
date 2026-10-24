@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tuulikuorma – Lastutec</title>
-<meta name="description" content="Tuulikuorma SFS-EN 1991-1-4:n ja ympäristöministeriön asetuksen 7/16 (kansalliset valinnat) mukaan: puuskanopeuspaine, seinien ja tasakaton painekertoimet, nettopaineet sekä kerrosvoimat jäykistyslaskelmaan.">
+<meta name="description" content="Tuulikuorma SFS-EN 1991-1-4:n ja ympäristöministeriön asetuksen 7/16 (kansalliset valinnat) mukaan: puuskanopeuspaine, seinien ja tasakaton painekertoimet, ja nettopaineet tarkempaan tuulikuormien määritykseen.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
 <style>
@@ -115,7 +115,7 @@ details.step>.calc{padding:0 12px 10px}
     <div class="brand"><a href="../" class="back">← Kuormalaskenta</a><h1>Tuulikuorma</h1></div>
     <div class="hdr-r"><span class="meta">Työkalu 4 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
   </header>
-  <p class="lead">Tuulikuorma SFS-EN 1991-1-4:n ja ympäristöministeriön asetuksen 7/16 (kansalliset valinnat) mukaan: puuskanopeuspaine, seinien ja tasakaton painekertoimet, nettopaineet sekä kerrosvoimat jäykistyslaskelmaan. Laskelmat näytetään välivaiheineen.</p>
+  <p class="lead">Tuulikuorma SFS-EN 1991-1-4:n ja ympäristöministeriön asetuksen 7/16 (kansalliset valinnat) mukaan: puuskanopeuspaine sekä seinien ja tasakaton painekertoimet ja nettopaineet tarkempaan tuulikuormien määritykseen. Jäykistyslaskennan kerroskuormat saat <a href="../tuulivoima/">voimakerroinmenetelmän laskurista</a>. Laskelmat näytetään välivaiheineen.</p>
   <!-- ===================== TUULIKUORMA ===================== -->
   <section id="p-tuuli">
     <div class="grid">
@@ -133,8 +133,6 @@ details.step>.calc{padding:0 12px 10px}
           <div class="field"><label>Pituus x-suunnassa L<sub>x</sub></label><span><input type="number" id="w-Lx" step="any" value="40"><span class="u">m</span></span></div>
           <div class="field"><label>Leveys y-suunnassa L<sub>y</sub></label><span><input type="number" id="w-Ly" step="any" value="15"><span class="u">m</span></span></div>
           <div class="field"><label>Korkeus h</label><span><input type="number" id="w-h" step="any" value="12"><span class="u">m</span></span></div>
-          <div class="field"><label>Kerroskorkeudet (alhaalta)</label><input type="text" id="w-stories" value="3; 3; 3; 3" style="width:120px"></div>
-          <div class="small">Kerrosvoimat lasketaan välipohjatasoille. Jos kerroskorkeuksien summa poikkeaa h:sta, ylin taso saa kuormaa korkeuteen h asti.</div>
           <div class="field"><label>Rakennekerroin c<sub>s</sub>c<sub>d</sub></label><span><input type="number" id="w-cscd" step="0.05" value="1"><span class="u"></span></span></div>
           <div class="field"><label>Kaiteen korkeus h<sub>p</sub> (tasakatto)</label><span><input type="number" id="w-hp" step="any" value="0"><span class="u">m</span></span></div>
           <div class="field"><label>Kuormitettu ala (verhous)</label><span><input type="number" id="w-A" step="any" value="10"><span class="u">m²</span></span></div>
@@ -207,7 +205,6 @@ function parseCpi(){ const s=$('#w-cpi').value.replace(/−/g,'-').replace(/,/g,
 function zeAt(z,b,h){ if(h<=b) return h; if(h<=2*b) return z<=b?b:h; if(z<=b) return b; if(z>=h-b) return h; return z; }
 function windCalc(){
   const W=windBase(); const Lx=num('#w-Lx'), Ly=num('#w-Ly'); let h=num('#w-h'); const cscd=num('#w-cscd')||1, hp=num('#w-hp'), Aload=num('#w-A')||10; const cpi=parseCpi();
-  const stories=$('#w-stories').value.split(/[;\s]+/).map(s=>parseFloat(s.replace(',','.'))).filter(v=>v>0);
   const Q=W.qp(h);
   $('#w-kpis').innerHTML=[['v<sub>b</sub>',fmt(W.vb,2)+' m/s'],['k<sub>r</sub>',fmt(W.kr,4)],['v<sub>m</sub>(h)',fmt(Q.vm,2)+' m/s'],['I<sub>v</sub>(h)',fmt(Q.Iv,4)],['q<sub>p</sub>(h)',fmt(Q.q,3)+' kN/m²']]
    .map((k,i)=>`<div class="kpi ${i===4?'hl':''}"><div class="k">${k[0]}</div><div class="v">${k[1]}</div></div>`).join('');
@@ -227,12 +224,11 @@ function windCalc(){
   $('#w-qptbl').innerHTML='<thead><tr><th class="l">z [m]</th><th>c<sub>r</sub></th><th>v<sub>m</sub> [m/s]</th><th>I<sub>v</sub></th><th>q<sub>p</sub> [kN/m²]</th></tr></thead><tbody>'+zs.map(z=>{const q=W.qp(z); return `<tr${z===h?' style="font-weight:600"':''}><td class="l">${fmt(z,1)}</td><td class="num">${fmt(q.cr,3)}</td><td class="num">${fmt(q.vm,2)}</td><td class="num">${fmt(q.Iv,3)}</td><td class="num">${fmt(q.q,3)}</td></tr>`;}).join('')+'</tbody>';
   // suunnat
   const dirs=[{k:'X',b:Ly,d:Lx,F:'F<sub>x</sub>'},{k:'Y',b:Lx,d:Ly,F:'F<sub>y</sub>'}];
-  let out=''; const floorF={X:[],Y:[]}; const w3={Lx,Ly,h};
+  let out=''; const w3={Lx,Ly,h};
   dirs.forEach(D=>{
     const b=D.b, d=D.d, hd=d>0?h/d:0, e=Math.min(b,2*h); const cw=cpeWall(hd);
     // seinävyöhykkeet
     let zones; if(e<d) zones=[['A',e/5],['B',4*e/5],['C',d-e]]; else if(e<5*d) zones=[['A',e/5],['B',d-e/5]]; else zones=[['A',d]];
-    const fcor=hd>=5?1:hd<=1?0.85:lerp(hd,1,5,0.85,1);
     // ze-profiili
     let zeTxt; if(h<=b) zeTxt='h = '+fmt(h,2)+' ≤ b = '+fmt(b,2)+' → z<sub>e</sub> = h koko korkeudella'; else if(h<=2*b) zeTxt='b &lt; h ≤ 2b → alaosa (0…b): z<sub>e</sub> = b, yläosa: z<sub>e</sub> = h'; else zeTxt='h &gt; 2b → alaosa z<sub>e</sub> = b, yläosa z<sub>e</sub> = h, välissä z<sub>e</sub> = z (kaistat)';
     const qh=W.qp(h).q;
@@ -260,29 +256,10 @@ function windCalc(){
       if(z==='I'){ s+=`<tr><td class="l">I</td><td class="l small">${rz.I}</td><td class="num">+0,2 / −0,2</td><td class="num">+0,2 / −0,2</td><td class="num">${fmt(qr*0.2,3)} / ${fmt(-qr*0.2,3)}</td><td class="num neg">${fmt(qr*(-0.2-Math.max(...cpi)),3)}</td></tr>`; return; }
       s+=`<tr><td class="l">${z}</td><td class="l small">${rz[z]}</td><td class="num">${fmt(c10,2)}</td><td class="num">${fmt(c1,2)}</td><td class="num neg">${fmt(qr*c10,3)}</td><td class="num neg"><b>${fmt(qr*(c10-Math.max(...cpi)),3)}</b></td></tr>`; });
     s+='</tbody></table></div>';
-    // kokonaisvoima ja kerrosvoimat
-    const cD=cw.D[0], cE=cw.E[0];
-    const levels=[]; let acc=0; stories.forEach(hh=>{acc+=hh; levels.push(acc);}); if(!levels.length) levels.push(h);
-    const top=Math.max(h,levels[levels.length-1]);
-    const integ=(z1,z2)=>{ let sum=0; const n=Math.max(4,Math.ceil((z2-z1)/0.05)); const dz=(z2-z1)/n; for(let i=0;i<n;i++){ const z=z1+(i+0.5)*dz; sum+=W.qp(zeAt(z,b,h)).q*dz; } return sum; };
-    const fl=levels.map((z,i)=>{ const zlo=i===0?z/2:(levels[i-1]+z)/2; const zhi=i===levels.length-1?top:(z+levels[i+1])/2; const qint=integ(zlo,zhi);
-      const F=cscd*fcor*(cD-cE)*b*qint; return {i:i+1,z,zlo,zhi,qavg:qint/(zhi-zlo),F}; });
-    const Ftot=fl.reduce((a,o)=>a+o.F,0), zR=Ftot?fl.reduce((a,o)=>a+o.F*o.z,0)/Ftot:0;
-    floorF[D.k]=fl;
-    s+='<h3>Kokonaistuulikuorma ja kerrosvoimat ('+D.F+')</h3><div class="calc">';
-    s+=row('Nettokerroin','c<sub>pe,10,D</sub> − c<sub>pe,10,E</sub> = '+fmt(cD,2)+' − ('+fmt(cE,2)+') = <b>'+fmt(cD-cE,3)+'</b>');
-    s+=row('Korrelaatiokerroin f (7.2.2(3))',(hd>=5?'h/d ≥ 5 → 1,0':hd<=1?'h/d ≤ 1 → 0,85':'interpoloitu h/d = '+fmt(hd,2)+' → '+fmt(fcor,3))+' → <b>'+fmt(fcor,3)+'</b>');
-    s+=row('Kerrosvoima','F<sub>w,i</sub> = c<sub>s</sub>c<sub>d</sub>·f·(c<sub>pe,D</sub> − c<sub>pe,E</sub>)·b·∫q<sub>p</sub>(z<sub>e</sub>)dz kerroksen kuormitusalueelta');
-    s+='</div><div class="tbl-wrap"><table><thead><tr><th class="l">Taso</th><th>z [m]</th><th>kuormitusalue [m]</th><th>q<sub>p,keskim.</sub> [kN/m²]</th><th>laskelma</th><th>'+D.F+' [kN]</th><th class="no-print"></th></tr></thead><tbody>';
-    fl.forEach(o=>{ s+=`<tr><td class="l">${o.i}</td><td class="num">${fmt(o.z,2)}</td><td class="num">${fmt(o.zlo,2)} … ${fmt(o.zhi,2)}</td><td class="num">${fmt(o.qavg,3)}</td><td class="num small">${fmt(cscd,2)}·${fmt(fcor,3)}·${fmt(cD-cE,2)}·${fmt(b,2)}·${fmt(o.qavg,3)}·${fmt(o.zhi-o.zlo,2)}</td><td class="num"><b>${fmt(o.F,1)}</b></td><td class="no-print" data-lvl="${o.i}"></td></tr>`; });
-    s+=`</tbody><tfoot><tr><th class="l">Σ</th><th></th><th></th><th></th><th></th><th class="num">${fmt(Ftot,1)}</th><th class="no-print"></th></tr></tfoot></table></div>`;
-    s+='<div class="small">Alimman kerroksen alaosan (0 … '+fmt(levels[0]/2,2)+' m) tuulikuorma siirtyy suoraan perustuksille. Resultantin korkeus z = '+fmt(zR,2)+' m maanpinnasta. Epäsymmetrinen kuorma: kokonaisvoima vaikuttaa epäkeskisyydellä e = b/10 = '+fmt(b/10,2)+' m (7.1.2), mikä otetaan huomioon jäykistyslaskelmassa kuorman sijaintina.</div>';
     s+='</div>';
     out+=s;
   });
-  // linkki leikkausseinätyökaluun
-  out+='<div class="card"><h2>Kerrosvoimat jäykistyslaskelmaan</h2><div class="small">Siirrä tason vaakavoimat vaakakuormien jakautumistyökaluun. F<sub>x</sub> ja F<sub>y</sub> ovat erillisiä kuormitustapauksia, joten molemmat siirtyvät samalla kertaa. Tarkista työkalussa kuorman sijainti (x<sub>F</sub>, y<sub>F</sub>).</div><div class="tbl-wrap" style="margin-top:6px"><table><thead><tr><th class="l">Taso</th><th>z [m]</th><th>F<sub>x</sub> [kN]</th><th>F<sub>y</sub> [kN]</th><th class="l no-print"></th></tr></thead><tbody>'+
-    floorF.X.map((o,i)=>{ const fy=floorF.Y[i]?floorF.Y[i].F:0; return `<tr><td class="l">${o.i}</td><td class="num">${fmt(o.z,2)}</td><td class="num">${fmt(o.F,1)}</td><td class="num">${fmt(fy,1)}</td><td class="l no-print"><a href="../../statiikka/vaakakuormat/?Fx=${o.F.toFixed(2)}&Fy=${fy.toFixed(2)}&taso=${o.i}">Avaa jäykistystyökalussa →</a></td></tr>`; }).join('')+'</tbody></table></div></div>';
+  out+='<div class="info">Tämä laskuri antaa tarkemmat paikalliset tuulikuormat (painekertoimet, verhous- ja kiinnityskuormat). Jäykistyslaskennan kerroskuormat lasketaan <a href="../tuulivoima/">voimakerroinmenetelmän tuulikuormalaskurilla</a>.</div>';
   $('#w-dirs').innerHTML=out;
   V3.data=w3; render3D();
 }
@@ -356,7 +333,7 @@ function render3D(){
   el.innerHTML=`<defs><marker id="w3ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>${g}`;
   $$('#w3d-ctl [data-dir]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.dir===V3.dir));
   $$('#w3d-ctl [data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===V3.mode));
-  $('#w3d-note').innerHTML='Seinät: q<sub>p</sub>(z<sub>e</sub> = h) = '+fmt(D.qh,3)+' kN/m², katto: q<sub>p</sub>(h + h<sub>p</sub>) = '+fmt(D.qr,3)+' kN/m², e = '+fmt(D.e,2)+' m. Katon vyöhykkeessä I näytetään imu (c<sub>pe</sub> = −0,2); vaihtoehtoinen arvo on +0,2. Kun h &gt; b, seinän alaosan paine on pienempi (z<sub>e</sub>-jakauma, ks. kerrosvoimat).';
+  $('#w3d-note').innerHTML='Seinät: q<sub>p</sub>(z<sub>e</sub> = h) = '+fmt(D.qh,3)+' kN/m², katto: q<sub>p</sub>(h + h<sub>p</sub>) = '+fmt(D.qr,3)+' kN/m², e = '+fmt(D.e,2)+' m. Katon vyöhykkeessä I näytetään imu (c<sub>pe</sub> = −0,2); vaihtoehtoinen arvo on +0,2. Kun h &gt; b, seinän alaosan paine on pienempi (z<sub>e</sub>-jakauma, kuva 7.4).';
 }
 (function(){ const svg=$('#w3d-svg'); if(!svg) return; let drag=null;
   svg.addEventListener('pointerdown',e=>{ drag={x:e.clientX,y:e.clientY,yaw:V3.yaw,pitch:V3.pitch}; svg.setPointerCapture(e.pointerId); });
@@ -385,7 +362,7 @@ function svgPlan(k,Lx,Ly,e,zones,d,b){
    <rect x="${x0}" y="${y0}" width="${w}" height="${hh}" fill="#1c1c1c" stroke="var(--ink)" stroke-width="1.5"/>${z}
    <text x="${x0+w/2}" y="${y0+hh/2+4}" text-anchor="middle" class="m">${fmt(Lx,1)} × ${fmt(Ly,1)} m, e = ${fmt(e,2)} m</text></svg>`;
 }
-bindPersist(['w-vb0','w-cat','w-cdir','w-cseason','w-co','w-rho','w-Lx','w-Ly','w-h','w-stories','w-cscd','w-hp','w-A','w-cpi'],windCalc);
+bindPersist(['w-vb0','w-cat','w-cdir','w-cseason','w-co','w-rho','w-Lx','w-Ly','w-h','w-cscd','w-hp','w-A','w-cpi'],windCalc);
 windCalc();
 })();
 </script>

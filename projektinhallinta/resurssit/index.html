@@ -58,6 +58,12 @@ tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:0}
 .legend i{display:inline-block;width:14px;height:10px;margin-right:6px;vertical-align:0}
 .foot{font-size:12.5px;color:var(--muted);margin:0;max-width:90ch}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap}
+tr.ph td{border-bottom:0;padding-top:10px}
+tr.ph td b{color:var(--accent)}
+tr.tasks td{text-align:left;white-space:normal;font-size:12.5px;color:var(--muted);padding:0 8px 10px 22px}
+tr.tasks ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:2px 16px}
+tr.tasks ol>li:nth-child(4){flex-basis:100%}
+tr.tasks ul{margin:2px 0 0;padding-left:18px;columns:2 260px;column-gap:24px;color:var(--ink)}
 .btn2{font:600 12.5px var(--body);padding:5px 12px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
 .btn2:hover{border-color:var(--accent)}
 @page{size:A4 landscape;margin:12mm}
@@ -98,9 +104,9 @@ tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:0}
 
 <section class="panel" aria-labelledby="h-ph">
   <h2 id="h-ph">2. Jako RAK18-vaiheisiin</h2>
-  <p class="hint">Osuudet, alkukuukaudet ja kestot ovat muokattavia. Vaiheet voivat limittyä (esim. rakennuslupavaihe ja toteutussuunnittelu). Osuuksien summan tulee olla 100 %.</p>
+  <p class="hint">Osuudet, alkukuukaudet ja kestot ovat muokattavia. Vaiheet voivat limittyä (esim. rakennuslupavaihe ja toteutussuunnittelu). Osuuksien summan tulee olla 100 %. Vaiheiden alla ovat tehtäväluettelon pääkohdat: kunkin vaiheen edellytysten toteaminen, valmistelu, käynnistäminen, suoritus ja suorituksen sopimuksenmukaisuuden toteaminen, sekä rakennesuunnittelijan keskeiset suoritustehtävät.</p>
   <div class="tablewrap"><table id="phases"></table></div>
-  <div class="btnrow"><button type="button" class="btn2" id="reset">Palauta oletukset</button></div>
+  <div class="btnrow"><button type="button" class="btn2" id="toggleTasks">Piilota tehtävät</button><button type="button" class="btn2" id="reset">Palauta oletukset</button></div>
 </section>
 
 <section class="panel chart" aria-labelledby="h-g">
@@ -167,15 +173,31 @@ $('dtime').addEventListener('change', () => {
   renderPhases(); calc();
 });
 $('cx').onchange = calc;
+$('toggleTasks').onclick = () => { showTasks = !showTasks; $('toggleTasks').textContent = showTasks ? 'Piilota tehtävät' : 'Näytä tehtävät'; document.querySelectorAll('#phases tr.tasks').forEach(t => t.hidden = !showTasks); };
 $('reset').onclick = () => { PH = DEF.map(r => [...r]); renderPhases(); calc(); };
 
+// RAK18-tehtäväluettelon pääkohdat vaiheittain (tunnus, suorituksen tehtävät)
+const TASKS = [
+  ['A', ['Osallistuminen tarveselvitykseen erikseen tilattaessa', 'Rakenteellisten reunaehtojen ja riskien tunnistaminen']],
+  ['B', ['Rakentamismahdollisuuksien selvitys', 'Käyttöikä-, elinkaari- ja ympäristöselvitykset', 'Rakenneteknisten tavoitteiden asettaminen']],
+  ['C', ['Suunnittelun lähtötietojen ja -perusteiden kokoaminen', 'Suunnitteluohjeiden ja tavoitteiden tarkistaminen']],
+  ['D', ['Rakennejärjestelmän toiminnalliset ratkaisuvaihtoehdot', 'Suunnitelmavaihtoehdot ja tyyppiratkaisut', 'Vaihtoehtojen vertailu ja valinta']],
+  ['E', ['Rakennejärjestelmän ja runkoratkaisun määrittely', 'Talo-osien ja tilaosien rakenteet', 'Yleissuunnitelman rakennelaskelmat', 'Yleissuunnitelmien dokumentointi']],
+  ['F', ['Luvan valmistelutehtävät (rakenneratkaisut pääpiirustuksiin, erityissuunnittelija-asiakirjat)', 'Luvasta aiheutuvat tehtävät']],
+  ['G', ['Lähtötietojen tarkistus', 'Hankinta- ja suunnitelmapakettien määrittely', 'Purkusuunnitelmat', 'Talo-osien ja tilaosien toteutussuunnitelmat', 'Turvallisuussuunnittelu', 'Rakennelaskelmat', 'Rakennepiirustukset ja -mallit']],
+  ['H', ['Urakkalaskenta-asiakirjat', 'Urakkalaskennan aikaisiin kysymyksiin vastaaminen', 'Tarjousten tekninen arviointi ja urakkaneuvottelut']],
+  ['I', ['Suunnitelmien täydentäminen ja muutokset', 'Työmaakokoukset ja -käynnit', 'Toimittajasuunnitelmien tarkastus', 'Toteutuksen seurannan ja tarkastusten tuki']],
+  ['J', ['Toteutumasuunnitelmat ja -mallit', 'Vastaanottotarkastukseen osallistuminen', 'Käyttö- ja huolto-ohjeen rakenneosuus']],
+  ['K', ['Takuuajan tarkastukseen osallistuminen', 'Takuuaikaisten korjausten suunnittelu']]
+];
+let showTasks = true;
 function renderPhases() {
-  $('phases').innerHTML = `<thead><tr><th>Vaihe (RAK18)</th><th>Osuus %</th><th>Alku kk</th><th>Kesto kk</th><th>Tunnit</th><th>Henkilöä keskim.</th><th style="text-align:left">Jakauma</th></tr></thead><tbody>` +
-    PH.map((r, i) => `<tr><td>${r[0]}</td>
+  $('phases').innerHTML = `<thead><tr><th>Vaihe ja tehtävät (RAK18)</th><th>Osuus %</th><th>Alku kk</th><th>Kesto kk</th><th>Tunnit</th><th>Henkilöä keskim.</th><th style="text-align:left">Jakauma</th></tr></thead><tbody>` +
+    PH.map((r, i) => `<tr class="ph"><td><b>${TASKS[i] ? TASKS[i][0] + ' ' : ''}</b>${r[0]}</td>
       <td><input type="number" id="p${i}" aria-label="${r[0]} osuus" value="${r[1]}" min="0" step="1" data-i="${i}" data-k="1"></td>
       <td><input type="number" id="s${i}" aria-label="${r[0]} alku" value="${r[2]}" min="0" step="1" data-i="${i}" data-k="2"></td>
       <td><input type="number" id="d${i}" aria-label="${r[0]} kesto" value="${r[3]}" min="0.5" step="0.5" data-i="${i}" data-k="3"></td>
-      <td id="h${i}"></td><td id="m${i}"></td><td style="text-align:left"><span class="bar" id="b${i}"></span></td></tr>`).join('') +
+      <td id="h${i}"></td><td id="m${i}"></td><td style="text-align:left"><span class="bar" id="b${i}"></span></td></tr>${TASKS[i] ? `<tr class="tasks"${showTasks ? '' : ' hidden'}><td colspan="7"><ol><li>${TASKS[i][0]}1 Edellytysten toteaminen</li><li>${TASKS[i][0]}2 Valmistelu</li><li>${TASKS[i][0]}3 Käynnistäminen</li><li>${TASKS[i][0]}4 Suoritus<ul>${TASKS[i][1].map(t => `<li>${t}</li>`).join('')}</ul></li><li>${TASKS[i][0]}5 Suorituksen sopimuksenmukaisuuden toteaminen</li></ol></td></tr>` : ''}`).join('') +
     `</tbody><tfoot><tr><td>Yhteensä</td><td id="psum"></td><td></td><td id="dur"></td><td id="hsum"></td><td></td><td></td></tr></tfoot>`;
   $('phases').querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => {
     const v = parseFloat(inp.value); if (isFinite(v)) { PH[+inp.dataset.i][+inp.dataset.k] = v; calc(); }

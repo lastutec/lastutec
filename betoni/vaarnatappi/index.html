@@ -150,20 +150,53 @@ $('set').onchange = () => { const s = SETS[$('set').value]; $('gc').value = s[1]
 ['d', 'c'].forEach(id => $(id).onchange = calc);
 ['fyk', 'gc', 'gs', 'gv', 'acc', 'ev', 'ss', 'ved'].forEach(id => $(id).oninput = calc);
 
+// Mittaviiva: päissä vinot viivat, apuviivat kohteeseen
+function dim(x1, y1, x2, y2, label, side = -1) {
+  const horiz = Math.abs(y2 - y1) < Math.abs(x2 - x1), t = 5;
+  let o = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--ink)" stroke-width="1"/>`;
+  for (const [x, y] of [[x1, y1], [x2, y2]]) o += `<line x1="${x - t}" y1="${y + t}" x2="${x + t}" y2="${y - t}" stroke="var(--ink)" stroke-width="1.6"/>`;
+  if (horiz) { const xm = (x1 + x2) / 2; o += `<text x="${xm}" y="${y1 + (side < 0 ? -6 : 15)}" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">${label}</text>`; }
+  else { const ym = (y1 + y2) / 2, xx = x1 + (side < 0 ? -8 : 8); o += `<text x="${xx}" y="${ym + 4}" text-anchor="${side < 0 ? 'end' : 'start'}" font-size="12" font-weight="600" fill="var(--ink)">${label}</text>`; }
+  return o;
+}
+const ext = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--muted)" stroke-width="0.8"/>`;
+
 function fig(D, ev) {
-  const W = 420, H = 200, s = 2.2, d = Math.max(4, D * s * 0.35);
-  let o = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Vaarnatapin apukuva">`;
-  o += `<rect x="20" y="40" width="170" height="140" fill="#8f8f8f" fill-opacity="0.35" stroke="var(--ink)" stroke-width="1.5"/>`;
-  o += `<rect x="${200 + Math.min(40, ev * 0.6)}" y="40" width="${200 - Math.min(40, ev * 0.6)}" height="140" fill="#8f8f8f" fill-opacity="0.2" stroke="var(--muted)" stroke-dasharray="4 3"/>`;
-  const y = 110;
-  o += `<rect x="80" y="${y - d / 2}" width="${170 + Math.min(40, ev * 0.6)}" height="${d}" fill="var(--accent)"/>`;
-  o += `<line x1="190" y1="${y + 30}" x2="80" y2="${y + 30}" stroke="var(--muted)"/><text x="135" y="${y + 46}" text-anchor="middle" font-size="12" fill="var(--muted)">ankkurointi</text>`;
-  o += `<line x1="190" y1="${y}" x2="190" y2="${y + 55}" stroke="var(--muted)" stroke-dasharray="2 2"/><line x1="190" y1="58" x2="190" y2="${y - d / 2}" stroke="var(--muted)" stroke-dasharray="2 2"/>`;
-  o += `<text x="105" y="62" text-anchor="middle" font-size="12" fill="var(--ink)">≥ 8Ø = ${8 * D} mm</text><line x1="30" y1="70" x2="185" y2="70" stroke="var(--muted)"/>`;
-  const xa = 200 + Math.min(40, ev * 0.6) / 2;
-  o += `<line x1="${xa}" y1="14" x2="${xa}" y2="${y - d / 2 - 4}" stroke="var(--ink)" stroke-width="2.5"/><polygon points="${xa},${y - d / 2 - 1} ${xa - 6},${y - d / 2 - 12} ${xa + 6},${y - d / 2 - 12}" fill="var(--ink)"/><text x="${xa + 8}" y="24" font-size="12" font-weight="600" fill="var(--ink)">V<tspan baseline-shift="sub" font-size="9">Ed</tspan></text>`;
-  if (ev > 0) o += `<text x="${xa}" y="${H - 6}" text-anchor="middle" font-size="12" fill="var(--accent)">e<tspan baseline-shift="sub" font-size="9">v</tspan> = ${ev} mm</text>`;
-  o += `<text x="${W - 10}" y="${H - 6}" text-anchor="end" font-size="12" fill="var(--muted)">T${D}, sivuille ≥ 3Ø = ${3 * D} mm</text>`;
+  const W = 600, H = 270;
+  let o = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Vaarnatapin reunaetäisyydet ja mitat">`;
+  // --- Sivukuva
+  const bx0 = 20, bx1 = 190, by0 = 70, by1 = 220, y = 150, d = Math.max(5, Math.min(14, D * 0.45));
+  const gap = Math.min(45, 10 + ev * 0.8), x2a = bx1 + gap;
+  o += `<text x="${bx0}" y="16" font-size="12" font-weight="700" fill="var(--accent)">SIVUKUVA</text>`;
+  o += `<rect x="${bx0}" y="${by0}" width="${bx1 - bx0}" height="${by1 - by0}" fill="#8f8f8f" fill-opacity="0.35" stroke="var(--ink)" stroke-width="1.5"/>`;
+  o += `<path d="M${x2a} ${by0} H${x2a + 60} M${x2a} ${by0} V${by1} H${x2a + 60}" fill="none" stroke="var(--muted)" stroke-dasharray="4 3"/>`;
+  const xin = bx1 - 95;
+  o += `<rect x="${xin}" y="${y - d / 2}" width="${x2a + 45 - xin}" height="${d}" fill="var(--accent)"/>`;
+  // kuorma
+  const xa = bx1 + gap / 2 + (ev > 0 ? 0 : 0);
+  o += `<line x1="${xa}" y1="${by0 - 22}" x2="${xa}" y2="${y - d / 2 - 10}" stroke="var(--ink)" stroke-width="2.5"/><polygon points="${xa},${y - d / 2 - 1} ${xa - 6},${y - d / 2 - 13} ${xa + 6},${y - d / 2 - 13}" fill="var(--ink)"/><text x="${xa + 8}" y="${by0 - 14}" font-size="12" font-weight="700" fill="var(--ink)">V<tspan baseline-shift="sub" font-size="9">Ed</tspan></text>`;
+  // mitat: upotus ≥ 8Ø ja ev
+  o += ext(xin, y - d / 2, xin, by0 - 34) + ext(bx1, by0, bx1, by0 - 34);
+  o += dim(xin, by0 - 30, bx1, by0 - 30, `≥ 8Ø = ${8 * D}`);
+  o += ext(xa, y + d / 2 + 4, xa, by1 + 26) + ext(bx1, by1, bx1, by1 + 26);
+  o += dim(bx1, by1 + 22, xa, by1 + 22, `e<tspan baseline-shift="sub" font-size="9">v</tspan> = ${ev}`, 1);
+  o += `<text x="${bx0}" y="${by1 + 44}" font-size="11" fill="var(--muted)">Ø${D}, sauma / rako</text>`;
+  // --- Poikkileikkaus (näkymä saumapinnasta)
+  const s = Math.min(150 / (13 * D), 9), cx0 = 410, top = 70, cyD = top + 5 * D * s, botY = cyD + 8 * D * s, cxD = cx0 + 3 * D * s, right = Math.min(W - 25, cxD + 6 * D * s + 40);
+  o += `<text x="${cx0 - 90}" y="16" font-size="12" font-weight="700" fill="var(--accent)">POIKKILEIKKAUS</text>`;
+  o += `<path d="M${right} ${top} H${cx0} V${botY} H${right}" fill="#8f8f8f" fill-opacity="0.35" stroke="var(--ink)" stroke-width="1.5"/>`;
+  o += `<path d="M${right} ${top} l-6 ${(botY - top) * 0.3} l12 ${(botY - top) * 0.15} l-6 ${(botY - top) * 0.55}" fill="none" stroke="var(--muted)" stroke-width="1"/>`;
+  o += `<circle cx="${cxD}" cy="${cyD}" r="${Math.max(4, D * s / 2)}" fill="var(--accent)"/>`;
+  o += `<line x1="${cxD + 40}" y1="${cyD - 30}" x2="${cxD + 40}" y2="${cyD + 16}" stroke="var(--ink)" stroke-width="2.5"/><polygon points="${cxD + 40},${cyD + 26} ${cxD + 34},${cyD + 14} ${cxD + 46},${cyD + 14}" fill="var(--ink)"/><text x="${cxD + 48}" y="${cyD - 18}" font-size="12" font-weight="700" fill="var(--ink)">V<tspan baseline-shift="sub" font-size="9">Ed</tspan></text>`;
+  // mitat: sivu ≥ 3Ø, ylös ≥ 5Ø, kuorman suuntaan ≥ 8Ø
+  o += ext(cxD, cyD, cxD, top - 26) + ext(cx0, top, cx0, top - 26);
+  o += dim(cx0, top - 22, cxD, top - 22, `≥ 3Ø = ${3 * D}`);
+  const xv = cx0 - 22;
+  o += ext(cxD, cyD, xv - 4, cyD) + ext(cx0, top, xv - 4, top) + ext(cx0, botY, xv - 4, botY);
+  o += dim(xv, top, xv, cyD, `≥ 5Ø = ${5 * D}`, -1);
+  o += dim(xv, cyD, xv, botY, `≥ 8Ø = ${8 * D}`, -1);
+  o += `<text x="${cx0 - 90}" y="${botY + 18}" font-size="11" fill="var(--muted)">kuorman suuntaan ≥ 8Ø, vastakkaiseen ≥ 5Ø</text>`;
+  o += `<text x="${cx0 - 90}" y="${botY + 34}" font-size="11" fill="var(--muted)">sivuille ≥ 3Ø · laatan paksuus h > 4,5Ø = ${n(4.5 * D, 0)} mm</text>`;
   return o + `</svg>`;
 }
 

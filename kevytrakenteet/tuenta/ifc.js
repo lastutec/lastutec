@@ -143,7 +143,8 @@
       var top = P.map(function (p) { return [p[0] + dv[0] * D, p[1] + dv[1] * D, p[2] + dv[2] * D]; });
       var Pw = P.map(function (p) { return ap(Mp, p); }), Tw = top.map(function (p) { return ap(Mp, p); });
       triangulate(P).forEach(function (tr) { out.push(Pw[tr[0]], Pw[tr[2]], Pw[tr[1]], Tw[tr[0]], Tw[tr[1]], Tw[tr[2]]); });
-      for (var i = 0; i < P.length; i++) { var j = (i + 1) % P.length; out.push(Pw[i], Pw[j], Tw[j], Pw[i], Tw[j], Tw[i]); }
+      var ar = 0; for (var i = 0; i < P.length; i++) { var j = (i + 1) % P.length; ar += P[i][0] * P[j][1] - P[j][0] * P[i][1]; }
+      for (i = 0; i < P.length; i++) { j = (i + 1) % P.length; if (ar >= 0) out.push(Pw[i], Pw[j], Tw[j], Pw[i], Tw[j], Tw[i]); else out.push(Pw[j], Pw[i], Tw[i], Pw[j], Tw[i], Tw[j]); } // vaipan kolmiot ulospäin (yhtenäinen suunta → tilavuus)
     } else if (t === 'IFCBOOLEANCLIPPINGRESULT' || t === 'IFCBOOLEANRESULT') {
       if (a[0] && a[0].e === 'UNION') { this.itemTris(this.ref(a[1]), M, out, depth + 1); this.itemTris(this.ref(a[2]), M, out, depth + 1); }
       else this.itemTris(this.ref(a[1]), M, out, depth + 1);

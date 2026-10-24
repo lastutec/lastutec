@@ -160,13 +160,13 @@ input:disabled{opacity:.75}
   </div>
   <div class="sec">Ankkurointi tuella</div>
   <div class="inputs">
-    <label for="at">Tuen leveys t <span class="u">[mm]</span><input type="number" id="at" value="200" step="10" min="1"></label>
+    <label for="at">Tukipinnan pituus a <span class="u">[mm]</span><input type="number" id="at" value="200" step="10" min="1"></label>
     <label for="ac">Päätypeite <span class="u">[mm]</span><input type="number" id="ac" value="30" step="5" min="0"></label>
     <label for="ab">Tartuntaolosuhde<select id="ab"><option value="1">Hyvä (η₁ = 1,0)</option><option value="0.7">Muu (η₁ = 0,7)</option></select></label>
     <label for="ae">Tangon pää<select id="ae"><option value="1">Suora (α₁ = 1,0)</option><option value="0.7">Koukku (α₁ = 0,7)</option></select></label>
-    <label for="a5">α₅ (tukipaine)<input type="number" id="a5" value="1" step="0.05" min="0.7" max="1"></label>
+    <label for="a5">α₅ (poikittainen puristus)<select id="a5"><option value="auto" selected>Tukipaineesta</option><option value="1">1,0 (varmalla puolella)</option></select></label>
   </div>
-  <p class="hint">Kaikki alapinnan tangot oletetaan vietäviksi tuelle. Ankkurointipituus mitataan tuen reunasta tuen sisään. α₅ = 1 − 0,04p ≥ 0,7 tukipaineen p mukaan, oletus 1,0 on varmalla puolella.</p>
+  <p class="hint">Tukipinnan pituus a on palkin ja tuen kosketuspituus. Ankkurointipituus mitataan tukipinnan sisäreunasta (kosketusviivasta) palkin päähän, joten käytettävissä on a − päätypeite. Tukipaine p = V<sub>Ed</sub> / (a · b) pienentää ankkurointipituutta kertoimella α₅ = 1 − 0,04p ≥ 0,7. Kaikki alapinnan tangot oletetaan vietäviksi tuelle.</p>
   <div class="fig" id="fig"></div>
 </section>
 
@@ -259,36 +259,47 @@ function sketch(p) {
   const swTxt = p.reinf ? `haat T${p.swD}-k${p.ss}, ${p.sl}-leikk.` : 'ei leikkausraudoitusta';
   let o = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rakennekuva" style="background:#fff">`;
   o += `<rect x="0" y="0" width="${W}" height="${H}" fill="#fff"/>`;
-  // Pituusleikkaus (pituus ja korkeus eri mittakaavassa)
-  const x0 = 50, x1 = 600, y0 = 90, hh = Math.max(40, Math.min(110, p.h * 0.22)), yb = y0 + hh, cv = Math.max(6, hh * 0.12);
-  o += `<text x="${x0}" y="30" font-size="13" font-weight="700" fill="${K}">PITUUSLEIKKAUS</text><text x="${x0}" y="46" font-size="11" fill="${K}">ei mittakaavassa</text>`;
-  o += `<rect x="${x0}" y="${y0}" width="${x1 - x0}" height="${hh}" fill="none" stroke="${K}" stroke-width="1.8"/>`;
-  // tuet
-  for (const x of [x0 + 12, x1 - 12]) o += `<polygon points="${x},${yb} ${x - 12},${yb + 18} ${x + 12},${yb + 18}" fill="none" stroke="${K}" stroke-width="1.4"/><line x1="${x - 16}" y1="${yb + 22}" x2="${x + 16}" y2="${yb + 22}" stroke="${K}" stroke-width="1.2"/>`;
-  // pääraudoitus koukuin
-  o += `<path d="M${x0 + cv} ${y0 + hh * 0.45} V${yb - cv} H${x1 - cv} V${y0 + hh * 0.45}" fill="none" stroke="${K}" stroke-width="3"/>`;
-  if (p.tn > 0) { o += `<path d="M${x0 + cv} ${y0 + hh * 0.4} V${y0 + cv} H${x1 - cv} V${y0 + hh * 0.4}" fill="none" stroke="${K}" stroke-width="1.8"/>`; o += lead(x1 - 140, y0 + cv, x1 - 100, y0 - 30, `${p.tn}T${p.tD} yläpinta (työteräs)`); }
-  if (p.reinf) { const nS = Math.min(90, Math.max(2, Math.round(p.L / p.ss))), st = (x1 - x0 - 2 * cv) / nS; for (let i = 0; i <= nS; i++) { const x = x0 + cv + i * st; o += `<line x1="${x}" y1="${y0 + cv * 0.6}" x2="${x}" y2="${yb - cv * 0.6}" stroke="${K}" stroke-width="0.9"/>`; } }
-  o += extK(x0 + 12, yb + 24, x0 + 12, yb + 52) + extK(x1 - 12, yb + 24, x1 - 12, yb + 52) + dimK(x0 + 12, yb + 48, x1 - 12, yb + 48, `L = ${p.L}`, 1);
-  o += lead((x0 + x1) / 2 + 40, yb - cv, (x0 + x1) / 2 + 80, yb + 78, mainTxt + `, A<tspan baseline-shift="sub" font-size="8">s</tspan> = ${Math.round(p.As)} mm²`);
-  if (p.reinf) o += lead(x0 + 120, y0 + hh / 2, x0 + 160, y0 - 18, swTxt);
-  o += extK(x1, y0, x1 + 30, y0) + extK(x1, yb, x1 + 30, yb) + dimK(x1 + 26, y0, x1 + 26, yb, `h = ${p.h}`, 1);
-  // Poikkileikkaus mittakaavassa
-  const sc = Math.min(220 / p.b, 190 / p.h), w = p.b * sc, ch = p.h * sc, cx0 = 720, cy0 = 90 + Math.max(0, (190 - ch) / 2);
-  o += `<text x="${cx0}" y="30" font-size="13" font-weight="700" fill="${K}">POIKKILEIKKAUS</text><text x="${cx0}" y="46" font-size="11" fill="${K}">${mode === 'l' ? '1 m kaista' : ''}</text>`;
-  o += `<rect x="${cx0}" y="${cy0}" width="${w}" height="${ch}" fill="none" stroke="${K}" stroke-width="1.8"/>`;
-  const ys = cy0 + p.d * sc, r = Math.max(2.5, Math.min(7, p.D * sc / 2)), m = Math.min(p.nb, 14);
-  if (p.reinf) { const c = Math.max(4, (p.h - p.d) * sc - r - 1); o += `<rect x="${cx0 + c}" y="${cy0 + c}" width="${w - 2 * c}" height="${ch - 2 * c}" rx="4" fill="none" stroke="${K}" stroke-width="1.1"/>`; }
-  for (let i = 0; i < m; i++) { const x = cx0 + w * (m === 1 ? 0.5 : (0.1 + 0.8 * i / (m - 1))); o += `<circle cx="${x}" cy="${ys}" r="${r}" fill="${K}"/>`; }
-  if (p.tn > 0) { const yt = cy0 + p.ctop * sc, rt = Math.max(2.5, Math.min(6, p.tD * sc / 2)), mt = Math.min(p.tn, 14); for (let i = 0; i < mt; i++) { const x = cx0 + w * (mt === 1 ? 0.5 : (0.1 + 0.8 * i / (mt - 1))); o += `<circle cx="${x}" cy="${yt}" r="${rt}" fill="#fff" stroke="${K}" stroke-width="1.5"/>`; } }
+  // Raudoitteet tuplaviivoina oikeassa mittakaavassa
+  const bar2 = (xa, ya, xb, yb2, dia, sc0) => { const w2 = Math.max(1.4, dia * sc0); const horiz = Math.abs(yb2 - ya) < Math.abs(xb - xa);
+    return horiz ? `<rect x="${Math.min(xa, xb)}" y="${ya - w2 / 2}" width="${Math.abs(xb - xa)}" height="${w2}" fill="#fff" stroke="${K}" stroke-width="0.7"/>`
+                 : `<rect x="${xa - w2 / 2}" y="${Math.min(ya, yb2)}" width="${w2}" height="${Math.abs(yb2 - ya)}" fill="#fff" stroke="${K}" stroke-width="0.6"/>`; };
+  const swd = p.reinf ? p.swD : 0, cEff = Math.max(5, p.h - p.d - p.D / 2 - swd);
+  // Pituusleikkaus, yhtenäinen mittakaava
+  const Ltot = p.L + p.at, x0 = 50, sE = Math.min(560 / Ltot, 150 / p.h), wE = Ltot * sE, hE = p.h * sE, y0 = 80 + Math.max(0, (110 - hE) / 2), yb = y0 + hE;
+  const X = xm => x0 + (xm + p.at / 2) * sE, Y = ym => y0 + ym * sE; // xm: tuen keskeltä, ym: yläpinnasta
+  o += `<text x="${x0}" y="30" font-size="13" font-weight="700" fill="${K}">PITUUSLEIKKAUS</text><text x="${x0}" y="46" font-size="11" fill="${K}">mittakaava 1:${Math.round(1 / sE)}</text>`;
+  o += `<rect x="${X(-p.at / 2)}" y="${y0}" width="${wE}" height="${hE}" fill="none" stroke="${K}" stroke-width="1.6"/>`;
+  // tuet (seinät) tuen leveydellä
+  for (const xc of [0, p.L]) o += `<rect x="${X(xc - p.at / 2)}" y="${yb}" width="${p.at * sE}" height="${Math.max(18, 0.6 * hE)}" fill="none" stroke="${K}" stroke-width="1.2"/><line x1="${X(xc - p.at / 2) - 4}" y1="${yb + Math.max(18, 0.6 * hE)}" x2="${X(xc + p.at / 2) + 4}" y2="${yb + Math.max(18, 0.6 * hE)}" stroke="${K}" stroke-width="0.6" stroke-dasharray="3 2"/>`;
+  // hakaraudoitus
+  if (p.reinf) { const xs0 = -p.at / 2 + p.ac + 50, xs1 = p.L + p.at / 2 - p.ac - 50, nS = Math.min(200, Math.floor((xs1 - xs0) / p.ss)); for (let i = 0; i <= nS; i++) { const xm = xs0 + i * p.ss; o += bar2(X(xm), Y(cEff), X(xm), Y(p.h - cEff), p.swD, sE); } }
+  // pääteräkset suorina päätypeitteen sisäpuolelle
+  const xa = -p.at / 2 + p.ac, xb = p.L + p.at / 2 - p.ac, yMain = p.h - cEff - swd - p.D / 2;
+  o += bar2(X(xa), Y(yMain), X(xb), Y(yMain), p.D, sE);
+  if (p.tn > 0) { const yTop = cEff + swd + p.tD / 2; o += bar2(X(xa), Y(yTop), X(xb), Y(yTop), p.tD, sE); o += lead(X(p.L * 0.75), Y(yTop), X(p.L * 0.75) + 40, y0 - 26, `${p.tn}T${p.tD} yläpinta (työteräs)`); }
+  const yDim = yb + Math.max(18, 0.6 * hE) + 18;
+  o += extK(X(0), yb, X(0), yDim + 4) + extK(X(p.L), yb, X(p.L), yDim + 4) + dimK(X(0), yDim, X(p.L), yDim, `L = ${p.L}`, 1);
+  for (const xc of [0, p.L]) { const xl = X(xc - p.at / 2), xr = X(xc + p.at / 2); o += extK(xl, yb + 4, xl, yDim + 30) + extK(xr, yb + 4, xr, yDim + 30); if (xc === 0) o += dimK(xl, yDim + 26, xr, yDim + 26, `a = ${p.at}`, 1); }
+  o += lead(X(p.L * 0.45), Y(yMain), X(p.L * 0.45) + 40, yDim + 56, mainTxt + `, A<tspan baseline-shift="sub" font-size="8">s</tspan> = ${Math.round(p.As)} mm²`);
+  if (p.reinf) o += lead(X(p.L * 0.18), Y(p.h / 2), X(p.L * 0.18) + 40, y0 - 26, swTxt);
+  o += extK(X(p.L + p.at / 2), y0, X(p.L + p.at / 2) + 26, y0) + extK(X(p.L + p.at / 2), yb, X(p.L + p.at / 2) + 26, yb) + dimK(X(p.L + p.at / 2) + 22, y0, X(p.L + p.at / 2) + 22, yb, `h = ${p.h}`, 1);
+  // Poikkileikkaus, yhtenäinen mittakaava
+  const sc = Math.min(190 / p.b, 190 / p.h), w = p.b * sc, ch = p.h * sc, cx0 = 715, cy0 = 80 + Math.max(0, (190 - ch) / 2);
+  o += `<text x="${cx0}" y="30" font-size="13" font-weight="700" fill="${K}">POIKKILEIKKAUS</text><text x="${cx0}" y="46" font-size="11" fill="${K}">mittakaava 1:${Math.round(1 / sc)}${mode === 'l' ? ', 1 m kaista' : ''}</text>`;
+  o += `<rect x="${cx0}" y="${cy0}" width="${w}" height="${ch}" fill="none" stroke="${K}" stroke-width="1.6"/>`;
+  if (p.reinf) { const c1 = cEff * sc, t1 = Math.max(1.4, p.swD * sc); o += `<rect x="${cx0 + c1}" y="${cy0 + c1}" width="${w - 2 * c1}" height="${ch - 2 * c1}" rx="${Math.max(2, 2 * p.swD * sc)}" fill="none" stroke="${K}" stroke-width="0.7"/><rect x="${cx0 + c1 + t1}" y="${cy0 + c1 + t1}" width="${w - 2 * c1 - 2 * t1}" height="${ch - 2 * c1 - 2 * t1}" rx="${Math.max(1, p.swD * sc)}" fill="none" stroke="${K}" stroke-width="0.7"/>`; }
+  const side = cEff + swd + p.D / 2, m = Math.min(p.nb, 30), yMs = cy0 + (p.h - cEff - swd - p.D / 2) * sc, rM = Math.max(1.2, p.D * sc / 2);
+  for (let i = 0; i < m; i++) { const xm = m === 1 ? p.b / 2 : side + (p.b - 2 * side) * i / (m - 1); o += `<circle cx="${cx0 + xm * sc}" cy="${yMs}" r="${rM}" fill="#fff" stroke="${K}" stroke-width="0.9"/>`; }
+  if (p.tn > 0) { const sideT = cEff + swd + p.tD / 2, mt = Math.min(p.tn, 30), yTs = cy0 + sideT * sc, rT = Math.max(1.2, p.tD * sc / 2); for (let i = 0; i < mt; i++) { const xm = mt === 1 ? p.b / 2 : sideT + (p.b - 2 * sideT) * i / (mt - 1); o += `<circle cx="${cx0 + xm * sc}" cy="${yTs}" r="${rT}" fill="#fff" stroke="${K}" stroke-width="0.9"/>`; } }
+  const ys = cy0 + p.d * sc;
   o += extK(cx0, cy0 + ch, cx0, cy0 + ch + 24) + extK(cx0 + w, cy0 + ch, cx0 + w, cy0 + ch + 24) + dimK(cx0, cy0 + ch + 20, cx0 + w, cy0 + ch + 20, `b = ${p.b}`, 1);
   o += extK(cx0, cy0, cx0 - 26, cy0) + extK(cx0, cy0 + ch, cx0 - 26, cy0 + ch) + dimK(cx0 - 22, cy0, cx0 - 22, cy0 + ch, `h = ${p.h}`, -1);
-  o += extK(cx0 + w, cy0, cx0 + w + 26, cy0) + extK(cx0 + w, ys, cx0 + w + 26, ys) + dimK(cx0 + w + 22, cy0, cx0 + w + 22, ys, `d = ${p.d}`, 1);
+  o += extK(cx0 + w, cy0, cx0 + w + 26, cy0) + extK(cx0 + w - 2, ys, cx0 + w + 26, ys) + dimK(cx0 + w + 22, cy0, cx0 + w + 22, ys, `d = ${p.d}`, 1);
   // Tietolaatikko
   const ty = 330;
   o += `<rect x="${x0}" y="${ty}" width="${W - 2 * x0 + 0}" height="100" fill="none" stroke="${K}" stroke-width="1.2"/><line x1="${x0 + 450}" y1="${ty}" x2="${x0 + 450}" y2="${ty + 100}" stroke="${K}" stroke-width="0.8"/>`;
   const L1 = [`Betoni ${p.cls}, B${p.fyk}B`, `Pääraudoitus: ${mainTxt}${p.tn > 0 ? `, yläpinta ${p.tn}T${p.tD}` : ''}`, `Leikkaus: ${swTxt}`, (p.cnom != null ? `Betonipeite c<tspan baseline-shift="sub" font-size="8">nom</tspan> = ${p.cnom} mm${cnSrc ? ' (' + cnSrc + ')' : ''}` : `Betonipeite noin ${Math.round(p.cover)} mm (h − d − Ø/2${p.reinf ? ' − Ø<tspan baseline-shift="sub" font-size="8">haka</tspan>' : ''})`)];
-  L1.push(`Ankkurointi tuella: l<tspan baseline-shift="sub" font-size="8">bd</tspan> = ${Math.round(p.lbd)} mm, käytössä ${Math.round(p.lav)} mm (t = ${p.at})`);
+  L1.push(`Ankkurointi tuella: l<tspan baseline-shift="sub" font-size="8">bd</tspan> = ${Math.round(p.lbd)} mm, käytössä ${Math.round(p.lav)} mm (tukipinta a = ${p.at})`);
   const L2 = [`M<tspan baseline-shift="sub" font-size="8">Ed</tspan> = ${n(p.MEd)} kNm, M<tspan baseline-shift="sub" font-size="8">Rd</tspan> = ${n(p.MRd)} kNm (${Math.round(p.uM * 100)} %)`, `V<tspan baseline-shift="sub" font-size="8">Ed</tspan> = ${n(p.VEd)} kN, V<tspan baseline-shift="sub" font-size="8">Rd</tspan> = ${n(p.VRdv)} kN (${Math.round(p.uV * 100)} %)`, `Lastutec · Taivutus ja leikkaus · ${new Date().toLocaleDateString('fi-FI')}`, 'Alustava skitsi, ei toteutuspiirustus'];
   L1.forEach((t, i) => o += `<text x="${x0 + 10}" y="${ty + 18 + i * 18}" font-size="12" fill="${K}">${t}</text>`);
   L2.forEach((t, i) => o += `<text x="${x0 + 460}" y="${ty + 18 + i * 18}" font-size="12" fill="${K}" ${i === 3 ? 'font-style="italic"' : ''}>${t}</text>`);
@@ -343,7 +354,7 @@ function calc() {
     step('Leikkausraudoitettu, mitoittava', 'V<sub>Rd</sub> = min(V<sub>Rd,s</sub> ; V<sub>Rd,max</sub>)', `V<sub>Rd</sub> = min(${n(VRds)} ; ${n(VRdmax)})`, `V<sub>Rd</sub> = ${n(VRd)} kN → ${vd(VEd / VRd)}`);
   $('s3').innerHTML = s3c + (reinf ? s3s : '');
   // Ankkurointi tuella: SFS-EN 1992-1-1 9.2.1.4 (palkit), 9.3.1.2 (laatat), 8.4
-  const at = +$('at').value || 0, ac = Math.max(0, +$('ac').value || 0), eta1 = +$('ab').value, a1 = +$('ae').value, a5 = Math.min(1, Math.max(0.7, +$('a5').value || 1));
+  const at = +$('at').value || 0, ac = Math.max(0, +$('ac').value || 0), eta1 = +$('ab').value, a1 = +$('ae').value, pSup = at > 0 ? VEd * 1e3 / (at * b) : 0, a5 = $('a5').value === 'auto' ? Math.min(1, Math.max(0.7, 1 - 0.04 * pSup)) : 1;
   const fctk = { 20: 1.5, 25: 1.8, 30: 2.0, 35: 2.2, 40: 2.5, 45: 2.7, 50: 2.9 }[fck] || 0.7 * 0.3 * fck ** (2 / 3), fctd = fctk / gc;
   const eta2 = D <= 32 ? 1 : (132 - D) / 100, fbd = 2.25 * eta1 * eta2 * fctd;
   const al = reinf ? z * cot / 2 : d, FE = VEd * al / z + Math.max(0, -NEd), ssd = Math.min(fyd, FE * 1e3 / As);
@@ -353,18 +364,19 @@ function calc() {
     step('Ankkuroitava voima', `F<sub>E</sub> = V<sub>Ed</sub> · a<sub>l</sub> / z, a<sub>l</sub> = ${reinf ? 'z · cot θ / 2 (pystyhaat)' : 'd (ei leikkausraudoitusta)'}`, `a<sub>l</sub> = ${n(al, 0)} mm, z = ${n(z, 0)} mm, F<sub>E</sub> = ${n(VEd)} · ${n(al, 0)} / ${n(z, 0)}${NEd < 0 ? ` + ${n(-NEd)} (veto)` : ''}`, `F<sub>E</sub> = ${n(FE)} kN`) +
     step('Tankojen jännitys tuella', 'σ<sub>sd</sub> = F<sub>E</sub> / A<sub>s</sub> ≤ f<sub>yd</sub>', `σ<sub>sd</sub> = ${n(FE)} · 10³ / ${n(As, 0)}`, `σ<sub>sd</sub> = ${n(ssd)} N/mm²`) +
     step('Tartuntalujuus', 'f<sub>bd</sub> = 2,25 η<sub>1</sub> η<sub>2</sub> f<sub>ctd</sub>', `f<sub>ctd</sub> = ${n(fctk, 1)} / ${n(gc, 2)} = ${n(fctd, 2)}, f<sub>bd</sub> = 2,25 · ${n(eta1, 1)} · ${n(eta2, 2)} · ${n(fctd, 2)}`, `f<sub>bd</sub> = ${n(fbd, 2)} N/mm²`) +
+    step('Tukipinta ja tukipaine', 'p = V<sub>Ed</sub> / (a · b), α<sub>5</sub> = 1 − 0,04p ≥ 0,7', `a = ${at} mm, p = ${n(VEd)} · 10³ / (${at} · ${b})${$('a5').value === 'auto' ? '' : ' (α<sub>5</sub> valittu 1,0)'}`, `p = ${n(pSup, 2)} N/mm², α<sub>5</sub> = ${n(a5, 3)}`) +
     step('Ankkurointipituus', 'l<sub>b,rqd</sub> = (Ø/4)(σ<sub>sd</sub>/f<sub>bd</sub>), l<sub>bd</sub> = α<sub>1</sub> α<sub>5</sub> l<sub>b,rqd</sub> ≥ l<sub>b,min</sub> = max(0,3 l<sub>b,rqd</sub>; 10Ø; 100)',
       `l<sub>b,rqd</sub> = (${D}/4) · (${n(ssd)} / ${n(fbd, 2)}) = ${n(lbrqd, 0)} mm, l<sub>b,min</sub> = ${n(lbmin, 0)} mm, α<sub>1</sub> = ${n(a1, 1)}, α<sub>5</sub> = ${n(a5, 2)}`, `l<sub>bd</sub> = ${n(lbd, 0)} mm`) +
-    step('Käytettävissä oleva pituus', 'l<sub>av</sub> = t − päätypeite', `l<sub>av</sub> = ${at} − ${ac}`, `l<sub>av</sub> = ${n(lav, 0)} mm → l<sub>bd</sub> / l<sub>av</sub> = ${lav > 0 ? vd(uA) : '<b class="nok">TARKASTA, EI OK!</b>'}`) +
+    step('Käytettävissä oleva pituus', 'l<sub>av</sub> = a − päätypeite (kosketusviivasta palkin päähän)', `l<sub>av</sub> = ${at} − ${ac}`, `l<sub>av</sub> = ${n(lav, 0)} mm → l<sub>bd</sub> / l<sub>av</sub> = ${lav > 0 ? vd(uA) : '<b class="nok">TARKASTA, EI OK!</b>'}`) +
     step('Tuelle vietävä raudoitus', `vähintään ${share * 100} % kentän alapinnan raudoituksesta (${mode === 'l' ? '9.3.1.2' : '9.2.1.4'})`, `vietävä ≥ ${share * 100} % · ${n(As, 0)} = ${n(share * As, 0)} mm²`, 'kaikki tangot viedään tuelle → <b class="ok">OK!</b>');
   const uM = MEd / MRd1, uV = reinf ? VEd / VRd : VEd / VRdc;
   const tile = (k, v, s, u) => `<div class="tile"><span class="k">${k}</span><span class="v">${v}</span><span class="s">${s}</span>${u != null ? `<span class="s">${vd(u)}</span>` : ''}</div>`;
   $('tiles').innerHTML = tile('M<sub>Rd</sub> (EC2)', `${n(MRd1)} kNm`, `A<sub>s</sub> = ${n(As, 0)} mm²`, uM) + tile('A<sub>s,req</sub>', `${n(AsReq, 0)} mm²`, `likimäär. ${n(AsL, 0)} mm²`, null) +
-    tile(reinf ? 'V<sub>Rd</sub> (haoilla)' : 'V<sub>Rd,c</sub>', `${n(reinf ? VRd : VRdc)} kN`, reinf ? `V<sub>Rd,c</sub> = ${n(VRdc)} kN` : 'leikkausraudoittamaton', uV) + tile('Ankkurointi l<sub>bd</sub>', `${n(lbd, 0)} mm`, `tuella käytössä ${n(lav, 0)} mm`, lav > 0 ? uA : 9) + tile('p<sub>d,max</sub>', `${n(pd)} ${mode === 'l' ? 'kN/m²' : 'kN/m'}`, `L = ${L} mm`, null);
+    tile(reinf ? 'V<sub>Rd</sub> (haoilla)' : 'V<sub>Rd,c</sub>', `${n(reinf ? VRd : VRdc)} kN`, reinf ? `V<sub>Rd,c</sub> = ${n(VRdc)} kN` : 'leikkausraudoittamaton', uV) + tile('Ankkurointi l<sub>bd</sub>', `${n(lbd, 0)} mm`, `tukipinnalla käytössä ${n(lav, 0)} mm`, lav > 0 ? uA : 9) + tile('p<sub>d,max</sub>', `${n(pd)} ${mode === 'l' ? 'kN/m²' : 'kN/m'}`, `L = ${L} mm`, null);
   document.querySelectorAll('.step .no').forEach((e, i) => e.textContent = String(i + 1).padStart(2, '0'));
   const ctop = h - d - D / 2 + tD / 2;
   $('fig').innerHTML = fig(b, h, d, D, nb, muOk ? betaP : 0.5, reinf && sl > 0, tn, tD, ctop);
-  $('sketch').innerHTML = sketch({ b, h, d, D, mn, nb, As, L, reinf, tn, tD, ctop, lbd, lav, at, cnom: dmode ? +$('cn').value : null, swD, sl, ss, cls: CS.find(c => c[1] === fck)[0], fyk, MEd, VEd, MRd: MRd1, VRdv: reinf ? VRd : VRdc, uM, uV, cover: h - d - D / 2 - (reinf ? swD : 0) });
+  $('sketch').innerHTML = sketch({ b, h, d, D, mn, nb, As, L, reinf, tn, tD, ctop, lbd, lav, at, ac, cnom: dmode ? +$('cn').value : null, swD, sl, ss, cls: CS.find(c => c[1] === fck)[0], fyk, MEd, VEd, MRd: MRd1, VRdv: reinf ? VRd : VRdc, uM, uV, cover: h - d - D / 2 - (reinf ? swD : 0) });
 }
 let cnSrc = '';
 const applyCn = (o, src) => { if (!o || !(+o.cnom >= 0)) return false; $('dm').value = '1'; $('cn').value = o.cnom; cnSrc = o.rl ? `${o.rl}, ${o.life >= 100 ? (o.life > 100 ? 'yli 100' : '100') : 'alle 100'} v` : ''; $('cnInfo').textContent = `${src}: c_nom = ${o.cnom} mm${cnSrc ? ' · ' + cnSrc : ''}`; calc(); return true; };

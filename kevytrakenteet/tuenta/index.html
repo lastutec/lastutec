@@ -62,9 +62,10 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
 .badge{display:inline-block;padding:2px 8px;border-radius:3px;font-weight:700;font-size:12px}
 .badge.ok{background:#173d26;color:var(--ok)} .badge.bad{background:#46171a;color:var(--bad)}
 .cv{position:relative;width:100%;border:1px solid var(--line);border-radius:4px;background:#0a0a0a;overflow:hidden}
-.cv canvas{display:block;width:100%;height:560px;touch-action:none;cursor:grab}
+.cv canvas{display:block;width:100%;height:560px;touch-action:none;cursor:grab;outline:none}
+.cv canvas.drag{cursor:grabbing}
 @media (max-width:1000px){.cv canvas{height:420px}}
-.vbtns{position:absolute;right:8px;top:8px;display:flex;gap:6px}
+.vbtns{position:absolute;right:8px;top:8px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:calc(100% - 16px)}
 .vbtns button{font:600 14px var(--body);min-width:32px;height:32px;border-radius:4px;border:1px solid var(--line);background:#141414cc;color:var(--ink);cursor:pointer;padding:0 8px}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:5px;vertical-align:-1px}
@@ -119,13 +120,13 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
     <div class="kpis"><div class="kpi"><span>Muurattuja seiniä</span><b id="kN">0</b></div><div class="kpi ok"><span>OK</span><b id="kOk">0</b></div><div class="kpi bad"><span>Tarvitsee tuentaa</span><b id="kBad">0</b></div></div>
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2>Seinät</h2><button type="button" class="btn ghost" id="csv">Lataa CSV</button></div>
     <div class="tablewrap"><table id="tbl"></table></div>
-    <p class="hint">Tuennan ja raudoituksen voi muuttaa seinäkohtaisesti. Auto = tunnistettu mallista: sivutuki = seinän päässä on toinen seinä tai pilari, yläpään tuki = välipohja, yläpohja tai palkki on enintään asetetun raon päässä seinän yläpinnasta.</p>
+    <p class="hint">Tuennan ja raudoituksen voi muuttaa seinäkohtaisesti. Auto = tunnistettu mallista: sivutuki = seinän päässä on poikittainen muurattu seinä (sama tunnus) tai betoniseinä (”betoni/concrete” materiaalissa, tyypissä tai nimessä); pilareita, kevyitä seiniä ja samansuuntaisia jatkeita ei lasketa tueksi, yläpään tuki = välipohja, yläpohja tai palkki on enintään asetetun raon päässä seinän yläpinnasta.</p>
   </section>
   <section class="panel a-view">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2>3D-malli</h2>
       <label class="chk"><input type="checkbox" id="ctx" checked> Näytä muut rakenteet</label></div>
-    <div class="cv"><canvas id="cv"></canvas><canvas id="ov" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas><div class="vbtns"><button type="button" id="zin" aria-label="Lähennä">+</button><button type="button" id="zout" aria-label="Loitonna">−</button><button type="button" id="zfit" aria-label="Sovita">⟲</button><button type="button" id="ztop">Pohja</button></div></div>
-    <div class="legend"><span><i style="background:#3fbf6f"></i>OK</span><span><i style="background:#ff5a5a"></i>Tarvitsee tuentaa</span><span><i style="background:#6b6b6b"></i>Muut rakenteet</span><span>Vedä: kierrä · Shift/oikea painike: siirrä · rulla/nipistys: zoomaa · napauta seinää: valitse</span></div>
+    <div class="cv"><canvas id="cv"></canvas><canvas id="ov" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas><div class="vbtns"><button type="button" id="v3d">3D</button><button type="button" id="ztop">Pohja</button><button type="button" id="vfront">Edestä</button><button type="button" id="vside">Sivulta</button><button type="button" id="zfit" title="Sovita koko malli" aria-label="Sovita">⤢</button><button type="button" id="zin" aria-label="Lähennä">+</button><button type="button" id="zout" aria-label="Loitonna">−</button></div></div>
+    <div class="legend"><span><i style="background:#3fbf6f"></i>OK</span><span><i style="background:#ff5a5a"></i>Tarvitsee tuentaa</span><span><i style="background:#6b6b6b"></i>Muut rakenteet</span><span>Vedä: kierrä · oikea painike, Shift tai kaksi sormea: siirrä · rulla tai nipistys: zoomaa kohdistimen kohtaan · napauta seinää: valitse · kaksoisnapautus: kohdista seinään (tyhjään: koko malli) · nuolinäppäimet, +/−, F</span></div>
     <div class="detail" id="detail"></div>
   </section>
 </div>
@@ -134,7 +135,7 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
 <p class="foot">Tuentojen tunnistus perustuu geometriaan:</p>
 <ul class="foot">
   <li>Seinän pituus L, korkeus H ja paksuus t lasketaan seinän geometriasta pienimmän ympäröivän suorakaiteen avulla.</li>
-  <li>Samansuuntaista jatkuvaa seinää ei lasketa sivutueksi.</li>
+  <li>Sivutueksi hyväksytään vain poikittainen muurattu seinä (sama tunnus) tai betoniseinä. Pilareita, kevyitä seiniä ja samansuuntaisia jatkeita ei lasketa sivutueksi.</li>
 </ul>
 <p class="foot">Tarkista aina tunnistetut tuennat. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
 </div>
@@ -184,10 +185,10 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
   }
   function fillVals() { var f = $('field').value, s = {}; WALLS.forEach(function (w) { (f === '*' ? [w.attr['Materiaali'], w.attr['Tyyppi'], w.attr['Nimi']] : [w.attr[f]]).forEach(function (v) { if (v) s[v] = 1; }); });
     $('vals').innerHTML = Object.keys(s).sort().slice(0, 300).map(function (v) { return '<option value="' + esc(v) + '">'; }).join(''); }
-  function match(w) {
+  function match(w, idOnly) {
     var f = $('field').value, op = $('op').value, q = $('val').value.trim(), st = $('storey').value;
-    if (st && w.storey !== st) return false;
-    if ($('nonlb').checked && w.loadBearing === true) return false;
+    if (!idOnly && st && w.storey !== st) return false;
+    if (!idOnly && $('nonlb').checked && w.loadBearing === true) return false;
     if (!q) return true;
     var vals = f === '*' ? Object.keys(w.attr).map(function (k) { return w.attr[k]; }) : [w.attr[f] || ''];
     if (op === 'r') { var re; try { re = new RegExp(q, 'i'); } catch (e) { return false; } return vals.some(function (v) { return re.test(v); }); }
@@ -198,11 +199,14 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
 
   // ---- laskenta ----
   function opts() { return { sideTol: Math.max(0, +$('sideTol').value || 0) / 1000, topTol: Math.max(0, +$('topTol').value || 0) / 1000, prod: $('prod').value, reinf: $('reinf').value === 'yes', fire: $('fire').checked }; }
-  var lastTol = null;
+  var lastKey = null;
   function run() {
-    var o = opts(), key = o.sideTol + '|' + o.topTol;
-    if (key !== lastTol) { WALLS.forEach(function (w) { w.supports = T.detectSupports(w, EL, o); }); lastTol = key; }
-    SEL = WALLS.filter(match); RES = new Map();
+    var o = opts();
+    SEL = WALLS.filter(function (w) { return match(w); }); RES = new Map();
+    // muuratut seinät = tunnuksella valitut (myös kantavat ja muiden kerrosten), sivutukena vain ne tai betoniseinät
+    var MAS = new Set(WALLS.filter(function (w) { return match(w, true); }));
+    var key = o.sideTol + '|' + o.topTol + '|' + $('field').value + '|' + $('op').value + '|' + $('val').value;
+    if (key !== lastKey) { var sk = function (c) { return MAS.has(c) ? 'muurattu' : T.isConcrete(c) ? 'betoni' : null; }; WALLS.forEach(function (w) { w.supports = T.detectSupports(w, EL, o, sk); }); lastKey = key; }
     SEL.forEach(function (w) { RES.set(w, T.check(w, o)); });
     var nOk = SEL.filter(function (w) { return RES.get(w).ok; }).length;
     $('kN').textContent = SEL.length; $('kOk').textContent = nOk; $('kBad').textContent = SEL.length - nOk;
@@ -221,7 +225,7 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
           '<td class="l">' + (r.key ? (r.prod === 'tiili' ? 'Tiili ' : 'Harkko ') + r.key : '–') + '</td><td>' + (r.Lmax === null ? '–' : fmt(r.Lmax, 2)) + '</td><td class="l"><span class="badge ' + (r.ok ? 'ok' : 'bad') + '">' + (r.ok ? 'OK' : 'TUETTAVA') + '</span></td></tr>'; }).join('') + '</tbody>';
     $('tbl').querySelectorAll('tbody tr').forEach(function (tr) {
       var w = WALLS.filter(function (x) { return x.id === +tr.dataset.id; })[0];
-      tr.addEventListener('click', function (e) { if (e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION') return; cur = w; focusWall(w); dirty = true; table(); detail(); draw(); });
+      tr.addEventListener('click', function (e) { if (e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION') return; selectWall(w, true); });
       tr.querySelectorAll('select').forEach(function (s) { s.addEventListener('change', function () { w[s.dataset.k] = s.value; cur = w; run(); }); });
     });
   }
@@ -231,7 +235,7 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
     var lines = [
       '<b>' + esc(w.name) + '</b> · ' + esc(w.ifc) + ' #' + w.id + (w.guid ? ' · ' + esc(w.guid) : ''),
       'Mitat mallista: L = ' + fmt(r.L, 2) + ' m, H = ' + fmt(r.H, 2) + ' m, t = ' + fmt(r.t, 0) + ' mm · ' + esc(w.attr['Materiaali'] || w.attr['Tyyppi'] || ''),
-      'Tunnistettu tuenta: alku ' + (s.e1 ? '✓ ' + esc(s.e1.name) : '✗ vapaa') + ' · loppu ' + (s.e2 ? '✓ ' + esc(s.e2.name) : '✗ vapaa') + ' · yläpää ' + (s.top ? '✓ ' + esc(s.topBy || '') : '✗ vapaa') + ' (' + Math.round(s.topFrac * 100) + ' % pituudesta)',
+      'Tunnistettu tuenta: alku ' + (s.e1 ? '✓ ' + esc(s.e1.name) + ' (' + s.e1.kind + ')' : '✗ vapaa') + ' · loppu ' + (s.e2 ? '✓ ' + esc(s.e2.name) + ' (' + s.e2.kind + ')' : '✗ vapaa') + ' · yläpää ' + (s.top ? '✓ ' + esc(s.topBy || '') : '✗ vapaa') + ' (' + Math.round(s.topFrac * 100) + ' % pituudesta)',
       'Tuentatapa: <b>' + cs.name + '</b>' + (w.sup !== 'auto' ? ' (käsin valittu)' : '') + (C ? ' · ' + C.fig + ': ' + C.name + (r.reinf ? ', raudoitettu ' + C.reinf : ', raudoittamaton') : ''),
       r.Lmax === null ? 'L<sub>max</sub>: –' : 'L<sub>max</sub>(H = ' + fmt(r.H, 2) + ' m) = <b>' + fmt(r.Lmax, 2) + ' m</b> → L = ' + fmt(r.L, 2) + ' m ' + (r.ok ? '≤' : '&gt;') + ' L<sub>max</sub>',
       '<span class="badge ' + (r.ok ? 'ok' : 'bad') + '">' + (r.ok ? 'OK – ei lisätuentaa' : 'TARVITSEE TUENTAA') + '</span>' + (r.ok ? '' : ' Ratkaisuja: lisää sivutuki (esim. teräspilari tai poikittainen seinä) tukivälin lyhentämiseksi, tue yläpää, raudoita vaakasaumat tai kasvata seinäpaksuutta.')
@@ -354,24 +358,67 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
       if (l1 < 0 || l2 < 0 || l3 < 0) continue; var z = l1 * a[2] + l2 * b[2] + l3 * c[2]; if (z > bz) { bz = z; best = w; } } });
     return best;
   }
-  var ptrs = {}, last = null, moved = 0, pinch = 0, mode = 'rot';
-  cv.addEventListener('pointerdown', function (e) { cv.setPointerCapture(e.pointerId); ptrs[e.pointerId] = [e.clientX, e.clientY]; last = [e.clientX, e.clientY]; moved = 0; mode = (e.button === 2 || e.shiftKey) ? 'pan' : 'rot'; });
+  // ---- vuorovaikutus: kierto inertialla, siirto, zoomaus kursorin kohtaan, kaksoisnapautus = kohdista ----
+  var ptrs = {}, last = null, moved = 0, pinchD = 0, pinchM = null, mode = 'rot', vel = [0, 0], lastT = 0, anim = null, tapT = 0, tapP = null, TAU = 2 * Math.PI;
+  function clampP(p) { return Math.max(-0.05, Math.min(Math.PI / 2 - 0.001, p)); }
+  function rel(e) { var rc = cv.getBoundingClientRect(); return [e.clientX - rc.left, e.clientY - rc.top]; }
+  function zoomAt(k, sx, sy) { var nz = Math.max(0.2, Math.min(80, zoom * k)); k = nz / zoom; zoom = nz; pan[0] = sx - Wc / 2 - (sx - Wc / 2 - pan[0]) * k; pan[1] = sy - Hc / 2 - (sy - Hc / 2 - pan[1]) * k; }
+  function stopAnim() { if (anim) cancelAnimationFrame(anim); anim = null; vel = [0, 0]; }
+  function animateTo(t, ms) {
+    stopAnim(); var s0 = { yaw: yaw, pitch: pitch, zoom: zoom, p0: pan[0], p1: pan[1], C: C0.slice() }, t0 = performance.now();
+    var dyaw = t.yaw === undefined ? 0 : ((t.yaw - s0.yaw) % TAU + TAU * 1.5) % TAU - Math.PI;
+    (function step(now) { var u = Math.min(1, (now - t0) / (ms || 380)), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+      yaw = s0.yaw + dyaw * e; if (t.pitch !== undefined) pitch = s0.pitch + (t.pitch - s0.pitch) * e; if (t.zoom) zoom = s0.zoom + (t.zoom - s0.zoom) * e;
+      pan[0] = s0.p0 * (1 - e); pan[1] = s0.p1 * (1 - e); if (t.C) for (var i = 0; i < 3; i++) C0[i] = s0.C[i] + (t.C[i] - s0.C[i]) * e;
+      render(); anim = u < 1 ? requestAnimationFrame(step) : null; })(t0);
+  }
+  function spin() { if (Math.abs(vel[0]) < 2e-5 && Math.abs(vel[1]) < 2e-5) { anim = null; return; } yaw += vel[0] * 16; pitch = clampP(pitch + vel[1] * 16); vel[0] *= 0.93; vel[1] *= 0.93; render(); anim = requestAnimationFrame(spin); }
+  function focusOn(w) { var m = Math.max(w.g.L, w.g.H, 1); animateTo({ C: [w.g.c[0], w.g.c[1], (w.g.z0 + w.g.z1) / 2], zoom: Math.max(1, Math.min(80, 1.1 * R0 / m)) }); }
+  function fitAnim(y, p) { var c = C0.slice(), z = zoom; fit(); var t = { C: C0.slice(), zoom: 1, yaw: y, pitch: p }; C0 = c; zoom = z; animateTo(t); }
+  function selectWall(w, focus) { cur = w; dirty = true; table(); detail(); var tr = $('tbl').querySelector('tr.cur'); if (tr) tr.scrollIntoView({ block: 'nearest' }); if (focus) focusOn(w); else draw(); }
+  cv.addEventListener('pointerdown', function (e) {
+    stopAnim(); cv.setPointerCapture(e.pointerId); ptrs[e.pointerId] = [e.clientX, e.clientY];
+    var ids = Object.keys(ptrs);
+    if (ids.length === 2) { var a = ptrs[ids[0]], b = ptrs[ids[1]]; pinchD = Math.hypot(a[0] - b[0], a[1] - b[1]); pinchM = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; moved += 10; return; }
+    last = [e.clientX, e.clientY]; lastT = performance.now(); moved = 0; mode = (e.button === 1 || e.button === 2 || e.shiftKey || e.ctrlKey) ? 'pan' : 'rot'; cv.classList.add('drag');
+  });
   cv.addEventListener('pointermove', function (e) {
     if (!ptrs[e.pointerId]) return; ptrs[e.pointerId] = [e.clientX, e.clientY]; var ids = Object.keys(ptrs);
-    if (ids.length === 2) { var a = ptrs[ids[0]], b = ptrs[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch) zoom = Math.max(0.2, Math.min(40, zoom * d / pinch)); pinch = d; moved += 10; draw(); return; }
-    var dx = e.clientX - last[0], dy = e.clientY - last[1]; last = [e.clientX, e.clientY]; moved += Math.abs(dx) + Math.abs(dy);
-    if (mode === 'pan') { pan[0] += dx; pan[1] += dy; } else { yaw += dx * 0.008; pitch = Math.max(-0.1, Math.min(1.55, pitch + dy * 0.006)); }
-    draw(); });
+    if (ids.length === 2) { var a = ptrs[ids[0]], b = ptrs[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]), m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], rc = cv.getBoundingClientRect();
+      if (pinchD) { zoomAt(d / pinchD, m[0] - rc.left, m[1] - rc.top); pan[0] += m[0] - pinchM[0]; pan[1] += m[1] - pinchM[1]; } pinchD = d; pinchM = m; draw(); return; }
+    if (!last) return;
+    var dx = e.clientX - last[0], dy = e.clientY - last[1], now = performance.now(), dt = Math.max(1, now - lastT); last = [e.clientX, e.clientY]; lastT = now; moved += Math.abs(dx) + Math.abs(dy);
+    if (mode === 'pan') { pan[0] += dx; pan[1] += dy; vel = [0, 0]; }
+    else { var dyaw = dx / Math.max(Wc, 300) * TAU * 0.7, dp = dy / Math.max(Hc, 300) * Math.PI * 0.7; yaw += dyaw; pitch = clampP(pitch + dp); vel = [dyaw / dt, dp / dt]; }
+    draw();
+  });
   function up(e) {
-    if (ptrs[e.pointerId] && moved < 5 && Object.keys(ptrs).length === 1) { var rc = cv.getBoundingClientRect(), w = pick(e.clientX - rc.left, e.clientY - rc.top); if (w) { cur = w; dirty = true; table(); detail(); var tr = $('tbl').querySelector('tr.cur'); if (tr) tr.scrollIntoView({ block: 'nearest' }); } draw(); }
-    delete ptrs[e.pointerId]; pinch = 0; }
-  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', function (e) { delete ptrs[e.pointerId]; pinch = 0; });
+    if (!ptrs[e.pointerId]) return;
+    var single = Object.keys(ptrs).length === 1; delete ptrs[e.pointerId];
+    if (Object.keys(ptrs).length < 2) { pinchD = 0; pinchM = null; }
+    if (Object.keys(ptrs).length === 1) { var k = Object.keys(ptrs)[0]; last = ptrs[k].slice(); lastT = performance.now(); mode = 'rot'; return; }
+    cv.classList.remove('drag');
+    if (!single) { last = null; return; }
+    var p = rel(e), now = performance.now();
+    if (moved < 6) {
+      var w = pick(p[0], p[1]), dbl = now - tapT < 320 && tapP && Math.hypot(p[0] - tapP[0], p[1] - tapP[1]) < 24;
+      if (dbl) { if (w) selectWall(w, true); else fitAnim(); tapT = 0; }
+      else { if (w) selectWall(w, false); tapT = now; tapP = p; }
+    } else if (mode === 'rot' && now - lastT < 80 && (Math.abs(vel[0]) > 1e-4 || Math.abs(vel[1]) > 1e-4)) { anim = requestAnimationFrame(spin); }
+    last = null;
+  }
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', function (e) { delete ptrs[e.pointerId]; pinchD = 0; last = null; cv.classList.remove('drag'); });
   cv.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-  cv.addEventListener('wheel', function (e) { e.preventDefault(); zoom = Math.max(0.2, Math.min(40, zoom * (e.deltaY < 0 ? 1.12 : 0.89))); draw(); }, { passive: false });
-  $('zin').onclick = function () { zoom = Math.min(40, zoom * 1.25); draw(); };
-  $('zout').onclick = function () { zoom = Math.max(0.2, zoom / 1.25); draw(); };
-  $('zfit').onclick = function () { yaw = -0.8; pitch = 0.55; fit(); draw(); };
-  $('ztop').onclick = function () { yaw = 0; pitch = Math.PI / 2 - 0.001; draw(); };
+  cv.addEventListener('wheel', function (e) { e.preventDefault(); stopAnim(); var p = rel(e), k = e.ctrlKey ? Math.exp(-e.deltaY * 0.01) : Math.exp(-Math.max(-120, Math.min(120, e.deltaY)) * 0.0015); zoomAt(k, p[0], p[1]); draw(); }, { passive: false });
+  cv.tabIndex = 0;
+  cv.addEventListener('keydown', function (e) { var k = e.key, st = 0.12; if (k === 'ArrowLeft') yaw -= st; else if (k === 'ArrowRight') yaw += st; else if (k === 'ArrowUp') pitch = clampP(pitch + st); else if (k === 'ArrowDown') pitch = clampP(pitch - st); else if (k === '+' || k === '=') zoomAt(1.2, Wc / 2, Hc / 2); else if (k === '-') zoomAt(1 / 1.2, Wc / 2, Hc / 2); else if (k === 'f' || k === 'Home') { fitAnim(); return; } else return; e.preventDefault(); stopAnim(); draw(); });
+  $('zin').onclick = function () { stopAnim(); zoomAt(1.3, Wc / 2, Hc / 2); draw(); };
+  $('zout').onclick = function () { stopAnim(); zoomAt(1 / 1.3, Wc / 2, Hc / 2); draw(); };
+  $('zfit').onclick = function () { fitAnim(-0.8, 0.55); };
+  $('v3d').onclick = function () { animateTo({ yaw: -0.8, pitch: 0.55 }); };
+  $('ztop').onclick = function () { animateTo({ yaw: 0, pitch: Math.PI / 2 - 0.001 }); };
+  $('vfront').onclick = function () { animateTo({ yaw: 0, pitch: 0 }); };
+  $('vside').onclick = function () { animateTo({ yaw: -Math.PI / 2, pitch: 0 }); };
   $('ctx').onchange = function () { dirty = true; draw(); };
 
   // ---- CSV ----

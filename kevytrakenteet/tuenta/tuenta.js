@@ -104,15 +104,19 @@
     return els;
   }
 
-  function detectSupports(w, els, o) {
+  // Sivutueksi hyväksytään vain poikittainen muurattu seinä (supKind palauttaa 'muurattu') tai betoniseinä ('betoni').
+  var CONC = /betoni|concrete|beton|teräsbet|\bbet\b|\bc\d{2}\/\d{2}\b|\bk\d{2}\b/i;
+  function isConcrete(c) { var a = c.attr || {}; return CONC.test([a['Materiaali'], a['Tyyppi'], a['Nimi'], a['Objektityyppi'], a['Kuvaus']].join(' ')); }
+  function detectSupports(w, els, o, supKind) {
     var g2 = w.g, tolS = o.sideTol, tolT = o.topTol, res = { e1: null, e2: null, top: false, topFrac: 0 };
     [['e1', g2.e1], ['e2', g2.e2]].forEach(function (E) {
       var best = null;
       els.forEach(function (c) {
-        if (c === w || c.kind === 'top') return;
+        if (c === w || c.kind !== 'wall') return;
+        var kind = supKind ? supKind(c) : (isConcrete(c) ? 'betoni' : null); if (!kind) return;
         var cg = c.g, ov = Math.min(g2.z1, cg.z1) - Math.max(g2.z0, cg.z0); if (ov < 0.5 * g2.H) return;
         if (c.kind === 'wall' && Math.abs(cg.u[0] * g2.u[0] + cg.u[1] * g2.u[1]) > 0.94) return; // samansuuntainen = jatke, ei tuki
-        var d = distRect(E[1], cg); if (d <= tolS && (!best || d < best.d)) best = { d: d, name: c.name || (c.ifc + ' #' + c.id), ifc: c.ifc };
+        var d = distRect(E[1], cg); if (d <= tolS && (!best || d < best.d)) best = { d: d, name: c.name || (c.ifc + ' #' + c.id), ifc: c.ifc, kind: kind };
       });
       res[E[0]] = best;
     });
@@ -153,5 +157,5 @@
     return r;
   }
 
-  g.Tuenta = { CURVES: CURVES, HV: HV, CASES: CASES, lmax: lmax, extract: extract, detectSupports: detectSupports, autoCase: autoCase, check: check, analyseMesh: analyseMesh };
+  g.Tuenta = { CURVES: CURVES, HV: HV, CASES: CASES, lmax: lmax, extract: extract, detectSupports: detectSupports, isConcrete: isConcrete, autoCase: autoCase, check: check, analyseMesh: analyseMesh };
 })(window);

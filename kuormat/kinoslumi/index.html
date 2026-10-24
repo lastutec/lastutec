@@ -88,6 +88,15 @@ table.inp select{max-width:230px;padding:3px 5px}
 .diag{width:100%;max-width:640px;height:auto;display:block;margin:6px 0}
 .diag text{font:12px system-ui,sans-serif;fill:var(--ink)}
 .diag .m{fill:var(--muted)}
+.diag.scene{max-width:760px}
+.diag .dim line{stroke:var(--muted);stroke-width:1}
+.diag .dim text{fill:var(--muted);font-size:11px}
+.diag .bld{fill:var(--panel2);stroke:var(--ink);stroke-width:1.6}
+.diag .dl{font-weight:700}
+.diag .halo{paint-order:stroke;stroke:var(--bg);stroke-width:3.5px;stroke-linejoin:round}
+.scene-q{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:4px 14px;font-size:13px;margin:4px 0 10px}
+.scene-q div{border-bottom:1px dashed var(--line2);padding:3px 0;display:flex;justify-content:space-between;gap:8px}
+.scene-q span:first-child{color:var(--muted)} .scene-q b{font-variant-numeric:tabular-nums;white-space:nowrap}
 
 details.step{border:1px solid var(--line);border-radius:6px;margin:8px 0}
 details.step>summary{cursor:pointer;padding:7px 10px;font-weight:600}
@@ -150,6 +159,11 @@ details.step>.calc{padding:0 12px 10px}
       </div>
       <div>
         <div class="card">
+          <h2>Lumi katolla – mittakaavakuva</h2>
+          <div class="small">Kinostuneen lumen määrä lähtötietojen mukaisella katolla. Lumen syvyys d = s/γ.</div>
+          <div id="k-scene"></div>
+        </div>
+        <div class="card">
           <h2>Tulokset</h2>
           <div class="kpis" id="k-kpis"></div>
           <div id="k-cases"></div>
@@ -210,7 +224,7 @@ function basePart(){
   return {sk,Ce,Ct,gam,base,st};
 }
 function kinosCalc(){
-  const B=basePart(); const {sk,gam,base}=B; let st=B.st; const cases=[], kp=[];
+  const B=basePart(); const {sk,gam,base}=B; let st=B.st; const cases=[], kp=[]; let scA=null, scB=null;
   // ---- A ----
   if($('#k-a-on').checked){
     const h=num('#k-h'), b1=num('#k-b1'), b2=num('#k-b2'), A=num('#k-A'), au=num('#k-au'), bs=num('#k-bs');
@@ -235,6 +249,7 @@ function kinosCalc(){
     let sEnd=s1, xEnd=ls; if(b2<ls){ sEnd=lerp(b2,0,ls,sMax,s1); xEnd=b2; }
     st+=row('Tapaus (ii)','seinän vieressä s = μ<sub>2</sub>·C<sub>e</sub>C<sub>t</sub>s<sub>k</sub> = '+fmt(mu2,3)+'·'+fmt(base,3)+' = <b>'+fmt(sMax,3)+' kN/m²</b>, pienenee lineaarisesti arvoon '+fmt(s1,3)+' kN/m² matkalla l<sub>s</sub>'+(b2<ls?'; b<sub>2</sub> &lt; l<sub>s</sub> → alemman katon reunalla s = '+fmt(sEnd,3)+' kN/m²':''));
     const tot=(sMax+sEnd)/2*xEnd+(b2>xEnd?s1*(b2-xEnd):0);
+    scA={h,b1,b2,A,au,bs,ls,gam,sMax,sEnd,s1,tot,su:mu1(au,false)*base};
     st+=row('Kokonaiskuorma alemmalla katolla','tapaus (ii): ∫s dx = '+fmt(tot,2)+' kN/m (seinän pituusmetriä kohti), tapaus (i): '+fmt(s1*b2,2)+' kN/m');
     cases.push({t:'A. Kinostuma korkeampaa rakennusosaa vasten – tapaus (ii)',svg:svgDrift(h,b2,ls,sMax,s1,'step',1),txt:'s = '+fmt(sMax,2)+' → '+fmt(s1,2)+' kN/m², l<sub>s</sub> = '+fmt(ls,2)+' m, kokonaiskuorma '+fmt(tot,1)+' kN/m'});
     kp.push(['A: s<sub>max</sub>',fmt(sMax,2)+' <span class="small">kN/m²</span>'],['A: l<sub>s</sub>',fmt(ls,2)+' <span class="small">m</span>']);
@@ -251,6 +266,7 @@ function kinosCalc(){
     const sMax=m2*base, s1=m1*base;
     st+=row('Lumikuorma','esteen vieressä s = '+fmt(m2,3)+'·'+fmt(base,3)+' = <b>'+fmt(sMax,3)+' kN/m²</b>, muualla s = '+fmt(m1,3)+'·'+fmt(base,3)+' = '+fmt(s1,3)+' kN/m²'+(sides===2?'; kinostuma esteen molemmin puolin':'; kinostuma esteen sisäpuolelle'));
     const extra=Math.max(0,(sMax-s1))*ls/2*sides;
+    scB={h,sides,ao,ls,gam,sMax,s1,Lr:Math.min(num('#s-L1'),num('#s-L2')),Ll:Math.max(num('#s-L1'),num('#s-L2'))};
     st+=row('Kinostuman lisäkuorma','(s<sub>max</sub> − s)·l<sub>s</sub>/2'+(sides===2?'·2':'')+' = ('+fmt(sMax,3)+' − '+fmt(s1,3)+')·'+fmt(ls,2)+'/2'+(sides===2?'·2':'')+' = <b>'+fmt(extra,2)+' kN/m</b> (esteen pituusmetriä kohti)');
     cases.push({t:'B. Kinostuma esteen kohdalla',svg:svgObst(h,ls,sMax,s1,sides),txt:'s = '+fmt(sMax,2)+' → '+fmt(s1,2)+' kN/m², l<sub>s</sub> = '+fmt(ls,2)+' m'});
     kp.push(['B: s<sub>max</sub>',fmt(sMax,2)+' <span class="small">kN/m²</span>']);
@@ -279,9 +295,226 @@ function kinosCalc(){
     kp.push(['D: s<sub>e</sub>',fmt(se,2)+' <span class="small">kN/m</span>']);
   }
   $('#k-steps').innerHTML=st;
+  let sc='';
+  if(scA) sc+=sceneA(scA);
+  if(scB) sc+=sceneB(scB);
+  if(!sc) sc='<div class="small">Kytke päälle tarkastelu A tai B, niin kuva piirretään.</div>';
+  else sc+='<div class="small">Syvyydet on laskettu kinostuneen lumen tilavuuspainolla γ = '+fmt(gam,1)+' kN/m³. Tuore lumi on kevyempää, joten todellinen kerros voi olla paksumpi samalla kuormalla.</div>';
+  $('#k-scene').innerHTML=sc;
   $('#k-kpis').innerHTML=`<div class="kpi"><div class="k">s<sub>k</sub></div><div class="v">${fmt(sk,2)} <span class="small">kN/m²</span></div></div><div class="kpi"><div class="k">C<sub>e</sub>·C<sub>t</sub>·s<sub>k</sub></div><div class="v">${fmt(base,3)} <span class="small">kN/m²</span></div></div>`+
     kp.map((k,i)=>`<div class="kpi ${i===0?'hl':''}"><div class="k">${k[0]}</div><div class="v">${k[1]}</div></div>`).join('');
   $('#k-cases').innerHTML=cases.length?cases.map(c=>`<div class="case"><h3>${c.t}</h3>${c.svg}<div class="small">${c.txt}</div></div>`).join(''):'<div class="small">Valitse vähintään yksi tarkastelu.</div>';
+}
+// --- mittakaavakuva: lumi lähtötietojen mukaisella katolla ---
+const G=9.81;
+function niceK(need){ for(const k of [1,1.5,2,3,4,5,8,10,15,20]) if(k>=need-1e-9) return k; return 20; }
+function fitView(xmin,xmax,ymin,ymax,o){
+  const W=o.W||720, ml=o.ml||60, mr=o.mr||60, mt=o.mt||30, mb=o.mb||70, maxH=o.maxH||300, minH=o.minH||140;
+  const hx=Math.max(xmax-xmin,1e-6), hy=Math.max(ymax-ymin,1e-6);
+  let s=(W-ml-mr)/hx, k=1;
+  if(hy*s>maxH) s=maxH/hy; else if(hy*s<minH) k=niceK(minH/(hy*s));
+  const ox=ml+((W-ml-mr)-hx*s)/2, H=Math.round(mt+hy*s*k+mb);
+  return {W,H,k,s,X:x=>ox+(x-xmin)*s,Y:y=>mt+(ymax-y)*s*k};
+}
+const P=(v)=>v.toFixed(1);
+function dimH(x1,x2,y,lab){ if(x2-x1<2) return ''; return `<g class="dim"><line x1="${P(x1)}" y1="${P(y)}" x2="${P(x2)}" y2="${P(y)}"/><line x1="${P(x1)}" y1="${P(y-5)}" x2="${P(x1)}" y2="${P(y+5)}"/><line x1="${P(x2)}" y1="${P(y-5)}" x2="${P(x2)}" y2="${P(y+5)}"/><text x="${P((x1+x2)/2)}" y="${P(y-4)}" text-anchor="middle">${lab}</text></g>`; }
+function dimV(x,y1,y2,lab,left){ return `<g class="dim"><line x1="${P(x)}" y1="${P(y1)}" x2="${P(x)}" y2="${P(y2)}"/><line x1="${P(x-5)}" y1="${P(y1)}" x2="${P(x+5)}" y2="${P(y1)}"/><line x1="${P(x-5)}" y1="${P(y2)}" x2="${P(x+5)}" y2="${P(y2)}"/><text x="${P(left?x-6:x+6)}" y="${P((y1+y2)/2+4)}" text-anchor="${left?'end':'start'}">${lab}</text></g>`; }
+const poly=(pts,V)=>'M'+pts.map(p=>P(V.X(p[0]))+','+P(V.Y(p[1]))).join(' L')+' Z';
+const scaleNote=(V,x,y)=>`<text x="${x}" y="${y}" class="m" style="font-size:11px">${V.k>1?'Vaakamittakaava todellinen, pystysuunta korotettu ×'+fmt(V.k,V.k%1?1:0)+' luettavuuden vuoksi':'Mittakaavassa (vaaka = pysty)'}</text>`;
+const qrow=(k,v)=>`<div><span>${k}</span><b>${v}</b></div>`;
+
+function sceneA(o){
+  const {h,b1,b2,au,bs,ls,gam}=o, hb=2;
+  const dMax=o.sMax/gam, dEnd=o.sEnd/gam, d1=o.s1/gam, du=o.su/gam;
+  const t=Math.tan(Math.min(Math.max(au,0),75)*Math.PI/180);
+  const xr=(au>0&&bs>0&&bs<b1)?bs:b1, yR=h+t*xr, yF=Math.max(0.3,xr<b1?yR-t*(b1-xr):yR);
+  const roof=xr<b1?[[0,h],[-xr,yR],[-b1,yF]]:[[0,h],[-b1,yR]];
+  const ymax=Math.max(yR+du,dMax,h)+0.4;
+  const V=fitView(-b1,b2,-hb,ymax,{mb:78});
+  const xeM=Math.min(ls,b2), gY=V.Y(-hb);
+  let g='';
+  // rakennukset
+  g+=`<path class="bld" d="${poly([...roof,[-b1,-hb],[0,-hb]],V)}"/>`;
+  g+=`<path class="bld" d="${poly([[0,0],[b2,0],[b2,-hb],[0,-hb]],V)}"/>`;
+  g+=`<line x1="${P(V.X(-b1)-20)}" y1="${P(gY)}" x2="${P(V.X(b2)+20)}" y2="${P(gY)}" stroke="var(--muted)" stroke-width="1.5"/>`;
+  // lumi ylemmällä katolla
+  if(du>0.001) g+=`<path d="${poly([...roof,...roof.slice().reverse().map(p=>[p[0],p[1]+du])],V)}" fill="var(--snow)" opacity=".55" stroke="var(--snow-ink)" stroke-width=".8"/>`;
+  // kinostuma alemmalla katolla
+  const lp=[[0,0],[0,dMax],[xeM,dEnd]]; if(b2>xeM) lp.push([b2,dEnd]); lp.push([b2,0]);
+  g+=`<path d="${poly(lp,V)}" fill="var(--snow)" opacity=".9" stroke="var(--snow-ink)" stroke-width="1"/>`;
+  g+=`<line x1="${P(V.X(0))}" y1="${P(V.Y(d1))}" x2="${P(V.X(b2))}" y2="${P(V.Y(d1))}" stroke="var(--ink)" stroke-dasharray="4 3" stroke-width="1" opacity=".7"/>`;
+  // syvyysmerkinnät
+  g+=`<text class="dl" x="${P(V.X(0)+6)}" y="${P(V.Y(dMax)-6)}">d = ${fmt(dMax,2)} m</text>`;
+  if(b2>xeM+0.01||Math.abs(dEnd-dMax)>0.01) g+=`<text x="${P(V.X(b2)-4)}" y="${P(V.Y(dEnd)-6)}" text-anchor="end">${fmt(dEnd,2)} m</text>`;
+  if(du>0.001){ const mx=-Math.min(xr,b1)/2; g+=`<text x="${P(V.X(mx))}" y="${P(V.Y(h+t*Math.min(xr,b1)/2+du)-6)}" text-anchor="middle">d = ${fmt(du,2)} m</text>`; }
+  // mitat
+  g+=dimV(V.X(0)-12,V.Y(0),V.Y(h),'h = '+fmt(h,2)+' m',true);
+  g+=dimH(V.X(-b1),V.X(0),gY+20,'b₁ = '+fmt(b1,2)+' m')+dimH(V.X(0),V.X(b2),gY+20,'b₂ = '+fmt(b2,2)+' m');
+  g+=dimH(V.X(0),V.X(xeM),gY+42,'l<tspan baseline-shift="sub" font-size="8">s</tspan> = '+fmt(ls,2)+' m'+(ls>b2?' (> b₂)':''));
+  g+=scaleNote(V,8,V.H-6);
+  const Lw=b2>0&&o.A>0?o.A/b2:b2;
+  let out=`<h3>A. Kinostuma korkeampaa rakennusosaa vasten</h3>`+scene3DA(o,Lw,roof,xr,t,du,dMax,dEnd,xeM)+
+    `<div class="small">3D-kuva mittakaavassa: lumi sinisellä, kuorma s (kN/m²) punaisina nuolina etureunalla. Rakennusten pituus seinän suunnassa A/b₂.</div>`+
+    `<h3>Leikkaus kohtisuoraan seinää vastaan</h3><svg class="diag scene" viewBox="0 0 ${V.W} ${V.H}" role="img" aria-label="Kinostuma alemmalla katolla mittakaavassa">${g}</svg>`;
+  out+=`<div class="small">Täyttö = tapaus (ii) kinostuma, katkoviiva = tapaus (i) tasainen lumi d = ${fmt(d1,2)} m. Ylemmän katon lumi μ<sub>1</sub>-kuorman mukaan.</div>`;
+  // tasokuva alemmasta katosta
+  out+=planA(b2,Lw,ls,dMax,dEnd);
+  // määrät
+  const extra=o.tot-o.s1*b2, totAll=o.tot*Lw;
+  out+=`<div class="scene-q">`+
+    qrow('Syvyys seinän vieressä',fmt(dMax,2)+' m')+
+    qrow('Syvyys kinoksen ulkopuolella',fmt(d1,2)+' m')+
+    qrow('Lunta / seinän jm',fmt(o.tot/gam,2)+' m³ ≈ '+fmt(o.tot/G,2)+' t')+
+    qrow('josta kinoksen lisälunta',fmt(extra/gam,2)+' m³ ≈ '+fmt(extra/G,2)+' t')+
+    qrow('Alemman katon pituus A/b₂',fmt(Lw,2)+' m')+
+    qrow('Lunta alemmalla katolla yht.',fmt(totAll/gam,1)+' m³ ≈ '+fmt(totAll/G,1)+' t')+
+    (du>0.001?qrow('Ylemmän katon lumi / seinän jm',fmt(o.su*b1/gam,2)+' m³ ≈ '+fmt(o.su*b1/G,2)+' t'):'')+
+    `</div>`;
+  return out;
+}
+function planA(b2,Lw,ls,dMax,dEnd){
+  const W=720, ml=70, mr=90, mt=30, mb=40, maxH=200, strip=22;
+  const s=Math.min((W-ml-mr-strip)/Math.max(b2,1e-6),maxH/Math.max(Lw,1e-6));
+  const x0=ml+strip+((W-ml-mr-strip)-b2*s)/2, y0=mt, w=b2*s, hgt=Lw*s, H=Math.round(mt+hgt+mb);
+  const xe=x0+Math.min(ls,b2)*s, op1=.95, op2=.95*Math.max(0.15,dEnd/Math.max(dMax,1e-6));
+  let g=`<defs><linearGradient id="kgA" gradientUnits="userSpaceOnUse" x1="${P(x0)}" y1="0" x2="${P(xe)}" y2="0"><stop offset="0" stop-color="var(--snow)" stop-opacity="${op1}"/><stop offset="1" stop-color="var(--snow)" stop-opacity="${P(op2*100)/100}"/></linearGradient>
+    <pattern id="khA" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="var(--muted)" stroke-width="1"/></pattern></defs>`;
+  g+=`<rect x="${P(x0-strip)}" y="${P(y0)}" width="${strip}" height="${P(hgt)}" fill="url(#khA)" stroke="var(--ink)" stroke-width="1"/>`;
+  g+=`<rect x="${P(x0)}" y="${P(y0)}" width="${P(w)}" height="${P(hgt)}" fill="url(#kgA)" stroke="var(--ink)" stroke-width="1.6"/>`;
+  g+=`<line x1="${P(xe)}" y1="${P(y0)}" x2="${P(xe)}" y2="${P(y0+hgt)}" stroke="var(--snow-ink)" stroke-dasharray="4 3"/>`;
+  g+=`<text x="${P(x0-strip/2)}" y="${P(y0+hgt/2)}" text-anchor="middle" class="m" style="font-size:10px" transform="rotate(-90 ${P(x0-strip/2)} ${P(y0+hgt/2)})">korkeampi osa</text>`;
+  g+=`<text x="${P(x0+w/2)}" y="${P(y0+hgt/2+4)}" text-anchor="middle">alempi katto ${fmt(b2*Lw,1)} m²</text>`;
+  g+=dimH(x0,x0+w,y0+hgt+20,'b₂ = '+fmt(b2,2)+' m');
+  g+=dimV(x0+w+14,y0,y0+hgt,fmt(Lw,2)+' m',false);
+  g+=`<text x="8" y="${H-6}" class="m" style="font-size:11px">Tasokuva mittakaavassa · voimakkaampi sininen = paksumpi lumi, katkoviiva = kinostuman raja l<tspan baseline-shift="sub" font-size="8">s</tspan></text>`;
+  return `<svg class="diag scene" viewBox="0 0 ${W} ${H}" role="img" aria-label="Alemman katon tasokuva ja kinostuma-alue">${g}</svg>`;
+}
+function sceneB(o){
+  const {h,sides,ao,ls,gam,Lr,Ll}=o, hb=1.5;
+  const dMax=o.sMax/gam, d1=o.s1/gam;
+  const t=Math.tan(Math.min(Math.max(ao,0),60)*Math.PI/180), xo=sides===2?Lr/2:0, ry=x=>t*x;
+  const dAt=x=>{ const u=Math.abs(x-xo); return u<ls?lerp(u,0,ls,dMax,d1):d1; };
+  const xs=[0,Lr,xo,xo-ls,xo+ls].filter(x=>x>=0&&x<=Lr).sort((a,b)=>a-b);
+  const top=xs.map(x=>[x,ry(x)+dAt(x)]), base=xs.slice().reverse().map(x=>[x,ry(x)]);
+  const ymax=Math.max(ry(Lr)+d1,ry(xo)+Math.max(h,dMax))+0.4;
+  const V=fitView(0,Lr,-hb,ymax,{mb:78}), gY=V.Y(-hb);
+  let g=`<path class="bld" d="${poly([[0,0],[Lr,ry(Lr)],[Lr,-hb],[0,-hb]],V)}"/>`;
+  g+=`<line x1="${P(V.X(0)-20)}" y1="${P(gY)}" x2="${P(V.X(Lr)+20)}" y2="${P(gY)}" stroke="var(--muted)" stroke-width="1.5"/>`;
+  g+=`<path d="${poly([...top,...base],V)}" fill="var(--snow)" opacity=".9" stroke="var(--snow-ink)" stroke-width="1"/>`;
+  const ox=V.X(xo), oy0=V.Y(ry(xo)), oy1=V.Y(ry(xo)+h);
+  g+=`<rect x="${P(ox-(sides===2?3:0))}" y="${P(oy1)}" width="6" height="${P(oy0-oy1)}" fill="var(--accent)"/>`;
+  { const tw=170/V.s, xa=sides===2?xo-tw/2:xo, xb=Math.min(Lr,xa+tw); let yl=oy1;
+    for(let i=0;i<=20;i++){ const x=Math.max(0,xa+(xb-xa)*i/20); yl=Math.min(yl,V.Y(ry(x)+dAt(x))); }
+    g+=`<text x="${P(ox+(sides===2?0:4))}" y="${P(yl-8)}" text-anchor="${sides===2?'middle':'start'}"><tspan class="dl">d = ${fmt(dMax,2)} m</tspan><tspan> (este h = ${fmt(h,2)} m)</tspan></text>`; }
+  g+=`<text x="${P(V.X(Lr)-4)}" y="${P(V.Y(ry(Lr)+d1)-6)}" text-anchor="end">${fmt(d1,2)} m</text>`;
+  g+=dimH(V.X(0),V.X(Lr),gY+20,'katon leveys L₁ = '+fmt(Lr,2)+' m'+(ao>0?' · α = '+fmt(ao,1)+'°':''));
+  g+=dimH(ox,V.X(Math.min(Lr,xo+ls)),gY+42,'l<tspan baseline-shift="sub" font-size="8">s</tspan> = '+fmt(ls,2)+' m');
+  g+=scaleNote(V,8,V.H-6);
+  const extra=Math.max(0,o.sMax-o.s1)*ls/2*sides, perM=o.s1*Lr+extra, tot=perM*Ll;
+  return `<h3>B. Kinostuma esteen kohdalla</h3>`+scene3DB(o,dAt,ry,xo,dMax,d1)+
+    `<div class="small">3D-kuva mittakaavassa: lumi sinisellä, este oranssilla, kuorma s (kN/m²) punaisina nuolina etureunalla.</div>`+
+    `<h3>Leikkaus esteen kohdalta</h3><svg class="diag scene" viewBox="0 0 ${V.W} ${V.H}" role="img" aria-label="Kinostuma esteen kohdalla mittakaavassa">${g}</svg>`+
+    `<div class="small">Este oletetaan katon pidemmän sivun suuntaiseksi (pituus L₂ = ${fmt(Ll,2)} m).</div>`+
+    `<div class="scene-q">`+
+    qrow('Syvyys esteen vieressä',fmt(dMax,2)+' m')+
+    qrow('Syvyys muualla',fmt(d1,2)+' m')+
+    qrow('Kinoksen lisälunta / esteen jm',fmt(extra/gam,2)+' m³ ≈ '+fmt(extra/G,2)+' t')+
+    qrow('Lunta katolla yht.',fmt(tot/gam,1)+' m³ ≈ '+fmt(tot/G,1)+' t')+
+    `</div>`;
+}
+// --- 3D-aksonometria ---
+// x = poikkisuunta, y = pituussuunta (katsoja y < 0), z = ylös
+const VV=[0.507,-1,0.475];
+const pj=(x,y,z)=>[x*0.966+y*0.49, x*0.259-y*0.344-z];
+const FILL={roof:'#3a3a3a',front:'#262626',side:'#1e1e1e',stop:'#d6e8fa',sfront:'#7fb2e6',sside:'#5f93c9',obs:'#F74902'};
+function solid(prof,L,mat){
+  let a=0; for(let i=0;i<prof.length;i++){ const p=prof[i],q=prof[(i+1)%prof.length]; a+=p[0]*q[1]-q[0]*p[1]; }
+  if(a<0) prof=prof.slice().reverse();
+  const faces=[];
+  for(let i=0;i<prof.length;i++){ const p=prof[i],q=prof[(i+1)%prof.length], dx=q[0]-p[0], dz=q[1]-p[1], len=Math.hypot(dx,dz);
+    if(len<1e-6) continue; const nx=dz/len, nz=-dx/len;
+    if(0.507*nx+0.475*nz<=1e-6) continue;
+    const pts=[[p[0],0,p[1]],[q[0],0,q[1]],[q[0],L,q[1]],[p[0],L,p[1]]];
+    const c=pts.reduce((s,v)=>[s[0]+v[0]/4,s[1]+v[1]/4,s[2]+v[2]/4],[0,0,0]);
+    faces.push({pts,fill:mat==='snow'?(nz>0.5?FILL.stop:FILL.sside):mat==='obs'?FILL.obs:(nz>0.5?FILL.roof:FILL.side),d:c[0]*VV[0]+c[1]*VV[1]+c[2]*VV[2]});
+  }
+  faces.sort((u,v)=>u.d-v.d);
+  faces.push({pts:prof.map(p=>[p[0],0,p[1]]),fill:mat==='snow'?FILL.sfront:mat==='obs'?FILL.obs:FILL.front});
+  return faces;
+}
+function render3D(groups,ann,aria){
+  // groups: taulukko kasvoja piirtojärjestyksessä; ann: merkinnät maailmankoordinaateissa
+  const all=[]; groups.forEach(f=>f.forEach(x=>x.pts.forEach(p=>all.push(pj(...p))))); ann.pts.forEach(p=>all.push(pj(...p)));
+  const xs=all.map(p=>p[0]), ys=all.map(p=>p[1]), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+  const W=720, m=60, s=Math.min((W-2*m)/(x1-x0),380/(y1-y0)), H=Math.round((y1-y0)*s+2*m-10);
+  const ox=(W-(x1-x0)*s)/2-x0*s, oy=m-y0*s;
+  const T=(x,y,z)=>{ const q=pj(x,y,z); return [ox+q[0]*s, oy+q[1]*s]; };
+  let g=`<defs><marker id="k3ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--press)"/></marker></defs>`;
+  groups.forEach(fs=>fs.forEach(f=>{ g+=`<path d="M${f.pts.map(p=>T(...p).map(P).join(',')).join(' L')} Z" fill="${f.fill}" stroke="${f.fill===FILL.stop||f.fill===FILL.sfront||f.fill===FILL.sside?'#4f7fb0':'var(--ink)'}" stroke-width="${f.fill.startsWith('#d')||f.fill.startsWith('#7')||f.fill.startsWith('#5')?0.6:1}" stroke-linejoin="round"/>`; }));
+  g+=ann.draw(T);
+  return `<svg class="diag scene" viewBox="0 0 ${W} ${H}" role="img" aria-label="${aria}">${g}</svg>`;
+}
+function dim3(T,a,b,lab,off){ // mittaviiva pisteestä a pisteeseen b, teksti siirtymällä off [px]
+  const A=T(...a), B=T(...b); off=off||[0,14];
+  return `<g class="dim"><line x1="${P(A[0])}" y1="${P(A[1])}" x2="${P(B[0])}" y2="${P(B[1])}"/><circle cx="${P(A[0])}" cy="${P(A[1])}" r="2" fill="var(--muted)"/><circle cx="${P(B[0])}" cy="${P(B[1])}" r="2" fill="var(--muted)"/><text x="${P((A[0]+B[0])/2+off[0])}" y="${P((A[1]+B[1])/2+off[1])}" text-anchor="middle" class="halo" style="font-size:12px">${lab}</text></g>`;
+}
+function loads3(T,pts,lk){ // pts: [[x,y,zSurface,s]] → kuormanuolet ja kuormakuvion ääriviiva
+  let g='', top=[];
+  pts.forEach(([x,y,z,sv])=>{ const A=T(x,y,z+sv*lk), B=T(x,y,z+0.05); top.push(A);
+    if(sv>0) g+=`<line x1="${P(A[0])}" y1="${P(A[1])}" x2="${P(B[0])}" y2="${P(B[1])}" stroke="var(--press)" stroke-width="1.4" marker-end="url(#k3ar)"/>`; });
+  const base=pts.slice().reverse().map(([x,y,z])=>T(x,y,z));
+  g=`<path d="M${[...top,...base].map(p=>p.map(P).join(',')).join(' L')} Z" fill="var(--press)" opacity=".13"/><polyline points="${top.map(p=>p.map(P).join(',')).join(' ')}" fill="none" stroke="var(--press)" stroke-width="1.6"/>`+g;
+  return g;
+}
+const lbl=(T,p,txt,anchor,dx,dy,cls)=>{ const q=T(...p); return `<text x="${P(q[0]+(dx||0))}" y="${P(q[1]+(dy||0))}" text-anchor="${anchor||'middle'}" class="halo ${cls||''}" style="font-size:12.5px">${txt}</text>`; };
+function arrSamples(x0,x1,n,f){ const a=[]; for(let i=0;i<=n;i++){ const x=x0+(x1-x0)*i/n; a.push(f(x)); } return a; }
+
+function scene3DA(o,Lw,roof,xr,t,du,dMax,dEnd,xeM){
+  const {h,b1,b2,ls,gam}=o, hb=2;
+  const up=solid([...roof,[-b1,-hb],[0,-hb]],Lw,'b');
+  const groups=[up];
+  if(du>0.001) groups.push(solid([...roof,...roof.slice().reverse().map(p=>[p[0],p[1]+du])],Lw,'snow'));
+  groups.push(solid([[0,-hb],[b2,-hb],[b2,0],[0,0]],Lw,'b'));
+  const lp=[[0,0],[b2,0]]; if(b2>xeM) lp.push([b2,dEnd]); lp.push([xeM,dEnd],[0,dMax]);
+  groups.push(solid(lp,Lw,'snow'));
+  const sMx=o.sMax, lk=Math.max(1.2,0.45*h)/Math.max(sMx,o.su,0.01);
+  const zR=x=>{ if(x>0) return 0; const u=-x; return u<=xr?h+t*u:h+t*xr-t*(u-xr); };
+  const sLow=x=>x<xeM?lerp(x,0,xeM,o.sMax,o.sEnd):o.sEnd, dLow=x=>x<xeM?lerp(x,0,xeM,dMax,dEnd):dEnd;
+  const ann={pts:[[-b1,-6,-hb],[b2+2.5,Lw,-hb],[0,0,h+du+o.su*lk+1],[0,0,dMax+sMx*lk+1],[-xr,0,zR(-xr)+du+o.su*lk+1]],draw:T=>{
+    let g='';
+    g+=loads3(T,arrSamples(0,b2,Math.max(4,Math.round(b2/1.2)),x=>[x,0,dLow(x),sLow(x)]),lk);
+    if(du>0.001) g+=loads3(T,arrSamples(-b1,0,Math.max(4,Math.round(b1/1.5)),x=>[x,0,Math.max(zR(x),0)+du,o.su]),lk);
+    g+=lbl(T,[0,0,dMax+sMx*lk],fmt(o.sMax,2)+' kN/m²','start',6,-6,'dl');
+    g+=lbl(T,[b2,0,dEnd+o.sEnd*lk],fmt(o.sEnd,2)+' kN/m²','start',6,-4);
+    if(du>0.001) g+=lbl(T,[-b1/2,0,zR(-b1/2)+du+o.su*lk],fmt(o.su,2)+' kN/m²','middle',0,-8);
+    g+=dim3(T,[-b1,-1.6,-hb],[0,-1.6,-hb],'b₁ = '+fmt(b1,2)+' m',[0,16]);
+    g+=dim3(T,[0,-1.6,-hb],[b2,-1.6,-hb],'b₂ = '+fmt(b2,2)+' m',[0,16]);
+    g+=dim3(T,[0,-5,-hb],[xeM,-5,-hb],'l<tspan baseline-shift="sub" font-size="9">s</tspan> = '+fmt(ls,2)+' m',[0,16]);
+    g+=dim3(T,[b2+1.6,0,-hb],[b2+1.6,Lw,-hb],fmt(Lw,2)+' m',[34,10]);
+    g+=dim3(T,[0,-1.6,0],[0,-1.6,h],'h = '+fmt(h,2)+' m',[-36,4]);
+    g+=lbl(T,[0,0,dMax],'d = '+fmt(dMax,2)+' m','end',-6,10);
+    return g; }};
+  return render3D(groups,ann,'3D-kuva kinostumasta alemmalla katolla');
+}
+function scene3DB(o,dAt,ry,xo,dMax,d1){
+  const {h,sides,ls,Lr,Ll}=o, hb=1.5;
+  const groups=[solid([[0,-hb],[Lr,-hb],[Lr,ry(Lr)],[0,0]],Ll,'b')];
+  const part=(xa,xb)=>{ const xs=[xa,xb,xo,xo-ls,xo+ls].filter(x=>x>=xa-1e-9&&x<=xb+1e-9).sort((a,b)=>a-b).filter((x,i,a)=>i===0||x-a[i-1]>1e-6);
+    return solid([...xs.map(x=>[x,ry(x)]),...xs.slice().reverse().map(x=>[x,ry(x)+dAt(x)])],Ll,'snow'); };
+  const w=Math.max(0.1,Lr/150), obs=solid([[xo-(sides===2?w/2:0),ry(xo)],[xo+(sides===2?w/2:w),ry(xo)],[xo+(sides===2?w/2:w),ry(xo)+h],[xo-(sides===2?w/2:0),ry(xo)+h]],Ll,'obs');
+  if(sides===2){ groups.push(part(0,xo),obs,part(xo,Lr)); } else { groups.push(obs,part(0,Lr)); }
+  const lk=Math.max(1.0,0.12*Lr)/Math.max(o.sMax,0.01);
+  const sAt=x=>dAt(x)*o.gam;
+  const ann={pts:[[0,-6,-hb],[Lr+2.5,Ll,-hb],[xo,0,ry(xo)+dMax+o.sMax*lk+1]],draw:T=>{
+    let g=loads3(T,arrSamples(0,Lr,Math.max(6,Math.round(Lr/1)),x=>[x,0,ry(x)+dAt(x),sAt(x)]),lk);
+    g+=lbl(T,[xo,0,ry(xo)+dMax+o.sMax*lk],fmt(o.sMax,2)+' kN/m²','middle',0,-6,'dl');
+    g+=lbl(T,[Lr,0,ry(Lr)+d1+o.s1*lk],fmt(o.s1,2)+' kN/m²','start',6,-4);
+    g+=dim3(T,[0,-1.6,-hb],[Lr,-1.6,-hb],'L₁ = '+fmt(Lr,2)+' m',[0,16]);
+    g+=dim3(T,[xo,-5,-hb],[Math.min(Lr,xo+ls),-5,-hb],'l<tspan baseline-shift="sub" font-size="9">s</tspan> = '+fmt(ls,2)+' m',[0,16]);
+    g+=dim3(T,[Lr+1.6,0,-hb],[Lr+1.6,Ll,-hb],'L₂ = '+fmt(Ll,2)+' m',[40,10]);
+    g+=lbl(T,[xo,Ll,ry(xo)+h],'este h = '+fmt(h,2)+' m'+(h<dMax?' (lumen peitossa)':''),'start',8,-4);
+    return g; }};
+  return render3D(groups,ann,'3D-kuva kinostumasta esteen kohdalla');
 }
 // --- kaaviot ---
 function svgDrift(h,b2,ls,sMax,s1){

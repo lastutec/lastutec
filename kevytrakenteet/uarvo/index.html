@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>U-arvo ja kosteustekninen tarkastelu – Lastutec</title>
-<meta name="description" content="Rakenteen U-arvo ja eristemäärän arviointi rakennekerroksittain sekä lämpötila- ja vesihöyrykuvaajat ja kastepisteen tarkastelu (SFS-EN ISO 6946, SFS-EN ISO 13788, YM 1010/2017).">
+<title>Eristemäärän laskuri – Lastutec</title>
+<meta name="description" content="Vaadittu lämmöneristepaksuus rakennusosittain ja eristeittäin, jotta YM 1010/2017 mukaiset U-arvon vertailuarvot täyttyvät.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
 <style>
@@ -101,92 +101,46 @@ details.step>.calc{padding:0 12px 10px}
 </style>
 <style>
 [hidden]{display:none!important}
-table.lay td{padding:4px 5px}
-table.lay input[type=number]{width:74px;padding:4px 5px;text-align:right}
-table.lay select{max-width:250px;padding:4px 5px}
-table.lay .mv{display:flex;gap:2px}
-table.lay .mv button{padding:3px 7px}
-table.lay tr.out td{opacity:.45}
-table.lay td.sw{width:14px;padding:0}
-table.lay td.sw i{display:block;width:12px;height:26px;border-radius:2px}
-.stud{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-top:3px}
-.stud input[type=number]{width:60px!important}
-.chart{width:100%;height:auto;display:block}
-.chart text{font:11.5px Arial,Helvetica,sans-serif;fill:var(--ink)}
-.chart .m{fill:var(--muted)}
-.chip2{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:700;border:1px solid currentColor}
-.ok{color:var(--ok)}.bad{color:var(--bad)}.wrn{color:var(--warn)}
-.verdict{border-left:3px solid var(--ok);background:#0d2116;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
-.verdict.w{border-left-color:var(--warn);background:#2a1f08}
-.verdict.b{border-left-color:var(--bad);background:#2a0d0a}
-.verdict b{display:block;margin-bottom:2px}
-.legend2{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted);margin:2px 0 4px}
-@media (max-width:640px){.calc .row{grid-template-columns:minmax(0,1fr)}.chartwrap{overflow-x:auto}.chartwrap .chart{min-width:640px}}
-.legend2 i{display:inline-block;width:16px;height:3px;vertical-align:middle;margin-right:5px}
+.field select{max-width:260px}
+.bar{height:16px;border-radius:3px;background:var(--accent);min-width:2px}
+.barcell{min-width:180px;width:40%}
+.res td.k{font-weight:700}
+tr.cur td{background:var(--accent-soft)}
+tr.cur td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="lt">
-    <div class="brand"><a href="../" class="back">← Ulkovaippa ja liittyvät rakenteet</a><h1>U-arvo ja kosteustekninen tarkastelu</h1></div>
+    <div class="brand"><a href="../" class="back">← Ulkovaippa ja liittyvät rakenteet</a><h1>Eristemäärän laskuri</h1></div>
     <div class="hdr-r"><span class="meta">Työkalu 3 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
 </header>
-<p class="lead">Kokoa rakenne kerroksittain sisältä ulos. Laskuri antaa U-arvon (SFS-EN ISO 6946, rankakerroksille ylä- ja alarajamenetelmä), vertaa sitä YM 1010/2017 vertailuarvoihin, arvioi tarvittavan eristemäärän sekä piirtää lämpötila- ja vesihöyrykuvaajat ja arvioi kastepisteen ja kondenssin muodostumisen (Glaser, SFS-EN ISO 13788).</p>
+<p class="lead">Laskee takaperin, kuinka paksu lämmöneristys tarvitaan, jotta rakennusosan U-arvo täyttää YM 1010/2017 vertailuarvot. Valitse rakennusosa ja eriste, niin näet tarvittavat paksuudet normitalon, matalaenergiatalon ja passiivitalon tasoille.</p>
 
 <div class="grid">
-  <div>
-    <div class="card">
-      <h2>Rakennusosa</h2>
-      <div class="field"><label>Rakennusosa</label><select id="u-part"></select></div>
-      <div class="field" id="u-rbRow"><label>Maan lämmönvastus R<sub>b</sub></label><select id="u-rb"></select></div>
-      <div class="field"><label>Lämmönläpäisyn korjaus ΔU</label><span><input type="number" id="u-dU" step="0.005" value="0"><span class="u">W/m²K</span></span></div>
-      <div class="small" id="u-rs"></div>
-    </div>
-    <div class="card">
-      <h2>Olosuhteet kosteustarkasteluun</h2>
-      <div class="field"><label>Sisälämpötila T<sub>i</sub></label><span><input type="number" id="u-Ti" step="0.5" value="21"><span class="u">°C</span></span></div>
-      <div class="field"><label>Sisäilman suhteellinen kosteus RH<sub>i</sub></label><span><input type="number" id="u-RHi" step="1" value="40"><span class="u">%</span></span></div>
-      <div class="field"><label id="u-TeLab">Ulkolämpötila T<sub>e</sub></label><span><input type="number" id="u-Te" step="0.5" value="-10"><span class="u">°C</span></span></div>
-      <div class="field"><label id="u-RHeLab">Ulkoilman suhteellinen kosteus RH<sub>e</sub></label><span><input type="number" id="u-RHe" step="1" value="90"><span class="u">%</span></span></div>
-      <div class="chips" id="u-climate"></div>
-      <div class="small">Kosteustarkastelu tehdään pysyvässä tilassa (Glaser). Talviolosuhteina käytetään tyypillisesti tammikuun keskiarvoja, esim. Etelä-Suomessa noin −5 °C ja 90 %, Pohjois-Suomessa noin −15 °C.</div>
-    </div>
+  <div class="card">
+    <h2>Lähtötiedot</h2>
+    <div class="field"><label>Rakennusosa</label><select id="e-part"></select></div>
+    <div class="field"><label>Eriste</label><select id="e-ins"></select></div>
+    <div class="field" id="e-lamRow"><label>Oma λ<sub>U</sub></label><span><input type="number" id="e-lam" step="0.001" value="0.035"><span class="u">W/mK</span></span></div>
+    <div class="field" id="e-rbRow"><label>Maan lämmönvastus R<sub>b</sub></label><select id="e-rb"></select></div>
+    <div class="field"><label>Muiden kerrosten lämmönvastus</label><span><input type="number" id="e-Ro" step="0.01" value="0"><span class="u">m²K/W</span></span></div>
+    <div class="small">Ohjekortin likikaavat olettavat, että koko lämmönvastus tulee eristeestä (muut kerrokset = 0). Jos haluat huomioida esim. betonilaatan, levyt tai tuulensuojan, anna niiden lämmönvastus ΣR = Σd/λ.</div>
+    <div class="calc" id="e-rs" style="margin-top:8px"></div>
   </div>
-  <div>
-    <div class="card">
-      <div class="flex"><h2 style="margin:0">Rakennekerrokset sisältä ulos</h2><span class="right flex no-print"><select id="u-addMat" aria-label="Lisättävä materiaali"></select><button class="btn primary" id="u-add">+ Lisää kerros</button></span></div>
-      <div class="tbl-wrap" style="margin-top:8px"><table class="lay" id="u-layers"></table></div>
-      <div class="small" style="margin-top:6px">λ = lämmönjohtavuuden suunnitteluarvo λ<sub>U</sub>, μ = vesihöyryn diffuusiovastuskerroin, s<sub>d</sub> = μ·d. Kalvoille annetaan s<sub>d</sub> suoraan. Rankakerroksessa lasketaan puurangan ja eristeen yhteisvaikutus. Tuulettuvan ilmaraon ulkopuoliset kerrokset jätetään lämpö- ja kosteuslaskennassa huomiotta. Valintapainike ◉ merkitsee eristekerroksen, jonka paksuus mitoitetaan eristemäärän arvioinnissa.</div>
-    </div>
-    <div class="card">
-      <h2>Tulokset</h2>
-      <div class="kpis" id="u-kpis"></div>
-      <div class="tbl-wrap"><table id="u-ref"></table></div>
-      <div id="u-verdict"></div>
-    </div>
+  <div class="card">
+    <h2>Tarvittava eristepaksuus</h2>
+    <div class="kpis" id="e-kpis"></div>
+    <div class="tbl-wrap"><table class="res" id="e-tbl"></table></div>
+    <div class="small" style="margin-top:6px">Kaava: d = (1/U<sub>vert</sub> − R<sub>si</sub> − R<sub>se</sub> − R<sub>muut</sub>) · λ<sub>U</sub>. Paksuus pyöristetään ylöspäin 10 mm:iin, ja pyöristetyllä paksuudella saatu U-arvo näytetään. Puurangat, kiinnikkeet ja kylmäsillat heikentävät todellista U-arvoa, joten rankarakenteissa varaa noin 10–15 % lisäpaksuutta.</div>
   </div>
 </div>
 
 <div class="card">
-  <h2>Lämpötila rakenteessa</h2>
-  <div class="legend2"><span><i style="background:var(--accent)"></i>lämpötila T</span><span><i style="background:#7fb2e6"></i>sisäilman kastepiste T<sub>d</sub></span></div>
-  <div class="chartwrap"><svg class="chart" id="u-chT" viewBox="0 0 900 340" role="img" aria-label="Lämpötilajakauma rakenteessa"></svg></div>
+  <div class="flex"><h2 style="margin:0">Vertailu eristeittäin</h2><span class="right flex"><label class="small">Taso</label><select id="e-lvl"></select></span></div>
+  <div class="tbl-wrap" style="margin-top:8px"><table class="res" id="e-cmp"></table></div>
 </div>
-<div class="card">
-  <h2>Vesihöyryn osapaine ja kyllästyspaine</h2>
-  <div class="legend2"><span><i style="background:#7fb2e6"></i>vesihöyryn osapaine p</span><span><i style="background:var(--bad)"></i>kyllästyskosteuspaine p<sub>sat</sub></span><span><i style="background:var(--warn)"></i>suhteellinen kosteus RH (oikea akseli)</span></div>
-  <div class="chartwrap"><svg class="chart" id="u-chP" viewBox="0 0 900 360" role="img" aria-label="Vesihöyryn osapaine ja kyllästyspaine rakenteessa"></svg></div>
-  <details class="step"><summary>Rajapintojen arvot</summary><div class="tbl-wrap" style="padding:0 12px 10px"><table id="u-iface"></table></div></details>
-</div>
-<div class="card">
-  <h2>Eristemäärän arviointi</h2>
-  <div class="flex"><label class="small">Tavoite</label><select id="u-target"></select><span id="u-tcWrap"><input type="number" id="u-tc" step="0.01" value="0.17" style="width:80px"> <span class="small">W/m²K</span></span></div>
-  <div class="calc" id="u-ins" style="margin-top:8px"></div>
-</div>
-<div class="card">
-  <details class="step"><summary>U-arvon laskenta välivaiheineen</summary><div class="calc" id="u-steps"></div></details>
-</div>
-<p class="small">Työkalu on suunnittelun apuväline – katso etusivun vastuuvapautuslauseke. Viittaukset: SFS-EN ISO 6946, SFS-EN ISO 13788, YM 1010/2017 (vertailuarvot), RakMK C4 (pintavastukset, ilmavälit, maan lämmönvastus). Materiaaliarvot ovat tyypillisiä suunnitteluarvoja; tarkista tuotekohtaiset λ<sub>U</sub>- ja μ-arvot valmistajalta.</p>
+<p class="small">Työkalu on suunnittelun apuväline – katso etusivun vastuuvapautuslauseke. Viittaukset: YM 1010/2017 (vertailuarvot), RakMK C4 (pintavastukset ja maan lämmönvastus), ohjekortti 2.1 Rakennusfysiikka. λ<sub>U</sub>-arvot ovat tyypillisiä suunnitteluarvoja; tarkista tuotekohtainen arvo valmistajalta.</p>
 </div>
 <script>
 (function(){
@@ -195,309 +149,67 @@ const $=s=>document.getElementById(s);
 function fmt(v,d){ if(v===null||v===undefined||!isFinite(v)) return '–'; if(Math.abs(v)<0.5*Math.pow(10,-d)) v=0;
   let s=v.toFixed(d); let [i,f]=s.split('.'); const neg=i.startsWith('-'); if(neg)i=i.slice(1);
   i=i.replace(/\B(?=(\d{3})+(?!\d))/g,' '); return (neg?'−':'')+i+(f?','+f:''); }
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const row=(d,f)=>`<div class="row"><div class="d">${d}</div><div class="f">${f}</div></div>`;
-const lerp=(x,x0,x1,y0,y1)=>x1===x0?y0:y0+(y1-y0)*(x-x0)/(x1-x0);
-const KEY='lastutec-uarvo-v1';
-
-/* ---------- lähtötaulukot ---------- */
+const KEY='lastutec-eristemaara-v1';
+// pintavastukset ohjekortin 2.1 likikaavojen mukaisesti (k = (1/U − ΣR)·1000)
 const PARTS=[
- {id:'ws',n:'Ulkoseinä',dir:'hor',ref:[0.17,0.26,0.12,0.10],k:5712},
- {id:'mp',n:'Massiivipuuseinä (b ≥ 180 mm)',dir:'hor',ref:[0.40,0.60,null,null],k:2330},
- {id:'yp',n:'Yläpohja',dir:'up',ref:[0.09,0.14,0.08,0.07],k:10971},
- {id:'ua',n:'Ulkoilmaan rajoittuva alapohja',dir:'down',ref:[0.09,0.14,0.08,0.07],k:10901},
- {id:'ra',n:'Ryömintätilaan rajoittuva alapohja',dir:'down',ref:[0.17,0.26,0.10,0.08],k:5672,crawl:true},
- {id:'ml',n:'Maanvarainen lattia',dir:'down',ref:[0.16,0.24,0.12,0.10],k:5580,ground:'floor'},
- {id:'mw',n:'Maanpaineseinä',dir:'hor',ref:[0.16,0.24,0.12,0.10],k:5830,ground:'wall'}];
+ {id:'ws',n:'Ulkoseinä',Rsi:0.13,Rse:0.04,ref:[0.17,0.26,0.12,0.10]},
+ {id:'mp',n:'Massiivipuuseinä (b ≥ 180 mm)',Rsi:0.13,Rse:0.04,ref:[0.40,0.60,null,null],ins:'mpuu'},
+ {id:'yp',n:'Yläpohja',Rsi:0.10,Rse:0.04,ref:[0.09,0.14,0.08,0.07]},
+ {id:'ua',n:'Ulkoilmaan rajoittuva alapohja',Rsi:0.17,Rse:0.04,ref:[0.09,0.14,0.08,0.07]},
+ {id:'ra',n:'Ryömintätilaan rajoittuva alapohja',Rsi:0.17,Rse:0.04,ref:[0.17,0.26,0.10,0.08]},
+ {id:'ml',n:'Maanvarainen lattia',Rsi:0.17,Rse:0,ref:[0.16,0.24,0.12,0.10],ground:'floor'},
+ {id:'mw',n:'Maanpaineseinä',Rsi:0.17,Rse:0,ref:[0.16,0.24,0.12,0.10],ground:'wall'}];
 const REFN=['Normitalo 2010, lämmin','Normitalo 2010, puolilämmin','Matalaenergiatalo','Passiivitalo'];
-const RSI={up:0.10,hor:0.13,down:0.17}, DIRN={up:'ylös',hor:'vaakaan',down:'alas'};
-const RB={floor:[['sh-r','Savi, hiekka, sora (salaojitettu) – reuna-alue',0.8],['sh-s','Savi, hiekka, sora – sisäalue',3.2],['hm-r','Hiesu, hieta, salaojittamaton moreeni – reuna-alue',0.5],['hm-s','Hiesu, hieta, moreeni – sisäalue',2.0],['k-r','Kallio – reuna-alue',0.3],['k-s','Kallio – sisäalue',1.2]],
- wall:[['sh-r','Savi, hiekka, sora (salaojitettu) – reuna-alue',0.4],['sh-s','Savi, hiekka, sora – sisäalue',1.6],['hm-r','Hiesu, hieta, moreeni – reuna-alue',0.25],['hm-s','Hiesu, hieta, moreeni – sisäalue',1.0],['k-r','Kallio – reuna-alue',0.15],['k-s','Kallio – sisäalue',0.6]]};
-const RG_D=[0,5,7,13,15,25,50,100,300], RG={up:[0,.11,.13,.15,.16,.16,.16,.16,.16],hor:[0,.11,.13,.15,.17,.18,.18,.18,.18],down:[0,.11,.13,.15,.17,.19,.21,.22,.23]};
-function Rg(d,dir){ const t=RG[dir]; if(d>=300) return t[8]; for(let i=0;i<8;i++) if(d<=RG_D[i+1]) return lerp(d,RG_D[i],RG_D[i+1],t[i],t[i+1]); return t[8]; }
-const MAT={
- kipsi:{n:'Kipsilevy',lam:0.25,mu:10,d:13,c:'#d9d4c7'},
- tskipsi:{n:'Tuulensuojakipsilevy',lam:0.25,mu:10,d:9,c:'#cfc8b6'},
- pe:{n:'Höyrynsulkumuovi PE 0,2 mm',lam:0.2,sd:70,d:0.2,film:1,c:'#5fa8e8'},
- alu:{n:'Alumiinipinnoite / -folio',lam:0.2,sd:1500,d:0.1,film:1,c:'#b9c6d3'},
- ilmp:{n:'Ilmansulkupaperi',lam:0.2,sd:0.2,d:0.3,film:1,c:'#a7c7e0'},
- kalvo:{n:'Tuulensuojakalvo (diffuusioavoin)',lam:0.2,sd:0.05,d:0.5,film:1,c:'#8fb5d6'},
- mv37:{n:'Mineraalivilla λ 0,037',lam:0.037,mu:1,d:200,c:'#e0b33a'},
- mv33:{n:'Mineraalivilla λ 0,033',lam:0.033,mu:1,d:200,c:'#e6bd4c'},
- kv:{n:'Kivivilla λ 0,036',lam:0.036,mu:1,d:200,c:'#c9a56a'},
- tsv:{n:'Tuulensuojavilla λ 0,031',lam:0.031,mu:1,d:50,c:'#d8a83a'},
- puuk:{n:'Puukuitueriste λ 0,040',lam:0.040,mu:2,d:200,c:'#b58c55'},
- eps:{n:'EPS 100',lam:0.036,mu:60,d:100,c:'#eeeeee'},
- xps:{n:'XPS',lam:0.034,mu:150,d:100,c:'#9fd3c7'},
- pir:{n:'PIR-levy (ilman pinnoitetta)',lam:0.022,mu:60,d:100,c:'#f2e28a'},
- puu:{n:'Puu (havupuu)',lam:0.12,mu:50,d:22,c:'#9c6b3c'},
- clt:{n:'Massiivipuu / CLT',lam:0.12,mu:50,d:200,c:'#a8743f'},
- vaneri:{n:'Vaneri',lam:0.13,mu:200,d:12,c:'#b88550'},
- osb:{n:'OSB-levy',lam:0.13,mu:200,d:12,c:'#b07d48'},
- betoni:{n:'Betoni',lam:1.7,mu:130,d:150,c:'#8a8a8a'},
- kevytb:{n:'Kevytbetoni',lam:0.12,mu:6,d:300,c:'#bdbdbd'},
- tiili:{n:'Poltettu tiili',lam:0.6,mu:10,d:130,c:'#b5523b'},
- rapp:{n:'Kalkkisementtirappaus',lam:0.8,mu:20,d:20,c:'#a9a9a0'},
- ksora:{n:'Kevytsora',lam:0.10,mu:2,d:200,c:'#9b7b5c'},
- kermi:{n:'Bitumikermi',lam:0.23,mu:50000,d:4,c:'#333333'},
- gapc:{n:'Tuulettumaton ilmarako',gap:'c',d:25,c:'#1d2a33'},
- gapv:{n:'Tuulettuva ilmarako',gap:'v',d:25,c:'#0f1a22'},
- pan:{n:'Ulkoverhous (paneeli)',lam:0.12,mu:50,d:28,c:'#8a5a30'},
- oma:{n:'Oma materiaali',lam:0.1,mu:10,d:50,c:'#7a7a7a'}};
-const mk=(k,o)=>Object.assign({m:k,d:MAT[k].d,lam:MAT[k].lam,mu:MAT[k].mu,sd:MAT[k].sd,stud:null,v:false,n:MAT[k].n},o||{});
-function defaults(){ return {part:'ws',rb:'hm-r',dU:0,Ti:21,RHi:40,Te:-10,RHe:90,target:'0',tc:0.17,
-  L:[mk('kipsi'),mk('pe'),mk('mv37',{d:200,stud:{w:48,k:600,lam:0.12},v:true}),mk('tsv'),mk('gapv'),mk('pan')]}; }
+const RB={floor:[['sh-r','Savi, hiekka, sora – reuna-alue',0.8],['sh-s','Savi, hiekka, sora – sisäalue',3.2],['hm-r','Hiesu, hieta, moreeni – reuna-alue',0.5],['hm-s','Hiesu, hieta, moreeni – sisäalue',2.0],['k-r','Kallio – reuna-alue',0.3],['k-s','Kallio – sisäalue',1.2]],
+ wall:[['sh-r','Savi, hiekka, sora – reuna-alue',0.4],['sh-s','Savi, hiekka, sora – sisäalue',1.6],['hm-r','Hiesu, hieta, moreeni – reuna-alue',0.25],['hm-s','Hiesu, hieta, moreeni – sisäalue',1.0],['k-r','Kallio – reuna-alue',0.15],['k-s','Kallio – sisäalue',0.6]]};
+const INS=[
+ ['lv37','Lasivilla λ 0,037',0.037],['lv35','Lasivilla λ 0,035',0.035],['lv33','Lasivilla λ 0,033',0.033],['lv31','Lasivilla λ 0,031',0.031],
+ ['kv36','Kivivilla λ 0,036',0.036],['kv34','Kivivilla λ 0,034',0.034],
+ ['puh','Puhallusvilla, lasivilla λ 0,041',0.041],['sel','Puhallettava selluvilla λ 0,040',0.040],['puuk','Puukuitueriste λ 0,040',0.040],
+ ['eps','EPS 100 λ 0,036',0.036],['epsg','Grafiitti-EPS (harmaa) λ 0,031',0.031],['xps','XPS λ 0,034',0.034],
+ ['pir','PIR / PUR λ 0,022',0.022],['fen','Fenolivaahto λ 0,020',0.020],['ksora','Kevytsora λ 0,10',0.10],['mpuu','Massiivipuu / CLT λ 0,12',0.12],['oma','Oma λ',null]];
 let st=null; try{ st=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
-if(!st||!Array.isArray(st.L)) st=defaults();
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify(st)); }catch(e){} }
+if(!st) st={part:'ws',ins:'lv37',lam:0.035,rb:'hm-r',Ro:0,lvl:'0'};
+const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(st)); }catch(e){} };
 const part=()=>PARTS.find(p=>p.id===st.part)||PARTS[0];
+const insLam=id=>{ const i=INS.find(x=>x[0]===id); return i&&i[2]!=null?i[2]:(+st.lam||0.035); };
 
-/* ---------- fysiikka ---------- */
-const psat=T=>T>=0?610.5*Math.exp(17.269*T/(237.3+T)):610.5*Math.exp(21.875*T/(265.5+T));
-function dew(p){ const a=Math.log(p/610.5); const t1=237.3*a/(17.269-a); return t1>=0?t1:265.5*a/(21.875-a); }
-const sdOf=l=>MAT[l.m].film?(+l.sd||0):MAT[l.m].gap?(+l.d||0)/1000:(+l.mu||0)*(+l.d||0)/1000;
-const isIns=l=>!MAT[l.m].film&&!MAT[l.m].gap&&(+l.lam)<=0.06;
+$('e-part').innerHTML=PARTS.map(p=>`<option value="${p.id}">${p.n}</option>`).join('');
+$('e-ins').innerHTML=INS.map(i=>`<option value="${i[0]}">${i[1]}</option>`).join('');
+function sync(){ const P=part();
+  $('e-part').value=st.part; $('e-ins').value=st.ins; $('e-lam').value=st.lam; $('e-Ro').value=st.Ro;
+  $('e-lamRow').hidden=st.ins!=='oma'; $('e-rbRow').hidden=!P.ground;
+  if(P.ground){ const o=RB[P.ground]; if(!o.find(r=>r[0]===st.rb)) st.rb='hm-r'; $('e-rb').innerHTML=o.map(r=>`<option value="${r[0]}" ${r[0]===st.rb?'selected':''}>${r[1]} – Rb ${fmt(r[2],2)}</option>`).join(''); }
+  $('e-lvl').innerHTML=REFN.map((n,i)=>P.ref[i]==null?'':`<option value="${i}">${n} – U ≤ ${fmt(P.ref[i],2)}</option>`).join('');
+  if(P.ref[+st.lvl]==null) st.lvl='0'; $('e-lvl').value=st.lvl; }
+$('e-part').onchange=()=>{ const P0=part(); st.part=$('e-part').value; const P=part(); if(P.ins) st.ins=P.ins; else if(P0.ins&&st.ins===P0.ins) st.ins='lv37'; sync(); run(); };
+$('e-ins').onchange=()=>{ st.ins=$('e-ins').value; sync(); run(); };
+$('e-rb').onchange=()=>{ st.rb=$('e-rb').value; run(); };
+$('e-lvl').onchange=()=>{ st.lvl=$('e-lvl').value; run(); };
+['lam','Ro'].forEach(k=>$('e-'+k).addEventListener('input',()=>{ const v=parseFloat($('e-'+k).value); if(isFinite(v)&&v>=0){ st[k]=v; run(); } }));
 
-// U-arvo; dOverride = {i, d} kokeiluun
-function thermal(dOv){
-  const P=part(), dir=P.dir, Ls=st.L.map((l,i)=>dOv&&dOv.i===i?{...l,d:dOv.d}:l);
-  const iv=Ls.findIndex(l=>MAT[l.m].gap==='v'), eff=iv>=0?Ls.slice(0,iv):Ls.slice();
-  const rbRow=P.ground?(RB[P.ground].find(r=>r[0]===st.rb)||RB[P.ground][P.ground==='floor'?2:2]):null;
-  const Rsi=RSI[dir], Rse=P.ground?rbRow[2]:(iv>=0?RSI[dir]:(P.crawl?0.17:0.04));
-  const rse_txt=P.ground?'R<sub>b</sub> = '+fmt(Rse,2)+' (maa, '+rbRow[1]+')':iv>=0?'R<sub>se</sub> = R<sub>si</sub> = '+fmt(Rse,2)+' (tuulettuva ilmarako)':P.crawl?'R<sub>se</sub> = 0,17 (ryömintätila)':'R<sub>se</sub> = 0,04';
-  const lay=eff.map(l=>{ const M=MAT[l.m], d=(+l.d||0)/1000;
-    if(M.gap) return {l,Rb:Rg(+l.d||0,dir),Ra:Rg(+l.d||0,dir),f:0};
-    const Rb=d/(+l.lam||1e9);
-    if(l.stud&&+l.stud.k>0&&+l.stud.w>0){ const f=Math.min(1,(+l.stud.w)/(+l.stud.k)); return {l,Rb,Ra:d/(+l.stud.lam||0.12),f,lamEq:f*(+l.stud.lam)+(1-f)*(+l.lam)}; }
-    return {l,Rb,Ra:Rb,f:0}; });
-  const studs=lay.filter(x=>x.f>0), fa=studs.length?studs[0].f:0;
-  const RTb=Rsi+Rse+lay.reduce((s,x)=>s+x.Rb,0), RTa=Rsi+Rse+lay.reduce((s,x)=>s+(x.f>0?x.Ra:x.Rb),0);
-  let RT,Rup=null,Rlo=null;
-  lay.forEach(x=>x.Rlo=x.f>0?((+x.l.d||0)/1000)/x.lamEq:x.Rb);
-  if(studs.length){ Rup=1/(fa/RTa+(1-fa)/RTb); Rlo=Rsi+Rse+lay.reduce((s,x)=>s+x.Rlo,0); RT=(Rup+Rlo)/2; } else RT=RTb;
-  const U=1/RT+(+st.dU||0);
-  return {P,Ls,iv,eff,lay,Rsi,Rse,rse_txt,RT,Rup,Rlo,RTa,RTb,fa,U,rbRow};
-}
-
-/* ---------- kosteus (Glaser) ---------- */
-function moisture(th){
-  const Ti=+st.Ti, Te=+st.Te, pi=st.RHi/100*psat(Ti), pe=st.RHe/100*psat(Te);
-  const sumLo=th.lay.reduce((s,x)=>s+x.Rlo,0), kR=sumLo>0?(th.RT-th.Rsi-th.Rse)/sumLo:1;
-  const q=(Ti-Te)/th.RT; // W/m²
-  const pts=[]; let x=0,R=th.Rsi,s=0;
-  const Tof=R=>Ti-q*R;
-  pts.push({x:0,R,s,T:Tof(R),li:-1,edge:true});
-  const bnd=[{x:0,T:Tof(R),s:0,R}];
-  th.lay.forEach((y,i)=>{ const d=+y.l.d||0, Ri=y.Rlo*kR, sd=sdOf(y.l), N=MAT[y.l.m].film?1:16;
-    for(let k=1;k<=N;k++){ pts.push({x:x+d*k/N,R:R+Ri*k/N,s:s+sd*k/N,li:i,edge:k===N}); }
-    x+=d; R+=Ri; s+=sd; bnd.push({x,T:Tof(R),s,R}); });
-  pts.forEach(p=>{ p.T=Tof(p.R); p.ps=psat(p.T); });
-  const S=s, X=x;
-  // venytetty lanka (alin kupera reitti p ≤ p_sat)
-  const Tsi=pts[0].T, psi=psat(Tsi), A={s:0,p:Math.min(pi,psi)}, B={s:S,p:Math.min(pe,pts[pts.length-1].ps)};
-  // ryhmitellään saman s-arvon pisteet
-  const cand=[]; pts.forEach(p=>{ const last=cand[cand.length-1]; if(last&&Math.abs(p.s-last.s)<1e-7){ if(p.ps<last.p){ last.p=p.ps; last.ref=p; } } else cand.push({s:p.s,p:p.ps,ref:p}); });
-  const hull=[A]; let cur=A, idx=0;
-  if(S<=1e-9){ hull.push(B); }
-  else { let guard=0;
-    while(guard++<5000){ let best=null,bs=Infinity;
-      for(let j=idx;j<cand.length;j++){ const c=cand[j]; if(c.s<=cur.s+1e-9) continue; const sl=(c.p-cur.p)/(c.s-cur.s); if(sl<bs-1e-12){ bs=sl; best={...c,j}; } }
-      const slB=(B.p-cur.p)/(B.s-cur.s||1e-12);
-      if(!best||slB<=bs+1e-12){ hull.push(B); break; }
-      hull.push({s:best.s,p:best.p,touch:true,ref:best.ref}); cur=best; idx=best.j+1; } }
-  const pAt=s=>{ for(let i=0;i<hull.length-1;i++){ const a=hull[i],b=hull[i+1]; if(s<=b.s+1e-12) return b.s-a.s<1e-12?b.p:lerp(s,a.s,b.s,a.p,b.p); } return hull[hull.length-1].p; };
-  pts.forEach(p=>{ p.p=pAt(p.s); p.rh=Math.min(1,p.p/p.ps); });
-  // kondenssivyöhykkeet
-  const d0=2e-10, zones=[];
-  for(let i=1;i<hull.length-1;i++){ const h=hull[i]; if(!h.touch) continue;
-    const prev=hull[i-1],next=hull[i+1]; const gin=d0*(prev.p-h.p)/Math.max(h.s-prev.s,1e-9), gout=d0*(h.p-next.p)/Math.max(next.s-h.s,1e-9);
-    const z=zones[zones.length-1];
-    if(z&&Math.abs(h.s-z.s1)<0.05*Math.max(S,1e-3)&&i===z.lastI+1){ z.s1=h.s; z.x1=h.ref.x; z.gout=gout; z.lastI=i; }
-    else zones.push({s0:h.s,s1:h.s,x0:h.ref.x,x1:h.ref.x,gin,gout,li:h.ref.li,lastI:i}); }
-  zones.forEach(z=>{ z.g=(z.gin-z.gout)*86400*1000; }); // g/m²/vrk
-  const real=zones.filter(z=>z.g>0.001);
-  const Td=dew(pi); let dewX=null,dewLi=null;
-  for(let i=1;i<pts.length;i++){ if(pts[i].T<=Td&&pts[i-1].T>Td){ const a=pts[i-1],b=pts[i]; dewX=lerp(Td,a.T,b.T,a.x,b.x); dewLi=b.li; break; } }
-  const surfRH=pi/psi, fRsi=(Tsi-Te)/(Ti-Te);
-  return {Ti,Te,pi,pe,q,pts,bnd,S,X,hull,zones:real,Td,dewX,dewLi,Tsi,psi,surfRH,fRsi,surfCond:pi>psi};
-}
-
-/* ---------- käyttöliittymä ---------- */
-function fillSelects(){
-  $('u-part').innerHTML=PARTS.map(p=>`<option value="${p.id}">${p.n}</option>`).join('');
-  $('u-addMat').innerHTML=Object.entries(MAT).map(([k,m])=>`<option value="${k}">${m.n}</option>`).join('');
-  $('u-addMat').value='mv37';
-}
-function syncInputs(){
-  const P=part();
-  $('u-part').value=st.part; $('u-dU').value=st.dU; ['Ti','RHi','Te','RHe'].forEach(k=>$('u-'+k).value=st[k]);
-  $('u-rbRow').hidden=!P.ground;
-  if(P.ground){ const opts=RB[P.ground]; if(!opts.find(r=>r[0]===st.rb)) st.rb='hm-r'; $('u-rb').innerHTML=opts.map(r=>`<option value="${r[0]}" ${r[0]===st.rb?'selected':''}>${r[1]} – Rb ${fmt(r[2],2)}</option>`).join(''); }
-  $('u-TeLab').innerHTML=P.ground?'Maan lämpötila T<sub>e</sub>':P.crawl?'Ryömintätilan lämpötila T<sub>e</sub>':'Ulkolämpötila T<sub>e</sub>';
-  $('u-RHeLab').innerHTML=P.ground?'Maan suhteellinen kosteus RH<sub>e</sub>':P.crawl?'Ryömintätilan suhteellinen kosteus RH<sub>e</sub>':'Ulkoilman suhteellinen kosteus RH<sub>e</sub>';
-  $('u-climate').innerHTML=(P.ground?[['Maa +5 °C / 100 %',5,100]]:P.crawl?[['Ryömintätila +2 °C / 95 %',2,95],['Ryömintätila −5 °C / 90 %',-5,90]]:[['Etelä-Suomi −5 °C / 90 %',-5,90],['Keski-Suomi −10 °C / 90 %',-10,90],['Pohjois-Suomi −15 °C / 88 %',-15,88],['Pakkasjakso −20 °C / 85 %',-20,85]])
-    .map(c=>`<button type="button" data-te="${c[1]}" data-rh="${c[2]}">${c[0]}</button>`).join('');
-  const tg=$('u-target'); tg.innerHTML=REFN.map((n,i)=>P.ref[i]==null?'':`<option value="${i}">${n} – U ≤ ${fmt(P.ref[i],2)}</option>`).join('')+'<option value="c">Oma tavoite</option>';
-  if(st.target!=='c'&&P.ref[+st.target]==null) st.target='0'; tg.value=st.target; $('u-tcWrap').hidden=st.target!=='c'; $('u-tc').value=st.tc;
-}
-$('u-climate').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; st.Te=+b.dataset.te; st.RHe=+b.dataset.rh; $('u-Te').value=st.Te; $('u-RHe').value=st.RHe; run(); });
-$('u-part').onchange=()=>{ const was=part(); st.part=$('u-part').value; const P=part();
-  if(P.ground&&!was.ground){ st.Te=5; st.RHe=100; } else if(!P.ground&&was.ground){ st.Te=-10; st.RHe=90; }
-  if(P.crawl&&!was.crawl){ st.Te=2; st.RHe=95; }
-  syncInputs(); run(); };
-$('u-rb').onchange=()=>{ st.rb=$('u-rb').value; run(); };
-['dU','Ti','RHi','Te','RHe'].forEach(k=>$('u-'+k).addEventListener('input',()=>{ const v=parseFloat($('u-'+k).value); if(isFinite(v)){ st[k]=v; run(); } }));
-$('u-target').onchange=()=>{ st.target=$('u-target').value; $('u-tcWrap').hidden=st.target!=='c'; run(); };
-$('u-tc').addEventListener('input',()=>{ const v=parseFloat($('u-tc').value); if(v>0){ st.tc=v; run(); } });
-$('u-add').onclick=()=>{ const k=$('u-addMat').value; const iv=st.L.findIndex(l=>MAT[l.m].gap==='v'); const l=mk(k);
-  if(iv>=0&&k!=='pan'&&k!=='gapv') st.L.splice(iv,0,l); else st.L.push(l); renderLayers(); run(); };
-
-function renderLayers(){
-  const th=thermal(), out=i=>th.iv>=0&&i>th.iv;
-  let h='<thead><tr><th></th><th class="l">#</th><th class="l">Materiaali</th><th>d [mm]</th><th>λ [W/mK]</th><th>μ / s<sub>d</sub></th><th>R [m²K/W]</th><th>s<sub>d</sub> [m]</th><th title="Mitoitettava eristekerros">◉</th><th class="l no-print"></th></tr></thead><tbody>';
-  st.L.forEach((l,i)=>{ const M=MAT[l.m], y=th.lay[i];
-    const Rtxt=M.gap==='v'?'tuuletettu':out(i)?'–':y?(y.f>0?fmt(y.Rlo,3)+'*':fmt(y.Rb,3)):'–';
-    h+=`<tr class="${out(i)||M.gap==='v'?'out':''}"><td class="sw"><i style="background:${M.c}"></i></td><td class="l">${i+1}</td>
-      <td class="l"><select data-i="${i}" data-k="m">${Object.entries(MAT).map(([k,m])=>`<option value="${k}" ${k===l.m?'selected':''}>${m.n}</option>`).join('')}</select>
-      ${!M.film&&!M.gap?`<div class="stud"><label><input type="checkbox" data-i="${i}" data-k="studOn" ${l.stud?'checked':''}> rankakerros</label>${l.stud?`<span>rangan leveys <input type="number" step="1" data-i="${i}" data-k="sw" value="${l.stud.w}"> mm, jako k <input type="number" step="10" data-i="${i}" data-k="sk" value="${l.stud.k}"> mm, λ <input type="number" step="0.01" data-i="${i}" data-k="sl" value="${l.stud.lam}"></span>`:''}</div>`:''}</td>
-      <td><input type="number" step="any" data-i="${i}" data-k="d" value="${l.d}" ${M.film?'title="Kalvon paksuus ei vaikuta laskentaan"':''}></td>
-      <td>${M.gap?'<span class="small">R<sub>g</sub></span>':`<input type="number" step="0.001" data-i="${i}" data-k="lam" value="${l.lam}">`}</td>
-      <td>${M.gap?'<span class="small">μ = 1</span>':M.film?`<input type="number" step="any" data-i="${i}" data-k="sd" value="${l.sd}" title="s_d [m]"> <span class="small">m</span>`:`<input type="number" step="any" data-i="${i}" data-k="mu" value="${l.mu}">`}</td>
-      <td class="num">${Rtxt}</td><td class="num">${M.gap==='v'||out(i)?'–':fmt(sdOf(l),M.film||sdOf(l)>=10?1:3)}</td>
-      <td>${isIns(l)?`<input type="radio" name="var" data-i="${i}" data-k="v" ${l.v?'checked':''} aria-label="Mitoitettava eriste">`:''}</td>
-      <td class="l no-print"><span class="mv"><button class="btn ghost" data-mv="${i}|-1" title="Siirrä sisemmäksi">↑</button><button class="btn ghost" data-mv="${i}|1" title="Siirrä ulommaksi">↓</button><button class="btn ghost danger" data-del="${i}" title="Poista">✕</button></span></td></tr>`; });
-  h+='</tbody>';
-  $('u-layers').innerHTML=h;
-}
-const LT=$('u-layers');
-LT.addEventListener('change',e=>{ const t=e.target,i=+t.dataset.i,k=t.dataset.k,l=st.L[i]; if(!l) return;
-  if(k==='m'){ const keepD=MAT[t.value].gap||MAT[t.value].film?MAT[t.value].d:l.d; st.L[i]=mk(t.value,{d:keepD,v:l.v&&isIns(mk(t.value))}); renderLayers(); run(); return; }
-  if(k==='studOn'){ l.stud=t.checked?{w:48,k:600,lam:0.12}:null; renderLayers(); run(); return; }
-  if(k==='v'){ st.L.forEach((x,j)=>x.v=j===i); run(); return; }
-  edit(t); renderLayers(); });
-LT.addEventListener('input',e=>{ const t=e.target; if(t.type==='number') edit(t); });
-function edit(t){ const i=+t.dataset.i,k=t.dataset.k,l=st.L[i],v=parseFloat(t.value); if(!l||!isFinite(v)) return;
-  if(k==='sw') l.stud.w=v; else if(k==='sk') l.stud.k=v; else if(k==='sl') l.stud.lam=v; else l[k]=v; run(true); }
-LT.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return;
-  if(b.dataset.del){ st.L.splice(+b.dataset.del,1); }
-  else if(b.dataset.mv){ const [i,d]=b.dataset.mv.split('|').map(Number),j=i+d; if(j<0||j>=st.L.length) return; [st.L[i],st.L[j]]=[st.L[j],st.L[i]]; }
-  renderLayers(); run(); });
-
-/* ---------- kuvaajat ---------- */
-function xmap(m,W0,W1){ // kerrosrajat → px, kalvoille vähimmäisleveys
-  const ds=m.bnd.map((b,i)=>i?b.x-m.bnd[i-1].x:0).slice(1); const minW=6, tot=W1-W0;
-  let sc=tot/Math.max(m.X,1e-6); for(let it=0;it<6;it++){ const extra=ds.reduce((s,d)=>s+Math.max(0,minW-d*sc),0); sc=(tot-extra)/Math.max(ds.reduce((s,d)=>s+(d*sc<minW?0:d),0),1e-6); }
-  const px=[W0]; ds.forEach(d=>px.push(px[px.length-1]+Math.max(minW,d*sc)));
-  const f=x=>{ for(let i=1;i<m.bnd.length;i++){ if(x<=m.bnd[i].x+1e-9){ const a=m.bnd[i-1].x,b=m.bnd[i].x; return b-a<1e-12?px[i]:lerp(x,a,b,px[i-1],px[i]); } } return px[px.length-1]; };
-  f.px=px; return f; }
-function axisTicks(lo,hi,n){ const span=hi-lo||1, raw=span/n, mag=Math.pow(10,Math.floor(Math.log10(raw))), st2=[1,2,2.5,5,10].map(k=>k*mag).find(k=>k>=raw)||raw; const t=[]; for(let v=Math.ceil(lo/st2)*st2;v<=hi+1e-9;v+=st2) t.push(+v.toFixed(6)); return {t,step:st2}; }
-function layerBands(th,m,X,y0,y1){ let g=''; th.lay.forEach((y,i)=>{ const a=X.px[i],b=X.px[i+1],M=MAT[y.l.m];
-    g+=`<rect x="${a}" y="${y0}" width="${b-a}" height="${y1-y0}" fill="${M.c}" opacity=".16"/>`;
-    if(y.f>0){ for(let k=0;k<3;k++){ const yy=y0+(y1-y0)*(k+0.5)/3; g+=`<rect x="${a}" y="${yy-6}" width="${b-a}" height="12" fill="#9c6b3c" opacity=".22"/>`; } }
-    g+=`<line x1="${b}" y1="${y0}" x2="${b}" y2="${y1}" stroke="var(--line)"/>`;
-    if(b-a>14) g+=`<text x="${(a+b)/2}" y="${y0+13}" text-anchor="middle" class="m">${i+1}</text>`; });
-  g+=`<line x1="${X.px[0]}" y1="${y0}" x2="${X.px[0]}" y2="${y1}" stroke="var(--line)"/>`;
-  g+=`<text x="${X.px[0]+4}" y="${y1-6}" class="m">sisä</text><text x="${X.px[X.px.length-1]-4}" y="${y1-6}" text-anchor="end" class="m">ulko</text>`;
-  return g; }
-function chartT(th,m){
-  const W0=70,W1=830,y0=20,y1=300, X=xmap(m,W0,W1);
-  const Tmin=Math.min(m.Te,m.Td)-2, Tmax=Math.max(m.Ti,m.Td)+2, Y=T=>lerp(T,Tmin,Tmax,y1,y0);
-  let g=layerBands(th,m,X,y0,y1);
-  const tk=axisTicks(Tmin,Tmax,6); tk.t.forEach(v=>{ g+=`<line x1="${W0}" y1="${Y(v)}" x2="${W1}" y2="${Y(v)}" stroke="var(--line2)"/><text x="${W0-8}" y="${Y(v)+4}" text-anchor="end" class="m">${fmt(v,tk.step<1?1:0)}</text>`; });
-  g+=`<text x="16" y="${(y0+y1)/2}" transform="rotate(-90 16 ${(y0+y1)/2})" text-anchor="middle" class="m">°C</text>`;
-  // ilma-osuudet
-  g+=`<line x1="${W0-40}" y1="${Y(m.Ti)}" x2="${W0}" y2="${Y(m.Tsi)}" stroke="var(--accent)" stroke-width="2.4" stroke-dasharray="3 3"/>`;
-  const Tse=m.pts[m.pts.length-1].T; g+=`<line x1="${W1}" y1="${Y(Tse)}" x2="${W1+40}" y2="${Y(m.Te)}" stroke="var(--accent)" stroke-width="2.4" stroke-dasharray="3 3"/>`;
-  g+=`<polyline points="${m.pts.map(p=>X(p.x).toFixed(1)+','+Y(p.T).toFixed(1)).join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2.6"/>`;
-  g+=`<line x1="${W0}" y1="${Y(m.Td)}" x2="${W1}" y2="${Y(m.Td)}" stroke="#7fb2e6" stroke-width="1.4" stroke-dasharray="6 4"/><text x="${W1-4}" y="${Y(m.Td)-6}" text-anchor="end" style="fill:#7fb2e6">T<tspan baseline-shift="sub" font-size="8">d</tspan> = ${fmt(m.Td,1)} °C</text>`;
-  if(m.dewX!=null){ const x=X(m.dewX); g+=`<circle cx="${x}" cy="${Y(m.Td)}" r="5" fill="none" stroke="#7fb2e6" stroke-width="2"/><text x="${x+8}" y="${Y(m.Td)+16}" style="fill:#7fb2e6">${fmt(m.dewX,0)} mm</text>`; }
-  let lastLx=-99; m.bnd.forEach((b,i)=>{ if(X.px[i]-lastLx>36){ lastLx=X.px[i]; g+=`<text x="${X.px[i]}" y="${Y(b.T)+(i<m.bnd.length-1?18:-8)}" text-anchor="middle" style="font-size:10.5px;fill:var(--accent)">${fmt(b.T,1)}</text>`; } });
-  const tx=axisTicks(0,m.X,8); g+=`<text x="${(W0+W1)/2}" y="332" text-anchor="middle" class="m">rakenteen paksuus ${fmt(m.X,0)} mm (ohuet kalvot levennetty)</text>`;
-  $('u-chT').innerHTML=g;
-}
-function chartP(th,m){
-  const W0=70,W1=830,y0=20,y1=310, X=xmap(m,W0,W1);
-  const pmax=Math.max(m.pi,...m.pts.map(p=>p.ps))*1.08, Y=p=>lerp(p,0,pmax,y1,y0), Yr=r=>lerp(r,0,1,y1,y0);
-  let g=layerBands(th,m,X,y0,y1);
-  const tk=axisTicks(0,pmax,6); tk.t.forEach(v=>{ g+=`<line x1="${W0}" y1="${Y(v)}" x2="${W1}" y2="${Y(v)}" stroke="var(--line2)"/><text x="${W0-8}" y="${Y(v)+4}" text-anchor="end" class="m">${fmt(v,0)}</text>`; });
-  [0,20,40,60,80,100].forEach(r=>g+=`<text x="${W1+8}" y="${Yr(r/100)+4}" style="fill:var(--warn);font-size:10.5px">${r} %</text>`);
-  g+=`<text x="16" y="${(y0+y1)/2}" transform="rotate(-90 16 ${(y0+y1)/2})" text-anchor="middle" class="m">Pa</text>`;
-  g+=`<line x1="${W0}" y1="${Yr(0.8)}" x2="${W1}" y2="${Yr(0.8)}" stroke="var(--warn)" stroke-dasharray="2 4" opacity=".6"/>`;
-  g+=`<polyline points="${m.pts.map(p=>X(p.x).toFixed(1)+','+Yr(p.rh).toFixed(1)).join(' ')}" fill="none" stroke="var(--warn)" stroke-width="1.3" opacity=".9"/>`;
-  g+=`<polyline points="${m.pts.map(p=>X(p.x).toFixed(1)+','+Y(p.ps).toFixed(1)).join(' ')}" fill="none" stroke="var(--bad)" stroke-width="2.4"/>`;
-  g+=`<polyline points="${m.pts.map(p=>X(p.x).toFixed(1)+','+Y(p.p).toFixed(1)).join(' ')}" fill="none" stroke="#7fb2e6" stroke-width="2.6"/>`;
-  // rajoittamaton diffuusioviiva (ilman kondenssia) vertailuksi
-  const free=m.pts.map(p=>[X(p.x),Y(lerp(p.s,0,m.S||1,m.pi,m.pe))]); if(m.zones.length) g+=`<polyline points="${free.map(a=>a[0].toFixed(1)+','+a[1].toFixed(1)).join(' ')}" fill="none" stroke="#7fb2e6" stroke-width="1" stroke-dasharray="4 4" opacity=".7"/>`;
-  m.zones.forEach(z=>{ const a=X(z.x0),b=X(z.x1),pp=m.pts.find(p=>Math.abs(p.x-z.x0)<1e-6); const yy=pp?Y(pp.ps):y0+20;
-    g+=`<rect x="${a-4}" y="${y0}" width="${Math.max(8,b-a+8)}" height="${y1-y0}" fill="var(--bad)" opacity=".16"/><circle cx="${a}" cy="${yy}" r="6" fill="none" stroke="var(--bad)" stroke-width="2.2"/><text x="${a>W1-260?a-9:a+9}" y="${yy-12}" text-anchor="${a>W1-260?'end':'start'}" style="fill:var(--bad);font-weight:700">kondenssi ${fmt(z.g,1)} g/m²/vrk</text>`; });
-  g+=`<text x="${(W0+W1)/2}" y="346" text-anchor="middle" class="m">rakenteen paksuus ${fmt(m.X,0)} mm · s<sub>d</sub> yhteensä ${fmt(m.S,2)} m</text>`.replace('<sub>d</sub>','d');
-  $('u-chP').innerHTML=g;
-}
-
-/* ---------- pääajo ---------- */
-function bisectD(i,Ut){ const th0=thermal({i,d:0}); if(th0.U<=Ut) return 0; const big=thermal({i,d:3000}); if(big.U>Ut) return null;
-  let lo=0,hi=3000; for(let k=0;k<60;k++){ const mid=(lo+hi)/2; if(thermal({i,d:mid}).U>Ut) lo=mid; else hi=mid; } return hi; }
-function run(soft){
-  const th=thermal(), m=moisture(th), P=th.P;
-  $('u-rs').innerHTML=`Lämpövirran suunta ${DIRN[P.dir]}: R<sub>si</sub> = ${fmt(th.Rsi,2)} m²K/W, ${th.rse_txt}.`;
-  const refs=P.ref.map((r,i)=>r==null?'':`<tr><td class="l">${REFN[i]}</td><td class="num">${fmt(r,2)}</td><td>${th.U<=r+1e-9?'<span class="chip2 ok">täyttyy</span>':'<span class="chip2 bad">ei täyty</span>'}</td></tr>`).join('');
-  $('u-ref').innerHTML=`<thead><tr><th class="l">Vertailuarvo YM 1010/2017 – ${P.n.toLowerCase()}</th><th>U [W/m²K]</th><th></th></tr></thead><tbody>${refs}</tbody>`;
-  const maxRH=Math.max(...m.pts.slice(1,-1).map(p=>p.rh),0);
-  $('u-kpis').innerHTML=[['U-arvo',fmt(th.U,3)+' <span class="small">W/m²K</span>',1],['R<sub>T</sub>',fmt(th.RT,2)+' <span class="small">m²K/W</span>'],['Sisäpinta T<sub>si</sub>',fmt(m.Tsi,1)+' <span class="small">°C</span>'],['Kastepiste T<sub>d</sub>',fmt(m.Td,1)+' <span class="small">°C</span>'],['Kondenssi',m.zones.length?'<span class="bad">'+fmt(m.zones.reduce((s,z)=>s+z.g,0),1)+' g/m²/vrk</span>':'<span class="ok">ei</span>'],['RH max rakenteessa',fmt(maxRH*100,0)+' %']]
-    .map(k=>`<div class="kpi ${k[2]?'hl':''}"><div class="k">${k[0]}</div><div class="v">${k[1]}</div></div>`).join('');
-  // arviot
-  const V=[]; const name=i=>i>=0&&th.lay[i]?(i+1)+'. '+th.lay[i].l.n:'–';
-  if(m.surfCond) V.push(['b','Pintakondenssi sisäpinnassa',`Sisäpinnan lämpötila ${fmt(m.Tsi,1)} °C on alle sisäilman kastepisteen ${fmt(m.Td,1)} °C.`]);
-  else if(m.surfRH>0.8) V.push(['w','Sisäpinnan suhteellinen kosteus yli 80 %',`RH<sub>si</sub> = ${fmt(m.surfRH*100,0)} %, lämpötilaindeksi f<sub>Rsi</sub> = ${fmt(m.fRsi,2)}. Pinnalla on homeen kasvun riski.`]);
-  if(m.zones.length) m.zones.forEach(z=>V.push(['b','Kondenssia rakenteessa (Glaser)',`Kosteutta tiivistyy kohdassa ${fmt(z.x0,0)}${z.x1>z.x0+0.5?'…'+fmt(z.x1,0):''} mm sisäpinnasta (kerros ${name(z.li)}) noin ${fmt(z.g,1)} g/m² vuorokaudessa näissä olosuhteissa. Lisää höyrynsulun s<sub>d</sub>-arvoa tai vähennä ulkopuolisten kerrosten vesihöyrynvastusta.`]));
-  else V.push([maxRH>0.8?'w':'','Ei kondenssia (Glaser)',`Vesihöyryn osapaine pysyy koko rakenteessa kyllästyspaineen alapuolella. Suurin suhteellinen kosteus rakenteessa on ${fmt(maxRH*100,0)} %${maxRH>0.8?', mikä ylittää homeen kasvun kannalta kriittisenä pidetyn noin 80 %:n tason pitkäaikaisesti':''}.`]);
-  if(m.dewX!=null){ const vb=th.lay.findIndex(y=>sdOf(y.l)>=10); const Rto=x=>{ let R=0; for(let i=0;i<th.lay.length;i++){ const b=m.bnd[i+1]; if(b.x<=x) R=b.R; } return R; };
-    let txt=`Sisäilman kastepiste ${fmt(m.Td,1)} °C saavutetaan ${fmt(m.dewX,0)} mm syvyydellä sisäpinnasta (kerros ${name(m.dewLi)}).`;
-    if(vb>=0&&m.bnd[vb+1].x<=m.dewX+1e-6) txt+=` Höyrynsulku (kerros ${name(vb)}) on kastepistekohdan lämpimällä puolella, joten sisäilman kosteus ei pääse siihen diffuusiolla. Ilmavuodot höyrynsulun läpi voivat silti tuoda kosteutta, joten sulun tiiveys on tärkeä.`;
-    else if(vb>=0) txt+=` Höyrynsulku (kerros ${name(vb)}) on kastepistekohdan kylmällä puolella. Siirrä höyrynsulku lämpimämmäksi tai lisää eristystä sen ulkopuolelle.`;
-    else txt+=' Rakenteessa ei ole höyrynsulkua (s<sub>d</sub> ≥ 10 m), joten kosteustekninen toimivuus perustuu kerrosten vesihöyrynvastusten suhteeseen.';
-    V.push([vb>=0&&m.bnd[vb+1].x>m.dewX+1e-6?'w':'','Kastepiste',txt]); }
-  else V.push(['','Kastepiste',`Rakenteen lämpötila ei laske sisäilman kastepisteen ${fmt(m.Td,1)} °C alapuolelle.`]);
-  // 5-kertaisuussääntö
-  const vi=st.L.findIndex(l=>l.v&&isIns(l)), mi=vi>=0&&vi<th.lay.length?vi:th.lay.reduce((b,y,i)=>isIns(y.l)&&(b<0||(+y.l.d)>(+th.lay[b].l.d))?i:b,-1);
-  if(mi>=0){ const sdIn=th.lay.slice(0,mi).reduce((s,y)=>s+sdOf(y.l),0), sdOut=th.lay.slice(mi+1).reduce((s,y)=>s+sdOf(y.l),0), ratio=sdOut>0?sdIn/sdOut:Infinity;
-    V.push([ratio>=5?'':'w','Vesihöyrynvastusten suhde',`Eristeen (kerros ${name(mi)}) lämpimän puolen s<sub>d</sub> = ${fmt(sdIn,2)} m ja kylmän puolen s<sub>d</sub> = ${fmt(sdOut,2)} m, suhde ${isFinite(ratio)?fmt(ratio,1):'∞'} : 1. Nyrkkisääntönä lämpimän puolen vesihöyrynvastuksen tulisi olla vähintään 5-kertainen kylmään puoleen nähden.`]);
-    const vb=th.lay.findIndex(y=>sdOf(y.l)>=10); if(vb>=0){ const Rin=th.lay.slice(0,vb).reduce((s,y)=>s+y.Rlo,0), Rall=th.lay.reduce((s,y)=>s+y.Rlo,0), sh=Rall>0?Rin/Rall:0;
-      V.push([sh<=0.25?'':'w','Höyrynsulun sijainti',`Höyrynsulun sisäpuolella on ${fmt(sh*100,0)} % rakenteen lämmönvastuksesta. Nyrkkisääntönä enintään noin 25 %, jotta sulku pysyy lämpimänä.`]); } }
-  $('u-verdict').innerHTML=V.map(v=>`<div class="verdict ${v[0]}"><b>${v[1]}</b>${v[2]}</div>`).join('');
-  // rajapinnat
-  $('u-iface').innerHTML='<thead><tr><th class="l">Kohta</th><th>x [mm]</th><th>T [°C]</th><th>p<sub>sat</sub> [Pa]</th><th>p [Pa]</th><th>RH [%]</th><th>Σs<sub>d</sub> [m]</th></tr></thead><tbody>'+
-    m.bnd.map((b,i)=>{ const p=m.pts.find(q=>Math.abs(q.x-b.x)<1e-9&&(i===0?q.li===-1:q.li===i-1))||m.pts[0]; return `<tr><td class="l">${i===0?'sisäpinta':i===m.bnd.length-1?'ulkopinta':'rajapinta '+i+'|'+(i+1)}</td><td class="num">${fmt(b.x,1)}</td><td class="num">${fmt(b.T,2)}</td><td class="num">${fmt(psat(b.T),0)}</td><td class="num">${fmt(p.p,0)}</td><td class="num ${p.rh>0.8?'neg':''}">${fmt(p.rh*100,0)}</td><td class="num">${fmt(b.s,2)}</td></tr>`; }).join('')+
-    `<tr><td class="l small" colspan="7">Sisäilma: T = ${fmt(m.Ti,1)} °C, p = ${fmt(m.pi,0)} Pa · ulkoilma: T = ${fmt(m.Te,1)} °C, p = ${fmt(m.pe,0)} Pa</td></tr></tbody>`;
-  chartT(th,m); chartP(th,m);
-  // laskenta
-  let s=row('Pintavastukset','R<sub>si</sub> = '+fmt(th.Rsi,2)+' m²K/W (lämpövirta '+DIRN[P.dir]+'), '+th.rse_txt);
-  th.lay.forEach((y,i)=>{ const l=y.l,M=MAT[l.m];
-    s+=row((i+1)+'. '+esc(l.n)+' '+fmt(+l.d,M.film?1:0)+' mm',M.gap?'R<sub>g</sub> = '+fmt(y.Rb,3)+' (taulukko, tuulettumaton '+fmt(+l.d,0)+' mm, '+DIRN[P.dir]+')':y.f>0?`eriste: d/λ = ${fmt(+l.d/1000,3)}/${fmt(+l.lam,3)} = ${fmt(y.Rb,3)}, ranka: ${fmt(+l.d/1000,3)}/${fmt(+l.stud.lam,3)} = ${fmt(y.Ra,3)}, osuus f = ${fmt(+l.stud.w,0)}/${fmt(+l.stud.k,0)} = ${fmt(y.f,3)}; λ'' = ${fmt(y.lamEq,4)} → R'' = ${fmt(y.Rlo,3)}`:`R = d/λ = ${fmt(+l.d/1000,4)}/${fmt(+l.lam,3)} = ${fmt(y.Rb,3)}`); });
-  if(th.iv>=0) s+=row('Tuulettuva ilmarako','kerros '+(th.iv+1)+' ja sen ulkopuoliset kerrokset jätetään huomiotta');
-  if(th.Rup!=null){ s+=row('Yläraja R\'','rinnakkaiset lämpövirtatiet: R<sub>T,a</sub> (ranka) = '+fmt(th.RTa,3)+', R<sub>T,b</sub> (eriste) = '+fmt(th.RTb,3)+' → R\' = 1/(f<sub>a</sub>/R<sub>T,a</sub> + f<sub>b</sub>/R<sub>T,b</sub>) = '+fmt(th.Rup,3));
-    s+=row('Alaraja R\'\'','tasa-arvoiset isotermitasot = '+fmt(th.Rlo,3));
-    s+=row('R<sub>T</sub>','(R\' + R\'\')/2 = <b>'+fmt(th.RT,3)+' m²K/W</b>, suhteellinen virhe e = '+fmt((th.Rup-th.Rlo)/(2*th.RT)*100,1)+' %'); }
-  else s+=row('R<sub>T</sub>','R<sub>si</sub> + ΣR + R<sub>se</sub> = <b>'+fmt(th.RT,3)+' m²K/W</b>');
-  s+=row('U','1/R<sub>T</sub>'+((+st.dU)?' + ΔU = '+fmt(1/th.RT,4)+' + '+fmt(+st.dU,3):'')+' = <b>'+fmt(th.U,3)+' W/m²K</b>');
-  $('u-steps').innerHTML=s;
-  // eristemäärä
-  const Ut=st.target==='c'?+st.tc:P.ref[+st.target]; let ih='';
-  const iv=st.L.findIndex(l=>l.v&&isIns(l)&&(th.iv<0||st.L.indexOf(l)<th.iv));
-  if(iv<0) ih='<div class="small">Valitse kerrostaulukosta ◉-painikkeella eristekerros, jonka paksuus mitoitetaan.</div>';
-  else { const l=st.L[iv], need=bisectD(iv,Ut), rnd=need==null?null:Math.ceil(need/10)*10;
-    ih+=row('Tavoite','U ≤ <b>'+fmt(Ut,3)+' W/m²K</b>'+(st.target!=='c'?' ('+REFN[+st.target].toLowerCase()+')':''));
-    ih+=row('Mitoitettava kerros',(iv+1)+'. '+esc(l.n)+', λ<sub>U</sub> = '+fmt(+l.lam,3)+' W/mK, nykyinen paksuus '+fmt(+l.d,0)+' mm'+(l.stud?' (rankakerros, rangan korkeus muuttuu samalla)':''));
-    ih+=row('Tarvittava paksuus (tarkka, tästä rakenteesta)',need==null?'<span class="bad">tavoitetta ei saavuteta tällä kerroksella</span>':need===0?'muut kerrokset riittävät jo':'d ≥ <b>'+fmt(need,0)+' mm</b> → valitaan <b>'+fmt(rnd,0)+' mm</b> (U = '+fmt(thermal({i:iv,d:rnd}).U,3)+' W/m²K)');
-    ih+=row('Ohjekortin likikaava (normitalo 2010, lämmin)',P.n+': d ≈ '+fmt(P.k,0)+' · λ<sub>U</sub> = '+fmt(P.k,0)+' · '+fmt(+l.lam,3)+' = <b>'+fmt(P.k*(+l.lam),0)+' mm</b> (koko eristemäärä, tavoite U = '+fmt(P.ref[0],2)+')');
-    if(need!=null&&need>0&&Math.abs(rnd-(+l.d))>0.5) ih+=`<div class="flex no-print" style="margin-top:8px"><button class="btn primary" id="u-setD">Aseta kerroksen ${iv+1} paksuudeksi ${fmt(rnd,0)} mm</button></div>`; }
-  $('u-ins').innerHTML=ih;
-  const sb=$('u-setD'); if(sb) sb.onclick=()=>{ const need=bisectD(iv,Ut); st.L[iv].d=Math.ceil(need/10)*10; renderLayers(); run(); };
-  if(!soft) {} else { // päivitä R-sarake kirjoitettaessa ilman fokuksen menetystä
-    const rows=$('u-layers').querySelectorAll('tbody tr'); rows.forEach((tr,i)=>{ const y=th.lay[i],l=st.L[i],M=MAT[l.m]; if(!y||M.gap) return; tr.children[6].textContent=y.f>0?fmt(y.Rlo,3)+'*':fmt(y.Rb,3); tr.children[7].textContent=fmt(sdOf(l),M.film||sdOf(l)>=10?1:3); }); }
+function need(P,U,lam,R0){ const R=1/U-R0; return {R,d:Math.max(0,R*lam*1000)}; }
+function run(){
+  const P=part(), lam=insLam(st.ins), Rb=P.ground?RB[P.ground].find(r=>r[0]===st.rb)[2]:0, Ro=+st.Ro||0;
+  const R0=P.Rsi+P.Rse+Rb+Ro, name=st.ins==='oma'?'Oma eriste':INS.find(i=>i[0]===st.ins)[1];
+  $('e-rs').innerHTML=row('R<sub>si</sub>',fmt(P.Rsi,2)+' m²K/W')+row(P.ground?'R<sub>b</sub> (maa)':'R<sub>se</sub>',fmt(P.ground?Rb:P.Rse,2)+' m²K/W')+(Ro?row('Muut kerrokset',fmt(Ro,2)+' m²K/W'):'')+row('Yhteensä ilman eristettä','ΣR = <b>'+fmt(R0,2)+' m²K/W</b>');
+  const rows=P.ref.map((U,i)=>{ if(U==null) return null; const n=need(P,U,lam,R0), dr=Math.ceil(n.d/10-1e-9)*10, Ur=1/(R0+dr/1000/lam); return {i,U,R:n.R,d:n.d,dr,Ur}; }).filter(Boolean);
+  const dmax=Math.max(...rows.map(r=>r.dr),1);
+  const cur=rows.find(r=>r.i===+st.lvl)||rows[0];
+  $('e-kpis').innerHTML=`<div class="kpi hl"><div class="k">${REFN[cur.i]}</div><div class="v">${fmt(cur.dr,0)} <span class="small">mm</span></div><div class="small">${name}</div></div>`+
+    `<div class="kpi"><div class="k">Kerroin (ohjekortti)</div><div class="v">${fmt((1/P.ref[0]-P.Rsi-P.Rse-Rb)*1000,0)} · λ<sub>U</sub></div><div class="small">normitalo, lämmin</div></div>`;
+  $('e-tbl').innerHTML=`<thead><tr><th class="l">Vertailutaso</th><th>U<sub>vert</sub> [W/m²K]</th><th>R eristeelle [m²K/W]</th><th>d laskettu [mm]</th><th>d valittu [mm]</th><th>U toteutuva</th><th class="l barcell"></th></tr></thead><tbody>`+
+    rows.map(r=>`<tr class="${r.i===cur.i?'cur':''}"><td class="l k">${REFN[r.i]}</td><td class="num">${fmt(r.U,2)}</td><td class="num">${fmt(r.R,2)}</td><td class="num">${fmt(r.d,0)}</td><td class="num"><b>${fmt(r.dr,0)}</b></td><td class="num">${fmt(r.Ur,3)}</td><td class="l barcell"><div class="bar" style="width:${(r.dr/dmax*100).toFixed(1)}%"></div></td></tr>`).join('')+'</tbody>';
+  // vertailu eristeittäin
+  const U=P.ref[cur.i], list=INS.filter(i=>i[2]!=null&&(P.id==='mp'||i[0]!=='mpuu')).map(i=>{ const n=need(P,U,i[2],R0); return {id:i[0],n:i[1],lam:i[2],d:n.d,dr:Math.ceil(n.d/10-1e-9)*10}; });
+  const m2=Math.max(...list.map(x=>x.dr),1);
+  $('e-cmp').innerHTML=`<thead><tr><th class="l">Eriste</th><th>λ<sub>U</sub> [W/mK]</th><th>d laskettu [mm]</th><th>d valittu [mm]</th><th class="l barcell"></th></tr></thead><tbody>`+
+    list.map(x=>`<tr class="${x.id===st.ins?'cur':''}" data-ins="${x.id}" style="cursor:pointer"><td class="l">${x.n}</td><td class="num">${fmt(x.lam,3)}</td><td class="num">${fmt(x.d,0)}</td><td class="num"><b>${fmt(x.dr,0)}</b></td><td class="l barcell"><div class="bar" style="width:${(x.dr/m2*100).toFixed(1)}%;${x.id===st.ins?'':'opacity:.55'}"></div></td></tr>`).join('')+'</tbody>';
+  document.querySelectorAll('#e-cmp tr[data-ins]').forEach(tr=>tr.onclick=()=>{ st.ins=tr.dataset.ins; sync(); run(); });
   save();
 }
-fillSelects(); syncInputs(); renderLayers(); run();
+sync(); run();
 })();
 
 </script>

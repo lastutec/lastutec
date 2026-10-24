@@ -5,7 +5,7 @@
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../');}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Teräsrakenteet – Lastutec</title>
-<meta name="description" content="Teräsrakenteiden suunnittelutyökalut: pulttitaulukko ja hitsitaulukko.">
+<meta name="description" content="Teräsrakenteiden suunnittelutyökalut: pultti- ja hitsitaulukot, ripalevyliitos, pohjalevyliitos ja pilarin mitoitus.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
 <style>
 :root{
@@ -54,6 +54,24 @@ h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em
     <h2>Hitsitaulukko</h2>
     <p>Hitsien kestävyydet kertoimilla √1, √2 ja √3 a-mitoille 3–15 mm. Laskurissa myös vino voima, tehollinen pituus ja pitkän liitoksen pienennys.</p>
     <span>Avaa taulukko →</span>
+  </a></li>
+  <li><a href="ripalevy/">
+    <div class="no">Työkalu 3</div>
+    <h2>Ripalevyliitos</h2>
+    <p>Palkin nivelellinen liitos pilariin tai pääpalkkiin. Työkalu laskee ruuviryhmän epäkeskisyyden, reunapuristuksen, ripalevyn leikkauksen ja taivutuksen, uuman leikkauksen, hitsin ja tukevan osan.</p>
+    <span>Avaa laskuri →</span>
+  </a></li>
+  <li><a href="pohjalevy/">
+    <div class="no">Työkalu 4</div>
+    <h2>Pilarin pohjalevyliitos</h2>
+    <p>Useita pohjalevyliitoksia kerralla komponenttimenetelmällä (EN 1993-1-8): puristettu T-osa, ankkurit, levyn taivutus, leikkaus ja hitsit.</p>
+    <span>Avaa laskuri →</span>
+  </a></li>
+  <li><a href="pilari/">
+    <div class="no">Työkalu 5</div>
+    <h2>Pilarin mitoitus</h2>
+    <p>Pilarin mitoitus EN 1993-1-1 ja Suomen kansallisen liitteen mukaan: nurjahdus, kiepahdus ja yhteisvaikutus. 3D-kuvassa näkyvät kuormat, voimasuureet, siirtymät ja jännitykset.</p>
+    <span>Avaa laskuri →</span>
   </a></li>
 </ul>
 </div>

@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pilarin mitoitus – Lastutec</title>
+<meta name="description" content="Teräspilarin mitoitus SFS-EN 1993-1-1 ja Suomen kansallisen liitteen mukaan: poikkileikkausluokka, kestävyydet, nurjahdus, kiepahdus ja yhteisvaikutus. 3D-näkymä kuormista, voimasuureista, siirtymistä ja jännityksistä.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../teras.css">
+<script src="../teras.js"></script>
+<style>
+.cgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"in view" "res view";gap:18px;align-items:start}
+.a-in{grid-area:in}.a-res{grid-area:res}.a-view{grid-area:view;position:sticky;top:12px}
+@media (max-width:900px){.cgrid{grid-template-columns:minmax(0,1fr);grid-template-areas:"in" "view" "res"}.a-view{position:static}}
+.cv{position:relative;width:100%;border:1px solid var(--line);border-radius:4px;background:#0a0a0a;overflow:hidden}
+.cv canvas{display:block;width:100%;height:520px;touch-action:pan-y;cursor:grab}
+.cv canvas.drag{cursor:grabbing}
+@media (max-width:900px){.cv canvas{height:430px}}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{font:600 13px var(--body);padding:5px 14px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+.vbtns{position:absolute;right:8px;top:8px;display:flex;gap:6px}
+.vbtns button{font:600 14px var(--body);width:32px;height:32px;border-radius:4px;border:1px solid var(--line);background:#141414cc;color:var(--ink);cursor:pointer}
+.legend{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px}
+.legend b{color:var(--ink);font-weight:600}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.kv div{background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:6px 9px;font-size:12px;color:var(--muted)}
+.kv b{display:block;font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+@media print{.a-view{position:static}.cgrid{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"in" "view" "res"!important}.vbtns,.tabs{display:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Teräsrakenteet</a><h1>Pilarin mitoitus</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 5 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="intro">Valssatun I-profiilipilarin mitoitus SFS-EN 1993-1-1 ja Suomen kansallisen liitteen mukaan: poikkileikkausluokka, poikkileikkauksen kestävyys, taivutusnurjahdus, kiepahdus ja normaalivoiman ja taivutuksen yhteisvaikutus (liite B). Oikealla oleva 3D-kuva näyttää kuormat, voimasuureet, siirtymät ja jännitykset. Kuvaa voi pyörittää vetämällä.</p>
+
+<div class="cgrid">
+<section class="panel a-in" aria-labelledby="h-in">
+  <h2 id="h-in">Lähtötiedot</h2>
+  <div class="sec">Pilari</div>
+  <div class="inputs">
+    <label>Profiili<select id="prof"></select></label>
+    <label>Teräs<select id="gr"></select></label>
+    <label>Pituus L <span class="u">[m]</span><input type="number" id="L" value="4" step="0.1" min="0.5"></label>
+    <label>Tuenta<select id="sup"><option value="pp" selected>Nivel – nivel</option><option value="ma">Masto (jäykkä alapää)</option></select></label>
+    <label>Nurjahduspituus k<sub>y</sub><input type="number" id="ky" value="1" step="0.05" min="0.5"></label>
+    <label>Nurjahduspituus k<sub>z</sub><input type="number" id="kz" value="1" step="0.05" min="0.1"></label>
+    <label>Kiepahduspituus k<sub>LT</sub><input type="number" id="kLT" value="1" step="0.05" min="0.1"></label>
+    <label>Momenttikerroin C<sub>1</sub><input type="number" id="C1" value="1" step="0.05" min="1"></label>
+  </div>
+  <div class="sec">Kuormat (mitoitusarvot)</div>
+  <div class="inputs">
+    <label>N<sub>Ed</sub> puristus <span class="u">[kN]</span><input type="number" id="N" value="400" step="10" min="0"></label>
+    <label>Epäkeskisyys e<sub>z</sub> <span class="u">[mm]</span><input type="number" id="ez" value="0" step="5"></label>
+    <label>Epäkeskisyys e<sub>y</sub> <span class="u">[mm]</span><input type="number" id="ey" value="0" step="5"></label>
+    <label>q<sub>z</sub> (→ M<sub>y</sub>) <span class="u">[kN/m]</span><input type="number" id="qz" value="3" step="0.5"></label>
+    <label>q<sub>y</sub> (→ M<sub>z</sub>) <span class="u">[kN/m]</span><input type="number" id="qy" value="0" step="0.5"></label>
+    <label>H<sub>z</sub> yläpäässä <span class="u">[kN]</span><input type="number" id="Hz" value="0" step="1"></label>
+    <label>H<sub>y</sub> yläpäässä <span class="u">[kN]</span><input type="number" id="Hy" value="0" step="1"></label>
+    <label>M<sub>y</sub> yläpää <span class="u">[kNm]</span><input type="number" id="Myt" value="0" step="1"></label>
+    <label>M<sub>y</sub> alapää <span class="u">[kNm]</span><input type="number" id="Myb" value="0" step="1"></label>
+    <label>M<sub>z</sub> yläpää <span class="u">[kNm]</span><input type="number" id="Mzt" value="0" step="1"></label>
+    <label>M<sub>z</sub> alapää <span class="u">[kNm]</span><input type="number" id="Mzb" value="0" step="1"></label>
+  </div>
+  <p class="hint" id="suphint"></p>
+</section>
+
+<section class="panel a-view" aria-labelledby="h-view">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2 id="h-view">3D-näkymä</h2>
+  <div class="tabs" id="modes"><button type="button" data-m="load" aria-pressed="true">Kuormat</button><button type="button" data-m="force" aria-pressed="false">Voimasuureet</button><button type="button" data-m="disp" aria-pressed="false">Siirtymät</button><button type="button" data-m="stress" aria-pressed="false">Jännitykset</button></div></div>
+  <div class="cv"><canvas id="cv" aria-label="Pilarin 3D-näkymä"></canvas><div class="vbtns noprint"><button type="button" id="zin" aria-label="Lähennä">+</button><button type="button" id="zout" aria-label="Loitonna">−</button><button type="button" id="zreset" aria-label="Palauta näkymä">⟲</button></div></div>
+  <div class="legend" id="legend"></div>
+  <div class="kv" id="kv"></div>
+</section>
+
+<section class="panel a-res" aria-labelledby="h-res">
+  <h2 id="h-res">Tulos</h2>
+  <div class="big"><span class="v" id="umax">–</span><span class="k">% · suurin käyttöaste</span></div>
+  <div class="verdict" id="verdict"></div>
+  <div class="tablewrap"><table class="chk-table" id="chk"></table></div>
+  <div class="sec">Laskenta</div>
+  <div class="steps" id="steps"></div>
+</section>
+</div>
+<p class="foot">Laskenta SFS-EN 1993-1-1 ja Suomen kansallinen liite: γ<sub>M0</sub> = γ<sub>M1</sub> = 1,0, kiepahdus kohdan 6.3.2.3 menetelmällä (λ̄<sub>LT,0</sub> = 0,4, β = 0,75), yhteisvaikutuskertoimet liitteen B mukaan (vääntymiselle altis sauva). Voimasuureet ja siirtymät on laskettu ensimmäisen kertaluvun teorialla, ja toisen kertaluvun vaikutus on otettu huomioon nurjahduskertoimilla. Siirtymien toisen kertaluvun arvio on δ/(1 − N/N<sub>cr</sub>). Poikkileikkausluokan 4 profiileja ei tueta. Pilarin omaa painoa ei oteta huomioon. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); }, L = LT, n = L.n, G = L.GAMMA, E = L.E, Gm = L.G, PI = Math.PI;
+  L.fill($('prof'), L.ORDER, 'HEA 200');
+  L.fill($('gr'), Object.keys(L.STEEL).map(function (k) { return [k, L.STEEL[k].label || k]; }), 'S355');
+  function v(id) { var x = parseFloat($(id).value); return isFinite(x) ? x : 0; }
+  var NS = 40, R = null;
+
+  function curve(P, grade, axis) {
+    var hb = P.h / P.b, tf = P.tf, hi = grade === 'S460';
+    if (hb > 1.2) { if (tf <= 40) return hi ? 'a0' : (axis === 'y' ? 'a' : 'b'); return hi ? 'a' : (axis === 'y' ? 'b' : 'c'); }
+    if (tf <= 100) return hi ? 'a' : (axis === 'y' ? 'b' : 'c'); return hi ? 'c' : 'd';
+  }
+  var ALPHA = { a0: 0.13, a: 0.21, b: 0.34, c: 0.49, d: 0.76 };
+  function chi(lam, al) { var ph = 0.5 * (1 + al * (lam - 0.2) + lam * lam); return { ph: ph, chi: lam <= 0.2 ? 1 : Math.min(1, 1 / (ph + Math.sqrt(ph * ph - lam * lam))) }; }
+  function Cm(M, sway) {
+    if (sway) return { v: 0.9, t: 'heilahtava nurjahdusmuoto → C<sub>m</sub> = 0,9' };
+    var M0 = M[0], M1 = M[M.length - 1], Ms = M[Math.floor(M.length / 2)], mx = Math.max.apply(null, M.map(Math.abs));
+    if (mx < 1e-9) return { v: 1, t: 'ei momenttia' };
+    var Mh = Math.abs(M0) >= Math.abs(M1) ? M0 : M1, oth = Mh === M0 ? M1 : M0, psi = Math.abs(Mh) > 1e-9 ? oth / Mh : 0;
+    var trans = Math.abs(Ms - (M0 + M1) / 2) > 1e-6 * mx;
+    if (!trans) return { v: Math.max(0.4, 0.6 + 0.4 * psi), t: 'lineaarinen, ψ = ' + n(psi, 2) + ' → C<sub>m</sub> = 0,6 + 0,4ψ ≥ 0,4' };
+    if (Math.abs(Ms) < Math.abs(Mh)) { var as = Ms / Mh, c;
+      if (as >= 0) c = 0.2 + 0.8 * as; else if (psi >= 0) c = 0.1 - 0.8 * as; else c = 0.1 * (1 - psi) - 0.8 * as;
+      return { v: Math.max(0.4, c), t: 'tasainen kuorma, α<sub>s</sub> = M<sub>s</sub>/M<sub>h</sub> = ' + n(as, 2) + ', ψ = ' + n(psi, 2) }; }
+    var ah = Mh / Ms, c2 = psi >= 0 ? 0.95 + 0.05 * ah : 0.95 + 0.05 * ah * (1 + 2 * psi);
+    return { v: c2, t: 'tasainen kuorma, α<sub>h</sub> = M<sub>h</sub>/M<sub>s</sub> = ' + n(ah, 2) + ', ψ = ' + n(psi, 2) + ' → C<sub>m</sub> = 0,95 + 0,05α<sub>h</sub>' };
+  }
+  function integrate(x, M, EI, pinned) {
+    // w'' = ∓M/EI ; M [kNm], x [m] → w [mm]
+    var k = M.map(function (m) { return (pinned ? -1 : 1) * m * 1e6 / EI; }), th = [0], w = [0];
+    for (var i = 1; i < x.length; i++) { var dx = (x[i] - x[i - 1]) * 1000; th[i] = th[i - 1] + 0.5 * (k[i] + k[i - 1]) * dx; w[i] = w[i - 1] + 0.5 * (th[i] + th[i - 1]) * dx; }
+    if (pinned) { var Ltot = x[x.length - 1] * 1000, c = -w[w.length - 1] / Ltot; w = w.map(function (wi, i) { return wi + c * x[i] * 1000; }); }
+    return w;
+  }
+
+  function calc() {
+    var P = L.PROF[$('prof').value], gr = $('gr').value, m = L.steel(gr, P.tf), fy = m.fy, eps = m.eps;
+    var Lm = Math.max(0.1, v('L')), sup = $('sup').value, pin = sup === 'pp';
+    var N = Math.max(0, v('N')), ez = v('ez'), ey = v('ey'), qz = v('qz'), qy = v('qy'), Hz = pin ? 0 : v('Hz'), Hy = pin ? 0 : v('Hy');
+    var Myt = v('Myt') + N * ez / 1000, Myb = pin ? v('Myb') : 0, Mzt = v('Mzt') + N * ey / 1000, Mzb = pin ? v('Mzb') : 0;
+    var ky = v('ky'), kz = v('kz'), kLT = v('kLT'), C1 = Math.max(1, v('C1'));
+    $('suphint').innerHTML = pin ? 'Nivel–nivel: H-kuormat kohdistuvat tukeen, joten niillä ei ole vaikutusta. Pään momentit vaikuttavat pilarin päissä.' : 'Masto: alapää jäykkä, yläpää vapaa. Alapään momenttia ei anneta, koska se lasketaan kuormista. Suosituksena k = 2,0.';
+    $('Hz').disabled = $('Hy').disabled = pin; $('Myb').disabled = $('Mzb').disabled = !pin;
+
+    // Voimasuureet asemissa
+    var x = [], My = [], Mz = [], Vz = [], Vy = [];
+    for (var i = 0; i <= NS; i++) { var xi = Lm * i / NS; x.push(xi);
+      if (pin) { My.push(Myb + (Myt - Myb) * xi / Lm + qz * xi * (Lm - xi) / 2); Mz.push(Mzb + (Mzt - Mzb) * xi / Lm + qy * xi * (Lm - xi) / 2);
+        Vz.push((Myt - Myb) / Lm + qz * (Lm - 2 * xi) / 2); Vy.push((Mzt - Mzb) / Lm + qy * (Lm - 2 * xi) / 2); }
+      else { var r = Lm - xi; My.push(Myt + Hz * r + qz * r * r / 2); Mz.push(Mzt + Hy * r + qy * r * r / 2); Vz.push(Hz + qz * r); Vy.push(Hy + qy * r); } }
+    var amax = function (a) { return Math.max.apply(null, a.map(Math.abs)); };
+    var MyEd = amax(My), MzEd = amax(Mz), VzEd = amax(Vz), VyEd = amax(Vy);
+    var S = [], C = [], W = [];
+    function chk(name, u) { C.push([name, u]); return u; }
+
+    // 1. Materiaali ja profiili
+    S.push(['Profiili ja materiaali',
+      P.name + ': h = ' + P.h + ', b = ' + P.b + ', t<sub>w</sub> = ' + P.tw + ', t<sub>f</sub> = ' + P.tf + ', r = ' + P.r + ' mm',
+      'A = ' + n(P.A / 100, 1) + ' cm², I<sub>y</sub> = ' + n(P.Iy / 1e4, 0) + ' cm⁴, I<sub>z</sub> = ' + n(P.Iz / 1e4, 0) + ' cm⁴, W<sub>pl,y</sub> = ' + n(P.Wply / 1e3, 0) + ' cm³, W<sub>pl,z</sub> = ' + n(P.Wplz / 1e3, 1) + ' cm³, I<sub>t</sub> = ' + n(P.It / 1e4, 1) + ' cm⁴, I<sub>w</sub> = ' + n(P.Iw / 1e9, 1) + '·10³ cm⁶',
+      m.label + ': f<sub>y</sub> = ' + fy + ' N/mm² (t<sub>f</sub> = ' + P.tf + ' mm), ε = √(235/f<sub>y</sub>) = ' + n(eps, 3) + ', E = 210 000 N/mm², γ<sub>M0</sub> = γ<sub>M1</sub> = 1,0']);
+
+    // 2. Poikkileikkausluokka
+    var cf = (P.b - P.tw - 2 * P.r) / 2, rf = cf / P.tf, clf = rf <= 9 * eps ? 1 : rf <= 10 * eps ? 2 : rf <= 14 * eps ? 3 : 4;
+    var cw = P.d, rw = cw / P.tw, al = Math.min(1, 0.5 + N * 1000 / (2 * cw * P.tw * fy)), psi = 2 * N * 1000 / (P.A * fy) - 1;
+    var l1 = al > 0.5 ? 396 * eps / (13 * al - 1) : 36 * eps / al, l2 = al > 0.5 ? 456 * eps / (13 * al - 1) : 41.5 * eps / al, l3 = psi > -1 ? 42 * eps / (0.67 + 0.33 * psi) : 62 * eps * (1 - psi) * Math.sqrt(-psi);
+    var clw = rw <= l1 ? 1 : rw <= l2 ? 2 : rw <= l3 ? 3 : 4, cls = Math.max(clf, clw);
+    S.push(['Poikkileikkausluokka (taulukko 5.2)',
+      'Laippa: c/t<sub>f</sub> = ' + n(cf, 1) + '/' + n(P.tf, 1) + ' = ' + n(rf, 2) + ' → raja-arvot 9ε / 10ε / 14ε = ' + n(9 * eps, 1) + ' / ' + n(10 * eps, 1) + ' / ' + n(14 * eps, 1) + ' → <b>luokka ' + clf + '</b>',
+      'Uuma: c/t<sub>w</sub> = ' + n(cw, 1) + '/' + n(P.tw, 1) + ' = ' + n(rw, 2) + ', α = ' + n(al, 3) + ', ψ = ' + n(psi, 3) + ' → raja-arvot ' + n(l1, 1) + ' / ' + n(l2, 1) + ' / ' + n(l3, 1) + ' → <b>luokka ' + clw + '</b>',
+      'Poikkileikkausluokka <b>' + cls + '</b>' + (cls === 4 ? ' <b class="nok">– luokan 4 poikkileikkausta ei tueta</b>' : '')]);
+    if (cls === 4) W.push('Poikkileikkausluokka 4: tehollisia poikkileikkaussuureita ei lasketa, tulos ei ole luotettava.');
+    var pl = cls <= 2, Wy = pl ? P.Wply : P.Wely, Wz = pl ? P.Wplz : P.Welz;
+    var NRk = P.A * fy / 1000, MyRk = Wy * fy / 1e6, MzRk = Wz * fy / 1e6;
+
+    // 3. Poikkileikkauksen kestävyys
+    var VzRd = P.Avz * fy / (Math.sqrt(3) * G.M0) / 1000, VyRd = P.Avy * fy / (Math.sqrt(3) * G.M0) / 1000;
+    var nn = N / NRk, aa = Math.min((P.A - 2 * P.b * P.tf) / P.A, 0.5), MNy = Math.min(MyRk, MyRk * (1 - nn) / (1 - 0.5 * aa)), MNz = nn <= aa ? MzRk : MzRk * (1 - Math.pow((nn - aa) / (1 - aa), 2));
+    var bexp = Math.max(5 * nn, 1), ucs = 0, ics = 0;
+    for (i = 0; i <= NS; i++) { var uu = pl ? Math.pow(Math.abs(My[i]) / MNy, 2) + Math.pow(Math.abs(Mz[i]) / MNz, bexp) : nn + Math.abs(My[i]) / MyRk + Math.abs(Mz[i]) / MzRk; if (uu > ucs) { ucs = uu; ics = i; } }
+    if (!pl) ucs = Math.max(ucs, nn);
+    var ucsN = N / NRk;
+    chk('Poikkileikkaus N + M (6.2.9)', Math.max(ucs, ucsN));
+    chk('Leikkaus V<sub>z</sub> (6.2.6)', VzEd / VzRd);
+    if (VyEd > 0) chk('Leikkaus V<sub>y</sub> (6.2.6)', VyEd / VyRd);
+    var s3 = ['N<sub>c,Rd</sub> = Af<sub>y</sub>/γ<sub>M0</sub> = ' + n(P.A, 0) + ' · ' + fy + ' = <b>' + n(NRk, 1) + ' kN</b>, n = N<sub>Ed</sub>/N<sub>pl,Rd</sub> = ' + n(nn, 3),
+      'M<sub>' + (pl ? 'pl' : 'el') + ',y,Rd</sub> = ' + n(MyRk, 1) + ' kNm, M<sub>' + (pl ? 'pl' : 'el') + ',z,Rd</sub> = ' + n(MzRk, 1) + ' kNm',
+      'V<sub>pl,z,Rd</sub> = A<sub>v,z</sub>f<sub>y</sub>/(√3γ<sub>M0</sub>) = ' + n(P.Avz, 0) + ' · ' + fy + ' / √3 = ' + n(VzRd, 1) + ' kN → V<sub>z,Ed</sub>/V<sub>pl,z,Rd</sub> = ' + n(VzEd / VzRd, 3) + (VzEd > 0.5 * VzRd ? ' <b class="warn">&gt; 0,5 → leikkaus pienentää taivutuskestävyyttä (6.2.8)</b>' : ' ≤ 0,5 → ei vaikutusta taivutukseen')];
+    if (pl) s3.push('a = min((A − 2bt<sub>f</sub>)/A; 0,5) = ' + n(aa, 3) + ', M<sub>N,y,Rd</sub> = M<sub>pl,y,Rd</sub>(1 − n)/(1 − 0,5a) = ' + n(MNy, 1) + ' kNm, M<sub>N,z,Rd</sub> = ' + n(MNz, 1) + ' kNm',
+      'Mitoittava kohta x = ' + n(x[ics], 2) + ' m: (M<sub>y</sub>/M<sub>N,y,Rd</sub>)² + (M<sub>z</sub>/M<sub>N,z,Rd</sub>)<sup>' + n(bexp, 2) + '</sup> = (' + n(Math.abs(My[ics]), 1) + '/' + n(MNy, 1) + ')² + (' + n(Math.abs(Mz[ics]), 1) + '/' + n(MNz, 1) + ')<sup>' + n(bexp, 2) + '</sup> = <b>' + n(ucs, 3) + '</b> ' + L.ok(ucs));
+    else s3.push('Kimmoteoria, kohta x = ' + n(x[ics], 2) + ' m: N/N<sub>Rd</sub> + M<sub>y</sub>/M<sub>y,Rd</sub> + M<sub>z</sub>/M<sub>z,Rd</sub> = <b>' + n(ucs, 3) + '</b> ' + L.ok(ucs));
+    S.push(['Poikkileikkauksen kestävyys'].concat(s3));
+
+    // 4. Nurjahdus
+    var Lcy = ky * Lm * 1000, Lcz = kz * Lm * 1000, Ncy = PI * PI * E * P.Iy / (Lcy * Lcy) / 1000, Ncz = PI * PI * E * P.Iz / (Lcz * Lcz) / 1000;
+    var ly = Math.sqrt(NRk / Ncy), lz = Math.sqrt(NRk / Ncz), cy = curve(P, gr, 'y'), cz = curve(P, gr, 'z');
+    var Xy = chi(ly, ALPHA[cy]), Xz = chi(lz, ALPHA[cz]);
+    var NbyRd = Xy.chi * NRk / G.M1, NbzRd = Xz.chi * NRk / G.M1;
+    if (N > 0) { chk('Nurjahdus y-y (6.3.1)', N / NbyRd); chk('Nurjahdus z-z (6.3.1)', N / NbzRd); }
+    S.push(['Taivutusnurjahdus (6.3.1)',
+      'L<sub>cr,y</sub> = ' + n(ky, 2) + ' · ' + n(Lm, 2) + ' = ' + n(Lcy / 1000, 2) + ' m, N<sub>cr,y</sub> = π²EI<sub>y</sub>/L<sub>cr,y</sub>² = ' + n(Ncy, 0) + ' kN, λ̄<sub>y</sub> = √(Af<sub>y</sub>/N<sub>cr,y</sub>) = ' + n(ly, 3),
+      'L<sub>cr,z</sub> = ' + n(kz, 2) + ' · ' + n(Lm, 2) + ' = ' + n(Lcz / 1000, 2) + ' m, N<sub>cr,z</sub> = π²EI<sub>z</sub>/L<sub>cr,z</sub>² = ' + n(Ncz, 0) + ' kN, λ̄<sub>z</sub> = ' + n(lz, 3),
+      'h/b = ' + n(P.h / P.b, 2) + ', t<sub>f</sub> = ' + P.tf + ' mm → käyrä y: <b>' + cy + '</b> (α = ' + ALPHA[cy] + '), z: <b>' + cz + '</b> (α = ' + ALPHA[cz] + ')',
+      'Φ = 0,5[1 + α(λ̄ − 0,2) + λ̄²]: Φ<sub>y</sub> = ' + n(Xy.ph, 3) + ', Φ<sub>z</sub> = ' + n(Xz.ph, 3) + ' → χ = 1/(Φ + √(Φ² − λ̄²)): χ<sub>y</sub> = <b>' + n(Xy.chi, 3) + '</b>, χ<sub>z</sub> = <b>' + n(Xz.chi, 3) + '</b>',
+      'N<sub>b,y,Rd</sub> = ' + n(NbyRd, 1) + ' kN, N<sub>b,z,Rd</sub> = ' + n(NbzRd, 1) + ' kN → N<sub>Ed</sub>/N<sub>b,Rd</sub> = ' + n(N / Math.min(NbyRd, NbzRd), 3) + ' ' + L.ok(N / Math.min(NbyRd, NbzRd))]);
+
+    // 5. Kiepahdus
+    var Lcl = kLT * Lm * 1000, Mcr = C1 * PI * PI * E * P.Iz / (Lcl * Lcl) * Math.sqrt(P.Iw / P.Iz + Lcl * Lcl * Gm * P.It / (PI * PI * E * P.Iz)) / 1e6;
+    var lLT = Math.sqrt(MyRk / Mcr), cLT = P.h / P.b <= 2 ? 'b' : 'c', aLT = ALPHA[cLT];
+    var phLT = 0.5 * (1 + aLT * (lLT - 0.4) + 0.75 * lLT * lLT), XLT = lLT <= 0.4 ? 1 : Math.min(1, 1 / (lLT * lLT), 1 / (phLT + Math.sqrt(phLT * phLT - 0.75 * lLT * lLT)));
+    var MbRd = XLT * MyRk / G.M1;
+    if (MyEd > 0) chk('Kiepahdus (6.3.2)', MyEd / MbRd);
+    S.push(['Kiepahdus (6.3.2.3)',
+      'L<sub>cr,LT</sub> = ' + n(kLT, 2) + ' · ' + n(Lm, 2) + ' = ' + n(Lcl / 1000, 2) + ' m, C<sub>1</sub> = ' + n(C1, 2),
+      'M<sub>cr</sub> = C<sub>1</sub>π²EI<sub>z</sub>/L<sub>cr</sub>² · √(I<sub>w</sub>/I<sub>z</sub> + L<sub>cr</sub>²GI<sub>t</sub>/(π²EI<sub>z</sub>)) = <b>' + n(Mcr, 1) + ' kNm</b>',
+      'λ̄<sub>LT</sub> = √(W<sub>y</sub>f<sub>y</sub>/M<sub>cr</sub>) = √(' + n(MyRk, 1) + '/' + n(Mcr, 1) + ') = ' + n(lLT, 3) + ', h/b ' + (cLT === 'b' ? '≤' : '&gt;') + ' 2 → käyrä ' + cLT + ' (α<sub>LT</sub> = ' + n(aLT, 2) + ')',
+      'Φ<sub>LT</sub> = 0,5[1 + α<sub>LT</sub>(λ̄<sub>LT</sub> − 0,4) + 0,75λ̄<sub>LT</sub>²] = ' + n(phLT, 3) + ' → χ<sub>LT</sub> = <b>' + n(XLT, 3) + '</b>' + (lLT <= 0.4 ? ' (λ̄<sub>LT</sub> ≤ 0,4)' : ''),
+      'M<sub>b,Rd</sub> = χ<sub>LT</sub>W<sub>y</sub>f<sub>y</sub>/γ<sub>M1</sub> = <b>' + n(MbRd, 1) + ' kNm</b>' + (MyEd > 0 ? ' → M<sub>y,Ed</sub>/M<sub>b,Rd</sub> = ' + n(MyEd, 1) + '/' + n(MbRd, 1) + ' = ' + n(MyEd / MbRd, 3) + ' ' + L.ok(MyEd / MbRd) : '')]);
+
+    // 6. Yhteisvaikutus (liite B)
+    var cmy = Cm(My, !pin), cmz = Cm(Mz, !pin), cmlt = cmy, Cmy = cmy.v, Cmz = cmz.v, CmLT = Math.max(cmlt.v, 0.4);
+    var ny = N / NbyRd, nz = N / NbzRd, kyy, kzz, kyz, kzy;
+    if (pl) { kyy = Math.min(Cmy * (1 + (ly - 0.2) * ny), Cmy * (1 + 0.8 * ny)); kzz = Math.min(Cmz * (1 + (2 * lz - 0.6) * nz), Cmz * (1 + 1.4 * nz)); kyz = 0.6 * kzz;
+      kzy = lz >= 0.4 ? Math.max(1 - 0.1 * lz * nz / (CmLT - 0.25), 1 - 0.1 * nz / (CmLT - 0.25)) : Math.min(0.6 + lz, 1 - 0.1 * lz * nz / (CmLT - 0.25)); }
+    else { kyy = Math.min(Cmy * (1 + 0.6 * ly * ny), Cmy * (1 + 0.6 * ny)); kzz = Math.min(Cmz * (1 + 0.6 * lz * nz), Cmz * (1 + 0.6 * nz)); kyz = kzz;
+      kzy = Math.max(1 - 0.05 * lz * nz / (CmLT - 0.25), 1 - 0.05 * nz / (CmLT - 0.25)); }
+    var my = MyEd / (XLT * MyRk / G.M1), mz = MzEd / (MzRk / G.M1);
+    var u61 = ny + kyy * my + kyz * mz, u62 = nz + kzy * my + kzz * mz;
+    chk('Yhteisvaikutus kaava 6.61', u61); chk('Yhteisvaikutus kaava 6.62', u62);
+    S.push(['Normaalivoiman ja taivutuksen yhteisvaikutus (6.3.3, liite B)',
+      'C<sub>my</sub> = <b>' + n(Cmy, 3) + '</b> (' + cmy.t + '), C<sub>mz</sub> = <b>' + n(Cmz, 3) + '</b> (' + cmz.t + '), C<sub>mLT</sub> = ' + n(CmLT, 3),
+      'n<sub>y</sub> = N<sub>Ed</sub>/(χ<sub>y</sub>N<sub>Rk</sub>/γ<sub>M1</sub>) = ' + n(ny, 3) + ', n<sub>z</sub> = ' + n(nz, 3),
+      (pl ? 'Luokka 1–2: k<sub>yy</sub> = C<sub>my</sub>(1 + (λ̄<sub>y</sub> − 0,2)n<sub>y</sub>) ≤ C<sub>my</sub>(1 + 0,8n<sub>y</sub>) = ' : 'Luokka 3: k<sub>yy</sub> = C<sub>my</sub>(1 + 0,6λ̄<sub>y</sub>n<sub>y</sub>) ≤ C<sub>my</sub>(1 + 0,6n<sub>y</sub>) = ') + '<b>' + n(kyy, 3) + '</b>',
+      'k<sub>zz</sub> = <b>' + n(kzz, 3) + '</b>, k<sub>yz</sub> = ' + (pl ? '0,6k<sub>zz</sub>' : 'k<sub>zz</sub>') + ' = <b>' + n(kyz, 3) + '</b>, k<sub>zy</sub> = <b>' + n(kzy, 3) + '</b>',
+      'M<sub>y,Ed</sub> = ' + n(MyEd, 2) + ' kNm, M<sub>z,Ed</sub> = ' + n(MzEd, 2) + ' kNm',
+      '(6.61): ' + n(ny, 3) + ' + ' + n(kyy, 3) + ' · ' + n(MyEd, 1) + '/(' + n(XLT, 3) + ' · ' + n(MyRk, 1) + ') + ' + n(kyz, 3) + ' · ' + n(MzEd, 1) + '/' + n(MzRk, 1) + ' = <b>' + n(u61, 3) + '</b> ' + L.ok(u61),
+      '(6.62): ' + n(nz, 3) + ' + ' + n(kzy, 3) + ' · ' + n(MyEd, 1) + '/(' + n(XLT, 3) + ' · ' + n(MyRk, 1) + ') + ' + n(kzz, 3) + ' · ' + n(MzEd, 1) + '/' + n(MzRk, 1) + ' = <b>' + n(u62, 3) + '</b> ' + L.ok(u62)]);
+
+    // 7. Siirtymät ja jännitykset
+    var wz = integrate(x, My, E * P.Iy, pin), wy = integrate(x, Mz, E * P.Iz, pin);
+    var dz = amax(wz), dy = amax(wy), ampY = N > 0 && N < Ncy ? 1 / (1 - N / (PI * PI * E * P.Iy / Math.pow(ky * Lm * 1000, 2) / 1000)) : 1, ampZ = N > 0 && N < Ncz ? 1 / (1 - N / Ncz) : 1;
+    var sN = N * 1000 / P.A, sig = [], smax = -Infinity, smin = Infinity;
+    for (i = 0; i <= NS; i++) { var sm = -sN - Math.abs(My[i]) * 1e6 / P.Wely - Math.abs(Mz[i]) * 1e6 / P.Welz, sp = -sN + Math.abs(My[i]) * 1e6 / P.Wely + Math.abs(Mz[i]) * 1e6 / P.Welz; smin = Math.min(smin, sm); smax = Math.max(smax, sp); }
+    var tau = VzEd * 1000 / P.Avz;
+    S.push(['Siirtymät ja jännitykset (1. kertaluku, kimmoinen)',
+      'δ<sub>z,max</sub> = ' + n(dz, 1) + ' mm (L/' + (dz > 0 ? n(Lm * 1000 / dz, 0) : '∞') + '), toisen kertaluvun arvio δ/(1 − N/N<sub>cr,y</sub>) = ' + n(dz * ampY, 1) + ' mm',
+      'δ<sub>y,max</sub> = ' + n(dy, 1) + ' mm (L/' + (dy > 0 ? n(Lm * 1000 / dy, 0) : '∞') + '), toisen kertaluvun arvio = ' + n(dy * ampZ, 1) + ' mm',
+      'σ = −N/A ± M<sub>y</sub>/W<sub>el,y</sub> ± M<sub>z</sub>/W<sub>el,z</sub>: σ<sub>min</sub> = <b>' + n(smin, 1) + ' N/mm²</b> (puristus), σ<sub>max</sub> = <b>' + n(smax, 1) + ' N/mm²</b>, |σ|/f<sub>y</sub> = ' + n(Math.max(-smin, smax) / fy, 3),
+      'τ ≈ V<sub>z</sub>/A<sub>v,z</sub> = ' + n(tau, 1) + ' N/mm² (τ<sub>Rd</sub> = f<sub>y</sub>/√3 = ' + n(fy / Math.sqrt(3), 1) + ')']);
+
+    var umax = Math.max.apply(null, C.map(function (c) { return c[1]; })), gov = C.filter(function (c) { return c[1] === umax; })[0];
+    $('umax').textContent = n(umax * 100, 0);
+    var vd = $('verdict'), good = umax <= 1 && !W.length; vd.className = 'verdict ' + (good ? 'ok' : 'nok');
+    vd.innerHTML = P.name + ' ' + m.label + ', L = ' + n(Lm, 2) + ' m, luokka ' + cls + '. Mitoittava: ' + gov[0] + ' ' + L.ok(umax) + (W.length ? '<br>' + W.map(function (w) { return '<b class="warn">!</b> ' + w; }).join('<br>') : '');
+    $('chk').innerHTML = '<thead><tr><th>Tarkistus</th><th>Käyttöaste</th><th class="l"></th></tr></thead><tbody>' + C.map(function (c) { return '<tr' + (c === gov ? ' class="cur"' : '') + '><td>' + c[0] + '</td><td>' + n(c[1] * 100, 0) + ' %</td><td class="l">' + L.bar(c[1]) + '</td></tr>'; }).join('') + '</tbody>';
+    $('steps').innerHTML = L.steps(S);
+
+    R = { P: P, Lm: Lm, pin: pin, N: N, ez: ez, ey: ey, qz: qz, qy: qy, Hz: Hz, Hy: Hy, Myt: v('Myt'), Myb: Myb, Mzt: v('Mzt'), Mzb: Mzb, x: x, My: My, Mz: Mz, Vz: Vz, Vy: Vy, wz: wz, wy: wy, dz: dz, dy: dy, MyEd: MyEd, MzEd: MzEd, VzEd: VzEd, VyEd: VyEd, sN: sN, smin: smin, smax: smax, fy: fy, tau: tau };
+    draw();
+  }
+
+  // ===================== 3D-näkymä =====================
+  var cv = $('cv'), ctx = cv.getContext('2d'), mode = 'load', yaw = -0.95, pitch = 0.28, zoom = 1, DPR = 1, Wc = 0, Hc = 0;
+  function resize() { DPR = Math.min(window.devicePixelRatio || 1, 2); Wc = cv.clientWidth; Hc = cv.clientHeight; cv.width = Wc * DPR; cv.height = Hc * DPR; draw(); }
+  function proj(p) { // p = [X, Y, Z] maailma (Y ylös)
+    var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    var x1 = p[0] * cy + p[2] * sy, z1 = -p[0] * sy + p[2] * cy;
+    var y2 = p[1] * cp - z1 * sp, z2 = p[1] * sp + z1 * cp;
+    var S = Math.min(Wc * 0.95, Hc * 0.64) * zoom;
+    return [Wc / 2 + x1 * S, Hc * 0.53 - y2 * S, z2];
+  }
+  function col(r, g, b, a) { return 'rgba(' + Math.round(r) + ',' + Math.round(g) + ',' + Math.round(b) + ',' + (a === undefined ? 1 : a) + ')'; }
+  function divColor(t) { // -1 puristus (sininen) … +1 veto (punainen)
+    t = Math.max(-1, Math.min(1, t)); var c0 = [235, 235, 235];
+    var c1 = t < 0 ? [40, 110, 230] : [230, 60, 40], a = Math.pow(Math.abs(t), 0.6);
+    return [c0[0] + (c1[0] - c0[0]) * a, c0[1] + (c1[1] - c0[1]) * a, c0[2] + (c1[2] - c0[2]) * a]; }
+  function seqColor(t) { t = Math.max(0, Math.min(1, t)); var s = [[60, 70, 90], [70, 160, 200], [250, 210, 80], [247, 73, 2]], k = t * 3, i = Math.min(2, Math.floor(k)), f = k - i;
+    return [s[i][0] + (s[i + 1][0] - s[i][0]) * f, s[i][1] + (s[i + 1][1] - s[i][1]) * f, s[i][2] + (s[i + 1][2] - s[i][2]) * f]; }
+  function arrow(a, b, color, w, head) {
+    var A = proj(a), B = proj(b), dx = B[0] - A[0], dy = B[1] - A[1], l = Math.hypot(dx, dy) || 1, h = head || 9;
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = w || 2; ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0] - dx / l * h * 0.6, B[1] - dy / l * h * 0.6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(B[0], B[1]); ctx.lineTo(B[0] - dx / l * h - dy / l * h * 0.45, B[1] - dy / l * h + dx / l * h * 0.45); ctx.lineTo(B[0] - dx / l * h + dy / l * h * 0.45, B[1] - dy / l * h - dx / l * h * 0.45); ctx.closePath(); ctx.fill(); }
+  function label(p, t, color, align, size) {
+    var A = proj(p), fs = size || 12, parts = [], re = /_([^ =]+)/g, last = 0, mm;
+    while ((mm = re.exec(t))) { parts.push([t.slice(last, mm.index), 0]); parts.push([mm[1], 1]); last = re.lastIndex; } parts.push([t.slice(last), 0]);
+    var wsum = 0; parts.forEach(function (q) { ctx.font = (q[1] ? fs * 0.75 : fs) + 'px Arial,Helvetica,sans-serif'; q[2] = ctx.measureText(q[0]).width; wsum += q[2]; });
+    var x = A[0] - (align === 'center' ? wsum / 2 : align === 'right' ? wsum : 0); ctx.fillStyle = color || '#f4f4f4'; ctx.textAlign = 'left';
+    parts.forEach(function (q) { ctx.font = (q[1] ? fs * 0.75 : fs) + 'px Arial,Helvetica,sans-serif'; ctx.fillText(q[0], x, A[1] + (q[1] ? fs * 0.3 : 0)); x += q[2]; }); }
+
+  function draw() {
+    if (!R || !Wc) return;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, Wc, Hc);
+    var P = R.P, Lmm = R.Lm * 1000, sc = 1 / Lmm, vis = Math.max(1, 0.075 / (Math.max(P.h, P.b) * sc));
+    var hh = P.h / 2 * sc * vis, bb = P.b / 2 * sc * vis, tf = P.tf * sc * vis, tw = P.tw / 2 * sc * vis;
+    // poikkileikkauksen ääriviiva (X = y-akseli, Z = z-akseli)
+    var O = [[-bb, hh], [bb, hh], [bb, hh - tf], [tw, hh - tf], [tw, -hh + tf], [bb, -hh + tf], [bb, -hh], [-bb, -hh], [-bb, -hh + tf], [-tw, -hh + tf], [-tw, hh - tf], [-bb, hh - tf]];
+    var NS2 = R.x.length - 1, dmax = Math.max(R.dz, R.dy, 1e-9), dsc = (mode === 'disp' ? 0.12 / (dmax * sc) : 0);
+    function off(i) { return [R.wy[i] * sc * dsc, R.wz[i] * sc * dsc]; }
+    var faces = [], light = [0.35, 0.55, 0.75], ln = Math.hypot(light[0], light[1], light[2]);
+    var sabs = Math.max(Math.abs(R.smin), Math.abs(R.smax), 1);
+    function sigma(i, X, Z) { var yy = X / (sc * vis), zz = Z / (sc * vis); return -R.sN + R.My[i] * 1e6 * zz / P.Iy - R.Mz[i] * 1e6 * yy / P.Iz; }
+    function addFace(pts, rgb, alpha, stroke) {
+      var pp = pts.map(proj), z = pp.reduce(function (s, p) { return s + p[2]; }, 0) / pp.length;
+      faces.push({ pp: pp, z: z, rgb: rgb, a: alpha === undefined ? 1 : alpha, st: stroke, w: pts }); }
+    var Y = function (i) { return R.x[i] / R.Lm - 0.5; };
+    for (var i = 0; i < NS2; i++) {
+      var o0 = off(i), o1 = off(i + 1);
+      for (var k = 0; k < O.length; k++) {
+        var A = O[k], B = O[(k + 1) % O.length];
+        var pts = [[A[0] + o0[0], Y(i), A[1] + o0[1]], [B[0] + o0[0], Y(i), B[1] + o0[1]], [B[0] + o1[0], Y(i + 1), B[1] + o1[1]], [A[0] + o1[0], Y(i + 1), A[1] + o1[1]]];
+        var rgb;
+        if (mode === 'stress') rgb = divColor(sigma(i, (A[0] + B[0]) / 2, (A[1] + B[1]) / 2) / sabs);
+        else if (mode === 'disp') { var dd = Math.hypot(R.wy[i], R.wz[i]) / dmax; rgb = seqColor(dd); }
+        else rgb = [150, 158, 166];
+        addFace(pts, rgb, 1, 'shade');
+      }
+    }
+    // päätylevyt
+    [0, NS2].forEach(function (i) { var o = off(i); addFace(O.map(function (p) { return [p[0] + o[0], Y(i), p[1] + o[1]]; }), mode === 'stress' ? divColor(-R.sN / sabs) : [120, 126, 132], 1, 'shade'); });
+    // tuet
+    var base = -0.5, sz = Math.max(bb, hh) * 1.7;
+    if (!R.pin) { // jäykkä perustus
+      var bx = sz, bz = sz, bh = 0.035, cub = [[-bx, base, -bz], [bx, base, -bz], [bx, base, bz], [-bx, base, bz], [-bx, base - bh, -bz], [bx, base - bh, -bz], [bx, base - bh, bz], [-bx, base - bh, bz]];
+      [[0, 1, 2, 3], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]].forEach(function (f) { addFace(f.map(function (j) { return cub[j]; }), [90, 90, 90], 1, 'shade'); });
+    } else {
+      [[base, -1], [0.5, 1]].forEach(function (t) { var yb = t[0], s = t[1], hgt = 0.05 * s;
+        var tri = [[0, yb, 0], [-sz, yb - hgt, -sz], [sz, yb - hgt, -sz], [sz, yb - hgt, sz], [-sz, yb - hgt, sz]];
+        [[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]].forEach(function (f) { addFace(f.map(function (j) { return tri[j]; }), [247, 73, 2], 0.85, 'shade'); }); });
+    }
+    // voimasuurekuviot
+    if (mode === 'force') {
+      var mmax = Math.max(R.MyEd, R.MzEd, 1e-9), msc = 0.32 / mmax;
+      for (i = 0; i < NS2; i++) {
+        if (R.MyEd > 0) addFace([[0, Y(i), 0], [0, Y(i + 1), 0], [0, Y(i + 1), R.My[i + 1] * msc], [0, Y(i), R.My[i] * msc]], [247, 73, 2], 0.55);
+        if (R.MzEd > 0) addFace([[0, Y(i), 0], [0, Y(i + 1), 0], [-R.Mz[i + 1] * msc, Y(i + 1), 0], [-R.Mz[i] * msc, Y(i), 0]], [70, 160, 220], 0.55);
+      }
+    }
+    // lattiaruudukko
+    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    for (var g = -4; g <= 4; g++) { var a1 = proj([g * 0.08, base - (R.pin ? 0.05 : 0.035), -0.32]), a2 = proj([g * 0.08, base - (R.pin ? 0.05 : 0.035), 0.32]), b1 = proj([-0.32, base - (R.pin ? 0.05 : 0.035), g * 0.08]), b2 = proj([0.32, base - (R.pin ? 0.05 : 0.035), g * 0.08]);
+      ctx.beginPath(); ctx.moveTo(a1[0], a1[1]); ctx.lineTo(a2[0], a2[1]); ctx.moveTo(b1[0], b1[1]); ctx.lineTo(b2[0], b2[1]); ctx.stroke(); }
+    // alkuperäinen muoto haamuna
+    if (mode === 'disp') { ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.setLineDash([4, 4]); [[-bb, hh], [bb, hh], [bb, -hh], [-bb, -hh]].forEach(function (c) { var a = proj([c[0], -0.5, c[1]]), b = proj([c[0], 0.5, c[1]]); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }); ctx.setLineDash([]); }
+    // piirto
+    faces.sort(function (a, b) { return a.z - b.z; });
+    faces.forEach(function (f) {
+      var rgb = f.rgb;
+      if (f.st === 'shade') { var p = f.pp, ux = p[1][0] - p[0][0], uy = p[1][1] - p[0][1], uz = p[1][2] - p[0][2], vx = p[2][0] - p[0][0], vy = p[2][1] - p[0][1], vz = p[2][2] - p[0][2];
+        var nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx, nl = Math.hypot(nx, ny, nz) || 1, d = Math.abs((nx * light[0] - ny * light[1] + nz * light[2]) / (nl * ln));
+        var k2 = mode === 'stress' || mode === 'disp' ? 0.55 + 0.45 * d : 0.35 + 0.65 * d; rgb = [rgb[0] * k2, rgb[1] * k2, rgb[2] * k2]; }
+      ctx.beginPath(); f.pp.forEach(function (p, j) { if (j) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.closePath();
+      ctx.fillStyle = col(rgb[0], rgb[1], rgb[2], f.a); ctx.fill();
+      ctx.strokeStyle = col(rgb[0], rgb[1], rgb[2], f.a); ctx.lineWidth = 0.8; ctx.stroke();
+    });
+
+    // kuorma- ja muut merkinnät
+    var top = 0.5, W = '#f4f4f4', lg = [];
+    if (mode === 'load') {
+      if (R.N > 0) { var ex = -R.ey * sc * vis, ezz = R.ez * sc * vis; arrow([ex, top + 0.26, ezz], [ex, top + 0.01, ezz], W, 3, 12); label([ex + 0.02, top + 0.2, ezz], 'N = ' + n(R.N, 0) + ' kN', W); }
+      var qs = function (q, dir, txt, c) { if (!q) return; var s = Math.sign(q), d0 = 0.16, cnt = 9;
+        for (var j = 0; j <= cnt; j++) { var yy = -0.5 + j / cnt; var p0 = dir === 'z' ? [0, yy, -s * (hh + d0)] : [s * (bb + d0), yy, 0], p1 = dir === 'z' ? [0, yy, -s * (hh + 0.015)] : [s * (bb + 0.015), yy, 0]; arrow(p0, p1, c, 1.5, 7); }
+        var pa = dir === 'z' ? [0, -0.5, -s * (hh + d0)] : [s * (bb + d0), -0.5, 0], pb = dir === 'z' ? [0, 0.5, -s * (hh + d0)] : [s * (bb + d0), 0.5, 0], A = proj(pa), B = proj(pb);
+        ctx.strokeStyle = c; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.stroke();
+        label(dir === 'z' ? [0, -0.15, -s * (hh + d0 + 0.02)] : [s * (bb + d0 + 0.02), -0.3, 0], txt, c, 'left'); };
+      qs(R.qz, 'z', 'q_z = ' + n(R.qz, 1) + ' kN/m', '#F74902'); qs(R.qy, 'y', 'q_y = ' + n(R.qy, 1) + ' kN/m', '#46a0dc');
+      if (R.Hz) { var s1 = Math.sign(R.Hz); arrow([0, top, -s1 * (hh + 0.2)], [0, top, -s1 * (hh + 0.01)], '#F74902', 3, 11); label([0, top + 0.07, -s1 * (hh + 0.2)], 'H_z = ' + n(R.Hz, 1) + ' kN', '#F74902'); }
+      if (R.Hy) { var s2 = Math.sign(R.Hy); arrow([s2 * (bb + 0.2), top, 0], [s2 * (bb + 0.01), top, 0], '#46a0dc', 3, 11); label([s2 * (bb + 0.2), top + 0.11, 0], 'H_y = ' + n(R.Hy, 1) + ' kN', '#46a0dc'); }
+      var mt = [];
+      if (R.Myt) mt.push('M_y,ylä = ' + n(R.Myt, 1)); if (R.Mzt) mt.push('M_z,ylä = ' + n(R.Mzt, 1));
+      if (mt.length) label([bb + 0.04, top - 0.04, 0], mt.join(', ') + ' kNm', '#f2b84b');
+      var mb = []; if (R.pin && R.Myb) mb.push('M_y,ala = ' + n(R.Myb, 1)); if (R.pin && R.Mzb) mb.push('M_z,ala = ' + n(R.Mzb, 1));
+      if (mb.length) label([bb + 0.04, -0.5 + 0.04, 0], mb.join(', ') + ' kNm', '#f2b84b');
+      lg = ['<b>Kuormat</b> ' + (R.pin ? 'nivel–nivel (oranssit tuet)' : 'masto, jäykkä alapää'), 'Oranssi = z-suunta (vahvempi akseli, M<sub>y</sub>)', 'Sininen = y-suunta (heikompi akseli, M<sub>z</sub>)'];
+    } else if (mode === 'force') {
+      var iy = R.My.reduce(function (b, m, j) { return Math.abs(m) > Math.abs(R.My[b]) ? j : b; }, 0), iz = R.Mz.reduce(function (b, m, j) { return Math.abs(m) > Math.abs(R.Mz[b]) ? j : b; }, 0), mm = 0.32 / Math.max(R.MyEd, R.MzEd, 1e-9);
+      if (R.MyEd > 0) label([0, Y(iy), R.My[iy] * mm + 0.02 * Math.sign(R.My[iy] || 1)], 'M_y = ' + n(R.MyEd, 1) + ' kNm', '#F74902');
+      if (R.MzEd > 0) label([-R.Mz[iz] * mm - 0.02, Y(iz) + 0.07, 0], 'M_z = ' + n(R.MzEd, 1) + ' kNm', '#46a0dc', 'right');
+      label([bb + 0.03, 0.42, hh], 'N = ' + n(R.N, 0) + ' kN (vakio)', W);
+      lg = ['<b>Voimasuureet</b>', 'M<sub>y,max</sub> = <b>' + n(R.MyEd, 1) + '</b> kNm', 'M<sub>z,max</sub> = <b>' + n(R.MzEd, 1) + '</b> kNm', 'N = <b>' + n(R.N, 0) + '</b> kN', 'V<sub>z,max</sub> = <b>' + n(R.VzEd, 1) + '</b> kN', 'V<sub>y,max</sub> = <b>' + n(R.VyEd, 1) + '</b> kN'];
+    } else if (mode === 'disp') {
+      lg = ['<b>Siirtymät</b> (1. kertaluku), suurennettu ×' + n(dsc, 0), 'δ<sub>z,max</sub> = <b>' + n(R.dz, 1) + '</b> mm', 'δ<sub>y,max</sub> = <b>' + n(R.dy, 1) + '</b> mm', 'Väri: sininen → oranssi = pieni → suuri siirtymä'];
+    } else {
+      lg = ['<b>Normaalijännitys σ</b>', 'puristus <span style="color:#4b7ef0">■</span> ' + n(R.smin, 0) + ' N/mm²', 'veto <span style="color:#e6503a">■</span> ' + n(R.smax, 0) + ' N/mm²', 'f<sub>y</sub> = ' + R.fy + ' N/mm²', 'τ ≈ ' + n(R.tau, 1) + ' N/mm²'];
+      // väripalkki
+      var gx = Wc - 26, gy = 50, gh = Math.min(200, Hc - 120); for (var t = 0; t <= gh; t++) { var c = divColor(1 - 2 * t / gh); ctx.fillStyle = col(c[0], c[1], c[2]); ctx.fillRect(gx, gy + t, 12, 1); }
+      ctx.fillStyle = '#9a9a9a'; ctx.font = '11px Arial,Helvetica,sans-serif'; ctx.textAlign = 'right'; ctx.fillText('+' + n(sabs, 0), gx - 4, gy + 8); ctx.fillText('0', gx - 4, gy + gh / 2 + 4); ctx.fillText('−' + n(sabs, 0), gx - 4, gy + gh); }
+    // akselit
+    var ax0 = [-0.42, -0.5, 0.36], axl = 0.09;
+    arrow(ax0, [ax0[0] + axl, ax0[1], ax0[2]], '#46a0dc', 1.5, 7); label([ax0[0] + axl + 0.012, ax0[1], ax0[2]], 'y', '#46a0dc');
+    arrow(ax0, [ax0[0], ax0[1], ax0[2] + axl], '#F74902', 1.5, 7); label([ax0[0], ax0[1], ax0[2] + axl + 0.015], 'z', '#F74902');
+    arrow(ax0, [ax0[0], ax0[1] + axl, ax0[2]], '#f4f4f4', 1.5, 7); label([ax0[0] + 0.01, ax0[1] + axl + 0.01, ax0[2]], 'x', '#f4f4f4');
+    ctx.fillStyle = '#6a6a6a'; ctx.font = '11px Arial,Helvetica,sans-serif'; ctx.textAlign = 'left'; ctx.fillText(P.name + ' · L = ' + n(R.Lm, 2) + ' m' + (vis > 1.01 ? ' · poikkileikkaus ×' + n(vis, 1) : ''), 10, Hc - 10);
+    $('legend').innerHTML = lg.map(function (s) { return '<span>' + s + '</span>'; }).join('');
+    $('kv').innerHTML = [['M<sub>y,Ed</sub>', n(R.MyEd, 1) + ' kNm'], ['M<sub>z,Ed</sub>', n(R.MzEd, 1) + ' kNm'], ['V<sub>z,Ed</sub>', n(R.VzEd, 1) + ' kN'], ['δ<sub>z</sub> / δ<sub>y</sub>', n(R.dz, 1) + ' / ' + n(R.dy, 1) + ' mm'], ['σ<sub>min</sub> / σ<sub>max</sub>', n(R.smin, 0) + ' / ' + n(R.smax, 0)]].map(function (a) { return '<div>' + a[0] + '<b>' + a[1] + '</b></div>'; }).join('');
+  }
+
+  // vuorovaikutus
+  var pts = {}, last = null, pinch = 0;
+  cv.addEventListener('pointerdown', function (e) { pts[e.pointerId] = [e.clientX, e.clientY]; cv.setPointerCapture(e.pointerId); cv.classList.add('drag'); last = [e.clientX, e.clientY]; });
+  cv.addEventListener('pointermove', function (e) {
+    if (!pts[e.pointerId]) return; pts[e.pointerId] = [e.clientX, e.clientY]; var ids = Object.keys(pts);
+    if (ids.length === 2) { var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (pinch) zoom = Math.max(0.4, Math.min(4, zoom * d / pinch)); pinch = d; draw(); return; }
+    var dx = e.clientX - last[0], dy = e.clientY - last[1]; last = [e.clientX, e.clientY];
+    yaw += dx * 0.01; if (e.pointerType === 'mouse') pitch = Math.max(-1.2, Math.min(1.2, pitch + dy * 0.008)); draw(); });
+  function up(e) { delete pts[e.pointerId]; pinch = 0; if (!Object.keys(pts).length) cv.classList.remove('drag'); }
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  cv.addEventListener('wheel', function (e) { e.preventDefault(); zoom = Math.max(0.4, Math.min(4, zoom * (e.deltaY < 0 ? 1.1 : 0.9))); draw(); }, { passive: false });
+  $('zin').onclick = function () { zoom = Math.min(4, zoom * 1.2); draw(); };
+  $('zout').onclick = function () { zoom = Math.max(0.4, zoom / 1.2); draw(); };
+  $('zreset').onclick = function () { yaw = -0.95; pitch = 0.28; zoom = 1; draw(); };
+  $('modes').querySelectorAll('button').forEach(function (b) { b.onclick = function () { mode = b.dataset.m; $('modes').querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); draw(); }; });
+
+  $('sup').addEventListener('change', function () { var k = $('sup').value === 'pp' ? 1 : 2; $('ky').value = k; $('kz').value = k; $('kLT').value = k; });
+  document.querySelectorAll('.a-in input,.a-in select').forEach(function (el) { el.addEventListener('input', calc); el.addEventListener('change', calc); });
+  window.addEventListener('resize', resize);
+  calc(); resize();
+})();
+</script>
+</body>
+</html>

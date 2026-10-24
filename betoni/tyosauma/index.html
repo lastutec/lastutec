@@ -39,6 +39,7 @@ select,input{display:block;margin-top:3px;font-family:var(--body);font-size:14px
 input[type=number]{background:#2a1206;font-variant-numeric:tabular-nums}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hint{font-size:13px;color:var(--muted);margin:0}
+.fig+.fig{margin-top:-4px}
 .fig svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
 .big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .big .v{font-size:40px;font-weight:700;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
@@ -112,6 +113,7 @@ td.sel sup{color:#111}
   <label class="chk" for="crack"><input type="checkbox" id="crack" checked><span>Sauma voi halkeilla merkittävästi (c = 0 sileissä ja karheissa, 0,5 vaarnatuissa)</span></label>
   <label class="chk" for="dyn"><input type="checkbox" id="dyn"><span>Väsyttävä tai dynaaminen kuorma (c puolitetaan)</span></label>
   <div class="fig" id="fig"></div>
+  <div class="fig" id="fig2"></div>
 </section>
 
 <section class="panel" aria-labelledby="h-res">
@@ -182,6 +184,32 @@ function fig(si, al, sn) {
   return o + `</svg>`;
 }
 
+function fig2(bi, nb, D, sp) {
+  const W = 600, H = 230;
+  let o = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Työsauma toisesta suunnasta">`;
+  // Poikkileikkaus: leveys bi ja tangot rinnakkain
+  const x0 = 40, wpx = 180, yj = 120, top = 50, bot = 190;
+  o += `<text x="${x0}" y="18" font-size="12" font-weight="700" fill="var(--accent)">POIKKILEIKKAUS</text>`;
+  o += `<rect x="${x0}" y="${top}" width="${wpx}" height="${yj - top}" fill="url(#hatch2)" stroke="var(--ink)" stroke-width="1.2"/>`;
+  o += `<rect x="${x0}" y="${yj}" width="${wpx}" height="${bot - yj}" fill="#8f8f8f" fill-opacity="0.3" stroke="var(--ink)" stroke-width="1.2"/>`;
+  o += `<line x1="${x0 - 10}" y1="${yj}" x2="${x0 + wpx + 10}" y2="${yj}" stroke="var(--accent)" stroke-width="2.5"/>`;
+  const m = Math.max(1, Math.min(8, nb));
+  for (let i = 0; i < m; i++) { const x = x0 + wpx * (i + 1) / (m + 1); o += `<line x1="${x}" y1="${yj - 45}" x2="${x}" y2="${yj + 45}" stroke="var(--accent)" stroke-width="${Math.max(3, D * 0.35)}" stroke-linecap="round"/>`; }
+  o += ext(x0, bot, x0, bot + 24) + ext(x0 + wpx, bot, x0 + wpx, bot + 24) + dim(x0, bot + 20, x0 + wpx, bot + 20, `b<tspan baseline-shift="sub" font-size="9">i</tspan> = ${bi} mm`, 1);
+  o += `<text x="${x0 + wpx + 14}" y="${yj + 4}" font-size="12" fill="var(--accent)">sauma</text><text x="${x0 + wpx + 14}" y="${yj - 40}" font-size="12" fill="var(--muted)">${nb} × Ø${D}</text>`;
+  // Sivukuva saumaa pitkin: jako k, tarkastelukaista 1000 mm
+  const L0 = 320, Lpx = 250, s = Lpx / 1000;
+  o += `<text x="${L0}" y="18" font-size="12" font-weight="700" fill="var(--accent)">SAUMAA PITKIN</text>`;
+  o += `<rect x="${L0}" y="${top}" width="${Lpx}" height="${yj - top}" fill="url(#hatch2)" stroke="var(--ink)" stroke-width="1.2"/><rect x="${L0}" y="${yj}" width="${Lpx}" height="${bot - yj}" fill="#8f8f8f" fill-opacity="0.3" stroke="var(--ink)" stroke-width="1.2"/>`;
+  o += `<line x1="${L0 - 10}" y1="${yj}" x2="${L0 + Lpx + 10}" y2="${yj}" stroke="var(--accent)" stroke-width="2.5"/>`;
+  const first = sp / 2, xs = []; for (let x = first; x < 1000; x += sp) xs.push(L0 + x * s);
+  xs.forEach(x => { o += `<line x1="${x}" y1="${yj - 45}" x2="${x}" y2="${yj + 45}" stroke="var(--accent)" stroke-width="${Math.max(3, D * 0.35)}" stroke-linecap="round"/>`; });
+  if (xs.length >= 2) o += ext(xs[0], yj - 45, xs[0], top - 14) + ext(xs[1], yj - 45, xs[1], top - 14) + dim(xs[0], top - 10, xs[1], top - 10, `k = ${sp}`);
+  o += ext(L0, bot, L0, bot + 24) + ext(L0 + Lpx, bot, L0 + Lpx, bot + 24) + dim(L0, bot + 20, L0 + Lpx, bot + 20, 'tarkastelukaista 1 000 mm', 1);
+  o += `<defs><pattern id="hatch2" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="10" stroke="var(--muted)" stroke-width="0.8"/></pattern></defs>`;
+  return o + `</svg>`;
+}
+
 function calc() {
   const [cn, fck, fctk] = CS[+$('c').value], si = +$('surf').value, [sname, c0, mu] = SURF[si];
   const bi = +$('bi').value, ved = Math.max(0, +$('ved').value || 0), sn = +$('sn').value || 0, nb = Math.max(0, +$('nb').value || 0), D = +$('dia').value, sp = +$('sp').value;
@@ -211,6 +239,7 @@ function calc() {
   ];
   $('steps').innerHTML = S.map((s, i) => `<div class="step"><span class="no">${String(i + 1).padStart(2, '0')}</span><div><h3>${s[0]}</h3><div class="math"><span class="s">${s[1]}</span><span class="r">${s[2]}</span></div></div></div>`).join('');
   $('fig').innerHTML = fig(si, al, sn);
+  $('fig2').innerHTML = fig2(bi, nb, D, sp);
 }
 $('surf').value = '0';
 calc();

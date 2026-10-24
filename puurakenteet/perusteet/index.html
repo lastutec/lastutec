@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Suunnitteluperusteet – Puurakenteet – Lastutec</title>
+<meta name="description" content="Puurakenteiden suunnitteluperusteet Eurokoodi 5:n mukaan: käyttöluokka, kuorman aikaluokka, seuraamusluokka, kmod, γM, kdef ja materiaalien mitoituslujuudet.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../puu.css">
+<script src="../puu.js"></script>
+<style>
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.kpi{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.kpi span{display:block;font-size:12px;color:var(--muted)}
+.kpi b{font-size:26px;color:var(--accent);font-variant-numeric:tabular-nums}
+.opt{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:8px}
+.opt label{flex-direction:row;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;cursor:pointer;color:var(--ink);background:var(--bg)}
+.opt label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opt input{width:auto;margin:3px 0 0;accent-color:var(--accent)}
+.opt small{display:block;color:var(--muted);font-size:12px;margin-top:2px;line-height:1.35}
+.chk-row{display:flex;gap:14px;flex-wrap:wrap}
+.tag{display:inline-block;padding:1px 7px;border-radius:3px;background:#2a2a2a;font-size:12px;color:var(--muted)}
+td.hl{color:var(--accent);font-weight:700}
+.saved{font-size:12.5px;color:var(--ok)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Puurakenteet</a><h1>Suunnitteluperusteet</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 1 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="intro">Valitse kohteen suunnitteluperusteet: seuraamusluokka, mitoitustilanne, käyttöluokka ja kuorman aikaluokka. Työkalu määrittää niiden perusteella muunnoskertoimen k<sub>mod</sub>, osavarmuusluvun γ<sub>M</sub> ja virumaluvun k<sub>def</sub> sekä laskee materiaalien mitoituslujuudet X<sub>d</sub> = k<sub>mod</sub> · X<sub>k</sub> / γ<sub>M</sub>. Valinnat tallentuvat selaimeen, ja muut puutyökalut käyttävät niitä oletuksina.</p>
+
+<div class="grid">
+<section class="panel" aria-labelledby="h-in">
+  <h2 id="h-in">Valinnat</h2>
+  <div class="sec">Seuraamusluokka ja mitoitustilanne</div>
+  <div class="inputs">
+    <label>Seuraamusluokka<select id="cc"><option value="CC1">CC1 (K<sub>FI</sub> = 0,9)</option><option value="CC2" selected>CC2 (K<sub>FI</sub> = 1,0)</option><option value="CC3">CC3 (K<sub>FI</sub> = 1,1)</option></select></label>
+    <label>Mitoitustilanne<select id="sit"><option value="perus" selected>Perusyhdistelmä (murtorajatila)</option><option value="onn">Onnettomuus / palo</option></select></label>
+  </div>
+  <div class="sec">Käyttöluokka (2.6)</div>
+  <div class="opt" id="klopt">
+    <label><input type="radio" name="kl" value="1" checked><span><b>Käyttöluokka 1</b><small>Lämmitetyt sisätilat, RH &gt; 65 % vain muutamana viikkona vuodessa. Puun kosteus ≤ 12 %. Myös lämmöneristekerroksessa olevat rakenteet.</small></span></label>
+    <label><input type="radio" name="kl" value="2"><span><b>Käyttöluokka 2</b><small>Katettu, tuuletettu ja kastumiselta suojattu ulkoilma: rossipohjat, kylmät ullakot. RH &gt; 85 % vain muutamana viikkona. Puun kosteus ≤ 20 %.</small></span></label>
+    <label><input type="radio" name="kl" value="3"><span><b>Käyttöluokka 3</b><small>Ulkona säälle alttiina, kosteassa tilassa tai veden välittömän vaikutuksen alaisena.</small></span></label>
+  </div>
+  <div class="sec">Kuorman aikaluokka (2.5)</div>
+  <p class="hint">Rasti kuormitusyhdistelmän kuormat. Mitoittava aikaluokka määräytyy lyhytkestoisimman kuorman mukaan.</p>
+  <div class="chk-row">
+    <label class="chk"><input type="checkbox" id="lG" checked> Omapaino ja kiinteät laitteet <span class="tag">P</span></label>
+    <label class="chk"><input type="checkbox" id="lQ" checked> Lumi tai hyötykuorma <span class="tag">K</span></label>
+    <label class="chk"><input type="checkbox" id="lW"> Tuuli <span class="tag">H</span></label>
+    <label class="chk"><input type="checkbox" id="lA"> Onnettomuuskuorma <span class="tag">H</span></label>
+  </div>
+  <div class="inputs"><label>Aikaluokka<select id="ai"></select></label></div>
+  <div class="sec">Materiaali</div>
+  <div class="inputs">
+    <label>Sauvamateriaali<select id="mat"></select></label>
+    <label>LVL-palkin korkeus h <span class="u">[mm]</span><input type="number" id="hh" value="300" step="10" min="50"></label>
+    <label>Puulevy<select id="pl"></select></label>
+    <label>Levyn paksuus t <span class="u">[mm]</span><input type="number" id="pt" value="18" step="1" min="4" max="30"></label>
+  </div>
+  <p class="saved" id="saved"></p>
+</section>
+
+<section class="panel" aria-labelledby="h-res">
+  <h2 id="h-res">Tulos</h2>
+  <div class="kpis" id="kpis"></div>
+  <div class="verdict" id="verdict"></div>
+  <div class="sec">Mitoituslujuudet: <span id="matname"></span></div>
+  <div class="tablewrap"><table id="tmat"></table></div>
+  <div class="sec">Laskenta</div>
+  <div class="steps" id="steps"></div>
+</section>
+</div>
+
+<section class="panel">
+  <div class="sec">Mitoituslujuudet kaikille sauvamateriaaleille [N/mm²] – valituilla perusteilla</div>
+  <div class="tablewrap"><table id="tall"></table></div>
+  <div class="sec">Puulevy: <span id="plname"></span></div>
+  <div class="tablewrap"><table id="tpl"></table></div>
+  <div class="sec">Kuormitusyhdistelmät (2.2–2.3)</div>
+  <div class="steps" id="combo"></div>
+</section>
+<p class="foot">Lähde: Puuinfo, Puurakenteiden lyhennetty suunnitteluohje, Eurokoodi 5, 5. painos (2020), taulukot 2.6, 2.7 ja 3.1–3.5. Ohje perustuu standardiin EN 1995-1-1, Suomen kansalliseen liitteeseen ja RIL 205-1-2017 -ohjeeseen. Lyhennetty ohje on tarkoitettu seuraamusluokkiin CC1 ja CC2. Yhdistelmässä, jossa on eri aikaluokkien kuormia, käytetään lyhytkestoisimman kuorman k<sub>mod</sub>-arvoa. Jos liitoksessa on kaksi materiaalia, käytetään niistä pienempää k<sub>mod</sub>-arvoa. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); }, P = PUU, n = P.n;
+  P.fill($('ai'), [['auto', 'Automaattinen kuormista'], ['P', 'Pysyvä'], ['K', 'Keskipitkä'], ['H', 'Hetkellinen']], 'auto');
+  P.fill($('mat'), Object.keys(P.MAT).map(function (k) { return [k, P.MAT[k].g + ': ' + P.MAT[k].name]; }), 'C24');
+  P.fill($('pl'), Object.keys(P.PLATE).map(function (k) { return [k, P.PLATE[k].name]; }), 'koivu');
+  var AIN = { P: 'pysyvä', K: 'keskipitkä', H: 'hetkellinen' }, KFI = { CC1: 0.9, CC2: 1.0, CC3: 1.1 };
+  var B = P.loadBasis();
+  if (B) { $('cc').value = B.cc || 'CC2'; $('sit').value = B.sit || 'perus'; document.querySelectorAll('input[name=kl]').forEach(function (r) { r.checked = String(B.kl) === r.value; }); ['lG', 'lQ', 'lW', 'lA'].forEach(function (k) { if (B[k] !== undefined) $(k).checked = B[k]; }); if (B.aiSel) $('ai').value = B.aiSel; if (B.mat) $('mat').value = B.mat; if (B.pl) $('pl').value = B.pl; if (B.pt) $('pt').value = B.pt; if (B.hh) $('hh').value = B.hh; }
+
+  function calc() {
+    var kl = +document.querySelector('input[name=kl]:checked').value, cc = $('cc').value, sit = $('sit').value, acc = sit === 'onn';
+    var ai = $('ai').value; var auto = $('lA').checked || $('lW').checked ? 'H' : $('lQ').checked ? 'K' : 'P'; if (ai === 'auto') ai = auto;
+    var M = P.MAT[$('mat').value], gm = acc ? 1.0 : P.GAMMA[M.gm], km = P.kmod(M.km, kl, ai), kd = P.kdef(M.kd, kl), S = [], W = [];
+    if (cc === 'CC3') W.push('Lyhennetty ohje koskee seuraamusluokkia CC1 ja CC2 – käytä RIL 205-1-2017 / EN 1995-1-1.');
+    $('kpis').innerHTML = [['k<sub>mod</sub>', n(km, 2)], ['γ<sub>M</sub>', n(gm, 2)], ['k<sub>mod</sub>/γ<sub>M</sub>', n(km / gm, 3)], ['k<sub>def</sub>', n(kd, 2)], ['K<sub>FI</sub>', n(KFI[cc], 1)]].map(function (a) { return '<div class="kpi"><span>' + a[0] + '</span><b>' + a[1] + '</b></div>'; }).join('');
+    $('verdict').className = 'verdict ' + (W.length ? 'nok' : 'ok');
+    $('verdict').innerHTML = 'Käyttöluokka ' + kl + ', ' + AIN[ai] + ' aikaluokka, ' + cc + ', ' + (acc ? 'onnettomuusyhdistelmä' : 'perusyhdistelmä') + '. Liitokset: γ<sub>M</sub> = ' + (acc ? '1,0' : '1,3') + '.' + (W.length ? '<br><b class="warn">!</b> ' + W.join('<br><b class="warn">!</b> ') : '');
+    $('matname').textContent = M.name;
+    var kh = 1, khTxt = '';
+    if (M.lvl) { var h = +$('hh').value || 300; if (h > 300) { kh = Math.min(Math.pow(300 / h, M.s), 1.2); } else kh = 1; khTxt = 'LVL-palkin korkeus h = ' + n(h, 0) + ' mm → k<sub>h</sub> = (300/h)<sup>s</sup> = ' + n(kh, 3) + (h <= 300 ? ' (h ≤ 300 mm, ei pienennystä)' : '') + ', s = ' + n(M.s, 2); }
+    var rows = P.PROPS.map(function (p) { var fk = M[p[0]] * (p[0] === 'fm' ? kh : 1); return '<tr><td>' + p[1] + '</td><td class="l">' + p[2] + '</td><td>' + n(M[p[0]], 1) + '</td><td class="hl">' + n(km * fk / gm, 2) + '</td></tr>'; });
+    if (M.lvl) rows.push('<tr><td>Taivutus lappeellaan</td><td class="l">f<sub>m,0,flat</sub></td><td>' + n(M.fmflat, 1) + '</td><td class="hl">' + n(km * M.fmflat / gm, 2) + '</td></tr>', '<tr><td>Puristus poikittain lappeellaan</td><td class="l">f<sub>c,90,flat</sub></td><td>' + n(M.fc90flat, 1) + '</td><td class="hl">' + n(km * M.fc90flat / gm, 2) + '</td></tr>');
+    $('tmat').innerHTML = '<thead><tr><th>Ominaisuus</th><th class="l"></th><th>X<sub>k</sub> [N/mm²]</th><th>X<sub>d</sub> [N/mm²]</th></tr></thead><tbody>' + rows.join('') +
+      '<tr><td>Kimmomoduuli (keskiarvo)</td><td class="l">E<sub>0,mean</sub></td><td>' + n(M.E, 0) + '</td><td>' + n(M.E, 0) + '</td></tr>' +
+      '<tr><td>Loppukimmomoduuli (pysyvä kuorma)</td><td class="l">E<sub>fin</sub> = E/(1 + k<sub>def</sub>)</td><td></td><td>' + (kd ? n(M.E / (1 + kd), 0) : '–') + '</td></tr>' +
+      '<tr><td>Ominaistiheys</td><td class="l">ρ<sub>k</sub> [kg/m³]</td><td>' + M.rk + '</td><td>ρ<sub>mean</sub> = ' + M.rm + '</td></tr></tbody>';
+    S.push(['Kuorman aikaluokka (taulukko 2.6)', 'Kuormat: ' + [['lG', 'omapaino (P)'], ['lQ', 'lumi/hyötykuorma (K)'], ['lW', 'tuuli (H)'], ['lA', 'onnettomuus (H)']].filter(function (x) { return $(x[0]).checked; }).map(function (x) { return x[1]; }).join(', '),
+      'Lyhytkestoisin kuorma määrää → <b>' + AIN[auto] + '</b>' + ($('ai').value !== 'auto' ? ' (käsin valittu: <b>' + AIN[ai] + '</b>)' : '')]);
+    S.push(['Muunnoskerroin k<sub>mod</sub> (taulukko 3.1)', M.g + ', käyttöluokka ' + kl + ', ' + AIN[ai] + ' → <b>k<sub>mod</sub> = ' + n(km, 2) + '</b>']);
+    S.push(['Osavarmuusluku γ<sub>M</sub> (taulukko 2.7)', acc ? 'Onnettomuusyhdistelmä → <b>γ<sub>M</sub> = 1,0</b>' : M.g + ' → <b>γ<sub>M</sub> = ' + n(gm, 2) + '</b> (liitokset 1,3)']);
+    S.push(['Mitoituslujuus (2.12)', 'X<sub>d</sub> = k<sub>mod</sub> · X<sub>k</sub> / γ<sub>M</sub> = ' + n(km, 2) + ' / ' + n(gm, 2) + ' · X<sub>k</sub> = <b>' + n(km / gm, 4) + ' · X<sub>k</sub></b>', 'Esim. taivutus: f<sub>m,d</sub> = ' + n(km, 2) + ' · ' + n(M.fm * kh, 1) + ' / ' + n(gm, 2) + ' = <b>' + n(km * M.fm * kh / gm, 2) + ' N/mm²</b>'].concat(khTxt ? [khTxt] : []));
+    S.push(['Virumaluku k<sub>def</sub> (taulukko 3.2)', M.g + (M.lvl ? ' syrjällään' : '') + ', KL ' + kl + ' → <b>k<sub>def</sub> = ' + n(kd, 2) + '</b>' + (kl === 3 ? '' : ''), 'Kokonaistaipuma (2.8): w<sub>fin</sub> = (1 + k<sub>def</sub>)w<sub>inst,G</sub> + (1 + 0,2k<sub>def</sub>)w<sub>inst,lumi</sub> + (0,7 + 0,3k<sub>def</sub>)w<sub>inst,hyöty</sub> = ' + n(1 + kd, 2) + 'w<sub>G</sub> + ' + n(1 + 0.2 * kd, 2) + 'w<sub>lumi</sub> + ' + n(0.7 + 0.3 * kd, 2) + 'w<sub>hyöty</sub>']);
+    $('steps').innerHTML = P.steps(S);
+    // kaikki materiaalit
+    $('tall').innerHTML = '<thead><tr><th class="l">Materiaali</th><th>k<sub>mod</sub></th><th>γ<sub>M</sub></th>' + P.PROPS.map(function (p) { return '<th>' + p[2] + '<sub>,d</sub></th>'; }).join('') + '<th>E<sub>mean</sub></th><th>k<sub>def</sub></th><th>ρ<sub>k</sub></th></tr></thead><tbody>' +
+      Object.keys(P.MAT).map(function (k) { var m = P.MAT[k], g2 = acc ? 1 : P.GAMMA[m.gm], k2 = P.kmod(m.km, kl, ai), d2 = P.kdef(m.kd, kl); return '<tr' + (m === M ? ' class="cur"' : '') + '><td class="l">' + m.g + ' ' + m.name + '</td><td>' + n(k2, 2) + '</td><td>' + n(g2, 2) + '</td>' + P.PROPS.map(function (p) { return '<td>' + n(k2 * m[p[0]] / g2, 2) + '</td>'; }).join('') + '<td>' + m.E + '</td><td>' + n(d2, 2) + '</td><td>' + m.rk + '</td></tr>'; }).join('') + '</tbody>';
+    // puulevy
+    var L = P.PLATE[$('pl').value], t = +$('pt').value, ci = P.tclass(t), kp = P.kmod(L.km, kl, ai), gp = acc ? 1 : P.GAMMA[L.gm], kdp = P.kdef(L.kd, kl);
+    $('plname').textContent = L.name + ', t = ' + t + ' mm' + (ci >= 0 && ci < 6 ? ' (luokka ' + P.TCL[ci][0] + '–' + P.TCL[ci][1] + ' mm)' : '');
+    if (ci < 0 || ci > 5 || kp === null) { $('tpl').innerHTML = '<tbody><tr><td class="l">' + (kp === null ? 'Levyä ei saa käyttää käyttöluokassa ' + kl + ' (taulukko 3.1).' : 'Paksuus ei ole taulukon 3.5 alueella 4–30 mm.') + '</td></tr></tbody>'; }
+    else {
+      var pr = [['fm0', 'Taivutus 0°', 'f<sub>m,0</sub>'], ['fm90', 'Taivutus 90°', 'f<sub>m,90</sub>'], ['fv', 'Leikkaus', 'f<sub>v</sub>'], ['fr0', 'Tasoleikkaus 0°', 'f<sub>r,0</sub>'], ['fr90', 'Tasoleikkaus 90°', 'f<sub>r,90</sub>']].filter(function (p) { return L[p[0]]; });
+      $('tpl').innerHTML = '<thead><tr><th>Ominaisuus</th><th class="l"></th><th>X<sub>k</sub></th><th>X<sub>d</sub></th></tr></thead><tbody>' + pr.map(function (p) { var v = L[p[0]][ci]; return '<tr><td>' + p[1] + '</td><td class="l">' + p[2] + '</td><td>' + n(v, 1) + '</td><td class="hl">' + (v === null ? '–' : n(kp * v / gp, 2)) + '</td></tr>'; }).join('') +
+        '<tr><td>Kimmomoduuli 0° / 90°</td><td class="l">E<sub>mean</sub></td><td>' + n(L.E0[ci], 0) + (L.E90 ? ' / ' + n(L.E90[ci], 0) : '') + '</td><td></td></tr>' +
+        '<tr><td colspan="4" class="l meta">k<sub>mod</sub> = ' + n(kp, 2) + ', γ<sub>M</sub> = ' + n(gp, 2) + ', k<sub>def</sub> = ' + n(kdp, 2) + ' (lappeellaan)</td></tr></tbody>';
+    }
+    var kf = KFI[cc];
+    $('combo').innerHTML = P.steps([
+      ['Murtorajatila, ' + cc + ' (K<sub>FI</sub> = ' + n(kf, 1) + ')', 'Pysyvä: ' + n(1.35 * kf, 2) + 'G<sub>k</sub>', 'Keskipitkä: ' + n(1.15 * kf, 2) + 'G<sub>k</sub> + ' + n(1.5 * kf, 2) + 'Q<sub>k,1</sub> + ' + n(1.05 * kf, 2) + 'Q<sub>k,2</sub>', 'Hetkellinen: max(' + n(1.15 * kf, 2) + 'G + ' + n(1.5 * kf, 2) + 'Q<sub>k,t</sub> + ' + n(1.05 * kf, 2) + 'Q<sub>k,1</sub> + ' + n(1.05 * kf, 2) + 'Q<sub>k,2</sub>; ' + n(1.15 * kf, 2) + 'G + ' + n(1.5 * kf, 2) + 'Q<sub>k,1</sub> + ' + n(1.05 * kf, 2) + 'Q<sub>k,2</sub> + ' + n(0.9 * kf, 2) + 'Q<sub>k,t</sub>)', '<span class="c">Edullinen pysyvä kuorma: 0,9G<sub>k</sub>. Q<sub>k,1</sub> = suurempi lumi- tai hyötykuorma, Q<sub>k,t</sub> = tuuli.</span>'],
+      ['Onnettomuus / palo (2.5)', 'max(G<sub>k</sub> + 0,5Q<sub>k,l</sub> + 0,3Q<sub>k,h</sub>; G<sub>k</sub> + 0,2Q<sub>k,t</sub> + 0,3Q<sub>k,h</sub> + 0,2Q<sub>k,l</sub>)'],
+      ['Käyttörajatila (2.6–2.7)', 'G<sub>k</sub> + Q<sub>k,1</sub> + 0,7Q<sub>k,2</sub> (lumi/hyöty määräävä), G<sub>k</sub> + Q<sub>k,t</sub> + 0,7Q<sub>k,1</sub> + 0,7Q<sub>k,2</sub> (tuuli määräävä)']]);
+    P.saveBasis({ cc: cc, sit: sit, kl: kl, ai: ai, aiSel: $('ai').value, lG: $('lG').checked, lQ: $('lQ').checked, lW: $('lW').checked, lA: $('lA').checked, mat: $('mat').value, pl: $('pl').value, pt: +$('pt').value, hh: +$('hh').value, acc: acc });
+    $('saved').textContent = '✓ Tallennettu: käyttöluokka ' + kl + ', ' + AIN[ai] + ', ' + cc + '. Naula- ja ruuviliitokset käyttävät näitä oletuksina.';
+  }
+  document.querySelectorAll('input,select').forEach(function (el) { el.addEventListener('input', calc); el.addEventListener('change', calc); });
+  calc();
+})();
+</script>
+</body>
+</html>

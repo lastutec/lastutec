@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Naula- ja ruuviliitokset – Puurakenteet – Lastutec</title>
+<meta name="description" content="Naula- ja ruuviliitosten mitoitus Eurokoodi 5:n lyhennetyn suunnitteluohjeen mukaan: puu–puu, puulevy–puu ja teräslevy–puu, leikkaus, ulosveto, yhteisvaikutus ja liitinvälit.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../puu.css">
+<script src="../puu.js"></script>
+<script src="liitos.js"></script>
+<style>
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.kpi span{display:block;font-size:12px;color:var(--muted)}
+.kpi b{font-size:24px;color:var(--accent);font-variant-numeric:tabular-nums}
+.basis{font-size:13px;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:8px 10px}
+.basis a{color:var(--accent)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Puurakenteet</a><h1>Naula- ja ruuviliitokset</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 2 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="intro">Työkalu mitoittaa yksinkertaiset yksi- ja kaksileikkeiset naula- ja ruuviliitokset Puuinfon Eurokoodi 5 -lyhennetyn suunnitteluohjeen (luvut 6.1–6.4) mukaan. Liitostyypit ovat puu–puu, puulevy–puu ja teräslevy–puu. Laskenta kattaa leikkauksen, ulosvedon, niiden yhteisvaikutuksen, tarvittavan liitinmäärän ja pienimmät liitinvälit. Käyttöluokka ja aikaluokka haetaan <a href="../perusteet/" style="color:var(--accent)">suunnitteluperusteista</a>.</p>
+
+<div class="grid">
+<section class="panel" aria-labelledby="h-in">
+  <h2 id="h-in">Lähtötiedot</h2>
+  <div class="basis" id="basis"></div>
+  <div class="inputs">
+    <label>Käyttöluokka<select id="kl"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
+    <label>Aikaluokka<select id="ai"><option value="P">Pysyvä</option><option value="K">Keskipitkä</option><option value="H">Hetkellinen</option></select></label>
+    <label>Mitoitustilanne<select id="acc"><option value="0">Perusyhdistelmä</option><option value="1">Onnettomuus</option></select></label>
+  </div>
+  <div class="sec">Liitos</div>
+  <div class="inputs">
+    <label>Liitostyyppi<select id="conn"><option value="pp1">Puu–puu, yksileikkeinen</option><option value="pp2">Puu–puu, kaksileikkeinen</option><option value="lp">Puulevy–puu</option><option value="tp">Teräslevy–puu</option></select></label>
+    <label id="w-mA">Kannan puoleinen puu<select id="mA"></select></label>
+    <label id="w-tA"><span id="lbtA">Paksuus t<sub>A</sub></span> <span class="u">[mm]</span><input type="number" id="tA" value="45" step="1" min="1"></label>
+    <label id="w-pl" hidden>Puulevy<select id="plate"></select></label>
+    <label id="w-tP" hidden>Levyn paksuus <span class="u">[mm]</span><input type="number" id="tP" value="12" step="1" min="1"></label>
+    <label id="w-tS" hidden>Teräslevyn paksuus t<sub>t</sub> <span class="u">[mm]</span><input type="number" id="tS" value="2" step="0.5" min="0.5"></label>
+    <label><span id="lbB">Kärjen puoleinen puu</span><select id="mB"></select></label>
+    <label><span id="lbtB">Paksuus t<sub>B</sub></span> <span class="u">[mm]</span><input type="number" id="tB" value="45" step="1" min="1"></label>
+  </div>
+  <div class="sec">Liitin</div>
+  <div class="inputs">
+    <label>Liitin<select id="fast"><option value="naula">Naula</option><option value="ruuvi">Ruuvi</option></select></label>
+    <label id="w-nt">Naulatyyppi<select id="ntype"><option value="sq">Neliskulmainen lankanaula (sileä)</option><option value="rd">Pyöreä konenaula (sileä)</option><option value="pr">Kampa- tai kierrenaula (profiloitu)</option></select></label>
+    <label id="w-st" hidden>Ruuvityyppi<select id="stype"><option value="itse">Itseporautuva (täyskierre)</option><option value="kansi">Kansiruuvi (sileä varsi)</option></select></label>
+    <label>Paksuus d <span class="u">[mm]</span><input type="number" id="d" value="3.1" step="0.1" min="1.9"></label>
+    <label>Pituus L <span class="u">[mm]</span><input type="number" id="L" value="90" step="5" min="10"></label>
+    <label id="w-di" hidden>Sydänmitta d<sub>i</sub> <span class="u">[mm]</span><input type="number" id="di" value="3.6" step="0.1"></label>
+    <label id="w-lg" hidden>Kierreosan pituus <span class="u">[mm]</span><input type="number" id="lg" value="60" step="5"></label>
+    <label>Kannan halkaisija d<sub>h</sub> <span class="u">[mm]</span><input type="number" id="dh" value="7" step="0.1"></label>
+    <label id="w-fax" hidden>f<sub>ax,k</sub> (valmistaja) <span class="u">[N/mm²]</span><input type="number" id="fax" value="6" step="0.5"></label>
+    <label id="w-fh" hidden>f<sub>head,k</sub> (valmistaja) <span class="u">[N/mm²]</span><input type="number" id="fhead" value="10" step="0.5"></label>
+    <label id="w-ft" hidden>f<sub>tens,k</sub> (valmistaja) <span class="u">[kN]</span><input type="number" id="ftens" value="8" step="0.5"></label>
+    <label id="w-ang" hidden>Ruuvin kulma syyhyn <span class="u">[°]</span><input type="number" id="ang" value="90" step="5" min="30" max="90"></label>
+  </div>
+  <label class="chk"><input type="checkbox" id="pre"> Esiporattu</label>
+  <label class="chk"><input type="checkbox" id="heated" checked> Lämmitetty sisätila (naulojen ulosvetolujuus × 0,4 sileä / 0,7 profiloitu)</label>
+  <label class="chk" id="w-bonus" hidden><input type="checkbox" id="bonus"> Kierreosa ≥ 8d<sub>ef</sub> kärjen puolella ja jokin lisäehdoista täyttyy (×1,15)</label>
+  <div class="sec">Kuormitus</div>
+  <div class="inputs">
+    <label>Leikkausvoima F<sub>v,Ed</sub> <span class="u">[kN]</span><input type="number" id="Fv" value="5" step="0.5" min="0"></label>
+    <label>Ulosvetovoima F<sub>ax,Ed</sub> <span class="u">[kN]</span><input type="number" id="Fax" value="0" step="0.5" min="0"></label>
+    <label>Liittimiä n <span class="u">[kpl]</span><input type="number" id="nf" value="10" step="1" min="1"></label>
+    <label>Voiman kulma syyhyn α <span class="u">[°]</span><input type="number" id="alpha" value="0" step="5" min="0" max="90"></label>
+  </div>
+  <div class="fig" id="fig"></div>
+</section>
+
+<section class="panel" aria-labelledby="h-res">
+  <h2 id="h-res">Tulos</h2>
+  <div class="kpis" id="kpis"></div>
+  <div class="verdict" id="verdict"></div>
+  <div class="tablewrap"><table class="chk-table" id="chk"></table></div>
+  <div class="sec">Pienimmät liitinvälit (kuva 6.3)</div>
+  <div class="tablewrap"><table id="spt"></table></div>
+  <div class="sec">Laskenta</div>
+  <div class="steps" id="steps"></div>
+</section>
+</div>
+<p class="foot">Lähde: Puuinfo, Puurakenteiden lyhennetty suunnitteluohje, Eurokoodi 5, 5. painos (2020), luvut 6.1–6.4, kaavat 6.4–6.28, taulukot 6.1–6.3 ja kuva 6.3. Laskenta on tarkistettu ohjeen taulukoita 6.1–6.3 vastaan.</p>
+<p class="foot">Edellytykset ja rajaukset:</p>
+<ul class="foot">
+  <li>Naulojen vetomurtolujuuden on oltava vähintään 600 N/mm² ja paksuuden 1,9–8 mm.</li>
+  <li>Ruuvien f<sub>u,k</sub> on oltava vähintään 500 N/mm² ja paksuuden 3,8–24 mm.</li>
+  <li>Monen liittimen tehollista lukumäärää n<sub>ef</sub>, lohkeamismurtoa ja poikittaista halkeamiskestävyyttä (6.2–6.3) ei tarkisteta.</li>
+  <li>Profiloitujen naulojen ja ruuvien f<sub>ax,k</sub>, f<sub>head,k</sub> ja f<sub>tens,k</sub> otetaan valmistajan ilmoittamina.</li>
+</ul>
+<p class="foot">Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); }, P = PUU, n = P.n;
+  var mats = Object.keys(P.MAT).map(function (k) { return [k, P.MAT[k].g + ': ' + P.MAT[k].name]; });
+  P.fill($('mA'), mats, 'C24'); P.fill($('mB'), mats, 'C24');
+  P.fill($('plate'), Object.keys(P.PLATE).map(function (k) { return [k, P.PLATE[k].name]; }), 'ohut');
+  var B = P.loadBasis();
+  if (B) { $('kl').value = B.kl; $('ai').value = B.ai; $('acc').value = B.acc ? '1' : '0'; if (B.mat && P.MAT[B.mat]) { $('mA').value = B.mat; $('mB').value = B.mat; } $('heated').checked = String(B.kl) === '1'; }
+  $('basis').innerHTML = B ? '✓ Suunnitteluperusteet haettu: käyttöluokka ' + B.kl + ', ' + { P: 'pysyvä', K: 'keskipitkä', H: 'hetkellinen' }[B.ai] + ' aikaluokka, ' + B.cc + '. <a href="../perusteet/">Muuta perusteita →</a>' : 'Suunnitteluperusteita ei ole vielä valittu. <a href="../perusteet/">Määritä ne ensin →</a> tai valitse alta.';
+  var lastD = null;
+  function vis() {
+    var c = $('conn').value, nail = $('fast').value === 'naula';
+    $('w-mA').hidden = $('w-tA').hidden = !(c === 'pp1' || c === 'pp2'); $('w-pl').hidden = $('w-tP').hidden = c !== 'lp'; $('w-tS').hidden = c !== 'tp';
+    $('lbB').innerHTML = c === 'pp2' ? 'Keskiosan puu' : 'Kärjen puoleinen puu'; $('lbtB').innerHTML = c === 'pp2' ? 'Keskiosan paksuus t<sub>2</sub>' : 'Paksuus t<sub>B</sub>';
+    $('lbtA').innerHTML = c === 'pp2' ? 'Ulko-osien paksuus t<sub>A</sub>' : 'Paksuus t<sub>A</sub>';
+    $('w-nt').hidden = !nail; $('w-st').hidden = nail; $('w-di').hidden = nail; $('w-lg').hidden = nail; $('w-ang').hidden = nail; $('w-fh').hidden = nail; $('w-ft').hidden = nail; $('w-bonus').hidden = nail;
+    $('w-fax').hidden = !(nail && $('ntype').value === 'pr');
+  }
+  function val(id) { var v = parseFloat($(id).value); return isFinite(v) ? v : 0; }
+  function calc() {
+    vis();
+    var o = { fast: $('fast').value, ntype: $('ntype').value, stype: $('stype').value, d: val('d'), di: val('di'), L: val('L'), dh: val('dh'), lg: val('lg'), fax: val('fax'), fhead: val('fhead'), ftens: val('ftens'),
+      conn: $('conn').value, mA: $('mA').value, tA: val('tA'), mB: $('mB').value, tB: val('tB'), plate: $('plate').value, tP: val('tP'), tS: val('tS'), pre: $('pre').checked, heated: $('heated').checked,
+      kl: +$('kl').value, ai: $('ai').value, acc: $('acc').value === '1', Fv: val('Fv'), Fax: val('Fax'), nf: val('nf'), alpha: val('alpha'), ang: val('ang'), bonus: $('bonus').checked };
+    var r = LIITOS.calc(o), good = r.umax <= 1 && !r.W.length;
+    $('kpis').innerHTML = [['R<sub>v,d</sub> / liitin', n(r.Rv / 1000, 3) + ' kN'], ['Liitoksen R<sub>v,d</sub>', n(r.Rvt / 1000, 2) + ' kN'], ['Tarvitaan', (isFinite(r.nreq) ? r.nreq : '–') + ' kpl'], ['R<sub>ax,d</sub> / liitin', r.Rax === null ? '–' : n(r.Rax / 1000, 3) + ' kN'], ['Käyttöaste', isFinite(r.umax) ? n(r.umax * 100, 0) + ' %' : '–']]
+      .map(function (a) { return '<div class="kpi"><span>' + a[0] + '</span><b>' + a[1] + '</b></div>'; }).join('');
+    var vd = $('verdict'); vd.className = 'verdict ' + (good ? 'ok' : 'nok');
+    vd.innerHTML = (r.C.length ? 'Liitos ' + (r.umax <= 1 ? 'kestää' : '<b class="nok">ei kestä</b>') + (isFinite(r.umax) ? ' (käyttöaste ' + n(r.umax * 100, 0) + ' %)' : '') + '. ' : '') + 'k<sub>mod</sub> = ' + n(r.kmod, 2) + ', γ<sub>M</sub> = ' + n(r.gm, 2) + ', k<sub>ρ</sub> = ' + n(r.kp, 3) + '.' + (r.W.length ? '<br>' + r.W.map(function (w) { return '<b class="warn">!</b> ' + w; }).join('<br>') : '');
+    $('chk').innerHTML = '<thead><tr><th>Tarkistus</th><th>Ed</th><th>Rd</th><th class="l">Käyttöaste</th></tr></thead><tbody>' + r.C.map(function (c) { var unit = c[0].indexOf('Yhteis') === 0 ? '' : ' kN'; return '<tr><td>' + c[0] + '</td><td>' + n(c[1], 2) + unit + '</td><td>' + n(c[2], 2) + unit + '</td><td class="l"><div style="display:flex;gap:8px;align-items:center">' + P.bar(c[3]) + '<span>' + n(c[3] * 100, 0) + ' %</span></div></td></tr>'; }).join('') + '</tbody>';
+    var s = r.sp, f = function (x) { return n(x, 0) + ' mm'; }, D = r.D;
+    $('spt').innerHTML = '<thead><tr><th class="l">Etäisyys</th><th class="l">Sääntö</th><th>Vähintään</th></tr></thead><tbody>' + [
+      ['a<sub>1</sub> liitinväli syyn suunnassa', '10d', s.a1], ['a<sub>2</sub> liitinväli syytä vastaan', '5d', s.a2], ['a<sub>3,t</sub> kuormitettu pää', '15d', s.a3t], ['a<sub>3,c</sub> kuormittamaton pää', '10d', s.a3c],
+      ['a<sub>4,t</sub> kuormitettu reuna', '(5 + 5 sin α)d', s.a4t], ['a<sub>4,c</sub> kuormittamaton reuna', '5d', s.a4c]].map(function (a) { return '<tr><td class="l">' + a[0] + '</td><td class="l">' + a[1] + '</td><td>' + f(a[2]) + '</td></tr>'; }).join('') +
+      '<tr><td colspan="3" class="l meta">d = ' + n(D, 2) + ' mm' + (r.pre ? ', esiporattu × 0,7' : '') + (r.fv2 < 1 ? ', välit × ' + n(r.fv2, 2) + (o.conn === 'lp' ? ' (puulevy)' : ' (teräslevy)') : '') + '. Syyn suunnassa peräkkäiset esiporaamattomat naulat sijoitetaan d:n verran sivuun toisistaan.</td></tr></tbody>';
+    $('steps').innerHTML = P.steps(r.S);
+    fig(o, r);
+  }
+  function fig(o, r) {
+    var W = 520, H = 230, s = r.sp, cols = Math.max(1, Math.min(8, Math.ceil(Math.sqrt(o.nf * 2)))), rows = Math.max(1, Math.ceil(o.nf / cols));
+    var len = 2 * s.a3t + (cols - 1) * s.a1, wid = 2 * s.a4c + (rows - 1) * s.a2, sc = Math.min((W - 120) / len, (H - 70) / Math.max(wid, 1)), x0 = 70, y0 = 30;
+    var o2 = '<svg viewBox="0 0 ' + W + ' ' + H + '" font-family="Arial,Helvetica,sans-serif">';
+    o2 += '<rect x="' + x0 + '" y="' + y0 + '" width="' + len * sc + '" height="' + wid * sc + '" fill="#3a2a18" stroke="#c99a62"/>';
+    for (var i = 0; i < 6; i++) o2 += '<line x1="' + x0 + '" y1="' + (y0 + (i + 0.5) * wid * sc / 6) + '" x2="' + (x0 + len * sc) + '" y2="' + (y0 + (i + 0.5) * wid * sc / 6) + '" stroke="#5a4226" stroke-width="1"/>';
+    var k = 0;
+    for (var rr = 0; rr < rows; rr++) for (var cc = 0; cc < cols && k < o.nf; cc++, k++) { var x = x0 + (s.a3t + cc * s.a1) * sc, y = y0 + (s.a4c + rr * s.a2) * sc + (cc % 2 && !r.pre && o.fast === 'naula' ? 0.0 : 0); o2 += '<circle cx="' + x + '" cy="' + y + '" r="3.5" fill="#f4f4f4"/>'; }
+    var dim = function (xa, ya, xb, yb, t, vert) { return '<path d="M' + xa + ' ' + ya + ' L' + xb + ' ' + yb + '" stroke="#F74902" stroke-width="1.2"/><text x="' + ((xa + xb) / 2 + (vert ? 6 : 0)) + '" y="' + ((ya + yb) / 2 + (vert ? 4 : -4)) + '" fill="#F74902" font-size="11" text-anchor="' + (vert ? 'start' : 'middle') + '">' + t + '</text>'; };
+    var yb = y0 + wid * sc + 18;
+    o2 += dim(x0, yb, x0 + s.a3t * sc, yb, 'a₃ ' + Math.round(s.a3t));
+    if (cols > 1) o2 += dim(x0 + s.a3t * sc, yb, x0 + (s.a3t + s.a1) * sc, yb, 'a₁ ' + Math.round(s.a1));
+    var xr = x0 + len * sc + 8;
+    o2 += dim(xr, y0, xr, y0 + s.a4c * sc, 'a₄ ' + Math.round(s.a4c), true);
+    if (rows > 1) o2 += dim(xr, y0 + s.a4c * sc, xr, y0 + (s.a4c + s.a2) * sc, 'a₂ ' + Math.round(s.a2), true);
+    o2 += '<path d="M' + (x0 - 50) + ' ' + (y0 + wid * sc / 2) + ' H' + (x0 - 8) + '" stroke="#f4f4f4" stroke-width="2.5"/><path d="M' + (x0 - 8) + ' ' + (y0 + wid * sc / 2) + ' l-8 -5 v10 z" fill="#f4f4f4"/><text x="' + (x0 - 50) + '" y="' + (y0 + wid * sc / 2 - 8) + '" fill="#f4f4f4" font-size="11">F</text>';
+    o2 += '<text x="12" y="' + (H - 8) + '" fill="#9a9a9a" font-size="10.5">Periaatekuva: ' + o.nf + ' liitintä, syysuunta vaakaan, pienimmät välit ja etäisyydet [mm]</text>';
+    $('fig').innerHTML = o2 + '</svg>';
+  }
+  // oletusarvot liittimen vaihtuessa
+  $('fast').addEventListener('change', function () { if ($('fast').value === 'ruuvi') { $('d').value = 5; $('L').value = 90; $('di').value = 3.2; $('lg').value = 54; $('dh').value = 9.5; $('ftens').value = 7.9; } else { $('d').value = 3.1; $('L').value = 90; $('dh').value = 7; } calc(); });
+  document.querySelectorAll('input,select').forEach(function (el) { el.addEventListener('input', calc); el.addEventListener('change', calc); });
+  calc();
+})();
+</script>
+</body>
+</html>

@@ -300,6 +300,7 @@ function render(){
   let cnom = cmin + dev, groundTxt = '';
   if (surf === 'prep'){ const k1 = cmin + 10; if (k1 > cnom){ groundTxt = `k<sub>1</sub> = c<sub>min</sub> + 10 = ${k1} mm määrää`; } else groundTxt = `k<sub>1</sub> = c<sub>min</sub> + 10 = ${k1} mm ≤ ${cnom} mm`; cnom = Math.max(cnom, k1); }
   if (surf.startsWith('soil')){ const add = +surf.slice(4), k2 = cmin + add; groundTxt = `k<sub>2</sub> = c<sub>min</sub> + ${add} = ${k2} mm`; cnom = Math.max(cnom, k2); }
+  const cnomCalc = cnom; cnom = Math.ceil(cnom / 5 - 1e-9) * 5;
 
   // Tulos
   const govSet = new Set([gov.c]);
@@ -324,7 +325,7 @@ function render(){
     ['Säilyvyys, c<sub>min,dur</sub>', `${gov.base}${gov.add?` + ${gov.add} (100 v)`:''} = <b>${cdur} mm</b>`],
     ['Tartunta, c<sub>min,b</sub>', `${nb>1?`Ø<sub>n</sub> = Ø·√n<sub>b</sub> = ${dia}·√${nb} = ${String(dn).replace('.',',')} → `:'Ø = '}${Math.ceil(dn)}${dg?' + 5 (raekoko > 32 mm)':''} = <b>${cb} mm</b>`],
     ['Vähimmäispeite', `c<sub>min</sub> = max(${cb}; ${cdur}; 10) = <b>${cmin} mm</b>`],
-    ['Nimellispeite', `c<sub>nom</sub> = c<sub>min</sub> + Δc<sub>dev</sub> = ${cmin} + ${dev} = ${cmin+dev} mm${groundTxt?`<br>${groundTxt}`:''}<br>→ <b>c<sub>nom</sub> = ${cnom} mm</b>`],
+    ['Nimellispeite', `c<sub>nom</sub> = c<sub>min</sub> + Δc<sub>dev</sub> = ${cmin} + ${dev} = ${cmin+dev} mm${groundTxt?`<br>${groundTxt}`:''}<br>→ c<sub>nom</sub> = ${cnomCalc} mm${cnom !== cnomCalc ? ` → pyöristys ylöspäin 5 mm:iin` : ' (jaollinen 5 mm:llä)'}<br>→ <b>c<sub>nom</sub> = ${cnom} mm</b>`],
     ['Betonin lujuus', `vaadittu ${req} (${reqCls}) · valittu ${fck}<br>käyttöaste f<sub>ck,req</sub> / f<sub>ck</sub> = ${fckOf(req)} / ${fckOf(fck)} = ${sU} % → <b style="color:var(--${sOk?'ok':'bad'})">${sVd}</b>`]
   ];
   $('steps').innerHTML = steps.map((s,i)=>`<div class="step"><span class="no">${i+1}</span><div><h3>${s[0]}</h3><div class="math">${s[1]}</div></div></div>`).join('');

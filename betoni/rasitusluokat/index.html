@@ -141,6 +141,8 @@ tr.hl td{background:var(--accent-soft);color:var(--accent);font-weight:600}
         <select id="dev"><option value="10" selected>10 – paikallavalu, yleensä</option><option value="5">5 – elementtitehdas, laadunvalvonta</option></select></label>
       <label for="surf">Valupinta
         <select id="surf"><option value="form" selected>Muottia vasten</option><option value="prep">Tasattua alustaa vasten (tasausbetoni)</option><option value="soil20">Suoraan maata vasten, +20 mm</option><option value="soil30">Suoraan maata vasten, +30 mm</option><option value="soil40">Suoraan maata vasten, +40 mm</option></select></label>
+      <label for="fck">Betonin lujuusluokka
+        <select id="fck"><option>C12/15</option><option>C16/20</option><option>C20/25</option><option>C25/30</option><option selected>C30/37</option><option>C32/40</option><option>C35/45</option><option>C40/50</option><option>C45/55</option><option>C50/60</option><option>C55/67</option><option>C60/75</option></select></label>
       <label for="nb">Tankoja nipussa n<sub>b</sub>
         <select id="nb"><option value="1" selected>1 – yksi tanko</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label>
     </div>
@@ -250,7 +252,7 @@ $('groups').addEventListener('click', e => {
   preset = -1; render();
 });
 
-['life','steel','dia','nb','dev','surf','dg','red'].forEach(id => $(id).addEventListener('change', render));
+['life','steel','dia','nb','fck','dev','surf','dg','red'].forEach(id => $(id).addEventListener('change', render));
 
 function render(){
   // Valintojen tila
@@ -295,7 +297,7 @@ function render(){
   const steelTxt = steel==='r' ? 'betoniteräs' : steel==='p' ? 'jänneteräs' : 'jänneteräs σ ≤ 400 N/mm², käsitellään kuten betoniterästä';
   const lifeTxt = life===50 ? 'alle 100 v' : life===100 ? '100 v' : 'yli 100 v (taulukon 100 v arvot)';
   const steps = [
-    ['Määräävä rasitusluokka', `${gov.c}, ${steelTxt}, käyttöikä ${lifeTxt}`],
+    ['Määräävä rasitusluokka', `${gov.c}, betoni ${$('fck').value}, ${steelTxt}, käyttöikä ${lifeTxt}`],
     ['Säilyvyys, c<sub>min,dur</sub>', `${gov.base}${gov.add?` + ${gov.add} (100 v)`:''}${gov.red?' − 5 (lujuusvähennys)':''} = <b>${cdur} mm</b>`],
     ['Tartunta, c<sub>min,b</sub>', `${nb>1?`Ø<sub>n</sub> = Ø·√n<sub>b</sub> = ${dia}·√${nb} = ${String(dn).replace('.',',')} → `:'Ø = '}${Math.ceil(dn)}${dg?' + 5 (raekoko > 32 mm)':''} = <b>${cb} mm</b>`],
     ['Vähimmäispeite', `c<sub>min</sub> = max(${cb}; ${cdur}; 10) = <b>${cmin} mm</b>`],

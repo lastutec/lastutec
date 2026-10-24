@@ -186,7 +186,7 @@ input:disabled{opacity:.75}
 </div>
 
 <section class="panel" id="sketchPanel" aria-labelledby="h-sk">
-  <div class="skhead"><h2 id="h-sk">Rakennekuva (skitsi)</h2><button type="button" class="printbtn" id="printSketch">Tulosta skitsi PDF</button></div>
+  <div class="skhead"><h2 id="h-sk">Rakenneluonnos</h2><button type="button" class="printbtn" id="printSketch">Tulosta rakenneluonnos PDF</button></div>
   <div class="sketch" id="sketch"></div>
 </section>
 
@@ -243,7 +243,7 @@ function fig(b, h, d, D, nb, beta, sw, tn, tD, ctop) {
   o += `<text x="${sx}" y="22" font-size="12" font-weight="700" fill="var(--accent)">JÄNNITYKSET</text><text x="${x0}" y="22" font-size="12" font-weight="700" fill="var(--accent)">POIKKILEIKKAUS</text>`;
   return o + `</svg>`;
 }
-// Mustavalkoinen rakennekuva (skitsi)
+// Mustavalkoinen rakenneluonnos
 function sketch(p) {
   const K = '#000', W = 1000, H = 450;
   const dimK = (x1, y1, x2, y2, label, side = -1) => {
@@ -258,7 +258,7 @@ function sketch(p) {
   const lead = (x1, y1, x2, y2, txt, anc = 'start') => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${K}" stroke-width="0.7"/><circle cx="${x1}" cy="${y1}" r="2" fill="${K}"/><line x1="${x2}" y1="${y2}" x2="${x2 + (anc === 'start' ? 1 : -1) * 150}" y2="${y2}" stroke="${K}" stroke-width="0.7"/><text x="${x2 + (anc === 'start' ? 4 : -4)}" y="${y2 - 4}" text-anchor="${anc}" font-size="12" fill="${K}">${txt}</text>`;
   const mainTxt = mode === 'l' ? `T${p.D}-k${p.mn} alapinta` : `${p.mn}T${p.D} alapinta`;
   const swTxt = p.reinf ? `haat T${p.swD}-k${p.ss}, ${p.sl}-leikk.` : 'ei leikkausraudoitusta';
-  let o = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rakennekuva" style="background:#fff">`;
+  let o = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rakenneluonnos" style="background:#fff">`;
   o += `<rect x="0" y="0" width="${W}" height="${H}" fill="#fff"/>`;
   // Raudoitteet tuplaviivoina oikeassa mittakaavassa
   const bar2 = (xa, ya, xb, yb2, dia, sc0) => { const w2 = Math.max(1.4, dia * sc0); const horiz = Math.abs(yb2 - ya) < Math.abs(xb - xa);
@@ -301,7 +301,7 @@ function sketch(p) {
   o += `<rect x="${x0}" y="${ty}" width="${W - 2 * x0 + 0}" height="100" fill="none" stroke="${K}" stroke-width="1.2"/><line x1="${x0 + 450}" y1="${ty}" x2="${x0 + 450}" y2="${ty + 100}" stroke="${K}" stroke-width="0.8"/>`;
   const L1 = [`Betoni ${p.cls}, B${p.fyk}B`, `Pääraudoitus: ${mainTxt}${p.tn > 0 ? `, yläpinta ${p.tn}T${p.tD}` : ''}`, `Leikkaus: ${swTxt}`, (p.cnom != null ? `Betonipeite c<tspan baseline-shift="sub" font-size="8">nom</tspan> = ${p.cnom} mm${cnSrc ? ' (' + cnSrc + ')' : ''}` : `Betonipeite noin ${Math.round(p.cover)} mm (h − d − Ø/2${p.reinf ? ' − Ø<tspan baseline-shift="sub" font-size="8">haka</tspan>' : ''})`)];
   L1.push(`Ankkurointi tuella: l<tspan baseline-shift="sub" font-size="8">bd</tspan> = ${Math.round(p.lbd)} mm, käytössä ${Math.round(p.lav)} mm (tukipinta a = ${p.at})`);
-  const L2 = [`M<tspan baseline-shift="sub" font-size="8">Ed</tspan> = ${n(p.MEd)} kNm, M<tspan baseline-shift="sub" font-size="8">Rd</tspan> = ${n(p.MRd)} kNm (${Math.round(p.uM * 100)} %)`, `V<tspan baseline-shift="sub" font-size="8">Ed</tspan> = ${n(p.VEd)} kN, V<tspan baseline-shift="sub" font-size="8">Rd</tspan> = ${n(p.VRdv)} kN (${Math.round(p.uV * 100)} %)`, `Lastutec · Taivutus ja leikkaus · ${new Date().toLocaleDateString('fi-FI')}`, 'Alustava skitsi, ei toteutuspiirustus'];
+  const L2 = [`M<tspan baseline-shift="sub" font-size="8">Ed</tspan> = ${n(p.MEd)} kNm, M<tspan baseline-shift="sub" font-size="8">Rd</tspan> = ${n(p.MRd)} kNm (${Math.round(p.uM * 100)} %)`, `V<tspan baseline-shift="sub" font-size="8">Ed</tspan> = ${n(p.VEd)} kN, V<tspan baseline-shift="sub" font-size="8">Rd</tspan> = ${n(p.VRdv)} kN (${Math.round(p.uV * 100)} %)`, `Rakenneluonnos · Lastutec · Taivutus ja leikkaus · ${new Date().toLocaleDateString('fi-FI')}`, 'Rakenneluonnos, ei toteutuspiirustus'];
   L1.forEach((t, i) => o += `<text x="${x0 + 10}" y="${ty + 18 + i * 18}" font-size="12" fill="${K}">${t}</text>`);
   L2.forEach((t, i) => o += `<text x="${x0 + 460}" y="${ty + 18 + i * 18}" font-size="12" fill="${K}" ${i === 3 ? 'font-style="italic"' : ''}>${t}</text>`);
   return o + `</svg>`;

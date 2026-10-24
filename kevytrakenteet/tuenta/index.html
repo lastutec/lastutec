@@ -242,13 +242,34 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
     ].concat(r.notes.map(function (n) { return '<span class="meta">' + esc(n) + '</span>'; }));
     d.innerHTML = '<div class="sec">Valittu seinä</div><div class="math">' + lines.map(function (l) { return '<span>' + l + '</span>'; }).join('') + '</div>' + (C ? '<div class="chart">' + chart(C, r) + '</div>' : '');
   }
+  // Tuentatapauskuvakkeet ohjeen kuvien 1–4 tapaan; valitun seinän tapaus korostettuna
+  function legendIcons(cs, W) {
+    var items = [['red', 'Yläpää vapaa', [1, 0, 1, 1]], ['blue', 'Kaikki reunat', [1, 1, 1, 1]], ['green', 'Ylä, ala ja 1 sivu', [1, 1, 0, 1]]]; // [vasen, ylä, oikea, ala]
+    var bw = 96, bh = 44, gap = (W - 3 * bw) / 4, o = '';
+    items.forEach(function (it, i) {
+      var k = it[0], col = T.CASES[k].col, act = k === cs, x = gap + i * (bw + gap), y = 22, op = act ? 1 : 0.4, e = it[2], ins = 5;
+      if (act) o += '<rect x="' + (x - 10) + '" y="2" width="' + (bw + 20) + '" height="126" rx="6" fill="' + col + '" fill-opacity=".16" stroke="' + col + '" stroke-width="2"/><text x="' + (x + bw / 2) + '" y="16" fill="' + col + '" font-size="10.5" font-weight="700" text-anchor="middle" letter-spacing=".08em">SEINÄN TAPAUS</text>';
+      o += '<g opacity="' + op + '"><rect x="' + x + '" y="' + y + '" width="' + bw + '" height="' + bh + '" fill="none" stroke="#f4f4f4" stroke-width="' + (act ? 2.5 : 1.8) + '"/>';
+      var da = ' stroke="' + col + '" stroke-width="' + (act ? 3 : 2.2) + '" stroke-dasharray="6 4" fill="none"';
+      if (e[0]) o += '<line x1="' + (x + ins) + '" y1="' + (y + ins) + '" x2="' + (x + ins) + '" y2="' + (y + bh - ins) + '"' + da + '/>';
+      if (e[1]) o += '<line x1="' + (x + ins) + '" y1="' + (y + ins) + '" x2="' + (x + bw - ins) + '" y2="' + (y + ins) + '"' + da + '/>';
+      if (e[2]) o += '<line x1="' + (x + bw - ins) + '" y1="' + (y + ins) + '" x2="' + (x + bw - ins) + '" y2="' + (y + bh - ins) + '"' + da + '/>';
+      if (e[3]) o += '<line x1="' + (x + ins) + '" y1="' + (y + bh - ins) + '" x2="' + (x + bw - ins) + '" y2="' + (y + bh - ins) + '"' + da + '/>';
+      o += '<line x1="' + (x + 14) + '" y1="' + (y + bh + 12) + '" x2="' + (x + bw - 14) + '" y2="' + (y + bh + 12) + '" stroke="' + col + '" stroke-width="2.5" stroke-dasharray="7 5"/>';
+      o += '<line x1="' + (x + 14) + '" y1="' + (y + bh + 22) + '" x2="' + (x + bw - 14) + '" y2="' + (y + bh + 22) + '" stroke="' + col + '" stroke-width="3.5"/>';
+      o += '<text x="' + (x + bw / 2) + '" y="' + (y + bh + 42) + '" fill="' + (act ? '#ffffff' : '#9a9a9a') + '" font-size="11.5" font-weight="' + (act ? 700 : 400) + '" text-anchor="middle">' + it[1] + '</text></g>';
+    });
+    if (cs === 'tb' || cs === 'free') o += '<text x="' + (W / 2) + '" y="' + 126 + '" fill="#f2b84b" font-size="11" text-anchor="middle">Seinän tapaus: ' + T.CASES[cs].name + ' (ei käyrää kuvissa)</text>';
+    return o;
+  }
   function chart(C, r) {
-    var W = 560, Hh = 370, ml = 40, mr = 14, mt = 26, mb = 34, Hm = C.Hmax, sx = (W - ml - mr) / 20, sy = (Hh - mt - mb) / Hm;
+    var W = 560, Hh = 480, ml = 40, mr = 14, mt = 136, mb = 34, Hm = C.Hmax, sx = (W - ml - mr) / 20, sy = (Hh - mt - mb) / Hm;
     var X = function (L) { return ml + Math.min(L, 20) * sx; }, Y = function (H) { return Hh - mb - Math.min(H, Hm) * sy; };
     var o = '<svg viewBox="0 0 ' + W + ' ' + Hh + '" font-family="Arial,Helvetica,sans-serif">';
     for (var L = 0; L <= 20; L += 1) o += '<line x1="' + X(L) + '" y1="' + Y(0) + '" x2="' + X(L) + '" y2="' + Y(Hm) + '" stroke="' + (L % 2 ? '#1c1c1c' : '#2a2a2a') + '"/>' + (L % 2 ? '' : '<text x="' + X(L) + '" y="' + (Hh - mb + 14) + '" fill="#9a9a9a" font-size="10.5" text-anchor="middle">' + L + '</text>');
     for (var H = 0; H <= Hm; H += 1) o += '<line x1="' + X(0) + '" y1="' + Y(H) + '" x2="' + X(20) + '" y2="' + Y(H) + '" stroke="#2a2a2a"/><text x="' + (ml - 6) + '" y="' + (Y(H) + 4) + '" fill="#9a9a9a" font-size="10.5" text-anchor="end">' + H + '</text>';
-    o += '<text x="' + (W / 2) + '" y="' + (Hh - 4) + '" fill="#9a9a9a" font-size="11" text-anchor="middle">L (m) – tukiväli</text><text x="8" y="14" fill="#9a9a9a" font-size="11">H (m)</text>';
+    o += '<text x="' + (W / 2) + '" y="' + (Hh - 4) + '" fill="#9a9a9a" font-size="11" text-anchor="middle">L (m) – tukiväli</text><text x="8" y="' + (mt - 8) + '" fill="#9a9a9a" font-size="11">H (m)</text>';
+    o += legendIcons(r.cs, W);
     ['red', 'blue', 'green'].forEach(function (k) {
       var col = T.CASES[k].col, act = k === r.cs, w = act ? 3 : 1.4, op = act ? 1 : 0.45;
       o += '<polyline points="' + C.u[k].map(function (p) { return X(p[0]) + ',' + Y(p[1]); }).join(' ') + '" fill="none" stroke="' + col + '" stroke-width="' + w + '" opacity="' + op + '"/>';
@@ -256,7 +277,7 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
     });
     var pc = r.ok ? '#3fbf6f' : '#ff5a5a';
     o += '<circle cx="' + X(r.L) + '" cy="' + Y(r.H) + '" r="7" fill="' + pc + '" stroke="#fff" stroke-width="2"/><text x="' + (X(r.L) + 10) + '" y="' + (Y(r.H) - 8) + '" fill="#fff" font-size="12" font-weight="700">' + fmt(r.L, 2) + ' × ' + fmt(r.H, 2) + ' m</text>';
-    return o + '</svg><p class="hint" style="margin-top:6px">Yhtenäinen viiva = raudoittamaton, katkoviiva = raudoitettu. <span style="color:#3b82f6">Sininen</span> = kaikki reunat tuettu, <span style="color:#22a05a">vihreä</span> = ylä-, ala- ja toinen sivureuna, <span style="color:#e5484d">punainen</span> = yläpää vapaa. Paksunnettu käyrä on seinän tuentatapa; piste on seinän L × H. Lähde: Weber 4-33, ' + C.fig + ' (q<sub>d</sub> = 0,32 kN/m²).</p>';
+    return o + '</svg><p class="hint" style="margin-top:6px">Kuvakkeissa katkoviiva = tuettu reuna. Käyrissä yhtenäinen viiva = raudoittamaton, katkoviiva = raudoitettu. Korostettu kuvake ja paksunnettu käyrä ovat valitun seinän tuentatapa; piste on seinän L × H. Lähde: Weber 4-33, ' + C.fig + ' (q<sub>d</sub> = 0,32 kN/m²).</p>';
   }
 
   // ---- 3D-näkymä ----

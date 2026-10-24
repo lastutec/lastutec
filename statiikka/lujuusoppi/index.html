@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lujuusoppi – Lastutec</title>
-<meta name="description" content="Lujuusopin peruslaskut: normaali-, leikkaus- ja taivutusjännitykset, yhdistetyt jännitykset, eriaineiset poikkileikkaukset ja yksikkömuunnokset.">
+<meta name="description" content="Lujuusopin peruslaskut: normaali-, leikkaus- ja taivutusjännitykset, pienahitsin mitoitus, yhdistetyt jännitykset ja yksikkömuunnokset.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
 <style>
 /* Layout: laskentapohja – yhteiset E ja I ylhäällä, kuormitustapausten valitsin, valitun tapauksen kuva, lähtötiedot ja vaiheittainen laskenta */
@@ -211,7 +211,7 @@ const sc=(vals,px)=>{const m=Math.max(...vals.map(Math.abs),1e-9);return px/m;};
 
 /* ---------- Laskurit ---------- */
 const G=[
-{grp:'Jännitykset (normaali-, leikkaus- ja taivutusjännitys)',items:[
+{grp:'Jännitykset ja pienahitsi',items:[
  {id:'nor',name:'Normaalijännitys',desc:'Normaalivoima N (veto +, puristus −) poikkipinnalla A.',inp:[['N','N','kN',100],['A','A','mm²',2000]],
   prof:p=>({A:p.A}),
   out:v=>[['σ','N / A',`${n(v.N)} · 10³ / ${n(v.A)}`,v.N*1e3/v.A,'N/mm²']],
@@ -249,7 +249,24 @@ const G=[
     let o=secShape(p,80,yt+hh/2,hh)+`<line x1="25" y1="${yna}" x2="135" y2="${yna}" stroke="var(--ink)" stroke-dasharray="4 3"/><text x="27" y="${yna-5}" class="tl">N.A.</text>`;
     o+=`<text x="150" y="${yt+(yna-yt)/2+4}" class="tl">e₁</text><text x="150" y="${yna+(yb-yna)/2+4}" class="tl">e₂</text>`;
     const k=sc([s1,s2],70);o+=linDiag(250,yt,yb,s1*k,s2*k,1,`σr1 = ${n(s1)}`,`σr2 = ${n(s2)}`);
-    o+=`<text x="250" y="${FH-4}" text-anchor="middle" class="tl">N/mm², puristus −, veto +</text>`;return sv(o);}}
+    o+=`<text x="250" y="${FH-4}" text-anchor="middle" class="tl">N/mm², puristus −, veto +</text>`;return sv(o);}},
+ {id:'weld',name:'Pienahitsi (yksinkertaistettu menetelmä)',desc:'SFS-EN 1993-1-8, 4.5.3.3: F<sub>w,Rd</sub> = f<sub>vw,d</sub> · a, f<sub>vw,d</sub> = (f<sub>u</sub>/√3) / (β<sub>w</sub> · γ<sub>M2</sub>). F<sub>Ed</sub> on hitsiliitokseen kohdistuva voimien resultantti, L yhden hitsin pituus ja n hitsien lukumäärä (kaksipuolinen = 2). Päätyjen vähennys 1 = tehollinen pituus L − 2a.',
+  sel:{label:'Teräslaji',opts:[['S235',{fu:360,bw:0.8}],['S275',{fu:430,bw:0.85}],['S355',{fu:490,bw:0.9}],['S420',{fu:520,bw:1.0}],['S460',{fu:540,bw:1.0}]],def:2},
+  inp:[['F','F<sub>Ed</sub>','kN',150],['a','a','mm',5],['L','L','mm',100],['nw','n','kpl',2],['ne','Päätyjen vähennys (0/1)','–',1],['fu','f<sub>u</sub>','N/mm²',490],['bw','β<sub>w</sub>','–',0.9],['gM2','γ<sub>M2</sub>','–',1.25]],
+  out:v=>{const fvw=v.fu/Math.sqrt(3)/(v.bw*v.gM2),Le=Math.max(0,v.nw*(v.L-(v.ne?2*v.a:0))),FwRd=fvw*v.a,FwEd=v.F*1e3/Le,u=FwEd/FwRd;
+   return[['f<sub>vw,d</sub>','(f<sub>u</sub> / √3) / (β<sub>w</sub> · γ<sub>M2</sub>)',`(${n(v.fu)} / √3) / (${n(v.bw)} · ${n(v.gM2)})`,fvw,'N/mm²'],
+          ['ΣL<sub>eff</sub>',v.ne?'n · (L − 2a)':'n · L',v.ne?`${n(v.nw)} · (${n(v.L)} − 2 · ${n(v.a)})`:`${n(v.nw)} · ${n(v.L)}`,Le,'mm'],
+          ['F<sub>w,Rd</sub>','f<sub>vw,d</sub> · a',`${n(fvw)} · ${n(v.a)}`,FwRd,'N/mm'],
+          ['F<sub>w,Ed</sub>','F<sub>Ed</sub> / ΣL<sub>eff</sub>',`${n(v.F)} · 10³ / ${n(Le)}`,FwEd,'N/mm'],
+          ['Käyttöaste','F<sub>w,Ed</sub> / F<sub>w,Rd</sub>',`${n(FwEd)} / ${n(FwRd)}`,u,'%'],
+          ['a<sub>req</sub>','F<sub>w,Ed</sub> / f<sub>vw,d</sub>',`${n(FwEd)} / ${n(fvw)}  (a ≥ 3 mm)`,Math.max(3,FwEd/fvw),'mm']];},
+  fig:v=>{const fvw=v.fu/Math.sqrt(3)/(v.bw*v.gM2),Le=Math.max(0,v.nw*(v.L-(v.ne?2*v.a:0))),u=v.F*1e3/Le/(fvw*v.a);
+    let o=`<rect x="30" y="95" width="200" height="18" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/><rect x="120" y="25" width="16" height="70" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/>`;
+    o+=`<polygon points="136,95 136,73 158,95" fill="var(--accent)"/><polygon points="120,95 120,73 98,95" fill="var(--accent)"/><line x1="136" y1="95" x2="147" y2="84" stroke="var(--ink)" stroke-width="1.2"/><text x="150" y="80" class="ta">a</text>`;
+    o+=arrow(128,8,128,24,'var(--ink)')+`<text x="140" y="16" class="tv">F<tspan baseline-shift="sub" font-size="9">Ed</tspan> = ${n(v.F)} kN</text>`;
+    o+=`<text x="30" y="135" class="tl">Poikkileikkaus: kaksipuolinen pienahitsi, a-mitta = kolmion korkeus</text>`;
+    const ok=u<=1;o+=`<text x="260" y="50" class="tl">Käyttöaste</text><text x="260" y="76" style="font:700 22px Arial,Helvetica,sans-serif;fill:${ok?'var(--ok)':'var(--bad)'}">${n(u*100,0)} %</text><text x="260" y="98" style="font:700 13px Arial,Helvetica,sans-serif;fill:${ok?'var(--ok)':'var(--bad)'}">${ok?'OK!':'TARKASTA, EI OK!'}</text>`;
+    return sv(o);}}
 ]},
 {grp:'Yhdistetyt jännitykset',items:[
  {id:'comb',name:'Normaalivoima ja taivutus kahteen suuntaan',desc:'Pääakselit (I<sub>yz</sub> = 0). y ja z ovat tarkastelupisteen koordinaatit painopisteestä. Kuvaaja näyttää jännityksen z-suunnassa (reunat ±z) annetulla y:n arvolla.',inp:[['N','N','kN',-200],['A','A','mm²',5381],['My','M<sub>y</sub>','kNm',40],['Iy','I<sub>y</sub>','mm⁴',83560000],['z','z','mm',150],['Mz','M<sub>z</sub>','kNm',5],['Iz','I<sub>z</sub>','mm⁴',6038000],['y','y','mm',75]],
@@ -259,53 +276,20 @@ const G=[
     let o=secShape(p,cx,yt+hh/2,hh)+`<line x1="${cx}" y1="${yt-12}" x2="${cx}" y2="${yb+12}" stroke="var(--muted)" stroke-dasharray="3 3"/><line x1="20" y1="${yt+hh/2}" x2="140" y2="${yt+hh/2}" stroke="var(--muted)" stroke-dasharray="3 3"/><text x="142" y="${yt+hh/2+4}" class="tl">y</text><text x="${cx+4}" y="${yb+16}" class="tl">z</text>`;
     const pyx=cx+(p?Math.max(-1,Math.min(1,v.y/(p.b/2)))*(hh*p.b/p.h)/2:Math.max(-1,Math.min(1,v.y/Math.max(Math.abs(v.y),1)))*30);o+=`<circle cx="${pyx}" cy="${yb}" r="4" fill="var(--accent)"/>`;
     const k=sc([st,sb],70);o+=linDiag(260,yt,yb,st*k,sb*k,1,`−z: ${n(st)}`,`+z: ${n(sb)}`)+`<text x="260" y="${FH-4}" text-anchor="middle" class="tl">σ(z), N/mm²</text>`;return sv(o);}},
- {id:'gen',name:'Epäsymmetrinen poikkileikkaus (I<sub>yz</sub> ≠ 0)',desc:'Painopisteakselit, joissa tulomomentti I<sub>yz</sub> ≠ 0 (esim. L-profiili). Huomioi merkkisäännöt.',inp:[['N','N','kN',0],['A','A','mm²',1900],['My','M<sub>y</sub>','kNm',5],['Mz','M<sub>z</sub>','kNm',0],['Iy','I<sub>y</sub>','mm⁴',1770000],['Iz','I<sub>z</sub>','mm⁴',1770000],['Iyz','I<sub>yz</sub>','mm⁴',-1040000],['y','y','mm',-28.2],['z','z','mm',71.8]],
-  out:v=>{const D=v.Iy*v.Iz-v.Iyz**2,k1=(v.y*v.Iy-v.z*v.Iyz)/D,k2=(v.z*v.Iz-v.y*v.Iyz)/D,a=k1*v.Mz*1e6,b=k2*v.My*1e6,c=v.N*1e3/v.A;
-   return[['D','I<sub>y</sub> · I<sub>z</sub> − I<sub>yz</sub>²',`${n(v.Iy)} · ${n(v.Iz)} − ${neg(v.Iyz)}²`,D,'mm⁸'],
-          ['(y·I<sub>y</sub> − z·I<sub>yz</sub>) / D · M<sub>z</sub>','',`(${neg(v.y)} · ${n(v.Iy)} − ${neg(v.z)} · ${neg(v.Iyz)}) / D · ${neg(v.Mz)} · 10⁶`,a,'N/mm²'],
-          ['(z·I<sub>z</sub> − y·I<sub>yz</sub>) / D · M<sub>y</sub>','',`(${neg(v.z)} · ${n(v.Iz)} − ${neg(v.y)} · ${neg(v.Iyz)}) / D · ${neg(v.My)} · 10⁶`,b,'N/mm²'],
-          ['σ','… · M<sub>z</sub> + … · M<sub>y</sub> + N / A',`${neg(a)} + ${neg(b)} + ${neg(c)}`,a+b+c,'N/mm²']];},
-  fig:v=>{const D=v.Iy*v.Iz-v.Iyz**2,s=(v.y*v.Iy-v.z*v.Iyz)/D*v.Mz*1e6+(v.z*v.Iz-v.y*v.Iyz)/D*v.My*1e6+v.N*1e3/v.A;
-    const ox=120,oy=70,k=0.9;let o=`<path d="M${ox-28*k},${oy-72*k} h${10*k*2.2} v${(100-10)*k} h${(100-10)*k} v${10*k*2.2} h${-100*k-2} z" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/>`;
-    o+=`<line x1="${ox-80}" y1="${oy}" x2="${ox+120}" y2="${oy}" stroke="var(--muted)" stroke-dasharray="3 3"/><line x1="${ox}" y1="${oy-75}" x2="${ox}" y2="${oy+95}" stroke="var(--muted)" stroke-dasharray="3 3"/><text x="${ox+122}" y="${oy+4}" class="tl">y</text><text x="${ox+4}" y="${oy+95}" class="tl">z</text><circle cx="${ox}" cy="${oy}" r="3" fill="var(--ink)"/>`;
-    const px=ox+Math.max(-110,Math.min(110,v.y*k)),py=oy+Math.max(-70,Math.min(90,v.z*k));o+=`<circle cx="${px}" cy="${py}" r="4.5" fill="var(--accent)"/><text x="${px+8}" y="${py-6}" class="ta">σ = ${n(s)} N/mm²</text>`;
-    o+=`<text x="250" y="20" class="tl">Piste (y; z) = (${n(v.y)}; ${n(v.z)})</text>`;return sv(o);}}
-]},
-{grp:'Eriaineiset yhdistetyt poikkileikkaukset',items:[
- {id:'comp',name:'Teräs + betoni',desc:'Liittopoikkileikkauksen jäykkyydet. y<sub>s</sub> ja y<sub>c</sub> ovat osien painopisteiden etäisyydet samasta vertailutasosta (alapinnasta). Profiilin valinta asettaa teräsosan (y<sub>s</sub> = h/2).',inp:[['Es','E<sub>s</sub>','N/mm²',210000],['As','A<sub>s</sub>','mm²',5381],['Is','I<sub>s</sub>','mm⁴',83560000],['ys','y<sub>s</sub>','mm',150],['Ec','E<sub>c</sub>','N/mm²',33000],['Ac','A<sub>c</sub>','mm²',200000],['Ic','I<sub>c</sub>','mm⁴',666700000],['yc','y<sub>c</sub>','mm',350]],
-  prof:(p,v)=>{const hc=Math.sqrt(12*v.Ic/v.Ac)||100;return {As:p.A,Is:p.Iy,ys:p.h/2,yc:p.h+hc/2};},
-  out:v=>{const EA=v.Es*v.As+v.Ec*v.Ac,yNA=(v.ys*v.Es*v.As+v.yc*v.Ec*v.Ac)/EA,es=v.ys-yNA,ec=v.yc-yNA,EI=v.Es*v.Is+v.Ec*v.Ic+v.Es*v.As*es*es+v.Ec*v.Ac*ec*ec;
-   return[['EA<sub>com</sub>','E<sub>s</sub>A<sub>s</sub> + E<sub>c</sub>A<sub>c</sub>',`${n(v.Es)} · ${n(v.As)} + ${n(v.Ec)} · ${n(v.Ac)} · 10⁻³`,EA/1e3,'kN'],
-          ['y<sub>NA</sub>','(y<sub>s</sub>E<sub>s</sub>A<sub>s</sub> + y<sub>c</sub>E<sub>c</sub>A<sub>c</sub>) / EA<sub>com</sub>',`(${n(v.ys)} · ${n(v.Es*v.As)} + ${n(v.yc)} · ${n(v.Ec*v.Ac)}) / ${n(EA)}`,yNA,'mm'],
-          ['e<sub>s</sub>','y<sub>s</sub> − y<sub>NA</sub>',`${n(v.ys)} − ${n(yNA)}`,es,'mm'],
-          ['e<sub>c</sub>','y<sub>c</sub> − y<sub>NA</sub>',`${n(v.yc)} − ${n(yNA)}`,ec,'mm'],
-          ['EI<sub>com</sub>','E<sub>s</sub>I<sub>s</sub> + E<sub>c</sub>I<sub>c</sub> + E<sub>s</sub>A<sub>s</sub>e<sub>s</sub>² + E<sub>c</sub>A<sub>c</sub>e<sub>c</sub>²',`(${n(v.Es*v.Is)} + ${n(v.Ec*v.Ic)} + ${n(v.Es*v.As*es*es)} + ${n(v.Ec*v.Ac*ec*ec)}) · 10⁻⁹`,EI/1e9,'kNm²'],
-          ['I<sub>ekv</sub> (teräkseksi muunnettu)','EI<sub>com</sub> / E<sub>s</sub>',`${n(EI)} / ${n(v.Es)}`,EI/v.Es,'mm⁴']];},
-  fig:(v,p)=>{const EA=v.Es*v.As+v.Ec*v.Ac,yNA=(v.ys*v.Es*v.As+v.yc*v.Ec*v.Ac)/EA;
-    const hs=p?p.h:2*v.ys,hc=Math.sqrt(12*v.Ic/v.Ac)||100,bc=v.Ac/hc,c0=v.yc-hc/2,c1=v.yc+hc/2,top=Math.max(c1,hs),bot=Math.min(0,c0),Ht=top-bot||1;
-    const yt=18,yb=152,Y=y=>yb-(y-bot)/Ht*(yb-yt),kx=(yb-yt)/Ht,cx=80;
-    let o=`<rect x="${cx-Math.min(70,bc*kx/2)}" y="${Y(c1)}" width="${Math.min(140,bc*kx)}" height="${Y(c0)-Y(c1)}" fill="#8f8f8f" fill-opacity="0.55" stroke="${sC}" stroke-width="1.5"/>`;
-    o+=p?secShape(p,cx,(Y(0)+Y(hs))/2,Y(0)-Y(hs)):`<rect x="${cx-12}" y="${Y(hs)}" width="24" height="${Y(0)-Y(hs)}" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/>`;
-    o+=`<line x1="10" y1="${Y(yNA)}" x2="170" y2="${Y(yNA)}" stroke="var(--accent)" stroke-dasharray="5 3" stroke-width="1.5"/><text x="12" y="${Y(yNA)-5}" class="ta">N.A. y = ${n(yNA,0)}</text><text x="${cx+75}" y="${Y(v.yc)+4}" class="tl">E<tspan baseline-shift="sub" font-size="9">c</tspan>A<tspan baseline-shift="sub" font-size="9">c</tspan></text><text x="${cx+30}" y="${Y(hs/2)+4}" class="tl">E<tspan baseline-shift="sub" font-size="9">s</tspan>A<tspan baseline-shift="sub" font-size="9">s</tspan></text>`;
-    // jännitys yksikkökäyryydellä: σ = E · (y − yNA), hyppäys rajapinnassa
-    const x0=270,seg=[[0,hs,v.Es],[c0,c1,v.Ec]];const smax=Math.max(...seg.flatMap(([a,b,E])=>[Math.abs(E*(a-yNA)),Math.abs(E*(b-yNA))]))||1,K=60/smax;
-    o+=`<line x1="${x0}" y1="${yt-4}" x2="${x0}" y2="${yb+4}" stroke="var(--muted)"/>`;
-    for(const [a,b,E] of seg){const xa=x0-E*(a-yNA)*K,xb=x0-E*(b-yNA)*K;o+=`<polygon points="${x0},${Y(a)} ${xa},${Y(a)} ${xb},${Y(b)} ${x0},${Y(b)}" fill="var(--accent)" fill-opacity="${E===v.Es?0.35:0.18}" stroke="var(--accent)" stroke-width="1.4"/>`;}
-    o+=`<line x1="${x0-70}" y1="${Y(yNA)}" x2="${x0+70}" y2="${Y(yNA)}" stroke="var(--accent)" stroke-dasharray="5 3"/><text x="${x0}" y="12" text-anchor="middle" class="tl">σ ∝ E · (y − y<tspan baseline-shift="sub" font-size="9">NA</tspan>)</text>`;
-    return sv(o);}}
 ]}
 ];
 const vals={},psel={};G.forEach(g=>g.items.forEach(c=>{vals[c.id]={};c.inp.forEach(([k,,,d])=>vals[c.id][k]=d);psel[c.id]='';}));
 const profOpts=`<option value="">– oma poikkileikkaus –</option>`+STEEL_FAMS.map(f=>`<optgroup label="${f}">${PROFILES.filter(p=>p.fam===f).map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</optgroup>`).join('');
 function render(){
   let h='';
-  G.forEach(g=>{h+=`<div class="grp-h">${g.grp}</div><div class="sections">`+g.items.map(c=>`<div class="panel calc" id="c-${c.id}"><h2>${c.name}</h2><p class="desc">${c.desc}</p>${c.prof?`<label class="psel" for="ps-${c.id}">Poikkileikkaus teräskirjastosta<select id="ps-${c.id}" data-c="${c.id}">${profOpts}</select></label>`:''}<div class="fig"></div><div class="inputs">${c.inp.map(([k,l,u])=>`<label for="i-${c.id}-${k}">${l} <span class="u">[${u}]</span><input type="number" id="i-${c.id}-${k}" data-c="${c.id}" data-k="${k}" value="${vals[c.id][k]}" step="any"></label>`).join('')}</div><div class="res"></div></div>`).join('')+`</div>`;});
+  G.forEach(g=>{h+=`<div class="grp-h">${g.grp}</div><div class="sections">`+g.items.map(c=>`<div class="panel calc" id="c-${c.id}"><h2>${c.name}</h2><p class="desc">${c.desc}</p>${c.sel?`<label class="psel" for="gs-${c.id}">${c.sel.label}<select id="gs-${c.id}" data-g="${c.id}">${c.sel.opts.map(([nm],i)=>`<option value="${i}"${i===c.sel.def?' selected':''}>${nm}</option>`).join('')}</select></label>`:''}${c.prof?`<label class="psel" for="ps-${c.id}">Poikkileikkaus teräskirjastosta<select id="ps-${c.id}" data-c="${c.id}">${profOpts}</select></label>`:''}<div class="fig"></div><div class="inputs">${c.inp.map(([k,l,u])=>`<label for="i-${c.id}-${k}">${l} <span class="u">[${u}]</span><input type="number" id="i-${c.id}-${k}" data-c="${c.id}" data-k="${k}" value="${vals[c.id][k]}" step="any"></label>`).join('')}</div><div class="res"></div></div>`).join('')+`</div>`;});
   h+=`<div class="grp-h">Yksikkömuunnokset</div><div class="panel"><table class="units"><tbody>
    <tr><td>kPa</td><td>= kN/m²</td></tr><tr><td>MPa</td><td>= N/mm² = MN/m² = 1 000 kN/m²</td></tr><tr><td>GPa</td><td>= 1 000 MPa</td></tr>
    <tr><td>1 bar</td><td>= 100 kPa = 100 kN/m² = 0,1 MPa</td></tr><tr><td>1 kN/m</td><td>= 1 N/mm</td></tr><tr><td>1 kNm</td><td>= 1 · 10⁶ Nmm</td></tr>
    <tr><td>100 kg</td><td>≈ 1 kN (g ≈ 10 m/s²)</td></tr><tr><td>1 t</td><td>≈ 10 kN (g ≈ 10 m/s²)</td></tr></tbody></table></div>`;
   $('sections').innerHTML=h;
   document.querySelectorAll('#sections input').forEach(i=>i.oninput=()=>{const v=parseFloat(i.value);if(isFinite(v)){vals[i.dataset.c][i.dataset.k]=v;calc(i.dataset.c);}});
+  document.querySelectorAll('#sections select[data-g]').forEach(s=>s.onchange=()=>{const id=s.dataset.g,c=G.flatMap(g=>g.items).find(x=>x.id===id),nv=c.sel.opts[+s.value][1];for(const k in nv){vals[id][k]=nv[k];const el=$(`i-${id}-${k}`);if(el)el.value=nv[k];}calc(id);});
   document.querySelectorAll('#sections select[data-c]').forEach(s=>s.onchange=()=>{const id=s.dataset.c,c=G.flatMap(g=>g.items).find(x=>x.id===id),p=PF(s.value);psel[id]=s.value;
     if(p){const nv=c.prof(p,vals[id]);for(const k in nv){vals[id][k]=+nv[k].toPrecision(6);const el=$(`i-${id}-${k}`);if(el)el.value=vals[id][k];}}calc(id);});
   G.forEach(g=>g.items.forEach(c=>calc(c.id)));
@@ -315,7 +299,7 @@ function calc(id){
   let r;try{r=c.out(v);}catch(e){r=[];}
   if(!r.length||r.some(x=>!isFinite(x[3]))){box.innerHTML='<div class="warnbox">Tarkista lähtötiedot (nollalla jako tai puuttuva arvo).</div>';el.querySelector('.fig').innerHTML='';return;}
   try{el.querySelector('.fig').innerHTML=c.fig?c.fig(v,PF(psel[id])):'';}catch(e){el.querySelector('.fig').innerHTML='';}
-  box.innerHTML=r.map(([sym,f,sub,val,u],i)=>`<div class="step"><span class="no">${String(i+1).padStart(2,'0')}</span><h3>${sym}</h3><div class="math">${f?`<span class="f">${sym} = ${f}</span>`:''}<span class="s">= ${sub}</span><span class="r">= ${u==='–'?n(val,6):n(val)} ${u==='–'?'':u}</span></div></div>`).join('');
+  box.innerHTML=r.map(([sym,f,sub,val,u],i)=>`<div class="step"><span class="no">${String(i+1).padStart(2,'0')}</span><h3>${sym}</h3><div class="math">${f?`<span class="f">${sym} = ${f}</span>`:''}<span class="s">= ${sub}</span><span class="r">= ${u==='%'?`${n(val*100,0)} % → <b style="color:var(--${val<=1?'ok':'bad'})">${val<=1?'OK!':'TARKASTA, EI OK!'}</b>`:`${u==='–'?n(val,6):n(val)} ${u==='–'?'':u}`}</span></div></div>`).join('');
 }
 
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600);}

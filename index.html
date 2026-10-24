@@ -175,6 +175,13 @@
         return out;
       };
       const cracksB = mk(1, 46, true), cracksT = mk(-1, 120, false);
+      // Leikkaushalkeamat: vinot (~40°) halkeamat uumassa tukien lähellä, joissa leikkausvoima on suurin
+      const shear = [];
+      for (const side of [-1, 1]) for (let i = 0; i < 4; i++) {
+        const dist = 30 + i * 34 + rnd() * 10, x = side < 0 ? A + dist : B - dist;
+        shear.push({ x, dir: -side, ang: (36 + rnd() * 10) * Math.PI / 180, v0: (rnd() - 0.3) * 6,
+          jit: Array.from({ length: 11 }, () => (rnd() - 0.5) * 4), thr: 0.38 + i * 0.07 + rnd() * 0.05, maxLen: 0 });
+      }
       const specks = Array.from({ length: 90 }, () => [X0 + rnd() * (X1 - X0), (rnd() - 0.5) * (H - 6), 0.6 + rnd() * 1.6, rnd() < 0.5 ? '#6f6f6f' : '#b4b4b4']);
 
       const yc = x => bend * 4 * (x - A) * (B - x) / (L * L);
@@ -214,8 +221,21 @@
         };
         for (const c of list) o += drawCrack(c, true);
         for (const c of other) o += drawCrack(c, false);
+        for (const c of shear) {
+          const D = k * Math.abs(1 - 2 * (c.x - A) / L);
+          const sn = Math.sin(c.ang), cs = Math.cos(c.ang), lmax = 2 * (h2 - 4) / sn;
+          if (D > c.thr) c.maxLen = Math.max(c.maxLen, Math.min(lmax, lmax * (0.25 + (D - c.thr) / (1 - c.thr) * 1.2)));
+          if (c.maxLen <= 0 || fade <= 0) continue;
+          const open = Math.max(0, D - c.thr) * 9 + 0.6, n = c.jit.length, Ls = [], Rs = [];
+          for (let j = 0; j < n; j++) {
+            const t = j / (n - 1), sp = (t - 0.5) * c.maxLen, hw = open * (1 - Math.abs(2 * t - 1)) * 0.5 + 0.2;
+            const xx = c.x + c.dir * sp * cs + c.jit[j], v = c.v0 - face * sp * sn;
+            Ls.push(pt(map(xx - hw, v))); Rs.push(pt(map(xx + hw, v)));
+          }
+          o += `<polygon points="${Ls.join(' ')} ${Rs.reverse().join(' ')}" fill="#151515" opacity="${(D > c.thr ? 1 : 0.8) * fade}"/>`;
+        }
         G.innerHTML = o;
-        if (fade <= 0 && releasedAt) { cracksB.forEach(c => c.maxLen = 0); cracksT.forEach(c => c.maxLen = 0); releasedAt = 0; }
+        if (fade <= 0 && releasedAt) { cracksB.forEach(c => c.maxLen = 0); cracksT.forEach(c => c.maxLen = 0); shear.forEach(c => c.maxLen = 0); releasedAt = 0; }
       };
 
       const toSvgY = e => { const p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; return p.matrixTransform(svg.getScreenCTM().inverse()).y; };

@@ -231,13 +231,11 @@ const G=[
   fig:(v,p)=>{const t=v.V*1e3*v.S/(v.I*v.b),cy=88,hh=120;let o=secShape(p,80,cy,hh)+`<line x1="20" y1="${cy}" x2="140" y2="${cy}" stroke="var(--ink)" stroke-dasharray="4 3"/><text x="22" y="${cy-5}" class="tl">N.A.</text>`;
     const x0=210,W=80;let pts=[];for(let i=0;i<=24;i++){const y=cy-hh/2+hh*i/24,u=(y-cy)/(hh/2);let f=1-u*u;if(p&&p.kind==='I'){const fl=(p.h/2-p.tf)/(p.h/2);f=Math.abs(u)>fl?(1-u*u)*(p.tw/p.b):1-u*u;f=Math.max(0,f);}pts.push(`${x0+W*f},${y}`);}
     o+=`<line x1="${x0}" y1="${cy-hh/2-6}" x2="${x0}" y2="${cy+hh/2+6}" stroke="var(--muted)"/><polygon points="${x0},${cy-hh/2} ${pts.join(' ')} ${x0},${cy+hh/2}" fill="var(--accent)" fill-opacity="0.28" stroke="var(--accent)" stroke-width="1.6"/><text x="${x0+W+6}" y="${cy+4}" class="tv">τ = ${n(t)} N/mm²</text><text x="${x0}" y="18" class="tl">Leikkausjännitys τ</text>`;return sv(o);}},
- {id:'taumax',name:'Suurin leikkausjännitys',desc:'Suorakaide 3V/(2A), umpipyöreä 4V/(3A), ohutseinäinen putki 2V/A.',inp:[['V','V','kN',50],['A','A','mm²',5000]],
+ {id:'taumax',name:'Suurin leikkausjännitys',desc:'Suorakaidepoikkileikkaus: τ<sub>max</sub> = 3V / (2A) neutraaliakselilla.',inp:[['V','V','kN',50],['A','A','mm²',5000]],
   prof:p=>({A:p.A}),
-  out:v=>[['τ<sub>max</sub> (suorakaide)','3 · V / (2 · A)',`3 · ${n(v.V)} · 10³ / (2 · ${n(v.A)})`,1.5*v.V*1e3/v.A,'N/mm²'],
-          ['τ<sub>max</sub> (pyörö)','4 · V / (3 · A)',`4 · ${n(v.V)} · 10³ / (3 · ${n(v.A)})`,4/3*v.V*1e3/v.A,'N/mm²'],
-          ['τ<sub>max</sub> (putki)','2 · V / A',`2 · ${n(v.V)} · 10³ / ${n(v.A)}`,2*v.V*1e3/v.A,'N/mm²']],
-  fig:v=>{const t0=v.V*1e3/v.A,vals=[1.5,4/3,2],sh=['r','c','t'];let o='';
-    vals.forEach((k,i)=>{const cx=40+i*115,cy=80;o+=sh[i]==='r'?`<rect x="${cx-16}" y="${cy-40}" width="32" height="80" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/>`:sh[i]==='c'?`<circle cx="${cx}" cy="${cy}" r="30" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/>`:`<circle cx="${cx}" cy="${cy}" r="30" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/><circle cx="${cx}" cy="${cy}" r="24" fill="var(--paper)" stroke="${sC}"/>`;
+  out:v=>[['τ<sub>max</sub>','3 · V / (2 · A)',`3 · ${n(v.V)} · 10³ / (2 · ${n(v.A)})`,1.5*v.V*1e3/v.A,'N/mm²']],
+  fig:v=>{const t0=v.V*1e3/v.A,vals=[1.5],sh=['r'];let o='';
+    vals.forEach((k,i)=>{const cx=150,cy=80;o+=sh[i]==='r'?`<rect x="${cx-16}" y="${cy-40}" width="32" height="80" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/>`:sh[i]==='c'?`<circle cx="${cx}" cy="${cy}" r="30" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/>`:`<circle cx="${cx}" cy="${cy}" r="30" fill="${fillC}" stroke="${sC}" stroke-width="1.5"/><circle cx="${cx}" cy="${cy}" r="24" fill="var(--paper)" stroke="${sC}"/>`;
       const x0=cx+42,hh=sh[i]==='r'?80:60,W=22*k;let pts=[];for(let j=0;j<=16;j++){const y=cy-hh/2+hh*j/16,u=(y-cy)/(hh/2);pts.push(`${x0+W*(1-u*u)},${y}`);}
       o+=`<line x1="${x0}" y1="${cy-hh/2}" x2="${x0}" y2="${cy+hh/2}" stroke="var(--muted)"/><polygon points="${x0},${cy-hh/2} ${pts.join(' ')} ${x0},${cy+hh/2}" fill="var(--accent)" fill-opacity="0.28" stroke="var(--accent)" stroke-width="1.5"/><text x="${cx+20}" y="${cy+62}" text-anchor="middle" class="tv">${n(k*t0)} N/mm²</text>`;});
     return sv(o);}},

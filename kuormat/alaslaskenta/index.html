@@ -135,6 +135,18 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
 .type .tname{width:100%;max-width:520px}
 .sub{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 4px}
 .legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted);margin-top:6px}
+.scalebar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13.5px;margin:0 0 8px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel2)}
+.scalebar input[type=number]{width:84px}
+.scalebar .grp{display:flex;align-items:center;gap:6px}
+.scalebar .sinfo{font-size:12.5px;color:var(--muted)}
+.ctxm{position:absolute;z-index:5;min-width:190px;background:#1f2023;border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.5);padding:6px;display:flex;flex-direction:column;gap:2px}
+.ctxm .mh{font-weight:700;font-size:13.5px;padding:4px 8px 0}
+.ctxm .ms{font-size:12px;color:var(--muted);padding:0 8px 4px;border-bottom:1px solid var(--line);margin-bottom:2px}
+.ctxm button{text-align:left;font:600 13.5px Arial,Helvetica,sans-serif;color:var(--ink);background:none;border:0;border-radius:5px;padding:8px 10px;cursor:pointer}
+.ctxm button:hover,.ctxm button:focus-visible{background:var(--panel2);outline:none}
+.ctxm button.danger{color:var(--bad)}
+.ctxm button:disabled{opacity:.45;cursor:default}
+@media print{.scalebar,.ctxm{display:none!important}}
 @media print{.toolbar,.zoom,.hint,.calib,#props,.no-print{display:none!important}.cv{height:520px;border:1px solid #bbb}}
 </style>
 </head>
@@ -144,7 +156,7 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
     <div class="brand"><a href="../" class="back">← Kuormalaskenta</a><h1>Kuormien alaslaskenta</h1></div>
     <div class="hdr-r"><span class="meta">Työkalu 5 · Laatinut: INS (YAMK) Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
 </header>
-<p class="lead">Karkea kuormien alaslaskenta arkkitehti- tai rakennepohjasta. Tuo pohja PDF:nä tai kuvana, aseta mittakaava ja piirrä laatta-alueet, pilarit ja kantavat seinät. Kuormitusalat jaetaan lähimmän tuen periaatteella. Yksi mitoituskuorma q<sub>d</sub> kerrotaan kuormitusalalla ja kerrosmäärällä, ja pilareille annetaan alustava dimensio.</p>
+<p class="lead">Karkea kuormien alaslaskenta arkkitehti- tai rakennepohjasta. Tuo pohja PDF:nä tai kuvana, syötä piirustuksen mittakaava (tai kalibroi tunnetulla mitalla) ja piirrä laatta-alueet, pilarit ja kantavat seinät. Kuormitusalat jaetaan lähimmän tuen periaatteella. Yksi mitoituskuorma q<sub>d</sub> kerrotaan kuormitusalalla ja kerrosmäärällä, ja pilareille annetaan alustava dimensio.</p>
 
 <div class="wgrid">
   <div>
@@ -183,6 +195,12 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
         <input type="file" id="file" accept="image/*,application/pdf" hidden>
         <label class="small" id="pdfPageWrap" hidden>PDF-sivu <input type="number" id="pdfPage" min="1" step="1" value="1" style="width:56px"></label>
       </div>
+      <div class="scalebar no-print" id="scalebar">
+        <span class="grp"><label for="pdfScale">Piirustuksen mittakaava 1 :</label><input type="number" id="pdfScale" min="1" step="1" value="100"><button class="btn primary" id="scaleApply">Aseta</button></span>
+        <span class="grp" id="dpiWrap" hidden><label for="imgDpi">Kuvan tarkkuus [dpi]</label><input type="number" id="imgDpi" min="10" step="1" value="150"></span>
+        <label class="chk" style="margin:0"><input type="checkbox" id="pdfSnap" checked> Kohdista pilarit ja seinät pohjakuvaan</label>
+        <span class="sinfo" id="scaleInfo"></span>
+      </div>
       <p class="hint" id="hint"></p>
       <div class="calib" id="calib" hidden>
         <p id="calibTxt"></p>
@@ -191,6 +209,7 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
         <button class="btn ghost" id="calibNo">Peru</button>
       </div>
       <div class="cv"><canvas id="plan" tabindex="0" aria-label="Pohjakuva, kuormitusalat ja pilarikuormat"></canvas>
+        <div class="ctxm" id="ctxm" hidden role="menu"></div>
         <div class="zoom"><button id="zin" aria-label="Lähennä">+</button><button id="zout" aria-label="Loitonna">−</button><button id="zfit" aria-label="Sovita näkymään" style="font-size:12px">⤢</button></div>
       </div>
       <div class="flex no-print" style="margin-top:8px">
@@ -241,7 +260,7 @@ const SIZES_RD=[300,380,480,580,680,780,880,980,1080];
 
 /* ---------- tila ---------- */
 function defaults(){ return {
-  fl:{n:4,qd:12,conc:35,shape:'sq',l0:3.0,mast:false,grid:0.1}, bg:null,
+  fl:{n:4,qd:12,conc:35,shape:'sq',l0:3.0,mast:false,grid:0.1,pdfScale:100,dpi:150,pdfSnap:true}, bg:null,
   els:[
     {id:'L1',t:'slab',x0:0,y0:0,x1:24,y1:12},
     {id:'S1',t:'wall',a:[0,0],b:[24,0]},{id:'S2',t:'wall',a:[0,12],b:[24,12]},
@@ -385,6 +404,7 @@ function render(){
     else { ctx.strokeStyle=draft.t==='scale'?COL.sel:COL.acc; ctx.lineWidth=draft.t==='wall'?6:2.5; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke();
       label(`${fmt(Math.hypot(draft.p1[0]-draft.p0[0],draft.p1[1]-draft.p0[1]),2)} m`,(a[0]+b[0])/2,(a[1]+b[1])/2-15,draft.t==='scale'?COL.sel:COL.acc); } }
   if(calibLine){ const a=toS(calibLine[0]),b=toS(calibLine[1]); ctx.strokeStyle=COL.sel; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); }
+  if(flashP){ const [x,y]=toS(flashP); ctx.strokeStyle=COL.sel; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(x,y,13,0,7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x-18,y); ctx.lineTo(x+18,y); ctx.moveTo(x,y-18); ctx.lineTo(x,y+18); ctx.stroke(); }
   if(snapMark){ const [x,y]=toS(snapMark); ctx.strokeStyle=COL.acc; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(x,y,7,0,7); ctx.stroke(); }
   const m=[0.5,1,2,5,10,20,50].find(v=>v*view.s>70)||50,bx=14,by=24;
   ctx.strokeStyle=COL.fg; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+m*view.s,by); ctx.moveTo(bx,by-4); ctx.lineTo(bx,by+4); ctx.moveTo(bx+m*view.s,by-4); ctx.lineTo(bx+m*view.s,by+4); ctx.stroke();
@@ -417,15 +437,29 @@ function hit(w){
 /* ---------- osoitin ---------- */
 const ptrs=new Map(); let drag=null,pinch=null;
 function pos(ev){ const r=cv.getBoundingClientRect(); return [ev.clientX-r.left,ev.clientY-r.top]; }
+cv.addEventListener('mousedown',ev=>{ if(ev.button===1) ev.preventDefault(); });
+cv.addEventListener('auxclick',ev=>{ if(ev.button===1) ev.preventDefault(); });
+function nearEnd(e,w){ const tol=Math.max(0.2,12/view.s); if(Math.hypot(e.a[0]-w[0],e.a[1]-w[1])<=tol) return 'a'; if(Math.hypot(e.b[0]-w[0],e.b[1]-w[1])<=tol) return 'b'; return null; }
+function startMove(e,w,px,py){ select(e.id); const end=e.t==='wall'?nearEnd(e,w):null;
+  drag={k:end?'end':'move',end,id:e.id,w0:w,s0:[px,py],orig:JSON.parse(JSON.stringify(e)),moved:false}; }
 cv.addEventListener('pointerdown',ev=>{
-  cv.focus({preventScroll:true}); cv.setPointerCapture(ev.pointerId); ptrs.set(ev.pointerId,pos(ev));
-  if(ptrs.size===2){ draft=null; drag=null; const [p,q]=[...ptrs.values()]; pinch={d:Math.hypot(p[0]-q[0],p[1]-q[1]),c:[(p[0]+q[0])/2,(p[1]+q[1])/2]}; render(); return; }
+  hideMenu();
+  cv.focus({preventScroll:true});
   const [px,py]=pos(ev),w=toW(px,py);
-  if(tool==='select'){ const e=hit(w);
-    if(e&&!e.pan){ select(e.id); drag={k:'move',id:e.id,w0:w,orig:JSON.parse(JSON.stringify(e)),moved:false}; }
-    else { if(e&&e.pan) select(e.slab.id); else select(null); drag={k:'pan',p0:[px,py],o:[view.ox,view.oy]}; } }
-  else if(tool==='col'){ addEl({id:nextId('P'),t:'col',p:snap(w)}); }
-  else { const p0=snap(w); draft={t:tool,p0,p1:p0}; }
+  // hiiren rulla pohjassa: näkymän siirto millä tahansa työkalulla
+  if(ev.pointerType==='mouse'&&ev.button===1){ ev.preventDefault(); cv.setPointerCapture(ev.pointerId); ptrs.set(ev.pointerId,[px,py]); draft=null; drag={k:'pan',p0:[px,py],o:[view.ox,view.oy]}; cv.style.cursor='grabbing'; return; }
+  if(ev.pointerType==='mouse'&&ev.button!==0) return;
+  cv.setPointerCapture(ev.pointerId); ptrs.set(ev.pointerId,[px,py]);
+  if(ptrs.size===2){ draft=null; drag=null; const [p,q]=[...ptrs.values()]; pinch={d:Math.hypot(p[0]-q[0],p[1]-q[1]),c:[(p[0]+q[0])/2,(p[1]+q[1])/2]}; render(); return; }
+  const h=hit(w);
+  if(tool==='select'){
+    if(h&&!h.pan) startMove(h,w,px,py);
+    else { if(h&&h.pan) select(h.slab.id); else select(null); drag={k:'pan',p0:[px,py],o:[view.ox,view.oy]}; } }
+  else if(tool==='col'){
+    if(h&&!h.pan&&h.t==='col') startMove(h,w,px,py);   // olemassa olevaa pilaria raahataan / klikkaus avaa valikon
+    else { let p=snap(w); const q=pdfOn()?pdfCol(w):null; if(q){ p=q; flash(q); } addEl({id:nextId('P'),t:'col',p}); } }
+  else if(tool==='wall'&&h&&!h.pan&&h.t==='col'){ startMove(h,w,px,py); }
+  else { const p0=snap(w); draft={t:tool,p0,p1:p0,hit0:h&&!h.pan?h.id:null,s0:[px,py]}; }
   render();
 });
 cv.addEventListener('pointermove',ev=>{
@@ -435,39 +469,51 @@ cv.addEventListener('pointermove',ev=>{
     view.ox+=c[0]-pinch.c[0]; view.oy+=c[1]-pinch.c[1]; zoomAt(d/pinch.d,c[0],c[1]); pinch={d,c}; return; }
   const [px,py]=pos(ev),w=toW(px,py);
   if(drag&&drag.k==='pan'){ view.ox=drag.o[0]+px-drag.p0[0]; view.oy=drag.o[1]+py-drag.p0[1]; render(); }
+  else if(drag&&drag.k==='end'){
+    if(!drag.moved&&Math.hypot(px-drag.s0[0],py-drag.s0[1])<5) return; drag.moved=true;
+    const e=byId(drag.id),other=drag.end==='a'?e.b:e.a; e[drag.end]=snap(w,other); update(false,true); }
   else if(drag&&drag.k==='move'){
-    if(!drag.moved&&Math.hypot(w[0]-drag.w0[0],w[1]-drag.w0[1])*view.s<5) return; drag.moved=true;
+    if(!drag.moved&&Math.hypot(px-drag.s0[0],py-drag.s0[1])<5) return; drag.moved=true;
     const g=+st.fl.grid||0.1,dx=Math.round((w[0]-drag.w0[0])/g)*g,dy=Math.round((w[1]-drag.w0[1])/g)*g,e=byId(drag.id),o=drag.orig;
     if(e.t==='slab'){ e.x0=o.x0+dx; e.x1=o.x1+dx; e.y0=o.y0+dy; e.y1=o.y1+dy; } else if(e.t==='col') e.p=[o.p[0]+dx,o.p[1]+dy]; else { e.a=[o.a[0]+dx,o.a[1]+dy]; e.b=[o.b[0]+dx,o.b[1]+dy]; }
     update(false,true); }
   else if(draft){ draft.p1=(draft.t==='slab'||draft.t==='scale')?snap(w):snap(w,draft.p0); render(); }
 });
 function endPtr(ev){
-  ptrs.delete(ev.pointerId);
+  const had=ptrs.has(ev.pointerId); ptrs.delete(ev.pointerId);
   if(pinch){ if(ptrs.size<2) pinch=null; return; }
-  if(drag){ if(drag.k==='move'&&drag.moved){ update(true); renderProps(); } drag=null; }
+  if(!had) return;
+  const [px,py]=pos(ev);
+  if(drag){ const d=drag; drag=null; cv.style.cursor=tool==='select'?'default':'crosshair';
+    if((d.k==='move'||d.k==='end')&&d.moved){ const e=byId(d.id);
+      if(e&&pdfOn()&&ev.type==='pointerup'){ if(e.t==='col'){ const q=pdfCol(e.p); if(q){ e.p=q; flash(q); } } else if(e.t==='wall') pdfWallFix(e); }
+      update(true); renderProps(); }
+    else if(d.k==='move'&&!d.moved&&ev.type==='pointerup'){ const e=byId(d.id); if(e&&(e.t==='col'||e.t==='wall')) showMenu(e,px,py); } }
   if(draft){ const d=draft; draft=null;
     if(d.t==='slab'){ const w=Math.abs(d.p1[0]-d.p0[0]),h=Math.abs(d.p1[1]-d.p0[1]);
-      if(w>=0.2&&h>=0.2) addEl({id:nextId('L'),t:'slab',x0:Math.min(d.p0[0],d.p1[0]),y0:Math.min(d.p0[1],d.p1[1]),x1:Math.max(d.p0[0],d.p1[0]),y1:Math.max(d.p0[1],d.p1[1])}); }
+      if(w>=0.2&&h>=0.2) addEl({id:nextId('L'),t:'slab',x0:Math.min(d.p0[0],d.p1[0]),y0:Math.min(d.p0[1],d.p1[1]),x1:Math.max(d.p0[0],d.p1[0]),y1:Math.max(d.p0[1],d.p1[1])});
+      else if(d.hit0&&Math.hypot(px-d.s0[0],py-d.s0[1])<5){ const e=byId(d.hit0); if(e&&(e.t==='col'||e.t==='wall')){ select(e.id); showMenu(e,px,py); } } }
     else if(d.t==='scale'){ if(Math.hypot(d.p1[0]-d.p0[0],d.p1[1]-d.p0[1])>0.05){ calibLine=[d.p0,d.p1]; showCalib(); } }
-    else if(Math.hypot(d.p1[0]-d.p0[0],d.p1[1]-d.p0[1])>=0.2) addEl({id:nextId('S'),t:'wall',a:d.p0,b:d.p1});
+    else if(Math.hypot(d.p1[0]-d.p0[0],d.p1[1]-d.p0[1])>=0.2){ const e={id:nextId('S'),t:'wall',a:d.p0,b:d.p1}; if(pdfOn()) pdfWallFix(e); addEl(e); }
+    else if(d.hit0&&Math.hypot(px-d.s0[0],py-d.s0[1])<5){ const e=byId(d.hit0); if(e&&(e.t==='col'||e.t==='wall')){ select(e.id); showMenu(e,px,py); } }
     render(); }
 }
 cv.addEventListener('pointerup',endPtr); cv.addEventListener('pointercancel',endPtr);
 cv.addEventListener('pointerleave',()=>{ if(!ptrs.size){ snapMark=null; render(); } });
+cv.addEventListener('contextmenu',ev=>{ const [px,py]=pos(ev),h=hit(toW(px,py)); if(h&&!h.pan&&(h.t==='col'||h.t==='wall')){ ev.preventDefault(); select(h.id); showMenu(h,px,py); } });
 cv.addEventListener('wheel',ev=>{ ev.preventDefault(); const [px,py]=pos(ev); zoomAt(Math.exp(-ev.deltaY*0.0015),px,py); },{passive:false});
-cv.addEventListener('keydown',ev=>{ if((ev.key==='Delete'||ev.key==='Backspace')&&sel){ delEl(sel); ev.preventDefault(); } if(ev.key==='Escape'){ draft=null; select(null); } });
+cv.addEventListener('keydown',ev=>{ if((ev.key==='Delete'||ev.key==='Backspace')&&sel){ delEl(sel); ev.preventDefault(); } if(ev.key==='Escape'){ draft=null; hideMenu(); select(null); } });
 $('zin').onclick=()=>zoomAt(1.3,W/2,H/2); $('zout').onclick=()=>zoomAt(1/1.3,W/2,H/2); $('zfit').onclick=fit;
 
 function addEl(e){ st.els.push(e); sel=e.id; update(true); renderProps(); }
 function delEl(id){ st.els=st.els.filter(e=>e.id!==id); sel=null; update(true); renderProps(); }
 function select(id){ sel=id; renderProps(); markRows(); render(); }
-const HINTS={select:'Valitse osa napauttamalla ja siirrä vetämällä. Laatta-alue valitaan sen reunasta. Tyhjästä kohdasta vetämällä siirrät näkymää, zoomaa hiiren rullalla tai kahdella sormella. Delete poistaa valitun.',
+const HINTS={select:'Raahaa pilaria tai seinää hiiren vasemmalla, seinän päästä raahaamalla muutat pituutta. Klikkaus avaa valikon (poisto, kohdistus). Rulla zoomaa, rulla pohjassa siirtää näkymää. Delete poistaa valitun.',
   slab:'Vedä laatta-alue nurkasta nurkkaan. Alueen kuorma jaetaan lähimmälle pilarille tai seinälle.',
-  col:'Napauta pilarin paikka.',
-  wall:'Vedä kantava seinä.',
+  col:'Napauta pilarin paikka – pilari kohdistuu pohjakuvan pilarin keskelle. Olemassa olevaa pilaria voi raahata, klikkaus avaa valikon.',
+  wall:'Vedä kantava seinä – seinä kohdistuu pohjakuvan seinän keskilinjaan. Klikkaus olemassa olevaan seinään avaa valikon.',
   scale:'Vedä viiva pohjakuvassa tunnetun mitan päälle (esim. mittaviiva tai akseliväli) ja syötä mitan todellinen pituus.'};
-function setTool(t){ tool=t; draft=null; document.querySelectorAll('#tools [data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t)); $('hint').textContent=HINTS[t]||''; cv.style.cursor=t==='select'?'default':'crosshair'; }
+function setTool(t){ tool=t; draft=null; document.querySelectorAll('#tools [data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t)); $('hint').textContent=HINTS[t]||''; cv.style.cursor=t==='select'?'default':'crosshair'; hideMenu(); }
 document.querySelectorAll('#tools [data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
 
 /* ---------- mittakaava ja pohjakuva ---------- */
@@ -475,7 +521,7 @@ function showCalib(){ const L=Math.hypot(calibLine[1][0]-calibLine[0][0],calibLi
   $('calib').hidden=false; $('calibTxt').textContent=`Viivan pituus nykyisellä mittakaavalla ${fmt(L,2)} m. Syötä mitan todellinen pituus.`; $('calibLen').focus(); }
 $('calibOk').onclick=()=>{ const real=parseFloat($('calibLen').value); if(!calibLine||!(real>0)) return;
   const L=Math.hypot(calibLine[1][0]-calibLine[0][0],calibLine[1][1]-calibLine[0][1]),k=real/L;
-  if(st.bg){ st.bg.mpp*=k; st.bg.x*=k; st.bg.y*=k; }
+  if(st.bg){ st.bg.mpp*=k; st.bg.x*=k; st.bg.y*=k; if(st.bg.ptpx){ const N=st.bg.mpp/(0.0254/72*st.bg.ptpx); $('pdfScale').value=Math.round(N); st.fl.pdfScale=Math.round(N); } scaleInfoTxt(); }
   calibLine=null; $('calib').hidden=true; setTool('select'); save(); fit(); };
 $('calibNo').onclick=()=>{ calibLine=null; $('calib').hidden=true; render(); };
 function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=no; document.head.appendChild(s); }); }
@@ -488,26 +534,134 @@ async function renderPdf(n){
   const page=await pdf.getPage(Math.min(Math.max(1,n),pdf.numPages)),vp0=page.getViewport({scale:1}),sc=Math.min(5,3200/Math.max(vp0.width,vp0.height));
   const vp=page.getViewport({scale:sc}),c=document.createElement('canvas'); c.width=vp.width; c.height=vp.height;
   const cx=c.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,c.width,c.height);
-  await page.render({canvasContext:cx,viewport:vp}).promise; return c.toDataURL('image/jpeg',0.85);
+  await page.render({canvasContext:cx,viewport:vp}).promise; return {src:c.toDataURL('image/jpeg',0.85),ptpx:1/sc};
 }
-async function setBg(src){ const im=new Image(); await new Promise((ok,no)=>{ im.onload=ok; im.onerror=no; im.src=src; });
-  const keep=st.bg&&st.bg.mpp&&bgImg&&bgImg.width===im.width?st.bg.mpp:null;
-  st.bg={src,mpp:keep||30/Math.max(im.width,1),x:0,y:0,op:st.bg?st.bg.op:0.55}; bgImg=im; bgUi(); save(); fit(); }
+async function setBg(src,ptpx,kind){ const im=new Image(); await new Promise((ok,no)=>{ im.onload=ok; im.onerror=no; im.src=src; });
+  st.bg={src,mpp:30/Math.max(im.width,1),x:0,y:0,op:st.bg?st.bg.op:0.55,ptpx:ptpx||null,kind:kind||'img'}; bgImg=im; mask=null;
+  if(st.bg.kind==='img') st.bg.ptpx=72/(+st.fl.dpi||150);
+  applyScale(true); bgUi(); save(); fit(); }
+// paperin mittakaava: 1 pt = 1/72 tuumaa = 0,0254/72 m paperilla → todellisuudessa × N
+function applyScale(silent){
+  const N=+$('pdfScale').value; if(!(N>0)) return false; st.fl.pdfScale=N;
+  if(!st.bg){ if(!silent) $('hint').textContent='Tuo ensin pohjakuva (PDF tai kuva).'; save(); return false; }
+  if(st.bg.kind==='img') st.bg.ptpx=72/(+$('imgDpi').value||150);
+  if(!st.bg.ptpx){ $('scaleInfo').textContent='Tuo PDF uudelleen, jotta mittakaavan voi syöttää suoraan – tai käytä Mittakaava-viivaa.'; return false; }
+  const old=st.bg.mpp; st.bg.mpp=N*0.0254/72*st.bg.ptpx;
+  scaleInfoTxt(); save(); if(!silent){ fit(); $('hint').textContent=`Mittakaava 1:${N} asetettu. Tarkista se mittaamalla jokin tunnettu mitta (Mittakaava-työkalu näyttää viivan pituuden).`; }
+  return old!==st.bg.mpp; }
+function scaleInfoTxt(){ const b=st.bg;
+  $('dpiWrap').hidden=!(b&&b.kind==='img');
+  if(!b){ $('scaleInfo').textContent='Syötä piirustuksen mittakaava ennen pohjan tuontia, niin skaalaus menee suoraan oikein.'; return; }
+  const pw=bgImg?bgImg.width*b.ptpx*0.0254/72*1000:0, ph=bgImg?bgImg.height*b.ptpx*0.0254/72*1000:0;
+  $('scaleInfo').textContent=b.ptpx?`Paperi ${fmt(pw,0)} × ${fmt(ph,0)} mm · kuva ${fmt(bgImg?bgImg.width*b.mpp:0,1)} × ${fmt(bgImg?bgImg.height*b.mpp:0,1)} m`:'Mittakaava asetettu viivalla.'; }
+$('scaleApply').onclick=()=>applyScale(false);
+$('pdfScale').addEventListener('keydown',ev=>{ if(ev.key==='Enter') applyScale(false); });
+$('imgDpi').addEventListener('change',()=>{ st.fl.dpi=+$('imgDpi').value||150; applyScale(false); });
+$('pdfSnap').onchange=()=>{ st.fl.pdfSnap=$('pdfSnap').checked; save(); };
 $('file').onchange=async ev=>{
   const file=ev.target.files[0]; if(!file) return; ev.target.value='';
   $('hint').textContent='Ladataan pohjaa…';
   try{
-    if(file.type==='application/pdf'||/\.pdf$/i.test(file.name)){ lastPdf=new Uint8Array(await file.arrayBuffer()); $('pdfPage').value=1; await setBg(await renderPdf(1)); }
-    else { lastPdf=null; $('pdfPageWrap').hidden=true; await setBg(await new Promise((ok,no)=>{ const r=new FileReader(); r.onload=()=>ok(r.result); r.onerror=no; r.readAsDataURL(file); })); }
-    setTool('scale'); $('hint').textContent='Pohja tuotu. '+HINTS.scale;
+    let isPdf=false;
+    if(file.type==='application/pdf'||/\.pdf$/i.test(file.name)){ isPdf=true; lastPdf=new Uint8Array(await file.arrayBuffer()); $('pdfPage').value=1; const r=await renderPdf(1); await setBg(r.src,r.ptpx,'pdf'); }
+    else { lastPdf=null; $('pdfPageWrap').hidden=true; await setBg(await new Promise((ok,no)=>{ const r=new FileReader(); r.onload=()=>ok(r.result); r.onerror=no; r.readAsDataURL(file); }),null,'img'); }
+    setTool('select');
+    $('hint').textContent=isPdf?`Pohja tuotu mittakaavassa 1:${st.fl.pdfScale}. Jos mittakaava on eri, vaihda se yläpuolelta – tai kalibroi Mittakaava-työkalulla tunnetun mitan päältä.`
+      :`Kuva tuotu oletuksella 1:${st.fl.pdfScale}, ${st.fl.dpi} dpi. Skannatulle kuvalle kalibrointi Mittakaava-työkalulla on yleensä varmin.`;
   }catch(e){ $('hint').textContent='Tiedostoa ei voitu avata. Kokeile PDF-, PNG- tai JPG-tiedostoa.'; }
 };
-$('pdfPage').onchange=async()=>{ if(!lastPdf) return; try{ await setBg(await renderPdf(+$('pdfPage').value||1)); }catch(e){} };
-function bgUi(){ $('bgOpWrap').hidden=!st.bg; $('bgDel').hidden=!st.bg; if(st.bg) $('bgOp').value=st.bg.op??0.55; }
+$('pdfPage').onchange=async()=>{ if(!lastPdf) return; try{ const keep=st.bg&&{mpp:st.bg.mpp,x:st.bg.x,y:st.bg.y}; const r=await renderPdf(+$('pdfPage').value||1); await setBg(r.src,r.ptpx,'pdf'); }catch(e){} };
+function bgUi(){ $('bgOpWrap').hidden=!st.bg; $('bgDel').hidden=!st.bg; if(st.bg) $('bgOp').value=st.bg.op??0.55; scaleInfoTxt(); }
 $('bgOp').oninput=()=>{ if(st.bg){ st.bg.op=+$('bgOp').value; save(); render(); } };
 function armed(btn,txt,fn){ let t=0; const orig=btn.textContent; btn.onclick=()=>{ if(Date.now()-t>3000){ t=Date.now(); btn.textContent=txt; setTimeout(()=>btn.textContent=orig,3000); return; } btn.textContent=orig; fn(); }; }
-armed($('bgDel'),'Vahvista poisto',()=>{ st.bg=null; bgImg=null; lastPdf=null; $('pdfPageWrap').hidden=true; bgUi(); save(); render(); });
+armed($('bgDel'),'Vahvista poisto',()=>{ st.bg=null; bgImg=null; mask=null; lastPdf=null; $('pdfPageWrap').hidden=true; bgUi(); save(); render(); });
 armed($('reset'),'Vahvista: korvaa piirretty pohja',()=>{ st=defaults(); bgImg=null; sel=null; bgUi(); syncInputs(); update(true); renderProps(); fit(); });
+
+/* ---------- kohdistus pohjakuvaan (pilarin keskelle, seinän keskilinjaan) ---------- */
+let mask=null;
+function pdfOn(){ return !!(st.bg&&bgImg&&$('pdfSnap').checked); }
+function getMask(){
+  if(!bgImg||!st.bg) return null; if(mask&&mask.src===st.bg.src) return mask;
+  const w=bgImg.naturalWidth||bgImg.width,h=bgImg.naturalHeight||bgImg.height,c=document.createElement('canvas'); c.width=w; c.height=h;
+  const x=c.getContext('2d',{willReadFrequently:true}); x.fillStyle='#fff'; x.fillRect(0,0,w,h); x.drawImage(bgImg,0,0);
+  const id=x.getImageData(0,0,w,h).data,d=new Uint8Array(w*h);
+  for(let i=0,j=0;i<d.length;i++,j+=4) d[i]=(id[j]*299+id[j+1]*587+id[j+2]*114)<150000?1:0;   // tumma viiva / täyttö
+  mask={src:st.bg.src,w,h,d}; return mask; }
+const w2p=w=>[(w[0]-st.bg.x)/st.bg.mpp,(w[1]-st.bg.y)/st.bg.mpp], p2w=p=>[st.bg.x+p[0]*st.bg.mpp,st.bg.y+p[1]*st.bg.mpp];
+// rajattu täyttö: palauttaa rajaavan laatikon tai null jos alue on liian suuri (ei pilari)
+function fillBox(m,sx,sy,val,maxS,vis){
+  const W=m.w,H=m.h; if(sx<0||sy<0||sx>=W||sy>=H||m.d[sy*W+sx]!==val) return null;
+  const seen=vis||new Set(); seen.add(sy*W+sx); const st2=[sy*W+sx]; let x0=sx,x1=sx,y0=sy,y1=sy,n=0; const lim=maxS*maxS*1.2;
+  while(st2.length){ const i=st2.pop(),x=i%W,y=(i-x)/W; n++;
+    if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y;
+    if(x1-x0>maxS||y1-y0>maxS||n>lim) return null;
+    if(x>0){const k=i-1;if(m.d[k]===val&&!seen.has(k)){seen.add(k);st2.push(k)}}
+    if(x<W-1){const k=i+1;if(m.d[k]===val&&!seen.has(k)){seen.add(k);st2.push(k)}}
+    if(y>0){const k=i-W;if(m.d[k]===val&&!seen.has(k)){seen.add(k);st2.push(k)}}
+    if(y<H-1){const k=i+W;if(m.d[k]===val&&!seen.has(k)){seen.add(k);st2.push(k)}} }
+  return {x0,y0,x1,y1,n}; }
+function pdfCol(w){
+  const m=getMask(); if(!m) return null; const ppm=1/st.bg.mpp, [cx,cy]=w2p(w).map(Math.round);
+  const maxS=Math.round(1.3*ppm), minS=0.1*ppm, r0=Math.max(3,Math.round(0.15*ppm)), cands=[];
+  const ok=b=>{ if(!b) return false; const bw=b.x1-b.x0+1,bh=b.y1-b.y0+1; return bw>=minS&&bh>=minS&&Math.max(bw,bh)/Math.min(bw,bh)<=2.6; };
+  // 1) tummat alueet 0,5 m säteellä (täytetty tai rasteroitu pilari, ääriviiva + ristikko)
+  const R=Math.max(4,Math.round(0.5*ppm)),pts=[];
+  for(let dy=-R;dy<=R;dy++) for(let dx=-R;dx<=R;dx++){ const x=cx+dx,y=cy+dy; if(dx*dx+dy*dy<=R*R&&x>=0&&y>=0&&x<m.w&&y<m.h&&m.d[y*m.w+x]) pts.push([dx*dx+dy*dy,x,y]); }
+  pts.sort((p,q)=>p[0]-q[0]);
+  const vis=new Set(); let fills=0;
+  for(const [,x,y] of pts){ if(fills>=24) break; if(vis.has(y*m.w+x)) continue;
+    const b=fillBox(m,x,y,1,maxS,vis); fills++; if(ok(b)){ b.dark=1; cands.push(b); } }
+  // 2) ääriviivapilari ilman yhteyttä: suljettu vaalea alue klikkauskohdassa
+  if(!cands.length) for(const [dx,dy] of [[0,0],[r0,0],[-r0,0],[0,r0],[0,-r0]]){ const b=fillBox(m,cx+dx,cy+dy,0,maxS); if(ok(b)) cands.push(b); }
+  if(!cands.length) return null;
+  const c=b=>[(b.x0+b.x1+1)/2,(b.y0+b.y1+1)/2], dist=b=>Math.hypot(c(b)[0]-cx,c(b)[1]-cy);
+  // samat keskikohdat yhdistetään; sisäkkäisistä valitaan uloin (ristikon kolmiot kuuluvat pilariin)
+  const outer=cands.filter(b=>!cands.some(o=>o!==b&&o.x0<=b.x0&&o.y0<=b.y0&&o.x1>=b.x1&&o.y1>=b.y1&&((o.x1-o.x0)*(o.y1-o.y0)>(b.x1-b.x0)*(b.y1-b.y0))));
+  outer.sort((a,b)=>dist(a)-dist(b));
+  const pc=c(outer[0]); if(dist(outer[0])>0.8*ppm) return null;
+  const g=0.005; return p2w(pc).map(v=>Math.round(v/g)*g); }
+// seinän keskilinja: poikkiprofiili seinän pituudelta, tummat viivat → seinän reunat
+function pdfWallOffset(e){
+  const m=getMask(); if(!m) return null; const ppm=1/st.bg.mpp;
+  const A=w2p(e.a),B=w2p(e.b),L=Math.hypot(B[0]-A[0],B[1]-A[1]); if(L<0.3*ppm) return null;
+  const u=[(B[0]-A[0])/L,(B[1]-A[1])/L],nv=[-u[1],u[0]],half=Math.round(0.5*ppm),ns=Math.min(500,Math.max(20,Math.round(L/2)));
+  const prof=new Float32Array(2*half+1);
+  for(let k=-half;k<=half;k++){ let c=0; for(let i=0;i<ns;i++){ const t=L*(0.06+0.88*i/(ns-1)); const x=Math.round(A[0]+u[0]*t+nv[0]*k),y=Math.round(A[1]+u[1]*t+nv[1]*k); if(x>=0&&y>=0&&x<m.w&&y<m.h&&m.d[y*m.w+x]) c++; } prof[k+half]=c/ns; }
+  const thr=0.3,cl=[]; let s0=null;
+  for(let i=0;i<=2*half+1;i++){ const on=i<=2*half&&prof[i]>=thr; if(on&&s0===null) s0=i; if(!on&&s0!==null){ cl.push([s0-half,i-1-half]); s0=null; } }
+  if(!cl.length) return null;
+  const tMin=0.05*ppm,tMax=0.65*ppm,bands=[];
+  cl.forEach(c=>{ if(c[1]-c[0]+1>=tMin) bands.push([c[0],c[1],1]); });                       // täytetty seinä
+  for(let i=0;i<cl.length;i++) for(let j=i+1;j<cl.length;j++){ const wdt=cl[j][1]-cl[i][0]+1; if(wdt>=tMin&&wdt<=tMax) bands.push([cl[i][0],cl[j][1],0]); } // kaksi reunaviivaa
+  if(!bands.length) cl.forEach(c=>bands.push([c[0],c[1],2]));                                  // yksi viiva
+  const score=b=>{ const mid=(b[0]+b[1])/2,inside=b[0]<=0&&b[1]>=0; return Math.abs(mid)*(inside?0.5:1)+b[2]*0.02*ppm; };
+  bands.sort((a,b)=>score(a)-score(b)); const b=bands[0],off=(b[0]+b[1])/2;
+  if(Math.abs(off)>0.45*ppm) return null;
+  return {off:off/ppm,th:(b[1]-b[0]+1)/ppm,nv}; }
+function pdfWallFix(e){ const r=pdfWallOffset(e); if(!r) return false; const d=[r.nv[0]*r.off,r.nv[1]*r.off],g=0.005,q=v=>Math.round(v/g)*g;
+  e.a=[q(e.a[0]+d[0]),q(e.a[1]+d[1])]; e.b=[q(e.b[0]+d[0]),q(e.b[1]+d[1])]; e.th=Math.round(r.th*1000/10)*10; flash([(e.a[0]+e.b[0])/2,(e.a[1]+e.b[1])/2]); return true; }
+let flashT=0,flashP=null;
+function flash(p){ flashP=p; clearTimeout(flashT); flashT=setTimeout(()=>{ flashP=null; render(); },700); }
+
+/* ---------- objektin valikko ---------- */
+function hideMenu(){ const m=$('ctxm'); if(m&&!m.hidden){ m.hidden=true; m.innerHTML=''; } }
+function showMenu(e,px,py){
+  const m=$('ctxm'),r=res&&res.out[e.id],isCol=e.t==='col';
+  const info=isCol?(r?`N<sub>Ed</sub> ${fmt(r.N,0)} kN · ${r.d.label}`:''):(r?`L ${fmt(r.L,2)} m · n<sub>Ed</sub> ${fmt(r.n,0)} kN/m`+(e.th?` · t ≈ ${e.th} mm`:''):'');
+  m.innerHTML=`<div class="mh">${isCol?'Pilari':'Seinä'} ${esc(e.id)}</div><div class="ms">${info}</div>
+    <button role="menuitem" data-m="snap"${st.bg?'':' disabled title="Tuo ensin pohjakuva"'}>${isCol?'Kohdista pohjakuvan pilarin keskelle':'Kohdista seinän keskilinjaan'}</button>
+    <button role="menuitem" data-m="edit">Muokkaa koordinaatteja</button>
+    <button role="menuitem" data-m="del" class="danger">Poista ${esc(e.id)}</button>`;
+  m.hidden=false; const cw=cv.clientWidth,ch=cv.clientHeight,mw=m.offsetWidth,mh=m.offsetHeight;
+  m.style.left=Math.max(6,Math.min(px+10,cw-mw-6))+'px'; m.style.top=Math.max(6,Math.min(py+10,ch-mh-6))+'px';
+  m.dataset.id=e.id; m.querySelector('button:not([disabled])').focus({preventScroll:true}); }
+$('ctxm').addEventListener('click',ev=>{ const b=ev.target.closest('button[data-m]'); if(!b) return; const id=$('ctxm').dataset.id,e=byId(id); hideMenu(); if(!e) return;
+  if(b.dataset.m==='del') delEl(id);
+  else if(b.dataset.m==='edit'){ select(id); $('props').scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  else if(b.dataset.m==='snap'){ let okk=false; if(e.t==='col'){ const q=pdfCol(e.p); if(q){ e.p=q; flash(q); okk=true; } } else okk=pdfWallFix(e);
+    $('hint').textContent=okk?`${id} kohdistettu pohjakuvaan.`:`${id}: pohjakuvasta ei löytynyt ${e.t==='col'?'pilaria':'seinää'} läheltä. Siirrä lähemmäs ja yritä uudelleen.`; update(true); renderProps(); } });
+$('ctxm').addEventListener('keydown',ev=>{ if(ev.key==='Escape'){ hideMenu(); cv.focus(); } });
+document.addEventListener('pointerdown',ev=>{ if(!ev.target.closest('#ctxm')&&ev.target!==cv) hideMenu(); });
 
 /* ---------- sivupaneeli ---------- */
 const numF=(id,lab,val,step)=>`<label class="fl">${lab}<input type="number" id="${id}" step="${step||0.1}" value="${+(+val).toFixed(3)}"></label>`;
@@ -520,7 +674,7 @@ function renderProps(){
   else if(e.t==='col'){ h+=`<div class="f2">${numF('pPx','X [m]',e.p[0])}${numF('pPy','Y [m]',e.p[1])}</div>`;
     if(r) h+=`<div class="calc" style="margin-top:6px">${row('Kuormitusala','A = '+fmt(r.A,2)+' m²')}${row('N<sub>Ed</sub> alin kerros',fmt(res.qd,2)+' · '+fmt(r.A,2)+' · '+res.n+' = <b>'+fmt(r.N,0)+' kN</b>')}${row('Alustava koko','<b>'+r.d.label+'</b>'+(r.d.tRow?', raudoitus '+r.d.tRow[2]:''))}</div>`; }
   else { h+=`<div class="f2">${numF('pAx','Alku X [m]',e.a[0])}${numF('pAy','Alku Y [m]',e.a[1])}${numF('pBx','Loppu X [m]',e.b[0])}${numF('pBy','Loppu Y [m]',e.b[1])}</div>`;
-    if(r) h+=`<p class="small" style="margin:6px 0 0">Pituus ${fmt(r.L,2)} m, kuormitusala ${fmt(r.A,1)} m², n<sub>Ed</sub> = ${fmt(r.n,0)} kN/m alimmassa kerroksessa.</p>`; }
+    if(r) h+=`<p class="small" style="margin:6px 0 0">${e.th?'Pohjakuvan seinäpaksuus ≈ '+e.th+' mm. ':''}Pituus ${fmt(r.L,2)} m, kuormitusala ${fmt(r.A,1)} m², n<sub>Ed</sub> = ${fmt(r.n,0)} kN/m alimmassa kerroksessa.</p>`; }
   h+=`<div class="flex" style="margin-top:10px"><button class="btn ghost danger" id="pDel">Poista ${e.id}</button></div>`;
   P.innerHTML=h;
   const on=(id,fn)=>{ const i=$(id); if(i) i.onchange=()=>{ const v=parseFloat(i.value); if(!isFinite(v)) return; fn(v); update(true); renderProps(); }; };
@@ -529,7 +683,7 @@ function renderProps(){
   on('pPx',v=>e.p[0]=v); on('pPy',v=>e.p[1]=v); on('pAx',v=>e.a[0]=v); on('pAy',v=>e.a[1]=v); on('pBx',v=>e.b[0]=v); on('pBy',v=>e.b[1]=v);
   $('pDel').onclick=()=>delEl(e.id);
 }
-function syncInputs(){ const f=st.fl; $('qd').value=f.qd; $('flN').value=f.n; $('conc').value=String(f.conc); $('shape').value=f.shape; $('l0').value=f.l0; $('mast').checked=!!f.mast; $('gridS').value=f.grid; }
+function syncInputs(){ const f=st.fl; $('pdfScale').value=f.pdfScale||100; $('imgDpi').value=f.dpi||150; $('pdfSnap').checked=f.pdfSnap!==false; $('qd').value=f.qd; $('flN').value=f.n; $('conc').value=String(f.conc); $('shape').value=f.shape; $('l0').value=f.l0; $('mast').checked=!!f.mast; $('gridS').value=f.grid; }
 [['qd','qd'],['flN','n'],['l0','l0'],['gridS','grid']].forEach(([id,k])=>$(id).addEventListener('input',()=>{ const v=parseFloat($(id).value); if(v>0){ st.fl[k]=k==='n'?Math.round(v):v; update(true,false,k==='grid'); } }));
 $('conc').onchange=()=>{ st.fl.conc=+$('conc').value; update(true); };
 $('shape').onchange=()=>{ st.fl.shape=$('shape').value; update(true); };

@@ -5,7 +5,7 @@
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hitsitaulukko (kesken) – Lastutec</title>
-<meta name="description" content="Hitsien kestävyydet kertoimilla √1, √2 ja √3 SFS-EN 1993-1-8 mukaan, valmiit taulukot a3–a15 ja laskenta välivaiheineen.">
+<meta name="description" content="Hitsien kestävyydet kertoimilla √1, √2 ja √3 SFS-EN 1993-1-8:n ja Suomen kansallisen liitteen mukaan, valmiit taulukot a3–a15 ja laskenta välivaiheineen.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <style>
 /* ===== Lastutec-työkalut: kaikki tyylit rajattu .lt-tool-luokan sisään ===== */
@@ -115,7 +115,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 <div role="note" style="border:1px solid #e2c47f;background:#2a2208;color:#e2c47f;border-radius:6px;padding:10px 14px;margin:0 0 16px;font:600 14px Arial,Helvetica,sans-serif">⚠ KESKEN – työkalu on vielä kehitysvaiheessa. Tuloksia ei tule käyttää mitoitukseen ennen kuin laskenta on tarkastettu ja hyväksytty.</div>
 <div class="lt-tool" id="lt-hitsit">
 
-  <p class="lt-sub">Hitsien mitoituskestävyydet pituusyksikköä kohden SFS-EN 1993-1-8 kohdan 4.5.3.2 komponenttimenetelmällä. Kerroin √1, √2 tai √3 riippuu siitä, missä suunnassa voima rasittaa hitsiä.</p>
+  <p class="lt-sub">Hitsien mitoituskestävyydet pituusyksikköä kohden SFS-EN 1993-1-8 kohdan 4.5.3.2 komponenttimenetelmällä ja Suomen kansallisen liitteen (KL) mukaan. KL on määräävä. Kerroin √1, √2 tai √3 riippuu siitä, missä suunnassa voima rasittaa hitsiä.</p>
 
   <div class="lt-cases">
     <div class="lt-case">
@@ -168,14 +168,27 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
           <option value="S235">S235</option>
           <option value="S275">S275</option>
           <option value="S355" selected>S355</option>
-          <option value="S420">S420 M/ML</option>
-          <option value="S460">S460 M/ML</option>
+          <option value="S420">S420 N/NL, M/ML</option>
+          <option value="S460">S460 N/NL, M/ML</option>
+          <option value="S355MC">S355MC (SFS-EN 10149-2)</option>
+          <option value="S420MC">S420MC (SFS-EN 10149-2)</option>
+          <option value="S460MC">S460MC (SFS-EN 10149-2)</option>
         </select>
       </label>
-      <label><span>Levyn paksuus</span>
-        <select id="w-trange">
-          <option value="0">t ≤ 40 mm</option>
-          <option value="1">40 &lt; t ≤ 80 mm</option>
+      <label><span>Perusaineen paksuus t (mm)</span>
+        <input id="w-t" type="number" min="1" max="100" step="1" value="10">
+      </label>
+      <label><span>f<sub>u</sub>:n lähde (KL 3.2.1(1))</span>
+        <select id="w-src">
+          <option value="tab" selected>Taulukko 3.1</option>
+          <option value="prod">Tuotestandardi</option>
+        </select>
+      </label>
+      <label><span>Hitsiluokka (SFS-EN ISO 5817)</span>
+        <select id="w-cls">
+          <option value="B">B</option>
+          <option value="C" selected>C</option>
+          <option value="D">D</option>
         </select>
       </label>
       <label><span>γ<sub>M2</sub></span>
@@ -188,6 +201,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
         </select>
       </label>
     </div>
+    <p class="lt-note" style="margin:10px 0 0">KL SFS-EN 1993-1-1 kohta 3.2.1(1): f<sub>u</sub> saa ottaa joko taulukosta 3.1 tai tuotestandardista. Pocket Book käyttää tuotestandardin arvoja (S275: f<sub>u</sub> = 410 N/mm²). KL SFS-EN 1993-1-8 kohta 2.2(2): γ<sub>M2</sub> = 1,25 edellyttää vähintään hitsiluokkaa C.</p>
   </div>
 
   <h2>Lujuusarvot välivaiheineen</h2>
@@ -202,14 +216,14 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
           <th>√1<small>kohtisuora</small></th>
           <th>√2<small>poikittainen</small></th>
           <th>√3<small>pitkittäinen</small></th>
-          <th>z ≈ a·√2<small>mm (pienahitsi)</small></th>
+          <th>s = a·√2<small>kylkimitta, mm</small></th>
         </tr>
       </thead>
       <tbody></tbody>
       <tfoot><tr><td colspan="5" id="w-foot"></td></tr></tfoot>
     </table>
   </div>
-  <p class="lt-note" style="margin-top:8px">Arvot ovat yhtä hitsiä kohden. Kaksipuolisen pienahitsin kestävyys on kaksinkertainen. z on 90° pienahitsin kylkimitta. Valitse rivi, niin a siirtyy laskuriin.</p>
+  <p class="lt-note" style="margin-top:8px">Arvot ovat yhtä hitsiä kohden. Kaksipuolisen pienahitsin kestävyys on kaksinkertainen. s on tasakylkisen 90° pienahitsin kylkimitta (Pocket Book pyöristää a = 0,7·s). Valitse rivi, niin a siirtyy laskuriin.</p>
 
   <h2 id="w-calc-h">Laskuri välivaiheineen</h2>
   <div class="lt-card">
@@ -230,7 +244,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       <label><span>F<sub>Ed</sub> (kN), koko liitos</span><input id="c-F" type="number" min="0" step="0.1" value="250"></label>
     </div>
     <div class="lt-grid" style="margin-top:12px">
-      <label class="lt-chk"><input id="c-ends" type="checkbox"> <span>Vähennä päistä 2a (alku-/loppukraatteri)</span></label>
+      <label class="lt-chk"><input id="c-ends" type="checkbox"> <span>Vähennä päistä 2a (päät eivät täysimittaisia, KL 2.2(2))</span></label>
       <label class="lt-chk"><input id="c-long" type="checkbox"> <span>Pitkä limiliitos (β<sub>Lw</sub>)</span></label>
     </div>
   </div>
@@ -246,7 +260,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     <li class="lt-step"><h4>Lähtökohta: komponenttimenetelmä</h4>
       <div class="lt-f">Hitsin laskentapinta on a · L. Voima F jaetaan laskentapinnalle komponenteiksi σ<sub>⊥</sub>, τ<sub>⊥</sub> ja τ<sub>∥</sub>. Jännitystä σ<sub>∥</sub> ei huomioida.</div>
       <div class="lt-f">Ehto 1 (von Mises): √(σ<sub>⊥</sub>² + 3(τ<sub>⊥</sub>² + τ<sub>∥</sub>²)) ≤ f<sub>u</sub> / (β<sub>w</sub> · γ<sub>M2</sub>)</div>
-      <div class="lt-f">Ehto 2: σ<sub>⊥</sub> ≤ 0,9 · f<sub>u</sub> / γ<sub>M2</sub> <span class="lt-c">(kerroin 0,9 Suomen kansallisesta liitteestä)</span></div>
+      <div class="lt-f">Ehto 2: σ<sub>⊥</sub> ≤ 0,9 · f<sub>u</sub> / γ<sub>M2</sub> <span class="lt-c">(SFS-EN 1993-1-8 kaava 4.1; kerroin 0,9 ei ole kansallisesti valittava parametri)</span></div>
       <div class="lt-f">Kun vertailujännitys kirjoitetaan muotoon k · F/(a·L), saadaan f<sub>w,d</sub> = f<sub>u</sub> / (k · β<sub>w</sub> · γ<sub>M2</sub>) ja F<sub>w,Rd</sub> = f<sub>w,d</sub> · a.</div>
     </li>
     <li class="lt-step"><h4>√3 – voima hitsin akselin suuntaan (kylkihitsi)</h4>
@@ -274,6 +288,13 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       <div class="lt-f">τ<sub>∥</sub> = F cos θ / (a·L), σ<sub>⊥</sub> = τ<sub>⊥</sub> = F sin θ / (√2 · a·L)</div>
       <div class="lt-f">√(4σ<sub>⊥</sub>² + 3τ<sub>∥</sub>²) = F/(a·L) · √(2 sin²θ + 3 cos²θ) = <span class="lt-r">F/(a·L) · √(3 − sin²θ)</span></div>
       <div class="lt-f">θ = 0° → √3, θ = 90° → √2. Kerroin √3 on aina varmalla puolella.</div>
+      <div class="lt-f">Poikittaisen ja pitkittäisen kestävyyden suhde on √3/√2 = <span class="lt-r">1,225</span>. Sama luku on Pocket Bookin taulukossa F<sub>w,T,Rd</sub>/F<sub>w,L,Rd</sub> (esim. 0,76/0,62).</div>
+    </li>
+    <li class="lt-step"><h4>Tarkistus: Pocket Book, s. 224 (S275, liitoskulma 90°)</h4>
+      <div class="lt-f">Kirjan lähtötiedot: f<sub>u</sub> = 410 N/mm² (tuotestandardi), β<sub>w</sub> = 0,85, γ<sub>M2</sub> = 1,25, a = 0,7·s.</div>
+      <div class="lt-f">f<sub>vw,d</sub> = f<sub>u</sub>/(√3·β<sub>w</sub>·γ<sub>M2</sub>) = 410/(√3 · 0,85 · 1,25) = <span class="lt-r" id="bk-fvw"></span></div>
+      <div class="lt-scroll" style="margin-top:6px"><table class="lt-table" id="bk-table"><thead><tr><th>s<small>mm</small></th><th>a<small>mm</small></th><th>Pitkittäinen √3<small>laskuri, kN/mm</small></th><th>Kirja<small>F<sub>w,L,Rd</sub></small></th><th>Poikittainen √2<small>laskuri, kN/mm</small></th><th>Kirja<small>F<sub>w,T,Rd</sub></small></th></tr></thead><tbody></tbody></table></div>
+      <div class="lt-f lt-c" style="margin-top:6px">Laskuri antaa samat arvot, kun f<sub>u</sub>:n lähteeksi valitaan tuotestandardi. Taulukon 3.1 arvolla (S275, t ≤ 40 mm: f<sub>u</sub> = 430 N/mm²) kestävyydet ovat 430/410 = 1,049 kertaiset. KL sallii molemmat.</div>
     </li>
     <li class="lt-step"><h4>Vertailu SFS 2373:een ja opinnäytetyön esimerkit</h4>
       <div class="lt-f">SFS 2373: σ<sub>vert</sub> = β · k · F/(a·L) ≤ σ<sub>sall</sub> → a ≥ k · β · F / (L · σ<sub>sall</sub>). Kertoimet k ovat samat.</div>
@@ -282,32 +303,60 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       <div class="lt-f">Erot: SFS 2373 käyttää myötörajaa, Eurocode 3 murtolujuutta f<sub>u</sub> ja γ<sub>M2</sub> = 1,25. SFS 2373:n pituusrajat 8a ≤ L ≤ 100a korvautuvat Eurocodessa ehdoilla L<sub>eff</sub> ≥ max(30 mm; 6a) ja pitkän liitoksen kertoimella β<sub>Lw</sub>.</div>
     </li>
     <li class="lt-step"><h4>Rajat ja suositukset</h4>
-      <div class="lt-f">a ≥ 3 mm, L<sub>eff</sub> ≥ max(30 mm; 6a), pienahitsin kylkikulma 60°–120°. Pitkässä limiliitoksessa (L<sub>j</sub> &gt; 150a) β<sub>Lw</sub> = 1,2 − 0,2 · L<sub>j</sub>/(150a) ≤ 1,0.</div>
+      <div class="lt-f">a ≥ 3 mm, L<sub>eff</sub> ≥ max(30 mm; 6a), pienahitsin kylkikulma 60°–120°. L<sub>eff</sub> on se pituus, jolla hitsi on täysimittainen. Muuten L<sub>eff</sub> = L − 2a (kohta 4.5.2).</div>
+      <div class="lt-f">KL 2.2(2): γ<sub>M2</sub> = 1,25 edellyttää hitsiluokkaa vähintään C (SFS-EN ISO 5817). Avointa imuonteloa (ISO 6520-1, nro 2025) ei saa olla hitsin tehollisella pituudella missään hitsiluokassa.</div>
+      <div class="lt-f">KL 4.5.3.2 ja 4.5.3.3: SFS-EN 10149-2/-3 terästen β<sub>w</sub> määritetään myötörajan perusteella kuten SFS-EN 10025 teräksille (S355MC → 0,90; S420MC ja S460MC → 1,00).</div>
+      <div class="lt-f">Eri lujuusluokkien osien välinen hitsi mitoitetaan heikomman osan ominaisuuksilla (kohta 4.5.3.2(5)).</div>
+      <div class="lt-f">Pocket Bookin taulukon oletus a ≥ 0,5·t<sub>p</sub> on kirjan suositus. Se ei ole SFS-EN 1993-1-8:n eikä KL:n vaatimus.</div>
+      <div class="lt-f">Pitkässä limiliitoksessa (L<sub>j</sub> &gt; 150a) β<sub>Lw</sub> = 1,2 − 0,2 · L<sub>j</sub>/(150a) ≤ 1,0 (kohta 4.11(4)).</div>
       <div class="lt-f">Lämmöntuonnin nyrkkisääntö: a ≥ √t − 0,5 mm, t = paksumman liitettävän osan paksuus. Esim. t = 40 mm → a ≥ 5,9 mm → a6.</div>
       <div class="lt-f">Läpihitsatun päittäishitsin kestävyys on heikomman liitettävän osan kestävyys (kohta 4.7.1), joten sitä ei mitoiteta tällä taulukolla.</div>
     </li>
   </ol></div>
 
-  <p class="lt-disc">Laskenta SFS-EN 1993-1-8:2005 ja kansallisen liitteen (γ<sub>M2</sub> = 1,25) mukaan. Perusaineen f<sub>u</sub> SFS-EN 1993-1-1 taulukosta 3.1, β<sub>w</sub> taulukosta 4.1. Lisäaineen lujuuden oletetaan vastaavan vähintään perusainetta. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
+  <p class="lt-disc">Laskenta SFS-EN 1993-1-8:2005 ja sen Suomen kansallisen liitteen (ympäristöministeriö) mukaan; KL on määräävä. γ<sub>M2</sub> = 1,25 (hitsiluokka ≥ C). Perusaineen f<sub>u</sub> SFS-EN 1993-1-1 taulukosta 3.1 tai tuotestandardista (SFS-EN 10025-2/-4, SFS-EN 10149-2), β<sub>w</sub> SFS-EN 1993-1-8 taulukosta 4.1. Vertailulähde: Cobb, F.: <i>Structural Engineer’s Pocket Book</i>, 3. p., s. 217 ja 224. Lisäaineen lujuuden oletetaan vastaavan vähintään perusainetta. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
 </div>
 
 <script>
 (function(){
   var root=document.getElementById('lt-hitsit');
   function $(s){return root.querySelector(s);}
+  // tab: SFS-EN 1993-1-1 taul. 3.1 [t ≤ 40, 40 < t ≤ 80]
+  // prod: tuotestandardin R_m,min paksuusalueittain [t_max, f_u]
+  //   SFS-EN 10025-2 (S235–S355), SFS-EN 10025-4 M/ML (S420, S460; varmalla puolella N/NL:ään nähden), SFS-EN 10149-2 (MC)
   var STEEL={
-    S235:{name:'S235',fu:[360,360],bw:0.80},
-    S275:{name:'S275',fu:[430,410],bw:0.85},
-    S355:{name:'S355',fu:[510,470],bw:0.90},
-    S420:{name:'S420 M/ML',fu:[520,500],bw:1.00},
-    S460:{name:'S460 M/ML',fu:[540,530],bw:1.00}
+    S235:{name:'S235',tab:[360,360],prod:[[100,360]],ps:'SFS-EN 10025-2',bw:0.80},
+    S275:{name:'S275',tab:[430,410],prod:[[2.99,430],[100,410]],ps:'SFS-EN 10025-2',bw:0.85},
+    S355:{name:'S355',tab:[510,470],prod:[[2.99,510],[100,470]],ps:'SFS-EN 10025-2',bw:0.90},
+    S420:{name:'S420 N/NL, M/ML',tab:[520,500],prod:[[40,520],[63,500],[80,480]],ps:'SFS-EN 10025-4',bw:1.00},
+    S460:{name:'S460 N/NL, M/ML',tab:[540,530],prod:[[40,540],[63,530],[80,510]],ps:'SFS-EN 10025-4',bw:1.00},
+    S355MC:{name:'S355MC',tab:null,prod:[[20,430]],ps:'SFS-EN 10149-2',bw:0.90},
+    S420MC:{name:'S420MC',tab:null,prod:[[20,480]],ps:'SFS-EN 10149-2',bw:1.00},
+    S460MC:{name:'S460MC',tab:null,prod:[[20,520]],ps:'SFS-EN 10149-2',bw:1.00}
   };
   var A_LIST=[3,4,5,6,7,8,9,10,12,15];
 
   function f(x,d){if(d===undefined)d=1;return isFinite(x)?x.toLocaleString('fi-FI',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';}
   function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
   function g(){var v=parseFloat($('#w-gm2').value);return v>0?v:1.25;}
-  function mat(){var s=STEEL[$('#w-steel').value];return {name:s.name,fu:s.fu[$('#w-trange').value==='1'?1:0],bw:s.bw};}
+  function mat(){
+    var s=STEEL[$('#w-steel').value],t=parseFloat($('#w-t').value);if(!(t>0))t=10;
+    var src=$('#w-src').value,fu,ref,warn='';
+    if(src==='tab'&&s.tab){
+      fu=t<=40?s.tab[0]:s.tab[1];
+      ref='SFS-EN 1993-1-1 taul. 3.1, '+(t<=40?'t ≤ 40 mm':'40 &lt; t ≤ 80 mm');
+      if(t>80)warn='Taulukko 3.1 kattaa vain t ≤ 80 mm.';
+    }else{
+      var r=s.prod[s.prod.length-1];
+      for(var i=0;i<s.prod.length;i++){if(t<=s.prod[i][0]){r=s.prod[i];break;}}
+      fu=r[1];ref=s.ps+', R<sub>m,min</sub>'+(s.prod.length>1?', t ≤ '+f(Math.ceil(r[0]),0)+' mm':'');
+      if(t>s.prod[s.prod.length-1][0])warn=s.ps+' ei kata paksuutta t = '+f(t,0)+' mm.';
+      if(!s.tab&&src==='tab')ref+=' (ei taulukossa 3.1, KL:n mukaan tuotestandardista)';
+    }
+    return {name:s.name,fu:fu,bw:s.bw,t:t,ref:ref,warn:warn};
+  }
+  function cls(){return $('#w-cls').value;}
+  function clsOk(){return cls()!=='D';}
   function step(title,lines){return '<li class="lt-step"><h4>'+title+'</h4>'+lines.map(function(l){return '<div class="lt-f">'+l+'</div>';}).join('')+'</li>';}
   function c_(t){return ' <span class="lt-c">'+t+'</span>';}
   function chk(ok){return ok?' <span class="lt-ok">✓ OK</span>':' <span class="lt-bad">✗ EI OK</span>';}
@@ -325,10 +374,12 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 
   function renderBase(){
     var S=strengths(),m=S.m,gm=S.gm,s='';
+    var gl=['Hitsiluokka '+cls()+' (SFS-EN ISO 5817)'+(clsOk()?' ≥ C'+chk(true):' &lt; C'+chk(false)+c_('KL 2.2(2): γM2 = 1,25 edellyttää vähintään hitsiluokkaa C. Laskenta ei ole KL:n mukainen.'))];
+    if(Math.abs(gm-1.25)>1e-9)gl.push('γ<sub>M2</sub> = '+f(gm,2)+' ≠ 1,25'+c_('(KL: γM2 = 1,25. Poikkeava arvo vain perustellusti, esim. onnettomuusrajatila KL SFS-EN 1993-1-1 kohta 6.1: γM2 = 1,1.)'));
     s+=step('Perusaine ja korrelaatiokerroin',[
-      m.name+': f<sub>u</sub> = '+m.fu+' N/mm²'+c_('(SFS-EN 1993-1-1, taul. 3.1)'),
-      'β<sub>w</sub> = '+f(m.bw,2)+c_('(SFS-EN 1993-1-8, taul. 4.1)')+', γ<sub>M2</sub> = '+f(gm,2)
-    ]);
+      m.name+', t = '+f(m.t,0)+' mm: f<sub>u</sub> = '+m.fu+' N/mm²'+c_('('+m.ref+')')+(m.warn?' <span class="lt-bad">⚠ '+m.warn+'</span>':''),
+      'β<sub>w</sub> = '+f(m.bw,2)+c_('(SFS-EN 1993-1-8, taul. 4.1'+(/MC$/.test($('#w-steel').value)?'; KL 4.5.3.2: myötörajan perusteella':'')+')')+', γ<sub>M2</sub> = '+f(gm,2)+c_('(KL 2.2(2))')
+    ].concat(gl));
     s+=step('Vertailujännityksen raja-arvot',[
       'f<sub>u</sub> / (β<sub>w</sub> · γ<sub>M2</sub>) = '+m.fu+' / ('+f(m.bw,2)+' · '+f(gm,2)+') = <span class="lt-r">'+f(S.base,1)+' N/mm²</span>',
       '0,9 · f<sub>u</sub> / γ<sub>M2</sub> = 0,9 · '+m.fu+' / '+f(gm,2)+' = <span class="lt-r">'+f(S.lim,1)+' N/mm²</span>'+c_('(raja σ⊥:lle)')
@@ -368,7 +419,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     // 1. Tehollinen pituus
     var ends=$('#c-ends').checked,Leff=ends?L-2*a:L,lmin=Math.max(30,6*a);
     s+=step('Tehollinen pituus L<sub>eff</sub>',[
-      ends?'L<sub>eff</sub> = L − 2a = '+f(L,0)+' − 2 · '+f(a,1)+' = <span class="lt-r">'+f(Leff,0)+' mm</span>':'L<sub>eff</sub> = L = <span class="lt-r">'+f(Leff,0)+' mm</span>'+c_('(hitsi täysimittainen koko pituudelta)'),
+      ends?'L<sub>eff</sub> = L − 2a = '+f(L,0)+' − 2 · '+f(a,1)+' = <span class="lt-r">'+f(Leff,0)+' mm</span>':'L<sub>eff</sub> = L = <span class="lt-r">'+f(Leff,0)+' mm</span>'+c_('(edellyttää täysimittaista hitsiä myös päissä eikä avointa imuonteloa tehollisella pituudella, KL 2.2(2))'),
       'L<sub>eff</sub> ≥ max(30; 6a) = '+f(lmin,0)+' mm'+chk(Leff>=lmin),
       'a = '+f(a,1)+' mm ≥ 3 mm'+chk(a>=3),
       (function(){var t=num('#c-t'),am=Math.sqrt(t)-0.5;return 'Suositus (lämmöntuonti): a ≥ √t − 0,5 = √'+f(t,0)+' − 0,5 = '+f(am,1)+' mm'+(a>=am?' <span class="lt-ok">✓</span>':' <span class="lt-c">⚠ alittaa suosituksen</span>');})()
@@ -423,6 +474,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     ]);
     s+=step('Mitoitustarkastelu',[
       'F<sub>Ed</sub> / F<sub>Rd</sub> = '+f(F,1)+' / '+f(FRd,1)+' = <span class="lt-r">'+f(u,3)+'</span> ≤ 1,0'+chk(u<=1),
+      'Hitsiluokka '+cls()+' ≥ C'+c_('(KL 2.2(2))')+chk(clsOk()),
       'Tarvittava a-mitta samalla pituudella: a<sub>req</sub> ≈ F<sub>Ed</sub> / (f<sub>w,d</sub> · L<sub>eff</sub> · n'+(bLw<1?' · β<sub>Lw</sub>':'')+') = '+f(Leff>0?F*1000/(fwd*Leff*n*bLw):Infinity,2)+' mm'+c_('(likiarvo, L_eff ja β_Lw nykyisellä a:lla)')
     ]);
     $('#c-steps').innerHTML=s;
@@ -430,11 +482,22 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     var kp='<div class="lt-kpi"><span>f<sub>w,d</sub></span><b>'+f(fwd,1)+' N/mm²</b></div>'+
       '<div class="lt-kpi"><span>F<sub>w,Rd</sub> / hitsi</span><b>'+f(perMm*100,1)+' kN/100 mm</b></div>'+
       '<div class="lt-kpi"><span>Liitoksen F<sub>Rd</sub></span><b>'+f(FRd,1)+' kN</b>';
+    if(!clsOk())kp='<div class="lt-kpi"><span>Kansallinen liite</span><b class="lt-bad">Hitsiluokka &lt; C</b></div>'+kp;
     if(F>0)kp+='<div class="lt-bar"><i class="'+(u>1?'over':'')+'" style="width:'+Math.min(u*100,100)+'%"></i></div><span>Käyttöaste '+f(u*100,0)+' %</span>';
     $('#c-sum').innerHTML=kp+'</div>';
   }
 
+  // Vertailu Pocket Bookin taulukkoon (s. 224): S275, fu = 410, βw = 0,85, γM2 = 1,25
+  function renderBook(){
+    var fu=410,bw=0.85,gm=1.25,fL=fu/(Math.sqrt(3)*bw*gm),fT=fu/(Math.SQRT2*bw*gm);
+    var B=[[4,0.62,0.76],[6,0.94,1.15],[8,1.25,1.53],[12,1.87,2.29]],h='';
+    B.forEach(function(r){var a=0.7*r[0],L=fL*a/1000,T=fT*a/1000;
+      h+='<tr><td>'+r[0]+'</td><td>'+f(a,1)+'</td><td>'+f(L,3)+'</td><td>'+f(r[1],2)+(Math.abs(L-r[1])<0.006?' <span class="lt-ok">✓</span>':' <span class="lt-bad">✗</span>')+'</td><td>'+f(T,3)+'</td><td>'+f(r[2],2)+(Math.abs(T-r[2])<0.006?' <span class="lt-ok">✓</span>':' <span class="lt-bad">✗</span>')+'</td></tr>';});
+    $('#bk-table tbody').innerHTML=h;
+    $('#bk-fvw').textContent=f(fL,1)+' N/mm² (kirja: 222 N/mm²)';
+  }
   function update(){var S=renderBase();renderTable(S);calc(S);}
+  renderBook();
   root.querySelectorAll('input,select').forEach(function(el){el.addEventListener('input',update);el.addEventListener('change',update);});
   update();
 })();

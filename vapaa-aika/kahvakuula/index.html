@@ -54,6 +54,7 @@ ol.moves{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;b
 .moves .cat{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .moves .mv{min-width:0;display:flex;flex-direction:column;gap:2px}
 .moves .mv b{font-size:16px;overflow-wrap:anywhere}
+.moves .mv .en{font-style:normal;font-size:13.5px;color:var(--blue)}
 .moves .mv span{font-size:13px;color:var(--muted)}
 .moves .side{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .moves .dose{font-weight:800;font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -166,6 +167,12 @@ const KK={
     ["Tuulimylly",3,"r",1,"Katse kuulaan, lantio työntyy kuulan puolelle"],
     ["Turkkilainen nousu",3,"r",1,"Rauhallisesti vaihe kerrallaan, kuula aina pystyssä"]]}
 };
+// Englanninkieliset nimet
+const EN={"Kahden käden heilautus":"Two-Hand Swing","Yhden käden kulmasoutu":"Single-Arm Bent-Over Row","Pystysoutu kahdella kädellä":"Upright Row","Yhden käden heilautus":"Single-Arm Swing","Korkea veto":"High Pull","Rinnalleveto":"Clean","Lankkusoutu":"Renegade Row","Tempaus":"Snatch",
+"Lattiapunnerrus":"Floor Press","Pystypunnerrus yhdellä kädellä":"Single-Arm Strict Press","Punnerrus kuulan kahvoista":"Kettlebell Push-up","Kyykkypunnerrus":"Thruster","Työntöpunnerrus":"Push Press","Rinnalleveto ja punnerrus":"Clean and Press","Pohja ylös -pystypunnerrus":"Bottoms-Up Press",
+"Maljakyykky":"Goblet Squat","Maastaveto kuulalla":"Kettlebell Deadlift","Askelkyykky taakse":"Reverse Lunge","Askelnousu":"Step-up","Yhden jalan romanialainen maastaveto":"Single-Leg Romanian Deadlift","Etukyykky rinnalla":"Front Rack Squat","Bulgarialainen askelkyykky":"Bulgarian Split Squat","Kasakkakyykky":"Cossack Squat",
+"Halo":"Halo","Kuollut ötökkä kuulalla":"Kettlebell Dead Bug","Matkalaukkukävely":"Suitcase Carry","Venäläinen kierto":"Russian Twist","Lankku ja kuulan siirto":"Plank Pull-Through","Istumaannousu kuula ylhäällä":"Overhead Sit-up","Tuulimylly":"Windmill","Turkkilainen nousu":"Turkish Get-up"};
+const both=n=>EN[n]&&EN[n]!==n?n+" ("+EN[n]+")":n;
 const ORDER=["veto","tyonto","jalka","vatsa"];
 const ROUNDS={15:3,20:4,30:6};
 const REPS={1:[8,10],2:[10,12],3:[12,15]};
@@ -205,7 +212,7 @@ function render(){
   $("warm").textContent="Lämmittely 5 min: halot, kevyet maljakyykyt ja lantion saranointi ilman kuulaa. Valitse kuula, jolla viimeiset toistot ovat raskaita mutta tekniikka pysyy.";
   $("moves").innerHTML=W.items.map((it,i)=>{const m=findMove(it.cat,it.name);return `<li class="${it.locked?"locked":""}">
     <span class="n">${i+1}</span><span class="cat">${KK[it.cat].label}</span>
-    <div class="mv"><b>${esc(it.name)}</b><span>${esc(m[4])}</span></div>
+    <div class="mv"><b>${esc(it.name)}</b>${EN[it.name]&&EN[it.name]!==it.name?`<i class="en">${esc(EN[it.name])}</i>`:""}<span>${esc(m[4])}</span></div>
     <div class="side"><span class="dose">${dose(it,s)}</span>
       <div class="acts"><button class="btn ghost sm" data-swap="${i}">Vaihda</button><button class="btn ghost sm" data-lock="${i}" aria-pressed="${it.locked}">${it.locked?"Lukittu":"Lukitse"}</button></div></div></li>`}).join("");
   $("moves").querySelectorAll("[data-swap]").forEach(b=>b.onclick=()=>{const it=W.items[+b.dataset.swap];it.name=pick(it.cat,settings().level,it.name);store.set("treeni",W);render();resetTimer()});
@@ -215,25 +222,25 @@ function render(){
 $("gen").onclick=generate;
 $("copy").onclick=async()=>{
   const s=settings();
-  const txt="Kahvakuulatreeni – "+planText(s)+"\n"+W.items.map((it,i)=>`${i+1}. ${KK[it.cat].label}: ${it.name} – ${dose(it,s)}`).join("\n");
+  const txt="Kahvakuulatreeni – "+planText(s)+"\n"+W.items.map((it,i)=>`${i+1}. ${KK[it.cat].label}: ${both(it.name)} – ${dose(it,s)}`).join("\n");
   try{await navigator.clipboard.writeText(txt);toast("Treeni kopioitu")}catch(e){toast("Kopiointi ei onnistunut")}
 };
 
 /* ---------- ajastin ---------- */
 let phases=[],pi=0,left=0,running=false,tick=null,wake=null,actx=null;
 function buildPhases(){
-  const s=settings(),r=ROUNDS[s.time],ph=[{k:"prep",l:"Valmistaudu",d:10,cur:W.items[0].name}];
+  const s=settings(),r=ROUNDS[s.time],ph=[{k:"prep",l:"Valmistaudu",d:10,cur:both(W.items[0].name)}];
   for(let k=1;k<=r;k++){
     if(s.format==="int"){
       W.items.forEach((it,i)=>{
         const m=findMove(it.cat,it.name);
-        if(m[3]){ph.push({k:"work",l:"Työ",d:20,cur:it.name+" · oikea",rd:k},{k:"work",l:"Vaihda puolta",d:20,cur:it.name+" · vasen",rd:k})}
-        else ph.push({k:"work",l:"Työ",d:40,cur:it.name,rd:k});
+        if(m[3]){ph.push({k:"work",l:"Työ",d:20,cur:both(it.name)+" · oikea",rd:k},{k:"work",l:"Vaihda puolta",d:20,cur:both(it.name)+" · vasen",rd:k})}
+        else ph.push({k:"work",l:"Työ",d:40,cur:both(it.name),rd:k});
         const last=i===W.items.length-1;
         if(!(last&&k===r))ph.push({k:"rest",l:last?"Kierrostauko":"Lepo",d:last?60:20,cur:"",rd:k});
       });
     }else{
-      ph.push({k:"work",l:"Kierros "+k,d:0,cur:W.items.map(it=>it.name).join(" → "),rd:k});
+      ph.push({k:"work",l:"Kierros "+k,d:0,cur:W.items.map(it=>both(it.name)).join(" → "),rd:k});
       if(k<r)ph.push({k:"rest",l:"Lepo",d:75,cur:"",rd:k});
     }
   }
@@ -256,7 +263,7 @@ function resetTimer(){
   stop();phases=buildPhases();pi=0;left=phases[0].d;
   const s=settings(),tot=phases.reduce((a,p)=>a+p.d,0);
   $("tmInfo").textContent=s.format==="int"?"Kesto "+fmt(tot):"Lepotauot "+fmt(tot);
-  $("tmBox").className="timer";$("tmPh").textContent="Valmiina";$("tmClock").textContent=fmt(phases[0].d);$("tmCur").textContent="Ensimmäinen: "+W.items[0].name;$("tmNext").textContent="";$("tmProg").style.width="0";$("tmStart").textContent="Aloita";
+  $("tmBox").className="timer";$("tmPh").textContent="Valmiina";$("tmClock").textContent=fmt(phases[0].d);$("tmCur").textContent="Ensimmäinen: "+both(W.items[0].name);$("tmNext").textContent="";$("tmProg").style.width="0";$("tmStart").textContent="Aloita";
 }
 function beep(f,ms){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.25,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+ms/1000);o.start();o.stop(actx.currentTime+ms/1000)}catch(e){}}
 async function lockWake(){try{wake=await navigator.wakeLock?.request("screen")}catch(e){wake=null}}

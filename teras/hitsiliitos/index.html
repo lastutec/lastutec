@@ -6,7 +6,7 @@
 <script src="../../lt-pdf.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Profiilin hitsausliitos (kesken) – Lastutec</title>
-<meta name="description" content="Profiilin (IPE, HEA, HEB, SHS, RHS) pienahitsausliitos levyyn komponenttimenetelmällä SFS-EN 1993-1-8:n ja Suomen kansallisen liitteen mukaan: N, V ja M, hitsiryhmän jännitykset ja käyttöasteet.">
+<meta name="description" content="Profiilin (IPE, HEA, HEB, SHS, RHS, CHS) pienahitsausliitos levyyn komponenttimenetelmällä SFS-EN 1993-1-8:n ja Suomen kansallisen liitteen mukaan: N, V ja M, hitsiryhmän jännitykset ja käyttöasteet.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <style>
 /* ===== Lastutec-työkalut: kaikki tyylit rajattu .lt-tool-luokan sisään ===== */
@@ -122,7 +122,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
   <div class="lt-card">
     <h3>Profiili ja materiaali</h3>
     <div class="lt-grid">
-      <label><span>Profiilisarja</span><select id="h-fam"><option>IPE</option><option selected>HEA</option><option>HEB</option><option>SHS</option><option>RHS</option></select></label>
+      <label><span>Profiilisarja</span><select id="h-fam"><option>IPE</option><option selected>HEA</option><option>HEB</option><option>SHS</option><option>RHS</option><option>CHS</option></select></label>
       <label><span>Profiili</span><select id="h-prof"></select></label>
       <label><span>Teräslaji (heikompi osa)</span><select id="h-steel"><option>S235</option><option>S275</option><option selected>S355</option><option value="S420">S420 N/NL, M/ML</option><option value="S460">S460 N/NL, M/ML</option></select></label>
       <label><span>Levyn paksuus t<sub>p</sub> (mm)</span><input id="h-tp" type="number" min="1" step="1" value="20"></label>
@@ -140,6 +140,10 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     </div>
     <div class="lt-grid" id="h-welds-H" hidden>
       <label><span>Ympärihitsi a (mm)</span><input id="h-a" type="number" min="3" step="0.5" value="5"></label>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px">
+      <button type="button" class="lt-pill" id="h-full" style="background:var(--lt-accent);border-color:var(--lt-accent);color:#111">Laske tasalujahitsi</button>
+      <span class="lt-note" id="h-fullinfo">Asettaa a-mitat niin, että hitsi kestää yhtä paljon kuin profiilin seinämä (laippa, uuma tai putken seinämä).</span>
     </div>
   </div>
 
@@ -182,8 +186,11 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       <div class="lt-f">Ehto 1: √(σ<sub>⊥</sub>² + 3(τ<sub>⊥</sub>² + τ<sub>∥</sub>²)) ≤ f<sub>u</sub>/(β<sub>w</sub>·γ<sub>M2</sub>)</div>
       <div class="lt-f">Ehto 2: σ<sub>⊥</sub> ≤ 0,9·f<sub>u</sub>/γ<sub>M2</sub></div>
     </li>
-    <li class="lt-step"><h4>Tasalujuus (tiedoksi)</h4>
-      <div class="lt-f">Kaksipuolinen pienahitsi on yhtä luja kuin vedetty levy t, kun a ≥ √2·β<sub>w</sub>·γ<sub>M2</sub>·t·f<sub>y</sub>/(2·f<sub>u</sub>·γ<sub>M0</sub>). Ehto saadaan ehdosta 1, kun σ<sub>⊥</sub> = τ<sub>⊥</sub>.</div>
+    <li class="lt-step"><h4>Tasaluja hitsi</h4>
+      <div class="lt-f">Hitsi on tasaluja, kun sen kestävyys pituusyksikköä kohden on vähintään liitettävän seinämän kestävyys t·f<sub>y</sub>/γ<sub>M0</sub>. Ehdosta 1, kun σ<sub>⊥</sub> = τ<sub>⊥</sub>:</div>
+      <div class="lt-f">Yksipuolinen pienahitsi (putken ympärihitsi, laipan ulkohitsi ilman sisähitsiä): a ≥ √2·β<sub>w</sub>·γ<sub>M2</sub>·f<sub>y</sub>·t/(f<sub>u</sub>·γ<sub>M0</sub>). Tulos vastaa SFS-EN 1993-1-8 kohdan 7.3.1(6) huomautuksen arvoja (S235: 0,92t, S275: 0,96t, S355: 1,10t, S420: 1,42t, S460: 1,48t).</div>
+      <div class="lt-f">Kaksipuolinen pienahitsi (uuma, laippa sisä- ja ulkohitsein): a ≥ √2·β<sub>w</sub>·γ<sub>M2</sub>·f<sub>y</sub>·t/(2·f<sub>u</sub>·γ<sub>M0</sub>).</div>
+      <div class="lt-f">Lisäksi verrataan hitsiryhmän kestävyyttä keskeiselle vedolle N<sub>w,Rd</sub> = A<sub>w</sub>·min(f<sub>u</sub>/(√2·β<sub>w</sub>·γ<sub>M2</sub>); √2·0,9·f<sub>u</sub>/γ<sub>M2</sub>) profiilin kestävyyteen N<sub>pl,Rd</sub> = A·f<sub>y</sub>/γ<sub>M0</sub>.</div>
     </li>
     <li class="lt-step"><h4>Rajoitukset</h4>
       <div class="lt-f">a ≥ 3 mm ja L<sub>eff</sub> ≥ max(30 mm; 6a) (kohta 4.5.2). Levyn, profiilin ja pulttien kestävyyttä ei tarkisteta tässä. Vääntöä ei huomioida.</div>
@@ -205,20 +212,28 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 
   // Putkiprofiilit (EN 10219), ulkonurkan säde ro = 2t (t ≤ 6), 2,5t (6 < t ≤ 10), 3t (t > 10)
   var HS={SHS:[[50,50,4],[60,60,4],[70,70,5],[80,80,5],[90,90,5],[100,100,5],[100,100,6],[120,120,6],[140,140,6],[150,150,8],[160,160,8],[180,180,8],[200,200,8],[200,200,10],[250,250,10],[300,300,10],[300,300,12.5]],
-          RHS:[[80,40,4],[100,50,5],[100,60,5],[120,60,5],[120,80,6],[140,80,6],[150,100,6],[160,80,6],[180,100,8],[200,100,8],[200,120,8],[250,150,8],[250,150,10],[300,200,10],[400,200,10],[400,200,12.5]]};
-  function hsName(fam,x){return fam==='SHS'?'SHS '+x[0]+'×'+x[0]+'×'+String(x[2]).replace('.',','):'RHS '+x[0]+'×'+x[1]+'×'+String(x[2]).replace('.',',');}
+          RHS:[[80,40,4],[100,50,5],[100,60,5],[120,60,5],[120,80,6],[140,80,6],[150,100,6],[160,80,6],[180,100,8],[200,100,8],[200,120,8],[250,150,8],[250,150,10],[300,200,10],[400,200,10],[400,200,12.5]],
+          CHS:[[48.3,0,4],[60.3,0,4],[76.1,0,4],[88.9,0,5],[101.6,0,5],[114.3,0,5],[139.7,0,6.3],[168.3,0,6.3],[193.7,0,8],[219.1,0,8],[244.5,0,10],[273,0,10],[323.9,0,10]]};
+  var HOL={SHS:1,RHS:1,CHS:1};
+  function hsName(fam,x){if(fam==='CHS')return 'CHS '+String(x[0]).replace('.',',')+'×'+String(x[2]).replace('.',',');return fam==='SHS'?'SHS '+x[0]+'×'+x[0]+'×'+String(x[2]).replace('.',','):'RHS '+x[0]+'×'+x[1]+'×'+String(x[2]).replace('.',',');}
   function fillProf(){var fam=$('#h-fam').value,sel=$('#h-prof'),cur=sel.value,opts;
-    if(fam==='SHS'||fam==='RHS') opts=HS[fam].map(function(x){return hsName(fam,x);});
+    if(HOL[fam]) opts=HS[fam].map(function(x){return hsName(fam,x);});
     else opts=L.ORDER.filter(function(n){return n.indexOf(fam+' ')===0;});
     sel.innerHTML=opts.map(function(o){return '<option'+(o===cur?' selected':'')+'>'+o+'</option>';}).join('');
     if(opts.indexOf(cur)<0) sel.value=opts[Math.min(opts.length-1,Math.floor(opts.length/3))];
-    var hol=fam==='SHS'||fam==='RHS'; $('#h-welds-I').hidden=hol; $('#h-welds-H').hidden=!hol; }
+    var hol=!!HOL[fam]; $('#h-welds-I').hidden=hol; $('#h-welds-H').hidden=!hol; }
   function prof(){var fam=$('#h-fam').value,name=$('#h-prof').value;
-    if(fam==='SHS'||fam==='RHS'){var x=HS[fam].find(function(x){return hsName(fam,x)===name;})||HS[fam][0];return {name:name,hol:true,h:x[0],b:x[1],t:x[2],tf:x[2],tw:x[2]};}
-    var P=L.PROF[name]; return {name:name,hol:false,h:P.h,b:P.b,tw:P.tw,tf:P.tf,r:P.r}; }
+    if(HOL[fam]){var x=HS[fam].find(function(x){return hsName(fam,x)===name;})||HS[fam][0],t=x[2];
+      if(fam==='CHS') return {name:name,hol:true,circ:true,h:x[0],b:x[0],D:x[0],t:t,tf:t,tw:t,A:Math.PI*t*(x[0]-t),Wpl:(Math.pow(x[0],3)-Math.pow(x[0]-2*t,3))/6};
+      var ro=t<=6?2*t:t<=10?2.5*t:3*t,ri=ro-t;
+      return {name:name,hol:true,h:x[0],b:x[1],t:t,tf:t,tw:t,A:2*t*(x[0]+x[1]-2*t)-(4-Math.PI)*(ro*ro-ri*ri),Wpl:(x[1]*x[0]*x[0]-(x[1]-2*t)*Math.pow(x[0]-2*t,2))/4};}
+    var P=L.PROF[name]; return {name:name,hol:false,h:P.h,b:P.b,tw:P.tw,tf:P.tf,r:P.r,A:P.A,Wpl:P.Wply}; }
 
   // Hitsiviivat: {id, nimi, y0,z0,y1,z1, a, dir:'y'|'z', grp:'f'|'w'}
   function welds(P){var W=[];
+    if(P.circ){var ac=num('#h-a'),rc=P.D/2,NS=36;
+      for(var q=0;q<NS;q++){var t0=2*Math.PI*q/NS,t1=2*Math.PI*(q+1)/NS;W.push({id:'C'+q,nm:'Ympärihitsi '+Math.round(t0*180/Math.PI)+'°',y0:rc*Math.cos(t0),z0:rc*Math.sin(t0),y1:rc*Math.cos(t1),z1:rc*Math.sin(t1),a:ac,dir:'t',grp:'c',th0:t0});}
+      return W;}
     if(P.hol){var a=num('#h-a'),h=P.h,b=P.b;
       W.push({id:'T',nm:'Yläsivu',y0:-b/2,z0:h/2,y1:b/2,z1:h/2,a:a,dir:'y',grp:'f'});
       W.push({id:'B',nm:'Alasivu',y0:-b/2,z0:-h/2,y1:b/2,z1:-h/2,a:a,dir:'y',grp:'f'});
@@ -240,30 +255,37 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 
   function calc(){
     var P=prof(),W=welds(P),gm=parseFloat($('#h-gm2').value)>0?parseFloat($('#h-gm2').value):1.25;
-    var tmax=Math.max(P.tf,num('#h-tp')),m=L.steel($('#h-steel').value,tmax),fu=m.fu,bw=m.bw,fy=L.steel($('#h-steel').value,P.tf).fy;
+    var tmax=Math.max(P.tf,num('#h-tp')),m=L.steel($('#h-steel').value,tmax),fu=m.fu,bw=m.bw,fy=L.steel($('#h-steel').value,Math.max(P.tf,P.tw)).fy;
     var lim1=fu/(bw*gm),lim2=0.9*fu/gm;
     var N=num('#h-N')*1e3,Vz=num('#h-Vz')*1e3,Vy=num('#h-Vy')*1e3,My=num('#h-My')*1e6,Mz=num('#h-Mz')*1e6;
     var A=0,Iy=0,Iz=0,Af=0,Aw=0;
     W.forEach(function(w){var l=len(w),Ai=w.a*l,yc=(w.y0+w.y1)/2,zc=(w.z0+w.z1)/2; w.L=l; A+=Ai;
       Iy+=Ai*zc*zc+(w.dir==='z'?w.a*l*l*l/12:0); Iz+=Ai*yc*yc+(w.dir==='y'?w.a*l*l*l/12:0); if(w.grp==='f')Af+=Ai; else Aw+=Ai;});
+    if(P.circ){var rr=P.D/2,ac2=W[0].a;A=2*Math.PI*rr*ac2;Iy=Iz=Math.PI*rr*rr*rr*ac2;Af=Aw=A/2;}
     var tauF=Af>0?Math.abs(Vy)/Af:0,tauW=Aw>0?Math.abs(Vz)/Aw:0;
     // tarkistuspisteet: hitsien päät, epäedullisin merkkiyhdistelmä
     var pts=[],gov=null;
     W.forEach(function(w){[[w.y0,w.z0],[w.y1,w.z1]].forEach(function(p,k){
       var n=Math.abs(N)/A+Math.abs(My)*Math.abs(p[1])/Iy+Math.abs(Mz)*Math.abs(p[0])/Iz;
-      var sp=n/Math.SQRT2,tp=n/Math.SQRT2,tl=w.grp==='f'?tauF:tauW,s1=Math.sqrt(sp*sp+3*(tp*tp+tl*tl));
+      var tl=w.grp==='f'?tauF:tauW;
+      if(w.grp==='c'){var th=Math.atan2(p[1],p[0]);tl=Math.abs(Vz*Math.cos(th)-Vy*Math.sin(th))/(Math.PI*(P.D/2)*w.a);}
+      var sp=n/Math.SQRT2,tp=n/Math.SQRT2,s1=Math.sqrt(sp*sp+3*(tp*tp+tl*tl));
       var u=Math.max(s1/lim1,sp/lim2),o={w:w,k:k,y:p[0],z:p[1],n:n,sp:sp,tp:tp,tl:tl,s1:s1,u:u};
       pts.push(o); if(!gov||u>gov.u) gov=o; w.u=Math.max(w.u||0,u);});});
-    return {P:P,W:W,gm:gm,m:m,fu:fu,bw:bw,fy:fy,lim1:lim1,lim2:lim2,N:N,Vz:Vz,Vy:Vy,My:My,Mz:Mz,A:A,Iy:Iy,Iz:Iz,Af:Af,Aw:Aw,tauF:tauF,tauW:tauW,pts:pts,gov:gov,tmax:tmax};
+    var nlim=Math.min(lim1/Math.SQRT2,lim2*Math.SQRT2),k1=Math.SQRT2*bw*gm*fy/(fu*1.0),NwRd=A*nlim/1000,NplRd=P.A*fy/1000,MwRd=Iy/(P.h/2)*nlim/1e6,MplRd=P.Wpl*fy/1e6;
+    var full=P.hol?{a:Math.ceil(k1*P.t*2-1e-9)/2}:{af:Math.ceil(($('#h-inner').checked?k1/2:k1)*P.tf*2-1e-9)/2,aw:Math.ceil(k1/2*P.tw*2-1e-9)/2};
+    return {nlim:nlim,MwRd:MwRd,MplRd:MplRd,k1:k1,NwRd:NwRd,NplRd:NplRd,full:full,P:P,W:W,gm:gm,m:m,fu:fu,bw:bw,fy:fy,lim1:lim1,lim2:lim2,N:N,Vz:Vz,Vy:Vy,My:My,Mz:Mz,A:A,Iy:Iy,Iz:Iz,Af:Af,Aw:Aw,tauF:tauF,tauW:tauW,pts:pts,gov:gov,tmax:tmax};
   }
 
   function col(u){return u>1?'#e8907f':u>0.85?'#e2c47f':'#82c79f';}
   function fig(R){
     var P=R.P,sc=Math.min(300/P.b,300/P.h),W=P.b*sc+120,H=P.h*sc+70,cx=W/2,cy=H/2,X=function(y){return cx+y*sc;},Y=function(z){return cy-z*sc;},s='';
-    if(P.hol){var t=P.t*sc;s+='<rect x="'+X(-P.b/2)+'" y="'+Y(P.h/2)+'" width="'+P.b*sc+'" height="'+P.h*sc+'" fill="#4a4d53" stroke="#aeaba4"/><rect x="'+(X(-P.b/2)+t)+'" y="'+(Y(P.h/2)+t)+'" width="'+(P.b*sc-2*t)+'" height="'+(P.h*sc-2*t)+'" fill="#24262a" stroke="#aeaba4"/>';}
+    if(P.circ){s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+P.D/2*sc+'" fill="#4a4d53" stroke="#aeaba4"/><circle cx="'+cx+'" cy="'+cy+'" r="'+(P.D/2-P.t)*sc+'" fill="#24262a" stroke="#aeaba4"/>';}
+    else if(P.hol){var t=P.t*sc;s+='<rect x="'+X(-P.b/2)+'" y="'+Y(P.h/2)+'" width="'+P.b*sc+'" height="'+P.h*sc+'" fill="#4a4d53" stroke="#aeaba4"/><rect x="'+(X(-P.b/2)+t)+'" y="'+(Y(P.h/2)+t)+'" width="'+(P.b*sc-2*t)+'" height="'+(P.h*sc-2*t)+'" fill="#24262a" stroke="#aeaba4"/>';}
     else{var b=P.b*sc,h=P.h*sc,tf=P.tf*sc,tw=P.tw*sc;
       s+='<path d="M'+X(-P.b/2)+' '+Y(P.h/2)+' h'+b+' v'+tf+' h'+(-(b-tw)/2)+' v'+(h-2*tf)+' h'+((b-tw)/2)+' v'+tf+' h'+(-b)+' v'+(-tf)+' h'+((b-tw)/2)+' v'+(-(h-2*tf))+' h'+(-(b-tw)/2)+' Z" fill="#4a4d53" stroke="#aeaba4"/>';}
-    R.W.forEach(function(w){var off=w.grp==='f'?(w.z0>0?1:-1)*(w.id.indexOf('i')>=0?-1:1):(w.y0>0?1:-1),wd=Math.max(3,w.a*sc*0.9);
+    R.W.forEach(function(w){if(w.grp==='c'){var rw=P.D/2*sc+Math.max(3,w.a*sc*0.9)/2;s+='<path d="M'+(cx+rw*Math.cos(w.th0))+' '+(cy-rw*Math.sin(w.th0))+' A'+rw+' '+rw+' 0 0 0 '+(cx+rw*Math.cos(w.th0+2*Math.PI/36))+' '+(cy-rw*Math.sin(w.th0+2*Math.PI/36))+'" fill="none" stroke="'+col(w.u)+'" stroke-width="'+Math.max(3,w.a*sc*0.9)+'"/>';return;}
+      var off=w.grp==='f'?(w.z0>0?1:-1)*(w.id.indexOf('i')>=0?-1:1):(w.y0>0?1:-1),wd=Math.max(3,w.a*sc*0.9);
       var dy=w.dir==='z'?off*wd/2:0,dz=w.dir==='y'?-off*wd/2:0;
       s+='<line x1="'+(X(w.y0)+dy)+'" y1="'+(Y(w.z0)+dz)+'" x2="'+(X(w.y1)+dy)+'" y2="'+(Y(w.z1)+dz)+'" stroke="'+col(w.u)+'" stroke-width="'+wd+'"/>';});
     var g=R.gov; if(g){s+='<circle cx="'+X(g.y)+'" cy="'+Y(g.z)+'" r="7" fill="none" stroke="#E3824F" stroke-width="2.5"/>';}
@@ -275,7 +297,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
   function render(){
     var R=calc(),P=R.P,g=R.gov,s='';
     s+=step('Profiili ja materiaali',[
-      P.name+(P.hol?': h = '+f(P.h,0)+', b = '+f(P.b,0)+', t = '+f(P.t,1)+' mm':': h = '+f(P.h,0)+', b = '+f(P.b,0)+', t<sub>w</sub> = '+f(P.tw,1)+', t<sub>f</sub> = '+f(P.tf,1)+', r = '+f(P.r,0)+' mm'),
+      P.name+(P.circ?': D = '+f(P.D,1)+', t = '+f(P.t,1)+' mm':P.hol?': h = '+f(P.h,0)+', b = '+f(P.b,0)+', t = '+f(P.t,1)+' mm':': h = '+f(P.h,0)+', b = '+f(P.b,0)+', t<sub>w</sub> = '+f(P.tw,1)+', t<sub>f</sub> = '+f(P.tf,1)+', r = '+f(P.r,0)+' mm'),
       R.m.label+': f<sub>u</sub> = '+R.fu+' N/mm²'+c_('(SFS-EN 1993-1-1 taul. 3.1, t = '+f(R.tmax,0)+' mm)')+', β<sub>w</sub> = '+f(R.bw,2)+', γ<sub>M2</sub> = '+f(R.gm,2),
       'Hitsiluokka '+$('#h-cls').value+' ≥ C'+c_('(KL 2.2(2))')+chk($('#h-cls').value!=='D'),
       'f<sub>u</sub>/(β<sub>w</sub>γ<sub>M2</sub>) = <span class="lt-r">'+f(R.lim1,1)+' N/mm²</span>, 0,9·f<sub>u</sub>/γ<sub>M2</sub> = <span class="lt-r">'+f(R.lim2,1)+' N/mm²</span>']);
@@ -293,10 +315,18 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       'σ<sub>⊥</sub> = τ<sub>⊥</sub> = n/√2 = '+f(g.n,1)+'/√2 = <span class="lt-r">'+f(g.sp,1)+' N/mm²</span>, τ<sub>∥</sub> = '+f(g.tl,1)+' N/mm²',
       'Ehto 1: √(σ<sub>⊥</sub>² + 3(τ<sub>⊥</sub>² + τ<sub>∥</sub>²)) = √('+f(g.sp,1)+'² + 3('+f(g.tp,1)+'² + '+f(g.tl,1)+'²)) = <span class="lt-r">'+f(g.s1,1)+'</span> ≤ '+f(R.lim1,1)+' N/mm² → '+f(g.s1/R.lim1*100,0)+' %'+chk(g.s1<=R.lim1),
       'Ehto 2: σ<sub>⊥</sub> = '+f(g.sp,1)+' ≤ '+f(R.lim2,1)+' N/mm² → '+f(g.sp/R.lim2*100,0)+' %'+chk(g.sp<=R.lim2)]);
-    var k=Math.SQRT2*R.bw*R.gm*R.fy/(2*R.fu*1.0);
-    s+=step('Tasalujuus (tiedoksi)',[
-      'a<sub>tasaluja</sub> = √2·β<sub>w</sub>·γ<sub>M2</sub>·f<sub>y</sub>/(2·f<sub>u</sub>·γ<sub>M0</sub>)·t = '+f(k,3)+'·t',
-      P.hol?'Seinämä t = '+f(P.t,1)+' mm → a ≥ '+f(k*P.t,1)+' mm (kaksipuolinen hitsi; yksipuolisella ympärihitsillä 2·'+f(k,3)+'·t = '+f(2*k*P.t,1)+' mm)':'Laippa t<sub>f</sub> = '+f(P.tf,1)+' mm → a<sub>f</sub> ≥ '+f(k*P.tf,1)+' mm'+($('#h-inner').checked?'':' (vain ulkopuolinen hitsi: '+f(2*k*P.tf,1)+' mm)')+'; uuma t<sub>w</sub> = '+f(P.tw,1)+' mm → a<sub>w</sub> ≥ '+f(k*P.tw,1)+' mm']);
+    var F=R.full,k1=R.k1,okA,ls=['f<sub>y</sub> = '+R.fy+' N/mm², f<sub>u</sub> = '+R.fu+' N/mm², β<sub>w</sub> = '+f(R.bw,2)+', γ<sub>M2</sub> = '+f(R.gm,2)+', γ<sub>M0</sub> = 1,0'];
+    if(P.hol){var a=num('#h-a');okA=a>=F.a-1e-9;
+      ls.push('Yksipuolinen ympärihitsi: a ≥ √2·β<sub>w</sub>·γ<sub>M2</sub>·f<sub>y</sub>/(f<sub>u</sub>·γ<sub>M0</sub>)·t = '+f(k1,3)+'·'+f(P.t,1)+' = '+f(k1*P.t,2)+' mm → <span class="lt-r">a = '+f(F.a,1)+' mm</span>'+c_('(SFS-EN 1993-1-8 7.3.1(6))'));
+      ls.push('Valittu a = '+f(a,1)+' mm'+(okA?' <span class="lt-ok">✓ tasaluja</span>':' <span class="lt-bad">✗ ei tasaluja</span>'));}
+    else{var af=num('#h-af'),aw=num('#h-aw'),inn=$('#h-inner').checked;okA=af>=F.af-1e-9&&aw>=F.aw-1e-9;
+      ls.push('Laippa t<sub>f</sub> = '+f(P.tf,1)+' mm, '+(inn?'kaksipuolinen: a<sub>f</sub> ≥ '+f(k1/2,3):'vain ulkohitsi: a<sub>f</sub> ≥ '+f(k1,3))+'·t<sub>f</sub> = '+f((inn?k1/2:k1)*P.tf,2)+' mm → <span class="lt-r">a<sub>f</sub> = '+f(F.af,1)+' mm</span>');
+      ls.push('Uuma t<sub>w</sub> = '+f(P.tw,1)+' mm, kaksipuolinen: a<sub>w</sub> ≥ '+f(k1/2,3)+'·t<sub>w</sub> = '+f(k1/2*P.tw,2)+' mm → <span class="lt-r">a<sub>w</sub> = '+f(F.aw,1)+' mm</span>');
+      ls.push('Valitut a<sub>f</sub> = '+f(af,1)+', a<sub>w</sub> = '+f(aw,1)+' mm'+(okA?' <span class="lt-ok">✓ tasaluja</span>':' <span class="lt-bad">✗ ei tasaluja</span>'));}
+    ls.push('Keskeinen veto: N<sub>w,Rd</sub> = A<sub>w</sub>·min(f<sub>u</sub>/(√2β<sub>w</sub>γ<sub>M2</sub>); √2·0,9f<sub>u</sub>/γ<sub>M2</sub>) = '+f(R.A,0)+'·'+f(Math.min(R.lim1/Math.SQRT2,R.lim2*Math.SQRT2),1)+' = '+f(R.NwRd,0)+' kN; profiili N<sub>pl,Rd</sub> = A·f<sub>y</sub>/γ<sub>M0</sub> = '+f(P.A,0)+'·'+R.fy+' = '+f(R.NplRd,0)+' kN → '+f(R.NwRd/R.NplRd*100,0)+' %'+(R.NwRd>=R.NplRd-1e-6?' <span class="lt-ok">✓</span>':' <span class="lt-bad">✗</span>'));
+    ls.push('Taivutus M<sub>y</sub>: M<sub>w,Rd</sub> = I<sub>w,y</sub>/(h/2)·'+f(R.nlim,1)+' = '+f(R.MwRd,1)+' kNm (kimmoteoria); profiili M<sub>pl,y,Rd</sub> = W<sub>pl,y</sub>·f<sub>y</sub>/γ<sub>M0</sub> = '+f(R.MplRd,1)+' kNm → '+f(R.MwRd/R.MplRd*100,0)+' %'+(R.MwRd>=R.MplRd-1e-6?' <span class="lt-ok">✓</span>':' <span class="lt-bad">✗</span>'));
+    ls.push('Laske tasalujahitsi -painike valitsee seinämäkohtaiset vähimmäisarvot ja kasvattaa niitä 0,5 mm:n portain, kunnes hitsiryhmä kestää myös profiilin N<sub>pl,Rd</sub>:n ja M<sub>pl,y,Rd</sub>:n.');
+    s+=step('Tasaluja hitsi',ls);
     $('#h-steps').innerHTML=s;
     // taulukko
     $('#h-tbl').innerHTML='<thead><tr><th>Piste<small>hitsi</small></th><th>y<small>mm</small></th><th>z<small>mm</small></th><th>n<small>N/mm²</small></th><th>σ⊥ = τ⊥<small>N/mm²</small></th><th>τ∥<small>N/mm²</small></th><th>Ehto 1<small>N/mm²</small></th><th>Käyttöaste</th></tr></thead><tbody>'+
@@ -306,9 +336,17 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     $('#h-sum').innerHTML='<div class="lt-kpi"><span>Määräävä käyttöaste</span><b class="'+(u>1?'lt-bad':'lt-ok')+'">'+f(u*100,0)+' %</b><div class="lt-bar"><i class="'+(u>1?'over':'')+'" style="width:'+Math.min(u*100,100)+'%"></i></div></div>'+
       '<div class="lt-kpi"><span>Määräävä piste</span><b>'+(g?g.w.nm:'–')+'</b></div>'+
       '<div class="lt-kpi"><span>Ehto 1 / raja</span><b>'+(g?f(g.s1,0)+' / '+f(R.lim1,0):'–')+' N/mm²</b></div>'+
+      '<div class="lt-kpi"><span>Hitsi / profiili</span><b class="'+(Math.min(R.NwRd/R.NplRd,R.MwRd/R.MplRd)>=1-1e-6?'lt-ok':'lt-bad')+'">'+f(Math.min(R.NwRd/R.NplRd,R.MwRd/R.MplRd)*100,0)+' %</b><div class="lt-note">N: '+f(R.NwRd/R.NplRd*100,0)+' %, M<sub>y</sub>: '+f(R.MwRd/R.MplRd*100,0)+' %</div></div>'+
       '<div class="lt-kpi"><span>Hitsiryhmä A<sub>w</sub></span><b>'+f(R.A,0)+' mm²</b></div>';
   }
   $('#h-fam').addEventListener('change',function(){fillProf();render();});
+  $('#h-full').addEventListener('click',function(){
+    var R=calc(),F=R.full,hol=R.P.hol,set=function(){if(hol)$('#h-a').value=F.a;else{$('#h-af').value=F.af;$('#h-aw').value=F.aw;}};
+    set();R=calc();var it=0;
+    while((R.NwRd<R.NplRd-1e-6||R.MwRd<R.MplRd-1e-6)&&it<60){if(hol)F.a+=0.5;else{F.af+=0.5;F.aw+=0.5;}set();R=calc();it++;}
+    root.querySelectorAll('#h-a,#h-af,#h-aw').forEach(function(el){el.dispatchEvent(new Event('change',{bubbles:true}));});
+    render();
+    $('#h-fullinfo').innerHTML='Tasaluja hitsi asetettu: <b>'+(hol?'a = '+f(F.a,1)+' mm':'a<sub>f</sub> = '+f(F.af,1)+' mm, a<sub>w</sub> = '+f(F.aw,1)+' mm')+'</b>. Seinämäkohtainen vähimmäisarvo '+(hol?f(R.full.a,1)+' mm ('+f(R.k1,2)+'·t)':'a<sub>f</sub> '+f(R.full.af,1)+', a<sub>w</sub> '+f(R.full.aw,1)+' mm')+(it?', kasvatettu '+f(it*0.5,1)+' mm, jotta hitsiryhmä kestää profiilin N<sub>pl,Rd</sub>:n ja M<sub>pl,y,Rd</sub>:n':'')+'.';});
   root.querySelectorAll('input,select').forEach(function(el){if(el.id==='h-fam')return;el.addEventListener('input',render);el.addEventListener('change',render);});
   fillProf(); $('#h-prof').value='HEA 200'; render();
 })();

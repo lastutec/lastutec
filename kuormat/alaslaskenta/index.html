@@ -305,7 +305,9 @@ function computeTrib(fast){
     for(let i=0;i<nx;i++){ const x=x0+(i+0.5)*cell; let inside=false; for(const s of slabs) if(inSlab(x,y,s)){ inside=true; break; }
       if(!inside) continue;
       let best=-1,bd=1e18;
-      for(let k=0;k<sups.length;k++){ const s=sups[k]; const d=s.t==='col'?Math.hypot(s.p[0]-x,s.p[1]-y):segDist(s,[x,y])[0]; if(d<bd){ bd=d; best=k; } }
+      const sl=slabs.find(s=>inSlab(x,y,s));
+      if(sl&&(sl.span==='1'||sl.span==='4')) best=spanSupport(sl,x,y,sups,cell);
+      if(best<0) for(let k=0;k<sups.length;k++){ const s=sups[k]; const d=s.t==='col'?Math.hypot(s.p[0]-x,s.p[1]-y):segDist(s,[x,y])[0]; if(d<bd){ bd=d; best=k; } }
       const a=cell*cell; area[sups[best].id]+=a; covered+=a;
       const o=(j*nx+i)*4,c=cols[best]; im.data[o]=c[0]; im.data[o+1]=c[1]; im.data[o+2]=c[2]; im.data[o+3]=255; } }
   oc.putImageData(im,0,0);
@@ -313,6 +315,24 @@ function computeTrib(fast){
   const total=slabs.reduce((s,e)=>s+Math.abs((e.x1-e.x0)*(e.y1-e.y0)),0);
   trib={area,img:off,x0,y0,cell,nx,ny,total,covered,colors:Object.fromEntries(sups.map((s,i)=>[s.id,cols[i]]))};
 }
+/* Kantosuunta: piste kuuluu sille tuelle, johon kantosuuntaan (1-suuntainen: ±u, 4-suuntainen: ±u ja ±v)
+   ammuttu säde osuu ensimmäisenä laatan sisällä. Suorakaidelaatta neljällä seinällä → 45° jako (kolmio/puolisuunnikas). */
+function rayHit(s,x,y,dx,dy,tmax,cell){
+  if(s.t==='col'){ const rx=s.p[0]-x,ry=s.p[1]-y,t=rx*dx+ry*dy; if(t<=0||t>tmax) return Infinity; const off=Math.abs(rx*dy-ry*dx); return off<=Math.max(0.25,cell)?t:Infinity; }
+  const ex=s.b[0]-s.a[0],ey=s.b[1]-s.a[1],den=dx*ey-dy*ex; if(Math.abs(den)<1e-12) return Infinity;
+  const ax=s.a[0]-x,ay=s.a[1]-y,t=(ax*ey-ay*ex)/den,u=(ax*dy-ay*dx)/den;
+  return (t>1e-9&&t<=tmax&&u>=-1e-6&&u<=1+1e-6)?t:Infinity; }
+function spanSupport(sl,x,y,sups,cell){
+  const th=(+sl.dir||0)*Math.PI/180,c=Math.cos(th),sn=Math.sin(th);
+  const dirs=sl.span==='4'?[[c,sn],[-c,-sn],[-sn,c],[sn,-c]]:[[c,sn],[-c,-sn]];
+  const X0=Math.min(sl.x0,sl.x1),X1=Math.max(sl.x0,sl.x1),Y0=Math.min(sl.y0,sl.y1),Y1=Math.max(sl.y0,sl.y1),tol=0.3;
+  let best=-1,bt=Infinity;
+  for(const [dx,dy] of dirs){
+    // matka laatan reunaan tähän suuntaan (+ toleranssi reunalla oleville tuille)
+    let te=Infinity; if(dx>1e-12) te=Math.min(te,(X1-x)/dx); if(dx<-1e-12) te=Math.min(te,(X0-x)/dx); if(dy>1e-12) te=Math.min(te,(Y1-y)/dy); if(dy<-1e-12) te=Math.min(te,(Y0-y)/dy);
+    const tmax=te+tol;
+    for(let k=0;k<sups.length;k++){ const t=rayHit(sups[k],x,y,dx,dy,tmax,cell); if(t<bt){ bt=t; best=k; } } }
+  return best; }
 function hsl(h,s,l){ s/=100; l/=100; const k=n=>(n+h/30)%12, a=s*Math.min(l,1-l), f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));
   return [Math.round(255*f(0)),Math.round(255*f(8)),Math.round(255*f(4))]; }
 
@@ -383,7 +403,8 @@ function render(){
   for(const e of st.els.filter(e=>e.t==='slab')){ const a=toS([Math.min(e.x0,e.x1),Math.min(e.y0,e.y1)]),b=toS([Math.max(e.x0,e.x1),Math.max(e.y0,e.y1)]);
     if(!$('showAreas').checked){ ctx.globalAlpha=.14; ctx.fillStyle=COL.slab; ctx.fillRect(a[0],a[1],b[0]-a[0],b[1]-a[1]); ctx.globalAlpha=1; }
     ctx.strokeStyle=sel===e.id?COL.sel:COL.slab; ctx.lineWidth=sel===e.id?3:1.4; ctx.setLineDash(sel===e.id?[]:[8,5]); ctx.strokeRect(a[0],a[1],b[0]-a[0],b[1]-a[1]); ctx.setLineDash([]);
-    label(e.id,a[0]+8,a[1]+12,COL.slab,'left',12); }
+    label(e.id,a[0]+8,a[1]+12,COL.slab,'left',12);
+    drawSpan(e); if(sel===e.id&&tool==='select') drawHandles(e); }
   for(const e of st.els.filter(e=>e.t==='wall')){ const a=toS(e.a),b=toS(e.b); ctx.lineCap='butt';
     if(sel===e.id){ ctx.strokeStyle=COL.sel; ctx.lineWidth=Math.max(7,0.2*view.s)+6; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); }
     ctx.strokeStyle=COL.wall; ctx.lineWidth=Math.max(6,0.2*view.s); ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); }
@@ -411,6 +432,30 @@ function render(){
   ctx.strokeStyle=COL.fg; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+m*view.s,by); ctx.moveTo(bx,by-4); ctx.lineTo(bx,by+4); ctx.moveTo(bx+m*view.s,by-4); ctx.lineTo(bx+m*view.s,by+4); ctx.stroke();
   label(`${fmt(m,m<1?1:0)} m`,bx+m*view.s/2,by-11,COL.fg,'center',11);
 }
+
+/* ---------- laatan kantosuuntanuolet ja kahvat ---------- */
+function slabRect(e){ return [Math.min(e.x0,e.x1),Math.min(e.y0,e.y1),Math.max(e.x0,e.x1),Math.max(e.y0,e.y1)]; }
+function chord(e,dx,dy){ const [X0,Y0,X1,Y1]=slabRect(e),cx=(X0+X1)/2,cy=(Y0+Y1)/2; let t=Infinity;
+  if(Math.abs(dx)>1e-9) t=Math.min(t,(X1-X0)/2/Math.abs(dx)); if(Math.abs(dy)>1e-9) t=Math.min(t,(Y1-Y0)/2/Math.abs(dy)); return {cx,cy,t}; }
+function arrowGeom(e,ang){ const th=ang*Math.PI/180,dx=Math.cos(th),dy=Math.sin(th),{cx,cy,t}=chord(e,dx,dy),L=Math.min(t*0.72,t-0.3>0?t-0.3:t*0.72);
+  return {a:toS([cx-dx*L,cy-dy*L]),b:toS([cx+dx*L,cy+dy*L]),dx,dy}; }
+function dArrow(g,col){ const hl=Math.min(13,Math.hypot(g.b[0]-g.a[0],g.b[1]-g.a[1])/4); if(hl<3) return;
+  ctx.strokeStyle=col; ctx.fillStyle=col; ctx.lineWidth=2.4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(...g.a); ctx.lineTo(...g.b); ctx.stroke();
+  for(const [p,s] of [[g.b,1],[g.a,-1]]){ const ux=g.dx*s,uy=g.dy*s; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(p[0]-ux*hl-uy*hl*0.45,p[1]-uy*hl+ux*hl*0.45); ctx.lineTo(p[0]-ux*hl+uy*hl*0.45,p[1]-uy*hl-ux*hl*0.45); ctx.closePath(); ctx.fill(); }
+  ctx.lineCap='butt'; }
+function drawSpan(e){ if(e.span!=='1'&&e.span!=='4') return; const ang=+e.dir||0,col=sel===e.id?COL.sel:'#bcd6ee';
+  dArrow(arrowGeom(e,ang),col); if(e.span==='4') dArrow(arrowGeom(e,ang+90),col);
+  if(e.span==='1'&&sel===e.id&&tool==='select'){ const r=rotHandle(e); ctx.fillStyle=COL.bg; ctx.strokeStyle=COL.sel; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(r[0],r[1],7,0,7); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(r[0],r[1],3.2,-2.2,1.6); ctx.stroke(); } }
+function rotHandle(e){ const g=arrowGeom(e,+e.dir||0); return [g.b[0]+g.dx*16,g.b[1]+g.dy*16]; }
+function slabHandles(e){ const [X0,Y0,X1,Y1]=slabRect(e),xm=(X0+X1)/2,ym=(Y0+Y1)/2;
+  return [[-1,-1,X0,Y0],[0,-1,xm,Y0],[1,-1,X1,Y0],[1,0,X1,ym],[1,1,X1,Y1],[0,1,xm,Y1],[-1,1,X0,Y1],[-1,0,X0,ym]]; }
+function drawHandles(e){ for(const h of slabHandles(e)){ const [x,y]=toS([h[2],h[3]]); ctx.fillStyle=COL.bg; ctx.strokeStyle=COL.sel; ctx.lineWidth=2; ctx.fillRect(x-5,y-5,10,10); ctx.strokeRect(x-5,y-5,10,10); } }
+function handleHit(px,py){ const e=sel&&byId(sel); if(!e||e.t!=='slab'||tool!=='select') return null;
+  if(e.span==='1'){ const r=rotHandle(e); if(Math.hypot(px-r[0],py-r[1])<=11) return {k:'rot',e}; }
+  for(const h of slabHandles(e)){ const [x,y]=toS([h[2],h[3]]); if(Math.abs(px-x)<=9&&Math.abs(py-y)<=9) return {k:'resize',e,hx:h[0],hy:h[1]}; }
+  return null; }
+const spanTxt=e=>e.span==='1'?`yhteen suuntaan, ${fmt(+e.dir||0,0)}°`:e.span==='4'?'neljään suuntaan':'ei valittu (lähin tuki)';
 
 /* ---------- kohdistus ja osuma ---------- */
 function snap(w,line0){
@@ -452,24 +497,37 @@ cv.addEventListener('pointerdown',ev=>{
   if(ev.pointerType==='mouse'&&ev.button!==0) return;
   cv.setPointerCapture(ev.pointerId); ptrs.set(ev.pointerId,[px,py]);
   if(ptrs.size===2){ draft=null; drag=null; const [p,q]=[...ptrs.values()]; pinch={d:Math.hypot(p[0]-q[0],p[1]-q[1]),c:[(p[0]+q[0])/2,(p[1]+q[1])/2]}; render(); return; }
+  const hh=handleHit(px,py);
+  if(hh){ const o=hh.e; drag=hh.k==='rot'?{k:'rot',id:o.id,moved:false,s0:[px,py]}:{k:'resize',id:o.id,hx:hh.hx,hy:hh.hy,orig:(()=>{ const [X0,Y0,X1,Y1]=slabRect(o); return {x0:X0,y0:Y0,x1:X1,y1:Y1}; })(),moved:false,s0:[px,py]}; render(); return; }
   const h=hit(w);
   if(tool==='select'){
     if(h&&!h.pan) startMove(h,w,px,py);
-    else { if(h&&h.pan) select(h.slab.id); else select(null); drag={k:'pan',p0:[px,py],o:[view.ox,view.oy]}; } }
+    else { if(h&&h.pan) select(h.slab.id); else select(null); drag={k:'pan',p0:[px,py],o:[view.ox,view.oy],slab:h&&h.pan?h.slab.id:null}; } }
   else if(tool==='col'){
     if(h&&!h.pan&&h.t==='col') startMove(h,w,px,py);   // olemassa olevaa pilaria raahataan / klikkaus avaa valikon
     else { let p=snap(w); const q=pdfOn()?pdfCol(w):null; if(q){ p=q; flash(q); } addEl({id:nextId('P'),t:'col',p}); } }
   else if(tool==='wall'&&h&&!h.pan&&h.t==='col'){ startMove(h,w,px,py); }
-  else { const p0=snap(w); draft={t:tool,p0,p1:p0,hit0:h&&!h.pan?h.id:null,s0:[px,py]}; }
+  else { const p0=snap(w); draft={t:tool,p0,p1:p0,hit0:h?(h.pan?h.slab.id:h.id):null,s0:[px,py]}; }
   render();
 });
 cv.addEventListener('pointermove',ev=>{
-  if(!ptrs.has(ev.pointerId)){ if(tool!=='select'&&ev.pointerType==='mouse'){ snap(toW(...pos(ev))); render(); } return; }
+  if(!ptrs.has(ev.pointerId)){ if(tool!=='select'&&ev.pointerType==='mouse'){ snap(toW(...pos(ev))); render(); }
+    else if(tool==='select'&&ev.pointerType==='mouse'){ const hh=handleHit(...pos(ev)); cv.style.cursor=hh?(hh.k==='rot'?'grab':(hh.hx&&hh.hy?(hh.hx*hh.hy>0?'nwse-resize':'nesw-resize'):hh.hx?'ew-resize':'ns-resize')):'default'; }
+    return; }
   ptrs.set(ev.pointerId,pos(ev));
   if(pinch&&ptrs.size===2){ const [p,q]=[...ptrs.values()],d=Math.hypot(p[0]-q[0],p[1]-q[1]),c=[(p[0]+q[0])/2,(p[1]+q[1])/2];
     view.ox+=c[0]-pinch.c[0]; view.oy+=c[1]-pinch.c[1]; zoomAt(d/pinch.d,c[0],c[1]); pinch={d,c}; return; }
   const [px,py]=pos(ev),w=toW(px,py);
   if(drag&&drag.k==='pan'){ view.ox=drag.o[0]+px-drag.p0[0]; view.oy=drag.o[1]+py-drag.p0[1]; render(); }
+  else if(drag&&drag.k==='resize'){
+    if(!drag.moved&&Math.hypot(px-drag.s0[0],py-drag.s0[1])<4) return; drag.moved=true;
+    const e=byId(drag.id),o=drag.orig,q=snap(w),m=0.2;
+    if(drag.hx<0){ e.x0=Math.min(q[0],o.x1-m); e.x1=o.x1; } else if(drag.hx>0){ e.x0=o.x0; e.x1=Math.max(q[0],o.x0+m); } else { e.x0=o.x0; e.x1=o.x1; }
+    if(drag.hy<0){ e.y0=Math.min(q[1],o.y1-m); e.y1=o.y1; } else if(drag.hy>0){ e.y0=o.y0; e.y1=Math.max(q[1],o.y0+m); } else { e.y0=o.y0; e.y1=o.y1; }
+    update(false,true); }
+  else if(drag&&drag.k==='rot'){
+    drag.moved=true; const e=byId(drag.id),[X0,Y0,X1,Y1]=slabRect(e);
+    let a=Math.atan2(w[1]-(Y0+Y1)/2,w[0]-(X0+X1)/2)*180/Math.PI; a=Math.round(a/15)*15; a=((a%180)+180)%180; e.dir=a; update(false,true); }
   else if(drag&&drag.k==='end'){
     if(!drag.moved&&Math.hypot(px-drag.s0[0],py-drag.s0[1])<5) return; drag.moved=true;
     const e=byId(drag.id),other=drag.end==='a'?e.b:e.a; e[drag.end]=snap(w,other); update(false,true); }
@@ -486,22 +544,24 @@ function endPtr(ev){
   if(!had) return;
   const [px,py]=pos(ev);
   if(drag){ const d=drag; drag=null; cv.style.cursor=tool==='select'?'default':'crosshair';
-    if((d.k==='move'||d.k==='end')&&d.moved){ const e=byId(d.id);
+    if((d.k==='resize'||d.k==='rot')&&d.moved){ update(true); renderProps(); }
+    else if(d.k==='pan'&&d.slab&&ev.type==='pointerup'&&Math.hypot(px-d.p0[0],py-d.p0[1])<5){ const e=byId(d.slab); if(e) showMenu(e,px,py); }
+    else if((d.k==='move'||d.k==='end')&&d.moved){ const e=byId(d.id);
       if(e&&pdfOn()&&ev.type==='pointerup'){ if(e.t==='col'){ const q=pdfCol(e.p); if(q){ e.p=q; flash(q); } } else if(e.t==='wall') pdfWallFix(e); }
       update(true); renderProps(); }
-    else if(d.k==='move'&&!d.moved&&ev.type==='pointerup'){ const e=byId(d.id); if(e&&(e.t==='col'||e.t==='wall')) showMenu(e,px,py); } }
+    else if(d.k==='move'&&!d.moved&&ev.type==='pointerup'){ const e=byId(d.id); if(e) showMenu(e,px,py); } }
   if(draft){ const d=draft; draft=null;
     if(d.t==='slab'){ const w=Math.abs(d.p1[0]-d.p0[0]),h=Math.abs(d.p1[1]-d.p0[1]);
       if(w>=0.2&&h>=0.2) addEl({id:nextId('L'),t:'slab',x0:Math.min(d.p0[0],d.p1[0]),y0:Math.min(d.p0[1],d.p1[1]),x1:Math.max(d.p0[0],d.p1[0]),y1:Math.max(d.p0[1],d.p1[1])});
-      else if(d.hit0&&Math.hypot(px-d.s0[0],py-d.s0[1])<5){ const e=byId(d.hit0); if(e&&(e.t==='col'||e.t==='wall')){ select(e.id); showMenu(e,px,py); } } }
+      else if(d.hit0&&Math.hypot(px-d.s0[0],py-d.s0[1])<5){ const e=byId(d.hit0); if(e){ select(e.id); showMenu(e,px,py); } } }
     else if(d.t==='scale'){ if(Math.hypot(d.p1[0]-d.p0[0],d.p1[1]-d.p0[1])>0.05){ calibLine=[d.p0,d.p1]; showCalib(); } }
     else if(Math.hypot(d.p1[0]-d.p0[0],d.p1[1]-d.p0[1])>=0.2){ const e={id:nextId('S'),t:'wall',a:d.p0,b:d.p1}; if(pdfOn()) pdfWallFix(e); addEl(e); }
-    else if(d.hit0&&Math.hypot(px-d.s0[0],py-d.s0[1])<5){ const e=byId(d.hit0); if(e&&(e.t==='col'||e.t==='wall')){ select(e.id); showMenu(e,px,py); } }
+    else if(d.hit0&&Math.hypot(px-d.s0[0],py-d.s0[1])<5){ const e=byId(d.hit0); if(e){ select(e.id); showMenu(e,px,py); } }
     render(); }
 }
 cv.addEventListener('pointerup',endPtr); cv.addEventListener('pointercancel',endPtr);
 cv.addEventListener('pointerleave',()=>{ if(!ptrs.size){ snapMark=null; render(); } });
-cv.addEventListener('contextmenu',ev=>{ const [px,py]=pos(ev),h=hit(toW(px,py)); if(h&&!h.pan&&(h.t==='col'||h.t==='wall')){ ev.preventDefault(); select(h.id); showMenu(h,px,py); } });
+cv.addEventListener('contextmenu',ev=>{ const [px,py]=pos(ev),h0=hit(toW(px,py)),h=h0&&h0.pan?h0.slab:h0; if(h){ ev.preventDefault(); select(h.id); showMenu(h,px,py); } });
 cv.addEventListener('wheel',ev=>{ ev.preventDefault(); const [px,py]=pos(ev); zoomAt(Math.exp(-ev.deltaY*0.0015),px,py); },{passive:false});
 cv.addEventListener('keydown',ev=>{ if((ev.key==='Delete'||ev.key==='Backspace')&&sel){ delEl(sel); ev.preventDefault(); } if(ev.key==='Escape'){ draft=null; hideMenu(); select(null); } });
 $('zin').onclick=()=>zoomAt(1.3,W/2,H/2); $('zout').onclick=()=>zoomAt(1/1.3,W/2,H/2); $('zfit').onclick=fit;
@@ -509,7 +569,7 @@ $('zin').onclick=()=>zoomAt(1.3,W/2,H/2); $('zout').onclick=()=>zoomAt(1/1.3,W/2
 function addEl(e){ st.els.push(e); sel=e.id; update(true); renderProps(); }
 function delEl(id){ st.els=st.els.filter(e=>e.id!==id); sel=null; update(true); renderProps(); }
 function select(id){ sel=id; renderProps(); markRows(); render(); }
-const HINTS={select:'Raahaa pilaria tai seinää hiiren vasemmalla, seinän päästä raahaamalla muutat pituutta. Klikkaus avaa valikon (poisto, kohdistus). Rulla zoomaa, rulla pohjassa siirtää näkymää. Delete poistaa valitun.',
+const HINTS={select:'Raahaa pilaria tai seinää hiiren vasemmalla, seinän päästä raahaamalla muutat pituutta. Klikkaus avaa valikon (poisto, kohdistus, laatan kantosuunta). Valitun laatan kokoa muutetaan kulma- ja reunakahvoista, yhteen suuntaan kantavan laatan nuolta kierretään nuolen päässä olevasta pallosta. Rulla zoomaa, rulla pohjassa siirtää näkymää. Delete poistaa valitun.',
   slab:'Vedä laatta-alue nurkasta nurkkaan. Alueen kuorma jaetaan lähimmälle pilarille tai seinälle.',
   col:'Napauta pilarin paikka – pilari kohdistuu pohjakuvan pilarin keskelle. Olemassa olevaa pilaria voi raahata, klikkaus avaa valikon.',
   wall:'Vedä kantava seinä – seinä kohdistuu pohjakuvan seinän keskilinjaan. Klikkaus olemassa olevaan seinään avaa valikon.',
@@ -647,6 +707,7 @@ function flash(p){ flashP=p; clearTimeout(flashT); flashT=setTimeout(()=>{ flash
 /* ---------- objektin valikko ---------- */
 function hideMenu(){ const m=$('ctxm'); if(m&&!m.hidden){ m.hidden=true; m.innerHTML=''; } }
 function showMenu(e,px,py){
+  if(e.t==='slab') return showSlabMenu(e,px,py);
   const m=$('ctxm'),r=res&&res.out[e.id],isCol=e.t==='col';
   const info=isCol?(r?`N<sub>Ed</sub> ${fmt(r.N,0)} kN · ${r.d.label}`:''):(r?`L ${fmt(r.L,2)} m · n<sub>Ed</sub> ${fmt(r.n,0)} kN/m`+(e.th?` · t ≈ ${e.th} mm`:''):'');
   m.innerHTML=`<div class="mh">${isCol?'Pilari':'Seinä'} ${esc(e.id)}</div><div class="ms">${info}</div>
@@ -656,9 +717,28 @@ function showMenu(e,px,py){
   m.hidden=false; const cw=cv.clientWidth,ch=cv.clientHeight,mw=m.offsetWidth,mh=m.offsetHeight;
   m.style.left=Math.max(6,Math.min(px+10,cw-mw-6))+'px'; m.style.top=Math.max(6,Math.min(py+10,ch-mh-6))+'px';
   m.dataset.id=e.id; m.querySelector('button:not([disabled])').focus({preventScroll:true}); }
+function placeMenu(m,e,px,py){ m.hidden=false; const cw=cv.clientWidth,ch=cv.clientHeight,mw=m.offsetWidth,mh=m.offsetHeight;
+  m.style.left=Math.max(6,Math.min(px+10,cw-mw-6))+'px'; m.style.top=Math.max(6,Math.min(py+10,ch-mh-6))+'px';
+  m.dataset.id=e.id; m.querySelector('button:not([disabled])').focus({preventScroll:true}); }
+function showSlabMenu(e,px,py){
+  const m=$('ctxm'),A=Math.abs((e.x1-e.x0)*(e.y1-e.y0)),ck=v=>(e.span||'0')===v?'✓ ':'';
+  m.innerHTML=`<div class="mh">Laatta-alue ${esc(e.id)}</div><div class="ms">A = ${fmt(A,1)} m² · kantaa ${spanTxt(e)}</div>
+    <button role="menuitemradio" aria-checked="${e.span==='1'}" data-m="span1">${ck('1')}Kantaa yhteen suuntaan</button>
+    <button role="menuitemradio" aria-checked="${e.span==='4'}" data-m="span4">${ck('4')}Kantaa neljään suuntaan</button>
+    <button role="menuitemradio" aria-checked="${!e.span}" data-m="span0">${ck('0')}Ei kantosuuntaa (lähin tuki)</button>
+    ${e.span==='1'?'<button role="menuitem" data-m="rot90">Kierrä kantosuuntaa 90°</button>':''}
+    <button role="menuitem" data-m="edit">Venytä / muokkaa mittoja</button>
+    <button role="menuitem" data-m="del" class="danger">Poista ${esc(e.id)}</button>`;
+  placeMenu(m,e,px,py); }
 $('ctxm').addEventListener('click',ev=>{ const b=ev.target.closest('button[data-m]'); if(!b) return; const id=$('ctxm').dataset.id,e=byId(id); hideMenu(); if(!e) return;
+  if(e.t==='slab'&&/^span|^rot/.test(b.dataset.m)){ const k=b.dataset.m;
+    if(k==='span1'){ if(e.span!=='1'&&e.dir===undefined) e.dir=Math.abs(e.x1-e.x0)<=Math.abs(e.y1-e.y0)?0:90; e.span='1'; }
+    else if(k==='span4'){ e.span='4'; if(e.dir===undefined) e.dir=0; }
+    else if(k==='span0') delete e.span;
+    else if(k==='rot90') e.dir=(((+e.dir||0)+90)%180);
+    sel=e.id; setTool('select'); update(true); renderProps(); return; }
   if(b.dataset.m==='del') delEl(id);
-  else if(b.dataset.m==='edit'){ select(id); $('props').scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  else if(b.dataset.m==='edit'){ if(e.t==='slab') setTool('select'); select(id); $('props').scrollIntoView({behavior:'smooth',block:'nearest'}); }
   else if(b.dataset.m==='snap'){ let okk=false; if(e.t==='col'){ const q=pdfCol(e.p); if(q){ e.p=q; flash(q); okk=true; } } else okk=pdfWallFix(e);
     $('hint').textContent=okk?`${id} kohdistettu pohjakuvaan.`:`${id}: pohjakuvasta ei löytynyt ${e.t==='col'?'pilaria':'seinää'} läheltä. Siirrä lähemmäs ja yritä uudelleen.`; update(true); renderProps(); } });
 $('ctxm').addEventListener('keydown',ev=>{ if(ev.key==='Escape'){ hideMenu(); cv.focus(); } });
@@ -671,7 +751,10 @@ function renderProps(){
   if(!e){ P.innerHTML='<h2>Valittu osa</h2><p class="small" style="margin:0">Valitse osa kuvasta tai tulostaulukosta, tai piirrä uusi työkaluilla.</p>'; return; }
   const names={slab:'Laatta-alue',wall:'Seinä',col:'Pilari'}, r=res&&res.out[e.id];
   let h=`<h2>${names[e.t]} ${e.id}</h2>`;
-  if(e.t==='slab') h+=`<div class="f2">${numF('pX','X [m]',Math.min(e.x0,e.x1))}${numF('pY','Y [m]',Math.min(e.y0,e.y1))}${numF('pW','Leveys x [m]',Math.abs(e.x1-e.x0))}${numF('pH','Syvyys y [m]',Math.abs(e.y1-e.y0))}</div><p class="small" style="margin:6px 0 0">Pinta-ala ${fmt(Math.abs((e.x1-e.x0)*(e.y1-e.y0)),2)} m².</p>`;
+  if(e.t==='slab') h+=`<div class="f2">${numF('pX','X [m]',Math.min(e.x0,e.x1))}${numF('pY','Y [m]',Math.min(e.y0,e.y1))}${numF('pW','Leveys x [m]',Math.abs(e.x1-e.x0))}${numF('pH','Syvyys y [m]',Math.abs(e.y1-e.y0))}</div><p class="small" style="margin:6px 0 0">Pinta-ala ${fmt(Math.abs((e.x1-e.x0)*(e.y1-e.y0)),2)} m².</p>
+    <div class="f2" style="margin-top:8px"><label class="fl">Kantosuunta<select id="pSpan"><option value="0"${!e.span?' selected':''}>Ei valittu (lähin tuki)</option><option value="1"${e.span==='1'?' selected':''}>Yhteen suuntaan</option><option value="4"${e.span==='4'?' selected':''}>Neljään suuntaan</option></select></label>
+    ${e.span?numF('pDir',e.span==='1'?'Kantosuunnan kulma [°]':'Nuolten kulma [°]',+e.dir||0,15):''}</div>
+    <p class="small" style="margin:6px 0 0">0° = x-suunta, 90° = y-suunta. Venytä laattaa kuvassa kulma- ja reunakahvoista${e.span==='1'?', kierrä kantosuuntaa nuolen päässä olevasta pallosta':''}.</p>`;
   else if(e.t==='col'){ h+=`<div class="f2">${numF('pPx','X [m]',e.p[0])}${numF('pPy','Y [m]',e.p[1])}</div>`;
     if(r) h+=`<div class="calc" style="margin-top:6px">${row('Kuormitusala','A = '+fmt(r.A,2)+' m²')}${row('N<sub>Ed</sub> alin kerros',fmt(res.qd,2)+' · '+fmt(r.A,2)+' · '+res.n+' = <b>'+fmt(r.N,0)+' kN</b>')}${row('Alustava koko','<b>'+r.d.label+'</b>'+(r.d.tRow?', raudoitus '+r.d.tRow[2]:''))}</div>`; }
   else { h+=`<div class="f2">${numF('pAx','Alku X [m]',e.a[0])}${numF('pAy','Alku Y [m]',e.a[1])}${numF('pBx','Loppu X [m]',e.b[0])}${numF('pBy','Loppu Y [m]',e.b[1])}</div>`;
@@ -681,6 +764,8 @@ function renderProps(){
   const on=(id,fn)=>{ const i=$(id); if(i) i.onchange=()=>{ const v=parseFloat(i.value); if(!isFinite(v)) return; fn(v); update(true); renderProps(); }; };
   on('pX',v=>{ const w=Math.abs(e.x1-e.x0); e.x0=v; e.x1=v+w; }); on('pY',v=>{ const hh=Math.abs(e.y1-e.y0); e.y0=v; e.y1=v+hh; });
   on('pW',v=>{ if(v>0){ e.x0=Math.min(e.x0,e.x1); e.x1=e.x0+v; } }); on('pH',v=>{ if(v>0){ e.y0=Math.min(e.y0,e.y1); e.y1=e.y0+v; } });
+  on('pDir',v=>{ e.dir=((v%180)+180)%180; });
+  const ps=$('pSpan'); if(ps) ps.onchange=()=>{ const v=ps.value; if(v==='0') delete e.span; else { if(e.dir===undefined) e.dir=v==='1'&&Math.abs(e.x1-e.x0)>Math.abs(e.y1-e.y0)?90:0; e.span=v; } update(true); renderProps(); };
   on('pPx',v=>e.p[0]=v); on('pPy',v=>e.p[1]=v); on('pAx',v=>e.a[0]=v); on('pAy',v=>e.a[1]=v); on('pBx',v=>e.b[0]=v); on('pBy',v=>e.b[1]=v);
   $('pDel').onclick=()=>delEl(e.id);
 }
@@ -711,7 +796,8 @@ function renderResults(){
   $('warns').innerHTML=r.warns.map(w=>`<li>${esc(w)}</li>`).join('');
   const l0=+f.l0||3;
   $('method').innerHTML=
-    row('Kuormitusalat','laatta-alueen jokainen kohta kuuluu lähimmälle pilarille tai seinälle (lähimmän tuen jako, vrt. Voronoi). Karkea menetelmä: jatkuvuutta, kantosuuntaa ja ulokkeita ei huomioida.')+
+    row('Kuormitusalat','laatta-alueen jokainen kohta kuuluu lähimmälle pilarille tai seinälle (lähimmän tuen jako, vrt. Voronoi), kun kantosuuntaa ei ole valittu. Karkea menetelmä: jatkuvuutta ja ulokkeita ei huomioida.')+
+    row('Kantosuunta','yhteen suuntaan kantava laatta: kohta kuuluu tuelle, jonka se kohtaa ensimmäisenä kantosuuntaan (nuolen suuntaan tai vastakkaiseen) laatan sisällä, eli kuorma jakautuu kantosuunnan päätytuille. Neljään suuntaan kantava: sama neljään suuntaan (nuolten suunnat), jolloin neljältä sivulta tuettu suorakaidelaatta jakautuu 45° linjoin kolmioihin ja puolisuunnikkaisiin. Jos säde ei osu tukeen, käytetään lähintä tukea.')+
     row('Pilarikuorma','N<sub>Ed</sub> = q<sub>d</sub> · A · kerrosmäärä (pilarin omaa painoa ei lisätä)')+
     row('Seinäkuorma','n<sub>Ed</sub> = q<sub>d</sub> · A · kerrosmäärä / L')+
     row('Pilarin alustava koko','A<sub>c</sub> = N<sub>Ed</sub> / (0,8 · f<sub>cd</sub>), f<sub>cd</sub> = 0,85 · f<sub>ck</sub> / 1,5; sivu = √A<sub>c</sub> (pyöreä: d = √(4A<sub>c</sub>/π)) pyöristettynä ylöspäin vakiokokoon')+

@@ -1,0 +1,1020 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kahvakuulatreeni – Lastutec</title>
+<meta name="description" content="Kahvakuulatreenien ohjelmat, viikkosuunnitelma, treenipäiväkirja, kehityksen seuranta ja intervalliajastin.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#1b1c1f">
+<style>
+:root{
+  --bg:#1b1c1f; --paper:#24262a; --paper2:#2b2d32; --ink:#e9e6e0; --muted:#aeaba4; --line:#3d4046; --line2:#33353a;
+  --accent:#E3824F; --accent-soft:#3e2c24; --input:#2c2723; --ok:#82c79f; --ok-soft:#24342b; --bad:#e8907f; --warn:#e2c47f; --blue:#92b8dd;
+  --body:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 96px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:800;margin:0}
+h3{font-size:15px;font-weight:700;margin:0}
+.meta{font-size:12px;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+p{margin:0}
+.tab{display:flex;flex-direction:column;gap:16px}
+
+/* välilehdet */
+.tabs{position:sticky;top:0;z-index:20;background:var(--bg);display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);padding-top:6px;scrollbar-width:none;margin-top:-4px}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;font:600 14px var(--body);color:var(--muted);background:none;border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;padding:9px 14px;cursor:pointer;position:relative}
+.tabs button:hover{color:var(--ink)}
+.tabs button.on{background:var(--paper);color:var(--ink);border-color:var(--line);margin-bottom:-1px}
+.tabs .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-left:6px;vertical-align:2px}
+
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.between{justify-content:space-between}
+.grow{flex:1 1 auto}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btnrow.end{justify-content:flex-end}
+.btn{font:600 13.5px var(--body);color:#1b1c1f;background:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:8px 14px;cursor:pointer;min-height:38px;line-height:1.2;white-space:nowrap}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--accent);filter:none}
+.btn.sm{padding:4px 10px;min-height:30px;font-size:12.5px}
+.btn.danger{background:transparent;color:var(--bad);border-color:var(--line)}
+.btn.danger:hover{border-color:var(--bad)}
+.btn.ok{background:var(--ok);border-color:var(--ok)}
+.btn:disabled{opacity:.45;cursor:default;filter:none}
+.ib{width:34px;height:34px;display:inline-grid;place-items:center;font:700 16px var(--body);color:var(--ink);background:var(--paper2);border:1px solid var(--line);border-radius:6px;cursor:pointer;padding:0;flex:none}
+.ib:hover{border-color:var(--accent)}
+.ib.sm{width:28px;height:28px;font-size:13px}
+.ib.del:hover{border-color:var(--bad);color:var(--bad)}
+
+label{display:block;font-size:13px;color:var(--muted);min-width:0}
+input,select,textarea{display:block;margin-top:3px;font-family:var(--body);font-size:15px;padding:7px 9px;border:1px solid var(--line);border-radius:5px;background:var(--input);color:var(--ink);width:100%;min-width:0}
+select{background:var(--bg)}
+textarea{resize:vertical;min-height:70px;line-height:1.45}
+input[type=checkbox]{width:auto;display:inline-block;margin:0;accent-color:var(--accent)}
+input::placeholder,textarea::placeholder{color:#7d7a74}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:10px 14px}
+.chk{display:flex;gap:8px;align-items:center;color:var(--ink);font-size:14px}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:8px}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.tile .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.tile .s{font-size:12px;color:var(--muted)}
+.tile.main{border-color:var(--accent)} .tile.main .v{color:var(--accent)}
+.empty{color:var(--muted);font-size:13px}
+.card-empty{border:1px dashed var(--line);border-radius:6px;padding:22px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:12px;align-items:center}
+
+/* suunnitelma */
+.wknav{display:flex;align-items:center;gap:8px}
+.wknav h2{font-size:16px;min-width:0}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.day{background:var(--bg);border:1px solid var(--line2);border-radius:6px;padding:8px;min-height:130px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.day.today{border-color:var(--accent)}
+.day .dh{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:13px}
+.day.today .dh b{color:var(--accent)}
+.chips{display:flex;flex-direction:column;gap:6px}
+.chip{display:block;text-align:left;width:100%;font:600 12.5px/1.3 var(--body);padding:6px 8px;border-radius:5px;border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--paper2);color:var(--ink);cursor:pointer;overflow-wrap:anywhere}
+.chip:hover{border-color:var(--accent)}
+.chip small{display:block;font-weight:400;color:var(--muted);margin-top:2px}
+.chip.done{border-left-color:var(--ok);background:var(--ok-soft)}
+.chip.missed{border-left-color:var(--muted);opacity:.7}
+@media (max-width:860px){
+  .week{grid-template-columns:minmax(0,1fr);gap:6px}
+  .day{min-height:0;display:grid;grid-template-columns:86px minmax(0,1fr);align-items:start}
+  .day .dh{flex-direction:column;align-items:flex-start;gap:4px}
+}
+
+/* treeni */
+.loghead{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px 12px}
+.grp{border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.grp>.gh{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.grp>.gh span{color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0}
+.ex{background:var(--paper2);border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.ex.alldone{border-color:var(--ok)}
+.exh{display:flex;gap:8px;align-items:center}
+.exh input{margin:0;font-weight:700;font-size:15.5px}
+.tgt{font-size:13px;color:var(--ink)}
+.tgt b{color:var(--accent);font-weight:700}
+.tgt .n{color:var(--warn)}
+.prev{font-size:12.5px;color:var(--muted)}
+details.info{font-size:12.5px;color:var(--muted)}
+details.info summary{cursor:pointer;color:var(--muted)}
+details.info p{margin-top:4px;max-width:85ch}
+.sets{border-collapse:collapse;width:100%;font-size:14px}
+.sets th{font-size:11.5px;color:var(--muted);font-weight:600;text-align:left;padding:2px 4px}
+.sets td{padding:3px 4px;vertical-align:middle}
+.sets td:first-child{width:28px;color:var(--muted);font-size:12.5px;text-align:center}
+.sets input[type=text]{margin:0;padding:7px 8px;font-variant-numeric:tabular-nums}
+.sets td.c{width:52px;text-align:center}
+.sets td.x{width:36px;text-align:right}
+.sets tr.done input[type=text]{border-color:#4d6b58;background:var(--ok-soft)}
+.bigchk{width:30px!important;height:30px;accent-color:var(--ok);cursor:pointer}
+.logfoot{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px 12px}
+.sumline{font-size:13.5px;color:var(--muted)}
+.sumline b{color:var(--ink)}
+.stickysave{position:sticky;bottom:0;z-index:10;background:linear-gradient(transparent,var(--bg) 30%);padding:18px 0 6px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+
+/* ohjelmat */
+.progwrap{display:grid;grid-template-columns:270px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:900px){.progwrap{grid-template-columns:minmax(0,1fr)}}
+.plist{display:flex;flex-direction:column;gap:6px}
+.pitem{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:5px;border:1px solid var(--line);border-left:4px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;font:600 14px var(--body)}
+.pitem small{display:block;color:var(--muted);font-weight:400;font-size:12px;margin-top:2px}
+.pitem.on{border-left-color:var(--accent);background:var(--accent-soft)}
+.pitem:hover{border-color:var(--accent)}
+.wkhead{display:flex;align-items:center;gap:10px;margin-top:6px}
+.wkhead h3{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent)}
+.wkhead::after{content:"";flex:1;border-top:1px solid var(--line)}
+.sess{border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.sess>summary{list-style:none;cursor:pointer;padding:10px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sess>summary::-webkit-details-marker{display:none}
+.sess>summary::before{content:"▸";color:var(--muted);font-size:12px;width:10px}
+.sess[open]>summary::before{content:"▾"}
+.sess>summary .t{font-weight:700;flex:1 1 200px;min-width:0}
+.sess>summary .t small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.sess .sb{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
+.ihead,.it{display:grid;grid-template-columns:44px minmax(150px,2.2fr) 58px 96px 78px 96px minmax(110px,1.6fr) auto;gap:6px;align-items:center}
+.ihead{font-size:11.5px;color:var(--muted);font-weight:600;padding:0 2px}
+.it input{margin:0;padding:6px 7px;font-size:14px}
+.it .ops{display:flex;gap:4px}
+.it .gsel{text-align:center;padding:6px 2px}
+@media (max-width:760px){
+  .ihead{display:none}
+  .it{grid-template-columns:44px 1fr 1fr 1fr;padding:8px;border:1px solid var(--line2);border-radius:5px;background:var(--paper)}
+  .it .nm{grid-column:2 / -1}
+  .it .nt{grid-column:1 / -1}
+  .it .ops{grid-column:1 / -1;justify-content:flex-end}
+}
+.ssum{font-size:12.5px;color:var(--muted)}
+
+/* historia */
+.tablewrap{overflow-x:auto}
+table.list{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+table.list th,table.list td{padding:7px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+table.list th{font-size:12px;font-weight:600;color:var(--muted)}
+table.list th.l,table.list td.l{text-align:left}
+table.list td.l{white-space:normal;min-width:160px}
+table.list tr.click{cursor:pointer}
+table.list tr.click:hover td{background:var(--paper2)}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font:11px var(--body);fill:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:10px;margin-right:6px;vertical-align:0;border-radius:2px}
+.cols2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+@media (max-width:900px){.cols2{grid-template-columns:minmax(0,1fr)}}
+
+/* ajastin */
+.timer{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 10px;border-radius:8px;background:var(--bg);border:1px solid var(--line);transition:background .3s,border-color .3s}
+.timer .ph{font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.timer .clock{font-size:clamp(64px,20vw,140px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.02em}
+.timer .rd{font-size:15px;color:var(--muted)}
+.timer.work{background:#3a281f;border-color:var(--accent)} .timer.work .ph{color:var(--accent)}
+.timer.rest{background:#1f2e27;border-color:var(--ok)} .timer.rest .ph{color:var(--ok)}
+.timer.prep{border-color:var(--warn)} .timer.prep .ph{color:var(--warn)}
+.prog{width:100%;max-width:520px;height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);width:0}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{font:600 12.5px var(--body);padding:6px 11px;border-radius:99px;border:1px solid var(--line);background:var(--paper2);color:var(--ink);cursor:pointer}
+.presets button:hover{border-color:var(--accent)}
+
+/* lepotauko, ilmoitukset, dialogit */
+#restbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(68px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:center;gap:10px;background:#1f2e27;border:1px solid var(--ok);border-radius:999px;padding:7px 8px 7px 18px;box-shadow:0 8px 28px rgba(0,0,0,.45);max-width:calc(100vw - 24px)}
+#restbar .rt{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;min-width:62px}
+#restbar .rl{max-width:46vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+#restbar.over{background:#3a281f;border-color:var(--accent)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);top:14px;z-index:60;background:var(--paper2);border:1px solid var(--line);border-left:4px solid var(--ok);padding:10px 16px;border-radius:6px;font-size:14px;box-shadow:0 8px 28px rgba(0,0,0,.45);max-width:calc(100vw - 24px)}
+dialog{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 32px)}
+dialog::backdrop{background:rgba(10,10,12,.62)}
+dialog form{padding:18px;display:flex;flex-direction:column;gap:14px}
+dialog .dbody{display:flex;flex-direction:column;gap:12px;overflow:auto}
+dialog .wd{display:flex;flex-wrap:wrap;gap:6px}
+dialog .wd label{display:flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:5px;padding:6px 9px;color:var(--ink);font-size:13.5px;cursor:pointer}
+.logview{display:flex;flex-direction:column;gap:6px;font-size:13.5px}
+.logview .lx{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--line);padding-bottom:5px}
+.logview .lx span:last-child{color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+code,pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px}
+pre.fmt{background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:10px 12px;margin:0;white-space:pre-wrap;color:var(--muted)}
+.foot{font-size:12.5px;color:var(--muted);margin:0;max-width:90ch}
+@media print{.tabs,#restbar,.stickysave,.btn,.ib{display:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Vapaa-aika</a><h1>Kahvakuulatreeni</h1></div>
+  <div class="hdr-r"><span class="meta">Laatinut: INS (YAMK) Atte Lastuvirta</span></div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Näkymät">
+  <button data-tab="plan" class="on">Suunnitelma</button>
+  <button data-tab="log">Treeni<span class="dot" id="draftDot" hidden></span></button>
+  <button data-tab="prog">Ohjelmat</button>
+  <button data-tab="hist">Historia</button>
+  <button data-tab="timer">Ajastin</button>
+  <button data-tab="data">Tiedot</button>
+</nav>
+
+<!-- SUUNNITELMA -->
+<section id="tab-plan" class="tab">
+  <div class="tiles" id="planTiles"></div>
+  <div class="panel">
+    <div class="row between">
+      <div class="wknav">
+        <button class="ib" data-act="wk-prev" aria-label="Edellinen viikko">‹</button>
+        <h2 id="wkTitle"></h2>
+        <button class="ib" data-act="wk-next" aria-label="Seuraava viikko">›</button>
+        <button class="btn ghost sm" data-act="wk-today">Tämä viikko</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn ghost" data-act="free-today">+ Vapaa treeni tänään</button>
+        <button class="btn" data-act="schedule">Ajoita ohjelma</button>
+      </div>
+    </div>
+    <div class="week" id="week"></div>
+    <p class="foot">Napauta suunniteltua treeniä aloittaaksesi sen, siirtääksesi sen toiselle päivälle tai poistaaksesi sen. Vihreä = tehty, harmaa = väliin jäänyt.</p>
+  </div>
+</section>
+
+<!-- TREENI -->
+<section id="tab-log" class="tab" hidden></section>
+
+<!-- OHJELMAT -->
+<section id="tab-prog" class="tab" hidden>
+  <div class="progwrap">
+    <div class="panel">
+      <div class="row between"><h2>Ohjelmat</h2></div>
+      <div class="plist" id="plist"></div>
+      <div class="btnrow">
+        <button class="btn sm" data-act="prog-new">+ Uusi ohjelma</button>
+        <button class="btn ghost sm" data-act="import-text">Tuo tekstinä</button>
+      </div>
+    </div>
+    <div id="pedit"></div>
+  </div>
+</section>
+
+<!-- HISTORIA -->
+<section id="tab-hist" class="tab" hidden></section>
+
+<!-- AJASTIN -->
+<section id="tab-timer" class="tab" hidden>
+  <div class="panel">
+    <div class="timer" id="tmBox">
+      <div class="ph" id="tmPh">Valmiina</div>
+      <div class="clock" id="tmClock">00:00</div>
+      <div class="rd" id="tmRd">&nbsp;</div>
+      <div class="prog"><i id="tmProg"></i></div>
+      <div class="btnrow">
+        <button class="btn" id="tmStart" data-act="tm-start" style="min-width:110px">Aloita</button>
+        <button class="btn ghost" data-act="tm-reset">Nollaa</button>
+        <button class="btn ghost" data-act="tm-skip">Ohita vaihe</button>
+      </div>
+    </div>
+    <div class="presets" id="tmPresets"></div>
+    <div class="inputs">
+      <label>Työ (s)<input type="number" inputmode="numeric" min="0" id="tmWork"></label>
+      <label>Lepo (s)<input type="number" inputmode="numeric" min="0" id="tmRest"></label>
+      <label>Kierrokset<input type="number" inputmode="numeric" min="1" id="tmRounds"></label>
+      <label>Valmistautuminen (s)<input type="number" inputmode="numeric" min="0" id="tmPrep"></label>
+    </div>
+    <p class="foot" id="tmTotal"></p>
+    <p class="foot">Äänimerkit: kolme lyhyttä piippausta vaiheen viimeisillä sekunneilla ja pitkä vaiheen vaihtuessa. Näyttö pidetään päällä ajastimen käydessä, jos selain sen sallii. EMOM: työ 60 s, lepo 0 s.</p>
+  </div>
+</section>
+
+<!-- TIEDOT -->
+<section id="tab-data" class="tab" hidden></section>
+</div>
+
+<div id="restbar" hidden role="status" aria-live="polite">
+  <div><div class="rl" id="rbLabel">Lepo</div><div class="rt" id="rbTime">0:00</div></div>
+  <button class="btn ghost sm" data-act="rest-plus">+15 s</button>
+  <button class="btn ghost sm" data-act="rest-stop">Ohita</button>
+</div>
+<div id="toast" hidden role="status" aria-live="polite"></div>
+<dialog id="dlg"></dialog>
+<datalist id="exlist"></datalist>
+<input type="file" id="fileIn" accept=".json,application/json" hidden>
+
+<script>
+(()=>{
+'use strict';
+const LS='lt-kahvakuula-v1';
+const DEF_EX=['Kettlebell Swing','Single Arm Kettlebell Swing','Goblet Squat','Kettlebell Clean','Double Kettlebell Clean','Kettlebell Strict Press','Push Press','Kettlebell Snatch','Turkish Get-up','Kettlebell Row','Kettlebell Deadlift','Suitcase Deadlift','Kettlebell Windmill','Kettlebell Halo','Front Rack Squat','Reverse Lunge','Farmer Carry','Kettlebell Floor Press','Kettlebell Thruster','Push-up','Plank'];
+const WD=['ma','ti','ke','to','pe','la','su'];
+const WDL=['maanantai','tiistai','keskiviikko','torstai','perjantai','lauantai','sunnuntai'];
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+/* ---------- tila ---------- */
+function blank(){return {v:1,programs:[],plans:[],logs:[],exercises:DEF_EX.slice(),timer:{work:30,rest:30,rounds:10,prep:10},draft:null,ui:{}}}
+function load(){
+  let d=null; try{d=JSON.parse(localStorage.getItem(LS)||'null')}catch(e){}
+  if(!d||typeof d!=='object') d=blank();
+  const b=blank(); for(const k in b) if(d[k]==null) d[k]=b[k];
+  return d;
+}
+let S=load();
+let saveT=0, storageWarned=false;
+function save(){clearTimeout(saveT);saveT=0;try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){if(!storageWarned){storageWarned=true;toast('Tallennus ei onnistunut: selaimen tallennustila ei ole käytettävissä tai on täynnä. Ota varmuuskopio Tiedot-välilehdeltä.',true)}}}
+function saveSoon(){clearTimeout(saveT);saveT=setTimeout(save,400)}
+addEventListener('pagehide',()=>{if(saveT)save()});
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&saveT)save()});
+
+/* ---------- apufunktiot ---------- */
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function pISO(s){const [y,m,d]=String(s).split('-').map(Number);return new Date(y,(m||1)-1,d||1)}
+function addDays(d,n){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()+n);return x}
+function monday(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());return addDays(x,-((x.getDay()+6)%7))}
+function wdi(d){return (d.getDay()+6)%7}
+function isoWeek(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);const y=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y)/864e5+1)/7)}
+function fmtD(s,long){const d=pISO(s);return (long?WDL:WD)[wdi(d)]+' '+d.getDate()+'.'+(d.getMonth()+1)+'.'}
+function fmtDY(s){const d=pISO(s);return d.getDate()+'.'+(d.getMonth()+1)+'.'+d.getFullYear()}
+const today=()=>iso(new Date());
+const nf=new Intl.NumberFormat('fi-FI',{maximumFractionDigits:1});
+function fmtKg(n){n=+n||0;return n>=1000?nf.format(Math.round(n/100)/10)+' t':nf.format(Math.round(n))+' kg'}
+function num(s){const m=String(s??'').replace(',','.').match(/\d+(\.\d+)?/);return m?parseFloat(m[0]):0}
+function isTime(r){return /\d\s*(s|sec|sek|min)\b|^\s*\d+\s*(s|sek)\s*$/i.test(String(r??''))}
+function repsN(r){r=String(r??'').trim();if(!r||isTime(r))return 0;if(/\d\s*\/\s*\d/.test(r))return r.split('/').reduce((a,b)=>a+num(b),0);return num(r)}
+function kgN(k){k=String(k??'').trim().replace(',','.');const m=k.match(/^(\d+)\s*[x×*]\s*(\d+(?:\.\d+)?)/i);if(m)return m[1]*m[2];return num(k)}
+function restN(r){return num(r)}
+function setVol(s,itKg){return repsN(s.reps)*kgN(s.kg!==''&&s.kg!=null?s.kg:itKg)}
+function logStats(l){let sets=0,reps=0,vol=0;for(const it of l.items||[])for(const s of it.sets||[]){if(!s.done)continue;sets++;reps+=repsN(s.reps);vol+=setVol(s)}return {sets,reps,vol}}
+function cleanReps(r){r=String(r??'').trim();return r.replace(/\s*reps?\b/i,'').trim()}
+function prefillReps(r){r=cleanReps(r);return /^\d+$/.test(r)?r:''}
+const GLBL=g=>g==='K'?'Kiertoharjoitus':'Supersarja '+g;
+function sLabel(s){return (s.week?'Vk '+s.week+(s.day?' · '+s.day:'')+' – ':'')+(s.name||'Treeni')}
+function findProg(id){return S.programs.find(p=>p.id===id)}
+function findSess(p,id){return p&&p.sessions.find(s=>s.id===id)}
+function exList(){const set=new Map();for(const e of S.exercises)set.set(e.toLowerCase(),e);for(const p of S.programs)for(const s of p.sessions)for(const it of s.items)if(it.name)set.set(it.name.toLowerCase(),it.name);return [...set.values()].sort((a,b)=>a.localeCompare(b,'fi'))}
+function refreshDatalist(){$('#exlist').innerHTML=exList().map(e=>`<option value="${esc(e)}">`).join('')}
+function targetText(it){
+  const parts=[];const r=cleanReps(it.reps);
+  parts.push(`<b>${esc(it.sets||1)} × ${esc(r||'?')}</b>`+(isTime(it.reps)||!r?'':''));
+  if(it.kg) parts.push('@ '+esc(it.kg)+' kg');
+  if(it.rest) parts.push('lepo '+esc(String(it.rest).replace(/\s*sec\b/,' s')));
+  let h=parts.join(' · ');
+  if(it.note) h+=` · <span class="n">${esc(it.note)}</span>`;
+  return h;
+}
+function lastPerf(name,exceptId){
+  const k=String(name||'').trim().toLowerCase(); if(!k) return null;
+  const logs=S.logs.filter(l=>l.id!==exceptId).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+  for(const l of logs){const it=(l.items||[]).find(i=>String(i.name).trim().toLowerCase()===k);if(it&&it.sets.some(s=>s.done))return {log:l,it}}
+  return null;
+}
+function perfText(p){const done=p.it.sets.filter(s=>s.done);const kgs=[...new Set(done.map(s=>String(s.kg||'').trim()).filter(Boolean))];return `${fmtD(p.log.date)} ${fmtDY(p.log.date).split('.').pop()}: ${done.map(s=>s.reps||'–').join(', ')}${kgs.length?' @ '+kgs.join('/')+' kg':''}`}
+
+/* ---------- ilmoitus ja dialogi ---------- */
+let toastT=0;
+function toast(m,warn){const t=$('#toast');t.textContent=m;t.style.borderLeftColor=warn?'var(--bad)':'var(--ok)';t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,warn?6000:2600)}
+function dlg(title,body,btns){
+  return new Promise(res=>{
+    const d=$('#dlg');
+    d.innerHTML=`<form method="dialog"><h2>${esc(title)}</h2><div class="dbody">${body}</div><div class="btnrow end">${btns.map(b=>`<button value="${b.v}" class="${b.cls||'btn ghost'}"${b.v===''?' formnovalidate':''}>${esc(b.l)}</button>`).join('')}</div></form>`;
+    d.returnValue='';
+    d.onclose=()=>{const f=d.querySelector('form');const data=f?Object.fromEntries(new FormData(f)):{};const all=f?new FormData(f):null;res({v:d.returnValue,data,all,form:f})};
+    d.showModal();
+    const first=d.querySelector('input:not([type=checkbox]),select,textarea');if(first&&matchMedia('(pointer:fine)').matches)first.focus();
+  });
+}
+async function confirmDlg(title,text,okLabel,danger){const r=await dlg(title,`<p>${text}</p>`,[{l:'Peruuta',v:''},{l:okLabel||'OK',v:'ok',cls:danger?'btn danger':'btn'}]);return r.v==='ok'}
+
+/* ---------- äänet ja näytön valvetila ---------- */
+let AC=null;
+function audio(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}return AC}
+function beep(f=880,d=.12,v=.3){const a=audio();if(!a)return;try{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(v,a.currentTime);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+d);o.connect(g).connect(a.destination);o.start();o.stop(a.currentTime+d+.03)}catch(e){}}
+function longBeep(){beep(660,.5,.35);try{navigator.vibrate&&navigator.vibrate([180,80,180])}catch(e){}}
+let wakeLock=null;
+async function wake(on){try{if(on&&!wakeLock&&navigator.wakeLock){wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>wakeLock=null)}else if(!on&&wakeLock){await wakeLock.release();wakeLock=null}}catch(e){}}
+function needWake(){return tm.running||rest.end>0}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&needWake())wake(true)});
+
+/* ---------- välilehdet ---------- */
+let curTab='plan';
+function showTab(t){
+  curTab=t;
+  $$('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  $$('.tab').forEach(s=>s.hidden=s.id!=='tab-'+t);
+  render(t);
+  try{sessionStorage.setItem('lt-kk-tab',t)}catch(e){}
+  window.scrollTo({top:0});
+}
+function render(t){({plan:renderPlan,log:renderLog,prog:renderProg,hist:renderHist,timer:renderTimer,data:renderData})[t||curTab]();$('#draftDot').hidden=!S.draft}
+$('.tabs').addEventListener('click',e=>{const b=e.target.closest('button[data-tab]');if(b)showTab(b.dataset.tab)});
+
+/* =========================================================
+   SUUNNITELMA
+   ========================================================= */
+let wkStart=monday(new Date());
+function planLog(p){return p.doneLogId&&S.logs.find(l=>l.id===p.doneLogId)}
+function renderPlan(){
+  const ws=wkStart,we=addDays(ws,6),td=today();
+  $('#wkTitle').textContent=`Vk ${isoWeek(ws)} · ${ws.getDate()}.${ws.getMonth()+1}.–${we.getDate()}.${we.getMonth()+1}.${we.getFullYear()}`;
+  let h='';
+  for(let i=0;i<7;i++){
+    const d=iso(addDays(ws,i));
+    const plans=S.plans.filter(p=>p.date===d);
+    const linked=new Set(plans.map(p=>p.doneLogId).filter(Boolean));
+    const logs=S.logs.filter(l=>l.date===d&&!linked.has(l.id));
+    h+=`<div class="day${d===td?' today':''}"><div class="dh"><b>${fmtD(d)}</b><button class="ib sm" data-act="day-add" data-date="${d}" aria-label="Lisää treeni: ${fmtD(d,1)}">+</button></div><div class="chips">`;
+    for(const p of plans){const l=planLog(p);const cls=l?'done':(d<td?'missed':'');h+=`<button class="chip ${cls}" data-act="plan-open" data-id="${p.id}">${l?'✓ ':''}${esc(p.title)}<small>${esc(p.programName||'')}${l?' · '+fmtKg(logStats(l).vol):''}</small></button>`}
+    for(const l of logs){h+=`<button class="chip done" data-act="log-open" data-id="${l.id}">✓ ${esc(l.title||'Treeni')}<small>${esc(l.programName||'Vapaa treeni')} · ${fmtKg(logStats(l).vol)}</small></button>`}
+    if(!plans.length&&!logs.length)h+=`<span class="empty">–</span>`;
+    h+='</div></div>';
+  }
+  $('#week').innerHTML=h;
+  // tunnusluvut
+  const cws=iso(monday(new Date())),cwe=iso(addDays(monday(new Date()),6));
+  const wPlans=S.plans.filter(p=>p.date>=cws&&p.date<=cwe);
+  const wLogs=S.logs.filter(l=>l.date>=cws&&l.date<=cwe);
+  const wVol=wLogs.reduce((a,l)=>a+logStats(l).vol,0);
+  const next=S.plans.filter(p=>p.date>=td&&!planLog(p)).sort((a,b)=>a.date<b.date?-1:1)[0];
+  const tPlans=S.plans.filter(p=>p.date===td&&!planLog(p));
+  $('#planTiles').innerHTML=
+    `<div class="tile main"><span class="k">Seuraava treeni</span><span class="v" style="font-size:18px">${next?esc(next.title):'–'}</span><span class="s">${next?(next.date===td?'tänään':fmtD(next.date,1))+' · '+esc(next.programName||''):'Ajoita ohjelma kalenteriin'}</span>${next&&next.date<=td?`<button class="btn sm" style="margin-top:6px;align-self:flex-start" data-act="plan-start" data-id="${next.id}">Aloita</button>`:''}</div>`+
+    `<div class="tile"><span class="k">Tällä viikolla</span><span class="v">${wLogs.length} / ${Math.max(wPlans.length,wLogs.length)}</span><span class="s">treeniä tehty / suunniteltu</span></div>`+
+    `<div class="tile"><span class="k">Volyymi tällä viikolla</span><span class="v">${fmtKg(wVol)}</span><span class="s">toistot × kg, tehdyt sarjat</span></div>`+
+    `<div class="tile"><span class="k">Treenejä yhteensä</span><span class="v">${S.logs.length}</span><span class="s">${S.programs.length} ohjelmaa</span></div>`;
+}
+function progOptions(sel){
+  let h='<option value="">Vapaa treeni (tyhjä pohja)</option>';
+  for(const p of S.programs){h+=`<optgroup label="${esc(p.name)}">`+p.sessions.map(s=>`<option value="${p.id}|${s.id}"${sel===p.id+'|'+s.id?' selected':''}>${esc(sLabel(s))}</option>`).join('')+'</optgroup>'}
+  return h;
+}
+function nextSessionFor(p){
+  // seuraava treeni: viimeisimmän tehdyn jälkeen ohjelman järjestyksessä
+  const done=S.logs.filter(l=>l.programId===p.id).sort((a,b)=>a.date<b.date?1:-1)[0];
+  if(!done)return p.sessions[0];
+  const i=p.sessions.findIndex(s=>s.id===done.sessionId);
+  return p.sessions[Math.min(p.sessions.length-1,i+1)]||p.sessions[0];
+}
+async function dayAdd(date){
+  let def='';const lastP=S.programs.find(p=>p.id===S.ui.lastProg)||S.programs[0];
+  if(lastP){const n=nextSessionFor(lastP);if(n)def=lastP.id+'|'+n.id}
+  const r=await dlg('Treeni '+fmtD(date,1),`<label>Treeni<select name="ps">${progOptions(def)}</select></label><label>Päivä<input type="date" name="date" value="${date}" required></label>`,
+    [{l:'Peruuta',v:''},{l:'Lisää suunnitelmaan',v:'plan'},{l:'Aloita nyt',v:'start',cls:'btn'}]);
+  if(!r.v)return;
+  const [pid,sid]=(r.data.ps||'|').split('|');const d=r.data.date||date;
+  if(r.v==='plan'){
+    if(!pid){addPlan({date:d,title:'Vapaa treeni',programId:'',sessionId:''})}
+    else{const p=findProg(pid),s=findSess(p,sid);addPlan({date:d,title:sLabel(s),programId:pid,programName:p.name,sessionId:sid})}
+    S.ui.lastProg=pid||S.ui.lastProg;save();renderPlan();toast('Lisätty suunnitelmaan');
+  }else startDraft({date:d,programId:pid,sessionId:sid});
+}
+function addPlan(o){S.plans.push({id:uid(),...o})}
+async function planOpen(id){
+  const p=S.plans.find(x=>x.id===id);if(!p)return;const l=planLog(p);
+  if(l)return logOpen(l.id);
+  const prog=findProg(p.programId),sess=findSess(prog,p.sessionId);
+  const body=`<p class="muted">${esc(p.programName||'Vapaa treeni')} · ${fmtD(p.date,1)} ${fmtDY(p.date)}</p>`+
+    (sess?`<div class="logview">${sess.items.map(it=>`<div class="lx"><span>${it.group?`<b style="color:var(--accent)">${esc(it.group)}</b> `:''}${esc(it.name)}</span><span>${esc(it.sets)} × ${esc(cleanReps(it.reps))}</span></div>`).join('')}</div>`:'')+
+    `<label>Siirrä päivälle<input type="date" name="date" value="${p.date}"></label>`;
+  const r=await dlg(p.title,body,[{l:'Poista',v:'del',cls:'btn danger'},{l:'Siirrä',v:'move'},{l:'Aloita treeni',v:'start',cls:'btn'}]);
+  if(r.v==='start')startDraft({date:p.date<today()?today():p.date,programId:p.programId,sessionId:p.sessionId,planId:p.id,title:p.title});
+  else if(r.v==='move'&&r.data.date){p.date=r.data.date;save();renderPlan();toast('Siirretty: '+fmtD(p.date,1))}
+  else if(r.v==='del'){S.plans=S.plans.filter(x=>x.id!==id);save();renderPlan()}
+}
+async function logOpen(id){
+  const l=S.logs.find(x=>x.id===id);if(!l)return;const st=logStats(l);
+  const body=`<p class="muted">${fmtD(l.date,1)} ${fmtDY(l.date)} · ${esc(l.programName||'Vapaa treeni')}${l.durationMin?' · '+esc(l.durationMin)+' min':''}${l.rpe?' · RPE '+esc(l.rpe):''}</p>
+    <div class="logview">${(l.items||[]).map(it=>{const d=it.sets.filter(s=>s.done);return `<div class="lx"><span>${esc(it.name)}</span><span>${d.length?d.map(s=>esc(s.reps||'–')+(s.kg?' @'+esc(s.kg):'')).join(', '):'ei tehtyjä sarjoja'}</span></div>`}).join('')}</div>
+    <p><b>${st.sets}</b> sarjaa · <b>${nf.format(st.reps)}</b> toistoa · <b>${fmtKg(st.vol)}</b></p>${l.notes?`<p class="muted">${esc(l.notes)}</p>`:''}`;
+  const r=await dlg(l.title||'Treeni',body,[{l:'Poista',v:'del',cls:'btn danger'},{l:'Sulje',v:'x'},{l:'Muokkaa',v:'edit',cls:'btn'}]);
+  if(r.v==='edit')editLog(id);
+  else if(r.v==='del'&&await confirmDlg('Poistetaanko treeni?','Treeni poistetaan historiasta pysyvästi.','Poista',1)){S.logs=S.logs.filter(x=>x.id!==id);S.plans.forEach(p=>{if(p.doneLogId===id)p.doneLogId=''});save();render()}
+}
+async function scheduleDlg(pid){
+  if(!S.programs.length){toast('Lisää ensin ohjelma Ohjelmat-välilehdellä.',true);return}
+  const p0=findProg(pid)||findProg(S.ui.lastProg)||S.programs[0];
+  const nm=monday(new Date());const start=iso(wdi(new Date())===0?new Date():addDays(nm,7));
+  const per=Math.max(...p0.sessions.map(s=>s.day||0),0);
+  const defDays=per>=4?[0,1,3,4]:per===3?[0,2,4]:per===5?[0,1,2,3,4]:[0,2,4];
+  const sessOpts=p=>p.sessions.map((s,i)=>`<option value="${i}">${esc(sLabel(s))}</option>`).join('');
+  const nextI=Math.max(0,p0.sessions.indexOf(nextSessionFor(p0)));
+  const r=await dlg('Ajoita ohjelma kalenteriin',`
+    <label>Ohjelma<select name="pid" id="schP">${S.programs.map(p=>`<option value="${p.id}"${p.id===p0.id?' selected':''}>${esc(p.name)}</option>`).join('')}</select></label>
+    <label>Aloita treenistä<select name="from" id="schF">${sessOpts(p0)}</select></label>
+    <div class="inputs"><label>Aloituspäivä<input type="date" name="start" value="${start}" required></label>
+    <label>Treenejä<input type="number" name="count" id="schC" min="1" inputmode="numeric" value="${p0.sessions.length-nextI}" required></label></div>
+    <div><div class="small muted" style="margin-bottom:6px">Treenipäivät</div><div class="wd">${WD.map((w,i)=>`<label><input type="checkbox" name="wd" value="${i}"${defDays.includes(i)?' checked':''}>${w}</label>`).join('')}</div></div>
+    <label class="chk"><input type="checkbox" name="clear" checked> Poista tämän ohjelman tulevat, tekemättömät suunnitelmat ensin</label>
+    <p class="small muted">Treenit sijoitetaan valituille viikonpäiville ohjelman järjestyksessä. Väliin jäänyt treeni ei siirrä muita automaattisesti – siirrä se tarvittaessa käsin.</p>`,
+    [{l:'Peruuta',v:''},{l:'Ajoita',v:'ok',cls:'btn'}]);
+  if(r.v!=='ok')return;
+  const p=findProg(r.data.pid);const days=r.all.getAll('wd').map(Number);
+  if(!days.length){toast('Valitse vähintään yksi treenipäivä.',true);return}
+  if(r.data.clear){const td=today();S.plans=S.plans.filter(x=>!(x.programId===p.id&&x.date>=td&&!planLog(x)))}
+  let i=+r.data.from||0,n=Math.max(1,+r.data.count||1),d=pISO(r.data.start),made=0,first=null;
+  for(let guard=0;guard<800&&made<n&&i<p.sessions.length;guard++){
+    if(days.includes(wdi(d))){const s=p.sessions[i];addPlan({date:iso(d),title:sLabel(s),programId:p.id,programName:p.name,sessionId:s.id});if(!first)first=iso(d);i++;made++}
+    d=addDays(d,1);
+  }
+  S.ui.lastProg=p.id;save();wkStart=monday(pISO(first||r.data.start));showTab('plan');toast(`Ajoitettu ${made} treeniä`);
+}
+// ajoitusdialogin riippuvat kentät
+document.addEventListener('change',e=>{
+  if(e.target.id==='schP'){const p=findProg(e.target.value);const f=$('#schF');f.innerHTML=p.sessions.map((s,i)=>`<option value="${i}">${esc(sLabel(s))}</option>`).join('');const ni=Math.max(0,p.sessions.indexOf(nextSessionFor(p)));f.value=ni;$('#schC').value=p.sessions.length-ni}
+  if(e.target.id==='schF'){const p=findProg($('#schP').value);$('#schC').value=p.sessions.length-(+e.target.value)}
+});
+
+/* =========================================================
+   TREENI (kirjaus)
+   ========================================================= */
+function itemsFromSession(sess){
+  return sess.items.map(it=>{
+    const prev=lastPerf(it.name);
+    const lastKg=prev?(prev.it.sets.filter(s=>s.done).map(s=>s.kg).filter(Boolean).pop()||''):'';
+    const n=Math.min(20,Math.max(1,parseInt(it.sets)||1));
+    return {name:it.name,group:it.group||'',target:{sets:it.sets,reps:it.reps,kg:it.kg,rest:it.rest,note:it.note},info:it.info||'',rest:restN(it.rest),
+      sets:Array.from({length:n},()=>({reps:prefillReps(it.reps),kg:it.kg||lastKg||'',done:false}))};
+  });
+}
+function draftHasContent(){const d=S.draft;return d&&d.items.some(it=>it.sets.some(s=>s.done))}
+async function startDraft(o){
+  if(draftHasContent()&&!(await confirmDlg('Korvataanko keskeneräinen treeni?','Treeni-välilehdellä on tallentamaton treeni, jossa on tehtyjä sarjoja. Se hylätään.','Korvaa',1)))return;
+  const p=findProg(o.programId),s=findSess(p,o.sessionId);
+  S.draft={id:'',date:o.date||today(),title:o.title||(s?sLabel(s):'Vapaa treeni'),programId:p?p.id:'',programName:p?p.name:'',sessionId:s?s.id:'',planId:o.planId||'',
+    startedAt:Date.now(),durationMin:'',rpe:'',notes:'',
+    items:s?itemsFromSession(s):[{name:'',group:'',target:null,info:'',rest:60,sets:[{reps:'',kg:'',done:false}]}]};
+  if(!o.planId&&s){const pl=S.plans.find(x=>x.programId===p.id&&x.sessionId===s.id&&x.date===S.draft.date&&!planLog(x));if(pl)S.draft.planId=pl.id}
+  if(p)S.ui.lastProg=p.id;
+  save();showTab('log');
+}
+async function editLog(id){
+  const l=S.logs.find(x=>x.id===id);if(!l)return;
+  if(draftHasContent()&&S.draft.id!==id&&!(await confirmDlg('Korvataanko keskeneräinen treeni?','Treeni-välilehdellä on tallentamaton treeni. Se hylätään.','Korvaa',1)))return;
+  S.draft=clone(l);save();showTab('log');
+}
+function renderLog(){
+  const el=$('#tab-log');const d=S.draft;
+  if(!d){
+    const td=today();const tp=S.plans.filter(p=>p.date===td&&!planLog(p));
+    const lastP=findProg(S.ui.lastProg)||S.programs[0];const nx=lastP&&nextSessionFor(lastP);
+    el.innerHTML=`<div class="panel"><div class="card-empty"><h2>Ei käynnissä olevaa treeniä</h2>
+      ${tp.length?`<p>Tälle päivälle suunniteltu:</p><div class="btnrow" style="justify-content:center">${tp.map(p=>`<button class="btn" data-act="plan-start" data-id="${p.id}">${esc(p.title)}</button>`).join('')}</div>`:''}
+      ${!tp.length&&nx?`<p>Seuraava ohjelman mukaan: <b>${esc(sLabel(nx))}</b> <span class="muted">(${esc(lastP.name)})</span></p><button class="btn" data-act="start-sess" data-p="${lastP.id}" data-s="${nx.id}">Aloita ${esc(nx.name)}</button>`:''}
+      <div class="btnrow" style="justify-content:center"><button class="btn ghost" data-act="pick-start">Valitse treeni…</button><button class="btn ghost" data-act="free-today">Vapaa treeni</button></div></div></div>`;
+    return;
+  }
+  const st=logStats(d);const total=d.items.reduce((a,it)=>a+it.sets.length,0);
+  let h=`<div class="panel">
+    <div class="loghead">
+      <label style="grid-column:1/-1">Treenin nimi<input data-d="title" value="${esc(d.title)}"></label>
+      <label>Päivä<input type="date" data-d="date" value="${esc(d.date)}"></label>
+      <label>Ohjelma<input value="${esc(d.programName||'Vapaa treeni')}" disabled></label>
+    </div>
+    <p class="sumline" id="logSum">${sumText(st,total)}</p>
+  </div>`;
+  // ryhmittely: peräkkäiset saman ryhmän liikkeet
+  let i=0;
+  while(i<d.items.length){
+    const g=d.items[i].group;
+    if(g){let j=i;while(j<d.items.length&&d.items[j].group===g)j++;
+      const rounds=d.items[i].target?d.items[i].target.sets:'';
+      h+=`<div class="grp"><div class="gh">${esc(GLBL(g))} <span>· ${rounds?esc(rounds)+' kierrosta · ':''}liikkeet peräkkäin, lepo kierrosten välissä</span></div>`;
+      for(let k=i;k<j;k++)h+=exCard(d,k);h+='</div>';i=j;
+    }else{h+=exCard(d,i);i++}
+  }
+  h+=`<div class="btnrow"><button class="btn ghost" data-act="ex-add">+ Liike</button></div>
+  <div class="panel"><div class="logfoot">
+    <label>Kesto (min)<input type="text" inputmode="numeric" data-d="durationMin" value="${esc(d.durationMin)}" placeholder="${d.startedAt&&!d.id?'lasketaan automaattisesti':''}"></label>
+    <label>Kuormittavuus (RPE 1–10)<select data-d="rpe"><option value="">–</option>${[...Array(10)].map((_,k)=>`<option${String(d.rpe)===String(k+1)?' selected':''}>${k+1}</option>`).join('')}</select></label>
+    <label style="grid-column:1/-1">Muistiinpanot<textarea data-d="notes" placeholder="Fiilis, tekniikka, kuulien painot…">${esc(d.notes)}</textarea></label>
+  </div></div>
+  <div class="stickysave"><button class="btn danger" data-act="draft-discard">${d.id?'Peru muutokset':'Hylkää'}</button><button class="btn ok" data-act="draft-save">Tallenna treeni</button></div>`;
+  el.innerHTML=h;
+}
+function sumText(st,total){return `<b>${st.sets}</b> / ${total} sarjaa tehty · <b>${nf.format(st.reps)}</b> toistoa · volyymi <b>${fmtKg(st.vol)}</b>`}
+function exCard(d,i){
+  const it=d.items[i];const prev=lastPerf(it.name,d.id);const t=it.target;
+  const all=it.sets.length&&it.sets.every(s=>s.done);
+  return `<div class="ex${all?' alldone':''}" data-i="${i}">
+    <div class="exh"><input list="exlist" data-f="name" value="${esc(it.name)}" placeholder="Liike" aria-label="Liikkeen nimi">
+      <button class="ib sm" data-act="ex-up" aria-label="Siirrä ylös" title="Siirrä ylös">↑</button><button class="ib sm del" data-act="ex-del" aria-label="Poista liike" title="Poista liike">✕</button></div>
+    ${t?`<div class="tgt">Tavoite: ${targetText(t)}</div>`:''}
+    ${prev?`<div class="prev">Edellinen: ${esc(perfText(prev))}</div>`:''}
+    ${it.info?`<details class="info"><summary>Ohje</summary><p>${esc(it.info)}</p></details>`:''}
+    <table class="sets"><thead><tr><th>#</th><th>${t&&isTime(t.reps)?'Aika':'Toistot'}</th><th>kg</th><th style="text-align:center">Tehty</th><th></th></tr></thead><tbody>
+    ${it.sets.map((s,j)=>`<tr data-j="${j}" class="${s.done?'done':''}"><td>${j+1}</td>
+      <td><input type="text" inputmode="${t&&isTime(t.reps)?'text':'numeric'}" data-f="reps" value="${esc(s.reps)}" placeholder="${esc(t?cleanReps(t.reps):'')}" aria-label="Sarja ${j+1} toistot"></td>
+      <td><input type="text" inputmode="decimal" data-f="kg" value="${esc(s.kg)}" aria-label="Sarja ${j+1} paino kg"></td>
+      <td class="c"><input type="checkbox" class="bigchk" data-f="done"${s.done?' checked':''} aria-label="Sarja ${j+1} tehty"></td>
+      <td class="x"><button class="ib sm del" data-act="set-del" aria-label="Poista sarja">−</button></td></tr>`).join('')}
+    </tbody></table>
+    <div class="btnrow"><button class="btn ghost sm" data-act="set-add">+ Sarja</button><button class="btn ghost sm" data-act="ex-alldone">Kaikki tehty</button>
+    <span class="small muted" style="margin-left:auto">Lepo <input type="text" inputmode="numeric" data-f="rest" value="${esc(it.rest||'')}" style="display:inline-block;width:56px;margin:0 4px;padding:4px 6px" aria-label="Lepo sekunteina"> s</span></div>
+  </div>`;
+}
+$('#tab-log').addEventListener('input',e=>{
+  const t=e.target,d=S.draft;if(!d)return;
+  if(t.dataset.d){d[t.dataset.d]=t.value;saveSoon();return}
+  const f=t.dataset.f;if(!f)return;
+  const ex=t.closest('[data-i]');if(!ex)return;const it=d.items[+ex.dataset.i];
+  const tr=t.closest('[data-j]');
+  if(tr){const s=it.sets[+tr.dataset.j];
+    if(f==='done'){s.done=t.checked;tr.classList.toggle('done',s.done);ex.classList.toggle('alldone',it.sets.every(x=>x.done));
+      if(s.done){if(!String(s.reps).trim()&&it.target){const pr=prefillReps(it.target.reps)||cleanReps(it.target.reps);if(pr){s.reps=pr;tr.querySelector('[data-f=reps]').value=pr}}
+        if(+it.rest>0)startRest(+it.rest,it.name)}
+    }else{s[f]=t.value;
+      // kg kopioidaan seuraaville tyhjille sarjoille
+      if(f==='kg'){for(let k=+tr.dataset.j+1;k<it.sets.length;k++){if(!it.sets[k].done){it.sets[k].kg=t.value;const inp=$(`tr[data-j="${k}"] [data-f=kg]`,ex);if(inp)inp.value=t.value}}}
+    }
+  }else if(f==='name')it.name=t.value;
+  else if(f==='rest')it.rest=num(t.value);
+  $('#logSum').innerHTML=sumText(logStats(d),d.items.reduce((a,x)=>a+x.sets.length,0));
+  saveSoon();
+});
+$('#tab-log').addEventListener('change',e=>{if(e.target.dataset.f==='name'){const ex=e.target.closest('[data-i]');const it=S.draft.items[+ex.dataset.i];if(!it.target){const p=lastPerf(it.name,S.draft.id);if(p){const kg=p.it.sets.filter(s=>s.done).map(s=>s.kg).filter(Boolean).pop();if(kg)it.sets.forEach(s=>{if(!s.done&&!s.kg)s.kg=kg})}renderLog()}}});
+async function saveDraft(){
+  const d=S.draft;if(!d)return;
+  d.items=d.items.filter(it=>String(it.name).trim()||it.sets.some(s=>String(s.reps).trim()));
+  if(!d.items.length){toast('Lisää vähintään yksi liike.',true);renderLog();return}
+  if(!d.items.some(it=>it.sets.some(s=>s.done))){
+    const r=await dlg('Merkitäänkö sarjat tehdyiksi?','<p>Yhtään sarjaa ei ole merkitty tehdyksi. Volyymiin ja historiaan lasketaan vain tehdyt sarjat.</p>',[{l:'Peruuta',v:''},{l:'Tallenna sellaisenaan',v:'as'},{l:'Merkitse kaikki tehdyiksi',v:'all',cls:'btn'}]);
+    if(!r.v)return;
+    if(r.v==='all')d.items.forEach(it=>it.sets.forEach(s=>{if(!String(s.reps).trim()&&it.target)s.reps=prefillReps(it.target.reps)||cleanReps(it.target.reps);s.done=true}));
+  }
+  if(!String(d.durationMin).trim()&&d.startedAt&&!d.id){const m=Math.round((Date.now()-d.startedAt)/6e4);if(m>0&&m<300)d.durationMin=String(m)}
+  const log=clone(d);delete log.startedAt;if(!log.id)log.id=uid();
+  const ix=S.logs.findIndex(l=>l.id===log.id);if(ix>=0)S.logs[ix]=log;else S.logs.push(log);
+  if(log.planId){const p=S.plans.find(x=>x.id===log.planId);if(p){p.doneLogId=log.id;p.date=log.date}}
+  for(const it of log.items){const n=String(it.name).trim();if(n&&!S.exercises.some(e=>e.toLowerCase()===n.toLowerCase()))S.exercises.push(n)}
+  S.draft=null;stopRest();save();refreshDatalist();toast('Treeni tallennettu 💪');showTab('hist');
+}
+
+/* lepoajastin */
+const rest={end:0,label:'',iv:0,lastSec:-1};
+function startRest(sec,label){rest.end=Date.now()+sec*1000;rest.label=label||'';rest.lastSec=-1;$('#restbar').hidden=false;$('#restbar').classList.remove('over');audio();wake(true);clearInterval(rest.iv);rest.iv=setInterval(tickRest,200);tickRest()}
+function stopRest(){rest.end=0;clearInterval(rest.iv);$('#restbar').hidden=true;if(!needWake())wake(false)}
+function tickRest(){
+  const ms=rest.end-Date.now();const sec=Math.ceil(ms/1000);
+  if(ms<=0){$('#rbTime').textContent='0:00';$('#rbLabel').textContent='Lepo ohi';$('#restbar').classList.add('over');if(rest.lastSec!==0){rest.lastSec=0;longBeep()}if(ms<-4000)stopRest();return}
+  $('#rbLabel').textContent='Lepo'+(rest.label?' · '+rest.label:'');
+  $('#rbTime').textContent=Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
+  if(sec<=3&&sec!==rest.lastSec){rest.lastSec=sec;beep(880,.1)}
+}
+
+/* =========================================================
+   OHJELMAT
+   ========================================================= */
+function selProg(){let p=findProg(S.ui.selProg);if(!p){p=S.programs[0];S.ui.selProg=p?p.id:''}return p}
+function renderProg(){
+  const sp=selProg();
+  $('#plist').innerHTML=S.programs.length?S.programs.map(p=>{const wks=new Set(p.sessions.map(s=>s.week).filter(Boolean)).size;const done=S.logs.filter(l=>l.programId===p.id).length;
+    return `<button class="pitem${sp&&p.id===sp.id?' on':''}" data-act="prog-sel" data-id="${p.id}">${esc(p.name)}<small>${wks?wks+' vk · ':''}${p.sessions.length} treeniä · ${done} tehty</small></button>`}).join('')
+    :`<p class="empty">Ei vielä ohjelmia. Luo uusi, tuo tekstinä tai tuo tiedosto Tiedot-välilehdeltä.</p>`;
+  const el=$('#pedit');
+  if(!sp){el.innerHTML='';return}
+  let h=`<div class="panel">
+    <div class="inputs"><label>Ohjelman nimi<input data-p="name" value="${esc(sp.name)}"></label><label>Tekijä / lähde<input data-p="author" value="${esc(sp.author||'')}"></label></div>
+    <label>Muistiinpanot<textarea data-p="notes" placeholder="Tavoite, ohjeet, kuulien painot…">${esc(sp.notes||'')}</textarea></label>
+    <div class="btnrow"><button class="btn" data-act="prog-schedule">Ajoita kalenteriin</button><button class="btn ghost" data-act="sess-add">+ Treeni</button>
+    <button class="btn ghost" data-act="prog-text">Näytä tekstinä</button><button class="btn ghost" data-act="prog-copy">Kopioi ohjelma</button><button class="btn danger" data-act="prog-del">Poista ohjelma</button></div>
+  </div>`;
+  let lastW=null;
+  sp.sessions.forEach((s,si)=>{
+    if(s.week&&s.week!==lastW){h+=`<div class="wkhead"><h3>Viikko ${s.week}</h3></div>`;lastW=s.week}
+    const done=S.logs.filter(l=>l.programId===sp.id&&l.sessionId===s.id).sort((a,b)=>a.date<b.date?1:-1);
+    const open=S.ui.openSess===s.id;
+    h+=`<details class="sess" data-s="${s.id}"${open?' open':''}><summary><span class="t">${esc(s.name||'Treeni')}<small>${s.week?'Vk '+s.week+' · treeni '+(s.day||si+1)+' · ':''}${s.items.length} liikettä${done.length?' · ✓ tehty '+fmtD(done[0].date):''}</small></span>
+      <button class="btn sm" data-act="sess-start">Aloita</button></summary><div class="sb">
+      <div class="inputs"><label>Treenin nimi<input data-sf="name" value="${esc(s.name)}"></label><label>Viikko<input data-sf="week" inputmode="numeric" value="${esc(s.week||'')}"></label><label>Treeni nro<input data-sf="day" inputmode="numeric" value="${esc(s.day||'')}"></label></div>
+      <div class="ihead"><span title="Supersarja / kierto">Ryhmä</span><span>Liike</span><span>Sarjat</span><span>Toistot</span><span>kg</span><span>Lepo (s)</span><span>Huomio</span><span></span></div>
+      ${s.items.map((it,k)=>`<div class="it" data-k="${k}">
+        <input class="gsel" data-if="group" value="${esc(it.group||'')}" placeholder="–" aria-label="Ryhmä (esim. A = supersarja)" maxlength="2">
+        <input class="nm" list="exlist" data-if="name" value="${esc(it.name)}" placeholder="Liike" aria-label="Liike">
+        <input data-if="sets" inputmode="numeric" value="${esc(it.sets)}" placeholder="Sarjat" aria-label="Sarjat">
+        <input data-if="reps" value="${esc(it.reps)}" placeholder="Toistot" aria-label="Toistot">
+        <input data-if="kg" inputmode="decimal" value="${esc(it.kg||'')}" placeholder="kg" aria-label="Paino kg">
+        <input data-if="rest" value="${esc(it.rest||'')}" placeholder="Lepo s" aria-label="Lepo sekunteina">
+        <input class="nt" data-if="note" value="${esc(it.note||'')}" placeholder="Huomio" aria-label="Huomio">
+        <span class="ops"><button class="ib sm" data-act="it-up" aria-label="Ylös">↑</button><button class="ib sm" data-act="it-down" aria-label="Alas">↓</button><button class="ib sm del" data-act="it-del" aria-label="Poista">✕</button></span>
+      </div>`).join('')}
+      <div class="btnrow"><button class="btn ghost sm" data-act="it-add">+ Liike</button><button class="btn ghost sm" data-act="sess-dup">Kopioi treeni</button><button class="btn ghost sm" data-act="sess-up">Siirrä ylös</button><button class="btn danger sm" data-act="sess-del">Poista treeni</button>
+      <span class="ssum" style="margin-left:auto">Ryhmä: sama kirjain (A, B…) = supersarja, K = kiertoharjoitus</span></div>
+    </div></details>`;
+  });
+  el.innerHTML=h;
+}
+$('#pedit').addEventListener('input',e=>{
+  const t=e.target,p=selProg();if(!p)return;
+  if(t.dataset.p){p[t.dataset.p]=t.value;if(t.dataset.p==='name')$$('.pitem.on').forEach(b=>b.firstChild.textContent=t.value);saveSoon();return}
+  const se=t.closest('[data-s]');if(!se)return;const s=findSess(p,se.dataset.s);
+  if(t.dataset.sf){s[t.dataset.sf]=t.dataset.sf==='name'?t.value:(parseInt(t.value)||'');se.querySelector('summary .t').firstChild.textContent=s.name||'Treeni';saveSoon();return}
+  const row=t.closest('[data-k]');if(row&&t.dataset.if){let v=t.value;if(t.dataset.if==='group')v=v.toUpperCase().trim();s.items[+row.dataset.k][t.dataset.if]=v;saveSoon()}
+});
+$('#pedit').addEventListener('toggle',e=>{if(e.target.matches('details.sess')){if(e.target.open)S.ui.openSess=e.target.dataset.s;else if(S.ui.openSess===e.target.dataset.s)S.ui.openSess=''}},true);
+function progToText(p){
+  let t=`# ${p.name}\n`;if(p.author)t+=`> ${p.author}\n`;
+  let lastW=null;
+  for(const s of p.sessions){
+    if(s.week&&s.week!==lastW){t+=`\n### Viikko ${s.week}\n`;lastW=s.week}
+    t+=`\n## ${s.name}\n`;
+    for(const it of s.items){t+=`${it.group?it.group+': ':''}${it.name} ${it.sets||1}x${cleanReps(it.reps)||'?'}${it.kg?' @'+it.kg:''}${it.rest?' lepo '+num(it.rest):''}${it.note?' – '+it.note:''}\n`}
+  }
+  return t;
+}
+function parseText(txt){
+  const progs=[];let p=null,s=null,week=0,day=0;
+  const ensureP=()=>{if(!p){p={id:uid(),name:'Tuotu ohjelma '+fmtDY(today()),author:'',notes:'',sessions:[]};progs.push(p);week=0;day=0}};
+  const ensureS=()=>{ensureP();if(!s){day++;s={id:uid(),name:'Treeni '+day,week:week||'',day:week?day:'',items:[]};p.sessions.push(s)}};
+  for(let raw of txt.split(/\r?\n/)){
+    let l=raw.trim();if(!l)continue;
+    let m;
+    if((m=l.match(/^#\s+(.+)/))&&!/^##/.test(l)){p={id:uid(),name:m[1].trim(),author:'',notes:'',sessions:[]};progs.push(p);s=null;week=0;day=0;continue}
+    if((m=l.match(/^>\s*(.+)/))){ensureP();p.author=m[1].trim();continue}
+    if((m=l.match(/^###\s*(?:viikko|vk|week)?\s*(\d+)/i))){ensureP();week=+m[1];day=0;s=null;continue}
+    if((m=l.match(/^##\s+(.+)/))){ensureP();day++;s={id:uid(),name:m[1].trim(),week:week||'',day:week?day:'',items:[]};p.sessions.push(s);continue}
+    if((m=l.match(/^(?:viikko|vk|week)\s*(\d+)\s*$/i))){ensureP();week=+m[1];day=0;s=null;continue}
+    if((m=l.match(/^(?:päivä|treeni|day|session)\s*(\d+)\s*[:\-–]?\s*(.*)$/i))&&!/\d\s*[x×]\s*\d/.test(l)){ensureP();day=+m[1];s={id:uid(),name:m[2].trim()||('Treeni '+m[1]),week:week||'',day:week?day:'',items:[]};p.sessions.push(s);continue}
+    l=l.replace(/^[-*•]\s*/,'').replace(/^\d+[.)]\s+/,'');
+    const it={name:'',group:'',sets:'1',reps:'',kg:'',rest:'',note:''};
+    if((m=l.match(/^([A-Z]|[A-Z]\d)\s*:\s*/))){it.group=m[1][0];l=l.slice(m[0].length)}
+    if((m=l.match(/\s+[–—-]\s+(.+)$/))){it.note=m[1].trim();l=l.slice(0,m.index)}
+    if((m=l.match(/\b(?:lepo|rest|RIS)\s*(\d+(?:\s*-\s*\d+)?)\s*(?:s|sek|sec)?\b/i))){it.rest=m[1].replace(/\s/g,'');l=(l.slice(0,m.index)+l.slice(m.index+m[0].length))}
+    if((m=l.match(/@\s*(\d+(?:[.,]\d+)?(?:\s*[x×]\s*\d+(?:[.,]\d+)?)?)\s*(?:kg)?/i))||(m=l.match(/\b(\d+(?:[.,]\d+)?)\s*kg\b/i))){it.kg=m[1].replace(/\s/g,'');l=(l.slice(0,m.index)+l.slice(m.index+m[0].length))}
+    if((m=l.match(/\b(\d+)\s*[x×*]\s*([\d\/\-]+(?:\s*(?:s|sek|sec|min))?|max|amrap)/i))){it.sets=m[1];it.reps=m[2].trim();l=(l.slice(0,m.index)+l.slice(m.index+m[0].length))}
+    else if((m=l.match(/\b([\d\/\-]+)\s*(toistoa|reps?|krt)\b/i))){it.reps=m[1];l=(l.slice(0,m.index)+l.slice(m.index+m[0].length))}
+    it.name=l.replace(/\s{2,}/g,' ').replace(/[:,;]\s*$/,'').trim();
+    if(!it.name)continue;
+    if(!it.reps&&!it.kg&&/:$/.test(raw.trim())){ensureP();day++;s={id:uid(),name:it.name,week:week||'',day:week?day:'',items:[]};p.sessions.push(s);continue}
+    ensureS();s.items.push(it);
+  }
+  return progs.filter(x=>x.sessions.some(s=>s.items.length));
+}
+async function importText(){
+  const ex=`# Oma ohjelma\n> Lähde tai tekijä (valinnainen)\n\n### Viikko 1\n## Päivä A\nSwing 10x10 @24 lepo 60\nGoblet Squat 5x5 @20 lepo 90\nA: Press 4x5/5 @16 lepo 30\nA: Row 4x8/8 @20 lepo 60\nPlank 3x40s – pidä lantio linjassa\n\n## Päivä B\nTurkish Get-up 5x1/1 @20`;
+  const r=await dlg('Tuo ohjelma tekstinä',`<p class="small muted">Liitä ohjelma alla olevassa muodossa. <code>#</code> = ohjelma, <code>###</code> = viikko, <code>##</code> = treeni. Rivillä: liike, sarjat×toistot, <code>@kg</code>, <code>lepo s</code>, <code>– huomio</code>. Sama kirjain alussa (<code>A:</code>) = supersarja.</p>
+    <pre class="fmt">${esc(ex)}</pre><label>Ohjelma<textarea name="txt" rows="10" required placeholder="Liitä tähän…"></textarea></label>`,
+    [{l:'Peruuta',v:''},{l:'Tuo',v:'ok',cls:'btn'}]);
+  if(r.v!=='ok')return;
+  const progs=parseText(r.data.txt||'');
+  if(!progs.length){toast('Tekstistä ei löytynyt liikkeitä. Tarkista muoto.',true);return}
+  S.programs.push(...progs);S.ui.selProg=progs[0].id;save();refreshDatalist();showTab('prog');
+  toast(`Tuotu ${progs.length} ohjelma${progs.length>1?'a':''}, ${progs.reduce((a,p)=>a+p.sessions.length,0)} treeniä`);
+}
+
+/* =========================================================
+   HISTORIA
+   ========================================================= */
+function weekVolumes(n,progId){
+  const m0=monday(new Date());const out=[];
+  for(let i=n-1;i>=0;i--){const a=addDays(m0,-7*i),b=addDays(a,6);const A=iso(a),B=iso(b);
+    const ls=S.logs.filter(l=>l.date>=A&&l.date<=B&&(!progId||l.programId===progId));
+    out.push({label:'vk '+isoWeek(a),vol:ls.reduce((s,l)=>s+logStats(l).vol,0),n:ls.length})}
+  return out;
+}
+function barChart(data){
+  const W=640,H=200,pl=44,pr=8,pt=12,pb=26,max=Math.max(1,...data.map(d=>d.vol));
+  const step=niceStep(max);const top=Math.ceil(max/step)*step;
+  const bw=(W-pl-pr)/data.length;let g='';
+  for(let v=0;v<=top;v+=step){const y=pt+(H-pt-pb)*(1-v/top);g+=`<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${y+4}" text-anchor="end">${v>=1000?nf.format(v/1000)+' t':v}</text>`}
+  data.forEach((d,i)=>{const h=(H-pt-pb)*d.vol/top;const x=pl+i*bw+bw*.18;const y=H-pb-h;
+    g+=`<rect x="${x}" y="${y}" width="${bw*.64}" height="${Math.max(0,h)}" rx="2" fill="${i===data.length-1?'var(--accent)':'#8a6a58'}"><title>${d.label}: ${fmtKg(d.vol)}, ${d.n} treeniä</title></rect>`;
+    if(d.n)g+=`<text x="${x+bw*.32}" y="${y-4}" text-anchor="middle">${d.n}</text>`;
+    g+=`<text x="${x+bw*.32}" y="${H-8}" text-anchor="middle">${d.label.replace('vk ','')}</text>`});
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Viikkovolyymi">${g}</svg>`;
+}
+function niceStep(max){const raw=max/4;const p=Math.pow(10,Math.floor(Math.log10(raw)));const n=raw/p;return (n<=1?1:n<=2?2:n<=5?5:10)*p}
+function progChart(pts){
+  if(pts.length<2)return '<p class="empty">Tarvitaan vähintään kaksi kirjattua kertaa.</p>';
+  const W=640,H=210,pl=40,pr=40,pt=14,pb=26;
+  const maxKg=Math.max(1,...pts.map(p=>p.kg)),minKg=Math.min(...pts.map(p=>p.kg));
+  const lo=Math.max(0,Math.floor((minKg-4)/4)*4),hi=Math.ceil((maxKg+2)/4)*4;
+  const maxV=Math.max(1,...pts.map(p=>p.vol));
+  const X=i=>pl+(W-pl-pr)*(pts.length===1?.5:i/(pts.length-1));const Y=v=>pt+(H-pt-pb)*(1-(v-lo)/((hi-lo)||1));
+  let g='';
+  for(let v=lo;v<=hi;v+=Math.max(2,Math.round((hi-lo)/4/2)*2)){g+=`<line x1="${pl}" x2="${W-pr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${pl-6}" y="${Y(v)+4}" text-anchor="end">${v}</text>`}
+  const bw=Math.min(22,(W-pl-pr)/pts.length*.6);
+  pts.forEach((p,i)=>{const h=(H-pt-pb)*p.vol/maxV*.85;g+=`<rect x="${X(i)-bw/2}" y="${H-pb-h}" width="${bw}" height="${h}" rx="2" fill="#5d5a55" opacity=".7"><title>${fmtD(p.date)}: ${fmtKg(p.vol)}</title></rect>`});
+  g+=`<polyline points="${pts.map((p,i)=>X(i)+','+Y(p.kg)).join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round"/>`;
+  pts.forEach((p,i)=>{g+=`<circle cx="${X(i)}" cy="${Y(p.kg)}" r="3.6" fill="var(--accent)"><title>${fmtD(p.date)}: ${p.kg} kg</title></circle>`});
+  const lab=[0,Math.floor((pts.length-1)/2),pts.length-1];[...new Set(lab)].forEach(i=>g+=`<text x="${X(i)}" y="${H-8}" text-anchor="middle">${pISO(pts[i].date).getDate()}.${pISO(pts[i].date).getMonth()+1}.</text>`);
+  g+=`<text x="${pl-6}" y="${pt-2}" text-anchor="end">kg</text>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Liikkeen kehitys">${g}</svg>`;
+}
+function exerciseSeries(name){
+  const k=name.toLowerCase();const pts=[];
+  for(const l of [...S.logs].sort((a,b)=>a.date<b.date?-1:1)){
+    let kg=0,vol=0,reps=0,any=false;
+    for(const it of l.items||[])if(String(it.name).trim().toLowerCase()===k)for(const s of it.sets)if(s.done){any=true;kg=Math.max(kg,kgN(s.kg));vol+=setVol(s);reps+=repsN(s.reps)}
+    if(any)pts.push({date:l.date,kg,vol,reps,log:l});
+  }
+  return pts;
+}
+function renderHist(){
+  const el=$('#tab-hist');const pf=S.ui.histProg||'';
+  const logs=S.logs.filter(l=>!pf||l.programId===pf).sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
+  const td=pISO(today());const in7=iso(addDays(td,-6)),in30=iso(addDays(td,-29));
+  const l30=logs.filter(l=>l.date>=in30);const v30=l30.reduce((a,l)=>a+logStats(l).vol,0);const r30=l30.reduce((a,l)=>a+logStats(l).reps,0);
+  // putki: peräkkäiset viikot (tämä tai edellinen mukaan lukien) joilla treeni
+  let streak=0;{let m=monday(td);const has=d=>logs.some(l=>l.date>=iso(d)&&l.date<=iso(addDays(d,6)));if(!has(m))m=addDays(m,-7);while(has(m)&&streak<520){streak++;m=addDays(m,-7)}}
+  const names=[...new Set(S.logs.flatMap(l=>(l.items||[]).filter(it=>it.sets.some(s=>s.done)).map(it=>String(it.name).trim())).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'fi'));
+  if(!S.ui.histEx||!names.includes(S.ui.histEx)){const cnt={};S.logs.forEach(l=>(l.items||[]).forEach(it=>{const n=String(it.name).trim();if(n)cnt[n]=(cnt[n]||0)+1}));S.ui.histEx=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]||''}
+  const ser=S.ui.histEx?exerciseSeries(S.ui.histEx):[];
+  const best=ser.reduce((b,p)=>p.kg>b?p.kg:b,0);
+  el.innerHTML=`
+  <div class="row between"><label style="min-width:240px">Näytä<select data-h="prog"><option value="">Kaikki treenit</option>${S.programs.map(p=>`<option value="${p.id}"${p.id===pf?' selected':''}>${esc(p.name)}</option>`).join('')}</select></label></div>
+  <div class="tiles">
+    <div class="tile main"><span class="k">Treenit 30 vrk</span><span class="v">${l30.length}</span><span class="s">${logs.filter(l=>l.date>=in7).length} viimeisen 7 vrk aikana</span></div>
+    <div class="tile"><span class="k">Volyymi 30 vrk</span><span class="v">${fmtKg(v30)}</span><span class="s">${nf.format(r30)} toistoa</span></div>
+    <div class="tile"><span class="k">Treeniputki</span><span class="v">${streak} vk</span><span class="s">peräkkäisiä viikkoja treenaten</span></div>
+    <div class="tile"><span class="k">Kaikki treenit</span><span class="v">${logs.length}</span><span class="s">${logs.length?'ensimmäinen '+fmtDY(logs[logs.length-1].date):'–'}</span></div>
+  </div>
+  <div class="cols2">
+    <div class="panel"><h2>Viikkovolyymi</h2><div class="chart">${barChart(weekVolumes(12,pf))}</div><p class="foot">Toistot × kg tehdyistä sarjoista, 12 viikkoa. Luku pylvään päällä = treenien määrä.</p></div>
+    <div class="panel"><div class="row between"><h2>Liikkeen kehitys</h2>${names.length?`<select data-h="ex" style="max-width:260px;margin:0">${names.map(n=>`<option${n===S.ui.histEx?' selected':''}>${esc(n)}</option>`).join('')}</select>`:''}</div>
+      <div class="chart">${names.length?progChart(ser):'<p class="empty">Kirjaa treenejä nähdäksesi kehityksen.</p>'}</div>
+      ${ser.length?`<div class="legend"><span><i style="background:var(--accent)"></i>Suurin paino (paras ${nf.format(best)} kg)</span><span><i style="background:#5d5a55"></i>Volyymi</span><span>${ser.length} kertaa</span></div>`:''}</div>
+  </div>
+  <div class="panel"><h2>Treenipäiväkirja</h2>
+    ${logs.length?`<div class="tablewrap"><table class="list"><thead><tr><th class="l">Päivä</th><th class="l">Treeni</th><th>Sarjat</th><th>Toistot</th><th>Volyymi</th><th>Kesto</th><th>RPE</th></tr></thead><tbody>
+    ${logs.map(l=>{const s=logStats(l);return `<tr class="click" data-act="log-open" data-id="${l.id}" tabindex="0"><td class="l">${fmtD(l.date)} ${pISO(l.date).getFullYear()}</td><td class="l">${esc(l.title||'Treeni')}<div class="small muted">${esc(l.programName||'Vapaa treeni')}</div></td><td>${s.sets}</td><td>${nf.format(s.reps)}</td><td>${fmtKg(s.vol)}</td><td>${l.durationMin?esc(l.durationMin)+' min':'–'}</td><td>${esc(l.rpe||'–')}</td></tr>`}).join('')}
+    </tbody></table></div>`:`<div class="card-empty"><p>Ei vielä kirjattuja treenejä.</p><button class="btn" data-act="go-log">Aloita treeni</button></div>`}
+  </div>`;
+}
+$('#tab-hist').addEventListener('change',e=>{const t=e.target;if(t.dataset.h==='prog'){S.ui.histProg=t.value;save();renderHist()}if(t.dataset.h==='ex'){S.ui.histEx=t.value;save();renderHist()}});
+$('#tab-hist').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('tr.click'))logOpen(e.target.dataset.id)});
+
+/* =========================================================
+   AJASTIN
+   ========================================================= */
+const PRESETS=[{l:'EMOM 10 min',w:60,r:0,n:10},{l:'Tabata 20/10 × 8',w:20,r:10,n:8},{l:'30/30 × 10',w:30,r:30,n:10},{l:'40/20 × 10',w:40,r:20,n:10},{l:'Swing 15/45 × 10',w:15,r:45,n:10},{l:'EMOM 20 min',w:60,r:0,n:20}];
+const tm={running:false,phases:[],i:0,end:0,left:0,iv:0,lastSec:-1};
+function tmBuild(){const c=S.timer;const ph=[];if(+c.prep>0)ph.push({t:'prep',d:+c.prep});for(let r=1;r<=Math.max(1,+c.rounds||1);r++){ph.push({t:'work',d:Math.max(1,+c.work||1),r});if(+c.rest>0&&r<+c.rounds)ph.push({t:'rest',d:+c.rest,r})}return ph}
+function fmtT(s){s=Math.max(0,Math.ceil(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function renderTimer(){
+  const c=S.timer;$('#tmWork').value=c.work;$('#tmRest').value=c.rest;$('#tmRounds').value=c.rounds;$('#tmPrep').value=c.prep;
+  $('#tmPresets').innerHTML=PRESETS.map((p,i)=>`<button data-act="tm-preset" data-i="${i}">${esc(p.l)}</button>`).join('');
+  const tot=(+c.work||0)*(+c.rounds||0)+(+c.rest||0)*Math.max(0,(+c.rounds||0)-1);
+  $('#tmTotal').textContent=`Kokonaiskesto ${fmtT(tot)} (+ valmistautuminen ${c.prep||0} s)`;
+  if(!tm.running&&!tm.phases.length)tmShow(null,c.work);
+}
+function tmShow(ph,sec){
+  const box=$('#tmBox');box.classList.remove('work','rest','prep');
+  if(!ph){$('#tmPh').textContent=tm.done?'Valmis!':'Valmiina';$('#tmClock').textContent=fmtT(tm.done?0:sec);$('#tmRd').innerHTML='&nbsp;';$('#tmProg').style.width=tm.done?'100%':'0';return}
+  box.classList.add(ph.t);$('#tmPh').textContent={prep:'Valmistaudu',work:'Työ',rest:'Lepo'}[ph.t];
+  $('#tmClock').textContent=fmtT(sec);$('#tmRd').textContent=ph.r?`Kierros ${ph.r} / ${S.timer.rounds}`:' ';
+  $('#tmProg').style.width=(100*tm.i/tm.phases.length+100/tm.phases.length*(1-sec/ph.d)).toFixed(1)+'%';
+}
+function tmStart(){
+  audio();
+  if(tm.running){tm.left=tm.end-Date.now();tm.running=false;clearInterval(tm.iv);$('#tmStart').textContent='Jatka';wake(false);return}
+  if(!tm.phases.length){tm.phases=tmBuild();tm.i=0;tm.left=tm.phases[0].d*1000;tm.done=false;beep(660,.15)}
+  tm.end=Date.now()+tm.left;tm.running=true;tm.lastSec=-1;$('#tmStart').textContent='Tauko';wake(true);
+  clearInterval(tm.iv);tm.iv=setInterval(tmTick,100);tmTick();
+}
+function tmTick(){
+  const ph=tm.phases[tm.i];if(!ph)return;let ms=tm.end-Date.now();
+  if(ms<=0){tm.i++;if(tm.i>=tm.phases.length){tmFinish();return}longBeep();const n=tm.phases[tm.i];tm.end=Date.now()+n.d*1000+ms;tm.lastSec=-1;ms=tm.end-Date.now()}
+  const cur=tm.phases[tm.i];const sec=Math.ceil(ms/1000);
+  if(sec<=3&&sec>0&&sec!==tm.lastSec){tm.lastSec=sec;beep(880,.09)}
+  tmShow(cur,ms/1000);
+}
+function tmFinish(){clearInterval(tm.iv);tm.running=false;tm.phases=[];tm.done=true;$('#tmStart').textContent='Aloita';beep(990,.2);setTimeout(()=>beep(990,.2),260);setTimeout(()=>beep(1320,.5),520);tmShow(null,0);if(!needWake())wake(false)}
+function tmReset(){clearInterval(tm.iv);tm.running=false;tm.phases=[];tm.done=false;$('#tmStart').textContent='Aloita';tmShow(null,S.timer.work);if(!needWake())wake(false)}
+function tmSkip(){if(!tm.phases.length)return;if(tm.running)tm.end=Date.now();else{tm.i++;if(tm.i>=tm.phases.length){tmFinish();return}tm.left=tm.phases[tm.i].d*1000;tmShow(tm.phases[tm.i],tm.phases[tm.i].d)}}
+['tmWork','tmRest','tmRounds','tmPrep'].forEach(id=>$('#'+id).addEventListener('input',e=>{const k={tmWork:'work',tmRest:'rest',tmRounds:'rounds',tmPrep:'prep'}[id];S.timer[k]=Math.max(0,parseInt(e.target.value)||0);saveSoon();if(!tm.running)tmReset();renderTimer()}));
+
+/* =========================================================
+   TIEDOT
+   ========================================================= */
+function renderData(){
+  const size=(()=>{try{return new Blob([localStorage.getItem(LS)||'']).size}catch(e){return 0}})();
+  $('#tab-data').innerHTML=`
+  <div class="cols2">
+  <div class="panel"><h2>Varmuuskopio ja siirto</h2>
+    <p class="hint muted">Tiedot tallentuvat vain tähän selaimeen (${nf.format(size/1024)} kt). Ota varmuuskopio säännöllisesti, ja siirrä tiedot toiselle laitteelle lataamalla tiedosto täällä ja tuomalla se toisella laitteella.</p>
+    <div class="btnrow"><button class="btn" data-act="export">Lataa varmuuskopio (.json)</button><button class="btn ghost" data-act="import-file">Tuo tiedosto…</button></div>
+    <p class="foot">Tuonnissa voit yhdistää tiedot nykyisiin (samat ohjelmat ja treenit tunnistetaan, ei tuplia) tai korvata kaiken.</p>
+  </div>
+  <div class="panel"><h2>Ohjelman tuonti tekstinä</h2>
+    <p class="hint muted">Kirjoita tai liitä ohjelma tekstinä, esimerkiksi muistiinpanoista. Työkalu tunnistaa viikot, treenit, sarjat × toistot, painot ja lepoajat.</p>
+    <div class="btnrow"><button class="btn ghost" data-act="import-text">Tuo tekstinä…</button></div>
+  </div>
+  </div>
+  <div class="panel"><h2>Liikepankki</h2>
+    <p class="hint muted">Nämä näkyvät ehdotuksina liikkeen nimeä kirjoittaessa. Ohjelmien liikkeet ovat mukana automaattisesti.</p>
+    <div class="presets">${S.exercises.slice().sort((a,b)=>a.localeCompare(b,'fi')).map(e=>`<button data-act="ex-lib-del" data-n="${esc(e)}" title="Poista">${esc(e)} ✕</button>`).join('')}</div>
+    <div class="row"><input id="exNew" placeholder="Uusi liike" style="max-width:320px;margin:0"><button class="btn ghost sm" data-act="ex-lib-add">Lisää</button></div>
+  </div>
+  <div class="panel"><h2>Tyhjennä</h2><p class="hint muted">Poistaa kaikki ohjelmat, suunnitelmat ja treenit tästä selaimesta. Lataa varmuuskopio ensin.</p><div class="btnrow"><button class="btn danger" data-act="wipe">Tyhjennä kaikki tiedot</button></div></div>`;
+}
+function exportJSON(){
+  const data={app:'lastutec-kahvakuula',version:1,exported:new Date().toISOString(),programs:S.programs,plans:S.plans,logs:S.logs,exercises:S.exercises,timer:S.timer};
+  const b=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download='kahvakuula-varmuuskopio-'+today()+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+$('#fileIn').addEventListener('change',async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  let d;try{d=JSON.parse(await f.text())}catch(err){toast('Tiedostoa ei voitu lukea: se ei ole kelvollinen JSON-tiedosto.',true);return}
+  if(!d||!Array.isArray(d.programs)&&!Array.isArray(d.logs)){toast('Tiedostosta ei löytynyt ohjelmia eikä treenejä.',true);return}
+  const np=(d.programs||[]).length,nl=(d.logs||[]).length,npl=(d.plans||[]).length;
+  const r=await dlg('Tuo tiedosto',`<p>Tiedostossa: <b>${np}</b> ohjelmaa, <b>${npl}</b> suunniteltua ja <b>${nl}</b> kirjattua treeniä.</p><p class="small muted">Yhdistäminen lisää vain uudet ohjelmat ja treenit. Korvaaminen poistaa nykyiset tiedot.</p>`,
+    [{l:'Peruuta',v:''},{l:'Korvaa kaikki',v:'replace',cls:'btn danger'},{l:'Yhdistä',v:'merge',cls:'btn'}]);
+  if(!r.v)return;
+  const valid=a=>(Array.isArray(a)?a:[]).filter(x=>x&&typeof x==='object'&&x.id);
+  const progs=valid(d.programs).map(p=>({...p,sessions:(p.sessions||[]).map(s=>({...s,id:s.id||uid(),items:Array.isArray(s.items)?s.items:[]}))}));
+  if(r.v==='replace'){S.programs=progs;S.plans=valid(d.plans);S.logs=valid(d.logs);if(Array.isArray(d.exercises))S.exercises=d.exercises.filter(x=>typeof x==='string');S.draft=null}
+  else{const add=(arr,src)=>{const ids=new Set(arr.map(x=>x.id));let n=0;for(const x of src)if(!ids.has(x.id)){arr.push(x);n++}return n};
+    const a=add(S.programs,progs),b=add(S.plans,valid(d.plans)),c=add(S.logs,valid(d.logs));
+    if(Array.isArray(d.exercises))for(const x of d.exercises)if(typeof x==='string'&&!S.exercises.some(e=>e.toLowerCase()===x.toLowerCase()))S.exercises.push(x);
+    toast(`Lisätty ${a} ohjelmaa, ${b} suunnitelmaa, ${c} treeniä`)}
+  if(progs[0])S.ui.selProg=progs[0].id;
+  save();refreshDatalist();if(r.v==='replace')toast('Tiedot korvattu');showTab(progs.length?'prog':'hist');
+});
+
+/* =========================================================
+   TOIMINNOT (delegointi)
+   ========================================================= */
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act;const d=S.draft;
+  const exEl=b.closest('[data-i]'),i=exEl?+exEl.dataset.i:-1;
+  const p=selProg();const sEl=b.closest('[data-s]');const sess=sEl&&p?findSess(p,sEl.dataset.s):null;
+  const rowEl=b.closest('[data-k]'),k=rowEl?+rowEl.dataset.k:-1;
+  if(b.tagName==='BUTTON'&&b.closest('summary'))e.preventDefault();
+  switch(a){
+    case 'wk-prev':wkStart=addDays(wkStart,-7);renderPlan();break;
+    case 'wk-next':wkStart=addDays(wkStart,7);renderPlan();break;
+    case 'wk-today':wkStart=monday(new Date());renderPlan();break;
+    case 'day-add':dayAdd(b.dataset.date);break;
+    case 'plan-open':planOpen(b.dataset.id);break;
+    case 'plan-start':{const pl=S.plans.find(x=>x.id===b.dataset.id);if(pl)startDraft({date:today(),programId:pl.programId,sessionId:pl.sessionId,planId:pl.id,title:pl.title});break}
+    case 'log-open':logOpen(b.dataset.id);break;
+    case 'schedule':scheduleDlg();break;
+    case 'free-today':startDraft({date:today()});break;
+    case 'go-log':showTab('log');break;
+    case 'start-sess':startDraft({date:today(),programId:b.dataset.p,sessionId:b.dataset.s});break;
+    case 'pick-start':dayAdd(today());break;
+    // treeni
+    case 'ex-add':d.items.push({name:'',group:'',target:null,info:'',rest:60,sets:[{reps:'',kg:'',done:false}]});save();renderLog();{const x=$$('#tab-log .ex');x[x.length-1]?.querySelector('input')?.focus()}break;
+    case 'ex-del':if(d.items[i].sets.some(s=>s.done)&&!(await confirmDlg('Poistetaanko liike?','Liikkeellä on tehtyjä sarjoja.','Poista',1)))break;d.items.splice(i,1);save();renderLog();break;
+    case 'ex-up':if(i>0){[d.items[i-1],d.items[i]]=[d.items[i],d.items[i-1]];save();renderLog()}break;
+    case 'set-add':{const it=d.items[i];const last=it.sets[it.sets.length-1]||{};it.sets.push({reps:last.reps||(it.target?prefillReps(it.target.reps):''),kg:last.kg||'',done:false});save();renderLog();break}
+    case 'set-del':{const j=+b.closest('[data-j]').dataset.j;d.items[i].sets.splice(j,1);save();renderLog();break}
+    case 'ex-alldone':{const it=d.items[i];it.sets.forEach(s=>{if(!String(s.reps).trim()&&it.target)s.reps=prefillReps(it.target.reps)||cleanReps(it.target.reps);s.done=true});save();renderLog();break}
+    case 'draft-save':saveDraft();break;
+    case 'draft-discard':if(await confirmDlg(d.id?'Perutaanko muutokset?':'Hylätäänkö treeni?',d.id?'Tallennettu treeni säilyy ennallaan.':'Kirjatut sarjat menetetään.',d.id?'Peru muutokset':'Hylkää',1)){S.draft=null;stopRest();save();showTab(d.id?'hist':'plan')}break;
+    case 'rest-plus':rest.end=Math.max(rest.end,Date.now())+15000;$('#restbar').classList.remove('over');rest.lastSec=-1;break;
+    case 'rest-stop':stopRest();break;
+    // ohjelmat
+    case 'prog-sel':S.ui.selProg=b.dataset.id;save();renderProg();if(innerWidth<900)$('#pedit').scrollIntoView({behavior:'smooth'});break;
+    case 'prog-new':{const np={id:uid(),name:'Uusi ohjelma',author:'',notes:'',sessions:[{id:uid(),name:'Treeni A',week:'',day:'',items:[{name:'',group:'',sets:'3',reps:'10',kg:'',rest:'60',note:''}]}]};S.programs.push(np);S.ui.selProg=np.id;S.ui.openSess=np.sessions[0].id;save();renderProg();$('#pedit input')?.select();break}
+    case 'prog-del':if(await confirmDlg('Poistetaanko ohjelma?',`”${esc(p.name)}” ja sen tulevat suunnitelmat poistetaan. Kirjatut treenit säilyvät historiassa.`,'Poista',1)){S.plans=S.plans.filter(x=>!(x.programId===p.id&&!planLog(x)));S.programs=S.programs.filter(x=>x.id!==p.id);S.ui.selProg='';save();renderProg()}break;
+    case 'prog-copy':{const c=clone(p);c.id=uid();c.name=p.name+' (kopio)';c.sessions.forEach(s=>s.id=uid());S.programs.push(c);S.ui.selProg=c.id;save();renderProg();toast('Ohjelma kopioitu');break}
+    case 'prog-text':{const t=progToText(p);const r=await dlg(p.name,`<textarea rows="14" readonly style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px">${esc(t)}</textarea>`,[{l:'Sulje',v:''},{l:'Kopioi leikepöydälle',v:'copy',cls:'btn'}]);if(r.v==='copy'){try{await navigator.clipboard.writeText(t);toast('Kopioitu')}catch(err){toast('Kopiointi ei onnistunut – valitse teksti ja kopioi käsin.',true)}}break}
+    case 'prog-schedule':scheduleDlg(p.id);break;
+    case 'sess-add':{const lw=p.sessions.length?p.sessions[p.sessions.length-1]:null;const s={id:uid(),name:'Uusi treeni',week:lw?lw.week:'',day:lw&&lw.day?lw.day+1:'',items:[]};p.sessions.push(s);S.ui.openSess=s.id;save();renderProg();$(`[data-s="${s.id}"]`)?.scrollIntoView({behavior:'smooth',block:'center'});break}
+    case 'sess-start':startDraft({date:today(),programId:p.id,sessionId:sess.id});break;
+    case 'sess-dup':{const c=clone(sess);c.id=uid();c.name=sess.name+' (kopio)';p.sessions.splice(p.sessions.indexOf(sess)+1,0,c);S.ui.openSess=c.id;save();renderProg();break}
+    case 'sess-up':{const x=p.sessions.indexOf(sess);if(x>0){[p.sessions[x-1],p.sessions[x]]=[p.sessions[x],p.sessions[x-1]];save();renderProg()}break}
+    case 'sess-del':if(await confirmDlg('Poistetaanko treeni?',`”${esc(sess.name)}” poistetaan ohjelmasta.`,'Poista',1)){p.sessions=p.sessions.filter(x=>x!==sess);save();renderProg()}break;
+    case 'it-add':{const last=sess.items[sess.items.length-1];sess.items.push({name:'',group:last?last.group:'',sets:last?last.sets:'3',reps:'',kg:'',rest:last?last.rest:'60',note:''});save();renderProg();const rows=$$(`[data-s="${sess.id}"] .it`);rows[rows.length-1]?.querySelector('.nm')?.focus();break}
+    case 'it-del':sess.items.splice(k,1);save();renderProg();break;
+    case 'it-up':if(k>0){[sess.items[k-1],sess.items[k]]=[sess.items[k],sess.items[k-1]];save();renderProg()}break;
+    case 'it-down':if(k<sess.items.length-1){[sess.items[k+1],sess.items[k]]=[sess.items[k],sess.items[k+1]];save();renderProg()}break;
+    case 'import-text':importText();break;
+    // ajastin
+    case 'tm-start':tmStart();break;
+    case 'tm-reset':tmReset();break;
+    case 'tm-skip':tmSkip();break;
+    case 'tm-preset':{const pr=PRESETS[+b.dataset.i];Object.assign(S.timer,{work:pr.w,rest:pr.r,rounds:pr.n});save();tmReset();renderTimer();break}
+    // tiedot
+    case 'export':exportJSON();break;
+    case 'import-file':$('#fileIn').click();break;
+    case 'ex-lib-del':S.exercises=S.exercises.filter(x=>x!==b.dataset.n);save();refreshDatalist();renderData();break;
+    case 'ex-lib-add':{const v=$('#exNew').value.trim();if(v&&!S.exercises.some(x=>x.toLowerCase()===v.toLowerCase())){S.exercises.push(v);save();refreshDatalist();renderData()}break}
+    case 'wipe':if(await confirmDlg('Tyhjennetäänkö kaikki?','Kaikki ohjelmat, suunnitelmat ja treenit poistetaan tästä selaimesta pysyvästi.','Tyhjennä',1)){const t=S.timer;S=blank();S.timer=t;save();refreshDatalist();showTab('plan');toast('Tiedot tyhjennetty')}break;
+  }
+});
+$('#tab-data').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='exNew')$('[data-act=ex-lib-add]').click()});
+
+/* ---------- käynnistys ---------- */
+refreshDatalist();
+let startTab='plan';try{startTab=sessionStorage.getItem('lt-kk-tab')||(S.draft?'log':'plan')}catch(e){}
+if(!S.programs.length&&!S.logs.length&&startTab==='plan')startTab='prog';
+showTab(startTab);
+})();
+</script>
+</body>
+</html>

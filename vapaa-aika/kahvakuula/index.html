@@ -5,7 +5,7 @@
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Kahvakuulatreeni – Lastutec</title>
-<meta name="description" content="Kahvakuulatreenin generaattori: vetävä, työntävä, jalka- ja vatsaliike sekä intervalliajastin.">
+<meta name="description" content="Kahvakuulatreenin generaattori: vetävä, työntävä, jalka- ja vatsaliike, sykettä nostattavat EMOM- ja AMRAP-treenit sekä ajastin.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <meta name="theme-color" content="#1b1c1f">
 <style>
@@ -89,7 +89,7 @@ ol.moves{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;b
       <select id="time"><option value="15">n. 15 min</option><option value="20" selected>n. 20 min</option><option value="30">n. 30 min</option></select>
     </label>
     <label class="f">Muoto
-      <select id="format"><option value="reps">Kierrokset (toistot)</option><option value="int">Intervalli 40 s / 20 s</option></select>
+      <select id="format"><option value="reps">Kierrokset (toistot)</option><option value="int">Intervalli 40 s / 20 s</option><option value="emom">EMOM – syke ylös</option><option value="amrap">AMRAP – syke ylös</option></select>
     </label>
   </div>
   <div class="plan">
@@ -114,11 +114,12 @@ ol.moves{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;b
     <div class="prog"><i id="tmProg"></i></div>
     <div class="row" style="justify-content:center;margin-top:6px">
       <button class="btn" id="tmStart" style="min-width:110px">Aloita</button>
+      <button class="btn" id="tmRound" hidden>+1 kierros</button>
       <button class="btn ghost" id="tmSkip">Ohita vaihe</button>
       <button class="btn ghost" id="tmReset">Nollaa</button>
     </div>
   </div>
-  <p class="foot">Intervallimuodossa ajastin vaihtaa liikkeet treenin mukaan. Kierrosmuodossa se laskee kierrosten väliset lepotauot. Lyhyet piippaukset viimeisillä sekunneilla, pitkä vaiheen vaihtuessa.</p>
+  <p class="foot">Intervallimuodossa ajastin vaihtaa liikkeet treenin mukaan. Kierrosmuodossa se laskee kierrosten väliset lepotauot. EMOMissa jokaisen minuutin alussa tehdään vuorossa oleva liike ja loppuminuutti levätään. AMRAPissa tehdään kierroksia putkeen, ja <b>+1 kierros</b> pitää laskua. Lyhyet piippaukset viimeisillä sekunneilla, pitkä vaiheen vaihtuessa.</p>
 </section>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -137,7 +138,13 @@ const KK={
     ["Pystysoutu kahdella kädellä",1,"r",0,"Kuula leuan alle, kyynärpäät olkapäiden tasolle"],
     ["Yhden käden heilautus",2,"r",1,"Vartalo ei kierry, vapaa käsi irti"],
     ["Korkea veto",2,"r",1,"Heilautuksesta veto kyynärpää edellä rinnan korkeudelle"],
-    ["Rinnalleveto",2,"r",1,"Kuula kiertää käden ympäri, ei läimäytä kyynärvarteen"],
+    ["Kahden käden rinnalleveto maljaan",1,"r",0,"Kuula lattialta maljaotteeseen rinnalle, voima lantiosta – hyvä ensimmäinen rinnalleveto"],
+    ["Rinnalleveto",2,"r",1,"Heilautuksesta: kuula kiertää käden ympäri, ei läimäytä kyynärvarteen"],
+    ["Rinnalleveto kuolleesta pisteestä",2,"r",1,"Kuula lattialta joka toistolla, lyhyt pysähdys alhaalla – ei vauhtia heilautuksesta"],
+    ["Rinnalleveto roikunnasta",2,"r",1,"Aloita kuula polvien kohdalta ilman heilautusta, terävä lonkan ojennus"],
+    ["Kahden kuulan rinnalleveto",3,"r",0,"Kuulat kulkevat yhdessä lähellä reisiä, kyynärpäät kylkiin vastaanotossa"],
+    ["Vuorotteleva rinnalleveto kahdella kuulalla",3,"r",1,"Toinen kuula nousee kun toinen laskee, tasainen rytmi ja tiukka keskivartalo"],
+    ["Pohja ylös -rinnalleveto",3,"r",1,"Kevyt kuula, puristava ote, kuula pysähtyy pystyyn pohja ylöspäin"],
     ["Lankkusoutu",2,"r",1,"Jalat leveällä, lantio pysyy paikallaan"],
     ["Tempaus",3,"r",1,"Veto lähellä vartaloa, nyrkki läpi yläasennossa"]]},
   tyonto:{label:"Työntävä",moves:[
@@ -167,20 +174,54 @@ const KK={
     ["Tuulimylly",3,"r",1,"Katse kuulaan, lantio työntyy kuulan puolelle"],
     ["Turkkilainen nousu",3,"r",1,"Rauhallisesti vaihe kerrallaan, kuula aina pystyssä"]]}
 };
+// Syketreenit (EMOM/AMRAP): [nimi, taso, yksikkö r/k(kal), puolittain, vinkki, [taso1,taso2,taso3]]
+Object.assign(KK,{
+  kardio:{label:"Kardio",moves:[
+    ["Echo Bike",1,"k",0,"Kädet ja jalat yhtä aikaa, kova tahti heti minuutin alusta",[8,12,15]],
+    ["Burpee",1,"r",0,"Rinta lattiaan, hyppy ylös ja kädet yli pään",[6,8,10]],
+    ["Vuorikiipeilijä",1,"r",0,"Lantio alhaalla, polvet nopeasti rintaa kohti – toistot yhteensä",[20,30,40]],
+    ["Tähtihyppy",1,"r",0,"Kevyesti päkiöillä, kädet yli pään",[25,35,45]],
+    ["Burpee kuulan yli",3,"r",0,"Burpee kuulan vieressä, sivuttaishyppy kuulan yli",[6,8,10]]]},
+  kehonpaino:{label:"Kehonpaino",moves:[
+    ["Punnerrus",1,"r",0,"Vartalo suorana, polvet maahan tarvittaessa",[6,10,15]],
+    ["Ilmakyykky",1,"r",0,"Reidet vaakatasoon, kantapäät maassa",[15,20,25]],
+    ["Istumaannousu",1,"r",0,"Kädet yli pään, nouse rauhallisesti ylös",[10,15,20]],
+    ["Lankku ja olkapääkosketus",1,"r",0,"Lantio paikallaan – kosketukset yhteensä",[16,20,30]],
+    ["Hyppykyykky",2,"r",0,"Pehmeä alastulo suoraan seuraavaan kyykkyyn",[8,12,15]],
+    ["Hyppyaskelkyykky",2,"r",1,"Jalat vaihtavat ilmassa, takapolvi lähelle lattiaa",[5,6,8]],
+    ["T-punnerrus",2,"r",0,"Punnerruksen jälkeen kierto sivulankkuun, puolet vuorotellen",[6,8,12]]]},
+  kkSyke:{label:"Kahvakuula",moves:[
+    ["Kahden käden heilautus",1,"r",0,"Räjähtävä lonkan ojennus, hengitys ulos yläasennossa",[12,15,20]],
+    ["Kahden käden rinnalleveto maljaan",1,"r",0,"Lattialta maljaotteeseen, pehmeä vastaanotto",[8,10,12]],
+    ["Kyykkypunnerrus",2,"r",0,"Kyykystä suoraan punnerrukseen yhdellä liikkeellä",[6,8,10]],
+    ["Yhden käden heilautus",2,"r",1,"Vartalo ei kierry, vaihda kättä yläasennossa",[6,8,10]],
+    ["Rinnalleveto",2,"r",1,"Heilautuksesta rinnalle, kuula kiertää käden ympäri",[4,5,6]],
+    ["Rinnalleveto roikunnasta",2,"r",1,"Polvien kohdalta terävästi rinnalle",[4,5,6]],
+    ["Tempaus",3,"r",1,"Veto lähellä vartaloa, nyrkki läpi yläasennossa",[5,6,8]],
+    ["Kahden kuulan rinnalleveto",3,"r",0,"Kuulat yhdessä, kyynärpäät kylkiin",[5,6,8]]]}
+});
 // Englanninkieliset nimet
 const EN={"Kahden käden heilautus":"Two-Hand Swing","Yhden käden kulmasoutu":"Single-Arm Bent-Over Row","Pystysoutu kahdella kädellä":"Upright Row","Yhden käden heilautus":"Single-Arm Swing","Korkea veto":"High Pull","Rinnalleveto":"Clean","Lankkusoutu":"Renegade Row","Tempaus":"Snatch",
 "Lattiapunnerrus":"Floor Press","Pystypunnerrus yhdellä kädellä":"Single-Arm Strict Press","Punnerrus kuulan kahvoista":"Kettlebell Push-up","Kyykkypunnerrus":"Thruster","Työntöpunnerrus":"Push Press","Rinnalleveto ja punnerrus":"Clean and Press","Pohja ylös -pystypunnerrus":"Bottoms-Up Press",
 "Maljakyykky":"Goblet Squat","Maastaveto kuulalla":"Kettlebell Deadlift","Askelkyykky taakse":"Reverse Lunge","Askelnousu":"Step-up","Yhden jalan romanialainen maastaveto":"Single-Leg Romanian Deadlift","Etukyykky rinnalla":"Front Rack Squat","Bulgarialainen askelkyykky":"Bulgarian Split Squat","Kasakkakyykky":"Cossack Squat",
+"Kahden käden rinnalleveto maljaan":"Two-Hand Goblet Clean","Rinnalleveto kuolleesta pisteestä":"Dead Stop Clean","Rinnalleveto roikunnasta":"Hang Clean","Kahden kuulan rinnalleveto":"Double Kettlebell Clean","Vuorotteleva rinnalleveto kahdella kuulalla":"Alternating Double Clean","Pohja ylös -rinnalleveto":"Bottoms-Up Clean",
+"Echo Bike":"Echo Bike","Burpee":"Burpee","Vuorikiipeilijä":"Mountain Climber","Tähtihyppy":"Jumping Jack","Burpee kuulan yli":"Lateral Burpee over Kettlebell","Punnerrus":"Push-up","Ilmakyykky":"Air Squat","Istumaannousu":"Sit-up","Lankku ja olkapääkosketus":"Plank Shoulder Tap","Hyppykyykky":"Jump Squat","Hyppyaskelkyykky":"Jumping Lunge","T-punnerrus":"T Push-up",
 "Halo":"Halo","Kuollut ötökkä kuulalla":"Kettlebell Dead Bug","Matkalaukkukävely":"Suitcase Carry","Venäläinen kierto":"Russian Twist","Lankku ja kuulan siirto":"Plank Pull-Through","Istumaannousu kuula ylhäällä":"Overhead Sit-up","Tuulimylly":"Windmill","Turkkilainen nousu":"Turkish Get-up"};
 const both=n=>EN[n]&&EN[n]!==n?n+" ("+EN[n]+")":n;
 const ORDER=["veto","tyonto","jalka","vatsa"];
+const ORDER_SYKE=["kardio","kehonpaino","kkSyke","kehonpaino"];
+const isSyke=f=>f==="emom"||f==="amrap";
+const orderFor=s=>isSyke(s.format)?ORDER_SYKE:ORDER;
+const SYKE_MIN={emom:{15:12,20:16,30:24},amrap:{15:10,20:15,30:24}};
 const ROUNDS={15:3,20:4,30:6};
 const REPS={1:[8,10],2:[10,12],3:[12,15]};
 const settings=()=>({level:+$("level").value,time:+$("time").value,format:$("format").value});
 const findMove=(cat,name)=>KK[cat].moves.find(m=>m[0]===name)||KK[cat].moves[0];
 function pick(cat,level,avoid){
-  const pool=KK[cat].moves.filter(m=>m[1]<=level&&m[0]!==avoid);
-  const w=pool.map(m=>level-m[1]>=2?1:3); // kokeneelle helpoimmat harvemmin
+  const av=[].concat(avoid||[]);
+  let pool=KK[cat].moves.filter(m=>m[1]<=level&&!av.includes(m[0]));
+  if(!pool.length)pool=KK[cat].moves.filter(m=>m[1]<=level);
+  const w=pool.map(m=>m[0]==="Echo Bike"?8:level-m[1]>=2?1:3); // Echo Bike useimmin, kokeneelle helpoimmat harvemmin
   let r=Math.random()*w.reduce((a,b)=>a+b,0);
   for(let i=0;i<pool.length;i++){r-=w[i];if(r<=0)return pool[i][0]}
   return pool[pool.length-1][0];
@@ -188,13 +229,16 @@ function pick(cat,level,avoid){
 let W=store.get("treeni",null);
 function generate(){
   const s=settings(),prev=W?.items||[];
-  W={items:ORDER.map((cat,i)=>{const o=prev[i];
-    if(o&&o.locked&&findMove(cat,o.name)[1]<=s.level)return o;
-    return{cat,name:pick(cat,s.level,o?.name),locked:false}})};
+  const mode=isSyke(s.format)?"syke":"voima",same=W&&W.mode===mode,chosen=[];
+  W={mode,items:orderFor(s).map((cat,i)=>{const o=same?prev[i]:null;
+    if(o&&o.locked&&o.cat===cat&&findMove(cat,o.name)[1]<=s.level){chosen.push(o.name);return o}
+    const name=pick(cat,s.level,[o?.name,...chosen]);chosen.push(name);
+    return{cat,name,locked:false}})};
   store.set("treeni",W);render();resetTimer();
 }
 function dose(it,s){
   const m=findMove(it.cat,it.name);
+  if(isSyke(s.format)&&m[5]){const n=m[5][Math.min(2,s.level-1)];return m[2]==="k"?n+" kal":m[3]?n+" / puoli":n+" toistoa"}
   if(s.format==="int")return m[3]?"20 s / puoli":"40 s";
   if(it.name==="Turkkilainen nousu")return (s.level>=3?3:2)+" / puoli";
   if(m[2]==="s")return ({1:20,2:30,3:40})[s.level]+" s / puoli";
@@ -204,21 +248,25 @@ function dose(it,s){
 }
 function planText(s){
   const r=ROUNDS[s.time];
+  if(s.format==="emom")return `EMOM ${SYKE_MIN.emom[s.time]} min · uusi liike jokaisen minuutin alussa, loppuminuutti lepoa`;
+  if(s.format==="amrap")return `AMRAP ${SYKE_MIN.amrap[s.time]} min · mahdollisimman monta kierrosta putkeen`;
   return s.format==="int"?`${r} kierrosta · 40 s työ / 20 s lepo · 1 min tauko kierrosten välissä`:`${r} kierrosta · 60–90 s lepo kierrosten välissä`;
 }
 function render(){
   const s=settings();
   $("planText").textContent=planText(s);
-  $("warm").textContent="Lämmittely 5 min: halot, kevyet maljakyykyt ja lantion saranointi ilman kuulaa. Valitse kuula, jolla viimeiset toistot ovat raskaita mutta tekniikka pysyy.";
+  $("warm").textContent=isSyke(s.format)
+    ?"Lämmittely 5 min: kevyt Echo Bike tai tähtihypyt, halot ja kevyet heilautukset. Tavoite on kova syke (RPE 7–9) mutta siisti tekniikka – keskikevyt kuula. Jos EMOMin liike kestää yli 45 s, vähennä toistoja; Echo Biken voi korvata soudulla tai juoksulla."
+    :"Lämmittely 5 min: halot, kevyet maljakyykyt ja lantion saranointi ilman kuulaa. Valitse kuula, jolla viimeiset toistot ovat raskaita mutta tekniikka pysyy.";
   $("moves").innerHTML=W.items.map((it,i)=>{const m=findMove(it.cat,it.name);return `<li class="${it.locked?"locked":""}">
     <span class="n">${i+1}</span><span class="cat">${KK[it.cat].label}</span>
     <div class="mv"><b>${esc(it.name)}</b>${EN[it.name]&&EN[it.name]!==it.name?`<i class="en">${esc(EN[it.name])}</i>`:""}<span>${esc(m[4])}</span></div>
     <div class="side"><span class="dose">${dose(it,s)}</span>
       <div class="acts"><button class="btn ghost sm" data-swap="${i}">Vaihda</button><button class="btn ghost sm" data-lock="${i}" aria-pressed="${it.locked}">${it.locked?"Lukittu":"Lukitse"}</button></div></div></li>`}).join("");
-  $("moves").querySelectorAll("[data-swap]").forEach(b=>b.onclick=()=>{const it=W.items[+b.dataset.swap];it.name=pick(it.cat,settings().level,it.name);store.set("treeni",W);render();resetTimer()});
+  $("moves").querySelectorAll("[data-swap]").forEach(b=>b.onclick=()=>{const it=W.items[+b.dataset.swap];it.name=pick(it.cat,settings().level,W.items.map(x=>x.name));store.set("treeni",W);render();resetTimer()});
   $("moves").querySelectorAll("[data-lock]").forEach(b=>b.onclick=()=>{const it=W.items[+b.dataset.lock];it.locked=!it.locked;store.set("treeni",W);render()});
 }
-["level","time","format"].forEach(id=>{$(id).value=store.get(id,$(id).value);$(id).onchange=e=>{store.set(id,e.target.value);if(id==="level")generate();else{render();resetTimer()}}});
+["level","time","format"].forEach(id=>{$(id).value=store.get(id,$(id).value);$(id).onchange=e=>{store.set(id,e.target.value);const want=isSyke(settings().format)?"syke":"voima";if(id==="level"||W.mode!==want)generate();else{render();resetTimer()}}});
 $("gen").onclick=generate;
 $("copy").onclick=async()=>{
   const s=settings();
@@ -227,9 +275,15 @@ $("copy").onclick=async()=>{
 };
 
 /* ---------- ajastin ---------- */
-let phases=[],pi=0,left=0,running=false,tick=null,wake=null,actx=null;
+let phases=[],pi=0,left=0,running=false,tick=null,wake=null,actx=null,amrapRounds=0;
 function buildPhases(){
   const s=settings(),r=ROUNDS[s.time],ph=[{k:"prep",l:"Valmistaudu",d:10,cur:both(W.items[0].name)}];
+  if(s.format==="emom"){const n=SYKE_MIN.emom[s.time];
+    for(let k=1;k<=n;k++){const it=W.items[(k-1)%W.items.length];ph.push({k:"work",l:`Minuutti ${k}/${n}`,d:60,cur:both(it.name)+" · "+dose(it,s)})}
+    ph[0].cur=W.items[0]?both(W.items[0].name)+" · "+dose(W.items[0],s):"";return ph}
+  if(s.format==="amrap"){const n=SYKE_MIN.amrap[s.time];
+    ph.push({k:"work",l:`AMRAP ${n} min`,d:n*60,cur:W.items.map(it=>it.name+" "+dose(it,s).replace(" toistoa","")).join(" → "),amrap:1});
+    ph[0].cur="Kierros: "+W.items.map(it=>it.name).join(" → ");return ph}
   for(let k=1;k<=r;k++){
     if(s.format==="int"){
       W.items.forEach((it,i)=>{
@@ -252,17 +306,18 @@ function show(){
   const p=phases[pi];if(!p)return;
   const box=$("tmBox");box.className="timer "+p.k;
   $("tmPh").textContent=p.l+(p.rd?` · kierros ${p.rd}/${ROUNDS[settings().time]}`:"");
+  $("tmRound").hidden=!p.amrap;
   $("tmClock").textContent=p.d?fmt(left):"▶";
   $("tmCur").textContent=p.cur||"";
-  const nx=p.k!=="work"?nextWorkName(pi):"";
-  $("tmNext").textContent=p.d===0?"Tee kierroksen liikkeet ja paina Valmis":(nx?"Seuraavaksi: "+nx:"");
+  const nx=(p.k!=="work"||settings().format==="emom")?nextWorkName(pi):"";
+  $("tmNext").textContent=p.amrap?`Kierroksia: ${amrapRounds}`:p.d===0?"Tee kierroksen liikkeet ja paina Valmis":(nx?"Seuraavaksi: "+nx:"");
   $("tmProg").style.width=Math.round(pi/Math.max(1,phases.length-1)*100)+"%";
   $("tmStart").textContent=p.d===0?"Valmis":(running?"Tauko":"Aloita");
 }
 function resetTimer(){
-  stop();phases=buildPhases();pi=0;left=phases[0].d;
+  stop();phases=buildPhases();pi=0;left=phases[0].d;amrapRounds=0;$("tmRound").hidden=true;
   const s=settings(),tot=phases.reduce((a,p)=>a+p.d,0);
-  $("tmInfo").textContent=s.format==="int"?"Kesto "+fmt(tot):"Lepotauot "+fmt(tot);
+  $("tmInfo").textContent=s.format==="reps"?"Lepotauot "+fmt(tot):"Kesto "+fmt(tot);
   $("tmBox").className="timer";$("tmPh").textContent="Valmiina";$("tmClock").textContent=fmt(phases[0].d);$("tmCur").textContent="Ensimmäinen: "+both(W.items[0].name);$("tmNext").textContent="";$("tmProg").style.width="0";$("tmStart").textContent="Aloita";
 }
 function beep(f,ms){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.connect(g);g.connect(actx.destination);g.gain.setValueAtTime(.25,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+ms/1000);o.start();o.stop(actx.currentTime+ms/1000)}catch(e){}}
@@ -270,7 +325,7 @@ async function lockWake(){try{wake=await navigator.wakeLock?.request("screen")}c
 function stop(){running=false;clearInterval(tick);tick=null;try{wake?.release()}catch(e){}wake=null}
 function advance(){
   pi++;
-  if(pi>=phases.length){stop();$("tmBox").className="timer";$("tmPh").textContent="Valmis";$("tmClock").textContent="✓";$("tmCur").textContent="Hyvä treeni!";$("tmNext").textContent="";$("tmProg").style.width="100%";$("tmStart").textContent="Aloita alusta";pi=phases.length;beep(660,700);return}
+  if(pi>=phases.length){stop();$("tmBox").className="timer";$("tmPh").textContent="Valmis";$("tmClock").textContent="✓";$("tmCur").textContent=amrapRounds?`Tulos: ${amrapRounds} kierrosta – hyvä treeni!`:"Hyvä treeni!";$("tmRound").hidden=true;$("tmNext").textContent="";$("tmProg").style.width="100%";$("tmStart").textContent="Aloita alusta";pi=phases.length;beep(660,700);return}
   left=phases[pi].d;beep(880,450);
   if(phases[pi].d===0){clearInterval(tick);tick=null}
   else if(running&&!tick)tick=setInterval(step,1000);
@@ -285,10 +340,11 @@ $("tmStart").onclick=()=>{
   running=true;lockWake();beep(660,80);show();tick=setInterval(step,1000);
 };
 $("tmSkip").onclick=()=>{if(pi<phases.length)advance()};
+$("tmRound").onclick=()=>{amrapRounds++;beep(1200,60);try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}show()};
 $("tmReset").onclick=resetTimer;
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&running)lockWake()});
 
-if(!W||!W.items||W.items.length!==4)generate();else{render();resetTimer()}
+if(!W||!W.items||W.items.length!==4||(W.mode||"voima")!==(isSyke(settings().format)?"syke":"voima"))generate();else{render();resetTimer()}
 </script>
 </body>
 </html>

@@ -28,7 +28,7 @@
   <div class="brand"><a href="../" class="back">← Puurakenteet</a><h1 id="h1">Naula- ja ruuviliitokset</h1></div>
   <div class="hdr-r"><span class="meta"><span id="toolno">Työkalu 2</span> · Laatinut: INS (YAMK) Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
 </header>
-<nav class="modes" id="modes" aria-label="Liitoksen kuormitus"><a href="./">Leikkaus + ulosveto</a><a href="?tila=leikkaus">Leikkausliitos</a><a href="?tila=veto">Vetoliitos (ulosveto)</a></nav>
+<nav class="modes" id="modes" aria-label="Liitoksen kuormitus"><a href="?tila=leikkaus">Leikkausliitos</a><a href="?tila=veto">Vetoliitos (ulosveto)</a></nav>
 <p class="intro" id="intro">Työkalu mitoittaa yksinkertaiset yksi- ja kaksileikkeiset naula- ja ruuviliitokset Puuinfon Eurokoodi 5 -lyhennetyn suunnitteluohjeen (luvut 6.1–6.4) mukaan. Liitostyypit ovat puu–puu, puulevy–puu ja teräslevy–puu. Laskenta kattaa leikkauksen, ulosvedon, niiden yhteisvaikutuksen, tarvittavan liitinmäärän ja pienimmät liitinvälit. Käyttöluokka ja aikaluokka haetaan <a href="../perusteet/" style="color:var(--accent)">suunnitteluperusteista</a>.</p>
 
 <div class="grid">
@@ -104,12 +104,12 @@
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); }, P = PUU, n = P.n;
-  var MODE = (new URLSearchParams(location.search).get('tila') || '').toLowerCase(); if (MODE !== 'leikkaus' && MODE !== 'veto') MODE = 'yhd';
-  var MT = { yhd: ['Naula- ja ruuviliitokset', 'Työkalu 2', null],
-    leikkaus: ['Leikkausliitos', 'Työkalu 3', 'Työkalu mitoittaa naula- ja ruuviliitoksen, jossa voima vaikuttaa kohtisuoraan liittimeen nähden (leikkaus, luvut 6.1–6.2 ja 6.4). Liitostyypit ovat puu–puu yksi- tai kaksileikkeisenä, puulevy–puu ja teräslevy–puu. Tulos antaa liittimen leikkauskestävyyden, tarvittavan liitinmäärän ja pienimmät liitinvälit. Jos liittimeen kohdistuu myös ulosvetoa, käytä yhdistettyä työkalua.'],
-    veto: ['Vetoliitos (ulosveto)', 'Työkalu 4', 'Työkalu mitoittaa naula- ja ruuviliitoksen, jossa voima vetää liitintä sen akselin suuntaan (ulosveto, luvut 6.3 ja 6.4). Tarkistettavat murtotavat ovat kärjen ulosveto, kannan läpiveto ja ruuvin vetomurto. Ruuviryhmän kestävyys lasketaan kertoimella n<sup>0,9</sup>, joten tarvittava ruuvimäärä haetaan iteroimalla. Jos liittimeen kohdistuu myös leikkausta, käytä yhdistettyä työkalua.'] };
+  var MODE = (new URLSearchParams(location.search).get('tila') || '').toLowerCase(); if (MODE !== 'veto') MODE = 'leikkaus';
+  var MT = {
+    leikkaus: ['Leikkausliitos', 'Työkalu 2', 'Työkalu mitoittaa naula- ja ruuviliitoksen, jossa voima vaikuttaa kohtisuoraan liittimeen nähden (leikkaus, luvut 6.1–6.2 ja 6.4). Liitostyypit ovat puu–puu yksi- tai kaksileikkeisenä, puulevy–puu ja teräslevy–puu. Tulos antaa liittimen leikkauskestävyyden, tarvittavan liitinmäärän ja pienimmät liitinvälit.'],
+    veto: ['Vetoliitos (ulosveto)', 'Työkalu 3', 'Työkalu mitoittaa naula- ja ruuviliitoksen, jossa voima vetää liitintä sen akselin suuntaan (ulosveto, luvut 6.3 ja 6.4). Tarkistettavat murtotavat ovat kärjen ulosveto, kannan läpiveto ja ruuvin vetomurto. Ruuviryhmän kestävyys lasketaan kertoimella n<sup>0,9</sup>, joten tarvittava ruuvimäärä haetaan iteroimalla.'] };
   $('h1').textContent = MT[MODE][0]; $('toolno').textContent = MT[MODE][1]; document.title = MT[MODE][0] + ' – Lastutec'; if (MT[MODE][2]) $('intro').innerHTML = MT[MODE][2] + ' Käyttöluokka ja aikaluokka haetaan <a href="../perusteet/" style="color:var(--accent)">suunnitteluperusteista</a>.';
-  document.querySelectorAll('#modes a')[{ yhd: 0, leikkaus: 1, veto: 2 }[MODE]].className = 'on';
+  document.querySelectorAll('#modes a')[{ leikkaus: 0, veto: 1 }[MODE]].className = 'on';
   $('w-Fax').hidden = MODE === 'leikkaus'; $('w-Fv').hidden = $('w-alpha').hidden = MODE === 'veto'; $('w-heated').hidden = MODE === 'leikkaus';
   if (MODE === 'veto') { $('Fax').value = 2; $('ntype').value = 'pr'; }
   var mats = Object.keys(P.MAT).map(function (k) { return [k, P.MAT[k].g + ': ' + P.MAT[k].name]; });
@@ -152,6 +152,7 @@
     fig(o, r);
   }
   function fig(o, r) {
+    if (MODE === 'veto') return figVeto(o, r);
     var W = 520, H = 230, s = r.sp, cols = Math.max(1, Math.min(8, Math.ceil(Math.sqrt(o.nf * 2)))), rows = Math.max(1, Math.ceil(o.nf / cols));
     var len = 2 * s.a3t + (cols - 1) * s.a1, wid = 2 * s.a4c + (rows - 1) * s.a2, sc = Math.min((W - 120) / len, (H - 70) / Math.max(wid, 1)), x0 = 70, y0 = 30;
     var o2 = '<svg viewBox="0 0 ' + W + ' ' + H + '" font-family="Arial,Helvetica,sans-serif">';
@@ -169,6 +170,36 @@
     o2 += '<path d="M' + (x0 - 50) + ' ' + (y0 + wid * sc / 2) + ' H' + (x0 - 8) + '" stroke="#e9e6e0" stroke-width="2.5"/><path d="M' + (x0 - 8) + ' ' + (y0 + wid * sc / 2) + ' l-8 -5 v10 z" fill="#e9e6e0"/><text x="' + (x0 - 50) + '" y="' + (y0 + wid * sc / 2 - 8) + '" fill="#e9e6e0" font-size="11">F</text>';
     o2 += '<text x="12" y="' + (H - 8) + '" fill="#aeaba4" font-size="10.5">Periaatekuva: ' + o.nf + ' liitintä, syysuunta vaakaan, pienimmät välit ja etäisyydet [mm]</text>';
     $('fig').innerHTML = o2 + '</svg>';
+  }
+  // Vetoliitos: leikkauskuva liittimen akselin suunnassa (ulosveto)
+  function figVeto(o, r) {
+    var c = o.conn, nail = o.fast === 'naula', L = o.L || 90, d = o.d || 3, dh = o.dh || 2 * d, nf = Math.max(1, Math.round(o.nf || 1)), show = Math.min(nf, 6);
+    var t1 = c === 'lp' ? o.tP : c === 'tp' ? o.tS : o.tA, tB = o.tB || 0, pp2 = c === 'pp2';
+    var layers = [{ t: t1, k: c === 'tp' ? 'steel' : c === 'lp' ? 'board' : 'wood', nm: c === 'tp' ? 'teräslevy' : c === 'lp' ? 'puulevy' : (pp2 ? 'ulko-osa A' : 'puu A (kannan puoli)') }];
+    layers.push({ t: tB, k: 'wood', nm: pp2 ? 'keskiosa B' : 'puu B (kärjen puoli)' });
+    if (pp2) layers.push({ t: Math.max(o.tA, L - t1 - tB), k: 'wood', nm: 'ulko-osa A (kärjen puoli)' });
+    var tpen = pp2 ? L - t1 - tB : L - t1, tot = layers.reduce(function (a, l) { return a + l.t; }, 0), Hd = Math.max(tot, L) + 10;
+    var W = 520, H = 262, top = 54, sc = Math.min((H - top - 48) / Hd, 2.2), x0 = 150, wd = 230, sp = wd / (show + 1);
+    var col = { wood: ['#3a2a18', '#c99a62'], board: ['#4a3a20', '#d8b170'], steel: ['#4a4d53', '#aeaba4'] };
+    var g = '<svg viewBox="0 0 ' + W + ' ' + H + '" font-family="Arial,Helvetica,sans-serif">', y = top;
+    layers.forEach(function (l) { var h = l.t * sc, cc = col[l.k];
+      g += '<rect x="' + x0 + '" y="' + y + '" width="' + wd + '" height="' + h + '" fill="' + cc[0] + '" stroke="' + cc[1] + '"/>';
+      if (l.k === 'wood') for (var i = 1; i < 4; i++) g += '<line x1="' + x0 + '" y1="' + (y + i * h / 4) + '" x2="' + (x0 + wd) + '" y2="' + (y + i * h / 4) + '" stroke="#5a4226"/>';
+      g += '<text x="' + (x0 - 6) + '" y="' + (y + h / 2 - 2) + '" fill="#e9e6e0" font-size="10.5" text-anchor="end">' + l.nm + '</text><text x="' + (x0 - 6) + '" y="' + (y + h / 2 + 11) + '" fill="#aeaba4" font-size="10" text-anchor="end">t = ' + Math.round(l.t) + '</text>'; y += h; });
+    var yPt = top + L * sc, hw = Math.max(1.6, d * sc / 2), hh = Math.max(3, dh * sc / 2);
+    for (var i = 1; i <= show; i++) { var x = x0 + i * sp;
+      g += '<rect x="' + (x - hw) + '" y="' + top + '" width="' + 2 * hw + '" height="' + (L * sc - hw) + '" fill="#e9e6e0"/><path d="M' + (x - hw) + ' ' + (yPt - hw) + ' L' + x + ' ' + yPt + ' L' + (x + hw) + ' ' + (yPt - hw) + ' Z" fill="#e9e6e0"/>';
+      if (!nail) for (var k = 0; k < 6; k++) { var yy = yPt - hw - (k + 1) * Math.min((o.lg || L / 2) * sc, L * sc) / 7; g += '<line x1="' + (x - hw - 1.5) + '" y1="' + yy + '" x2="' + (x + hw + 1.5) + '" y2="' + (yy - 2) + '" stroke="#24262a" stroke-width="1"/>'; }
+      g += '<rect x="' + (x - hh) + '" y="' + (top - 3) + '" width="' + 2 * hh + '" height="3" fill="#e9e6e0"/>';
+      g += '<path d="M' + x + ' ' + (top - 6) + ' V' + (top - 30) + '" stroke="#E3824F" stroke-width="2"/><path d="M' + x + ' ' + (top - 36) + ' l-5 8 h10 z" fill="#E3824F"/>'; }
+    g += '<text x="' + (x0 + wd / 2) + '" y="16" fill="#E3824F" font-size="12" font-weight="700" text-anchor="middle">F<tspan font-size="9" dy="3">ax,Ed</tspan><tspan dy="-3"> = ' + n(o.Fax, 2) + ' kN (' + nf + ' liitintä' + (nf > show ? ', kuvassa ' + show : '') + ')</tspan></text>';
+    // mitat oikealla
+    var xd = x0 + wd + 14, dim = function (ya, yb, t, xx, cl) { cl = cl || '#E3824F'; return '<path d="M' + xx + ' ' + ya + ' V' + yb + ' M' + (xx - 4) + ' ' + ya + ' h8 M' + (xx - 4) + ' ' + yb + ' h8" stroke="' + cl + '" stroke-width="1.2"/><text x="' + (xx + 7) + '" y="' + ((ya + yb) / 2 + 4) + '" fill="' + cl + '" font-size="11">' + t + '</text>'; };
+    g += dim(top, yPt, 'L = ' + Math.round(L), xd);
+    if (tpen > 0) g += dim(yPt - tpen * sc, yPt, 't<tspan font-size="8" dy="3">pen</tspan><tspan dy="-3"> = ' + Math.round(tpen) + '</tspan>', xd + 62, '#82c79f');
+    g += '<text x="12" y="' + (H - 24) + '" fill="#e9e6e0" font-size="10.5">Murtotavat: <tspan fill="#82c79f">kärjen ulosveto (tartuntapituus t<tspan font-size="8" dy="3">pen</tspan><tspan dy="-3">)</tspan></tspan>, <tspan fill="#92b8dd">kannan läpiveto (d<tspan font-size="8" dy="3">h</tspan><tspan dy="-3"> = ' + n(dh, 1) + ')</tspan></tspan>' + (nail ? '' : ', ruuvin vetomurto') + '</text>';
+    g += '<text x="12" y="' + (H - 8) + '" fill="#aeaba4" font-size="10.5">Periaatekuva: leikkaus liittimen akselin suunnassa. Veto vaikuttaa liittimen suuntaan, mitat [mm].</text>';
+    $('fig').innerHTML = g + '</svg>';
   }
   // oletusarvot liittimen vaihtuessa
   $('fast').addEventListener('change', function () { if ($('fast').value === 'ruuvi') { $('d').value = 5; $('L').value = 90; $('di').value = 3.2; $('lg').value = 54; $('dh').value = 9.5; $('ftens').value = 7.9; } else { $('d').value = 3.1; $('L').value = 90; $('dh').value = 7; } calc(); });

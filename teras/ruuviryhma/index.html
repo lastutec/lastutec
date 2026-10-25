@@ -109,6 +109,8 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 .lt-tool .rr-inp input,.lt-tool .rr-inp select{width:84px;padding:4px 6px}
 .lt-tool .rr-inp select{width:auto}
 .lt-tool .rr-inp tbody tr{cursor:default}
+.lt-tool .rr-calc tbody tr{cursor:default}
+.lt-tool .rr-calc th,.lt-tool .rr-calc td{padding:5px 8px;font-size:.85rem}
 .lt-tool .rr-inp tbody tr:hover{background:var(--lt-bg)}
 </style>
 <script src="../teras.js"></script>
@@ -215,7 +217,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 (function(){
   var root=document.getElementById('lt-rr'),L=window.LT;
   function $(s){return root.querySelector(s);}
-  function f(x,d){if(d===undefined)d=1;return isFinite(x)?x.toLocaleString('fi-FI',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';}
+  function f(x,d){if(d===undefined)d=1;if(isFinite(x)&&Math.abs(x)<0.5*Math.pow(10,-d))x=0;return isFinite(x)?x.toLocaleString('fi-FI',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';}
   function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
   function edge(id){var s=$(id).value.trim();if(s==='')return Infinity;var v=parseFloat(s);return isFinite(v)&&v>0?v:Infinity;}
   function step(t,ls){return '<li class="lt-step"><h4>'+t+'</h4>'+ls.filter(Boolean).map(function(l){return '<div class="lt-f">'+l+'</div>';}).join('')+'</li>';}
@@ -332,6 +334,39 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
   }
 
   function colU(u){return u>1?'#e8907f':u>0.85?'#e2c47f':'#82c79f';}
+  // Leikkauskuva: ax='x' → leikkaus A–A (x-suunta, ruuvirivi), ax='y' → leikkaus B–B (y-suunta, ruuvisarake)
+  function secView(R,ax){
+    var n=ax==='x'?R.nx:R.ny,pp=ax==='x'?R.px:R.py,half=(n-1)/2*pp,P=R.P,ext=function(v){return isFinite(v)?v:null;};
+    var lo=function(p){return ax==='x'?p.xl:p.yb;},hi=function(p){return ax==='x'?p.xr:p.yt;};
+    var span=half+Math.max(60,Math.max.apply(null,P.map(function(p){return Math.max(ext(lo(p))||0,ext(hi(p))||0);}))+20);
+    var Wd=360,sx=Math.min(1.6,(Wd-40)/(2*span)),ts=Math.max(2.2,Math.min(5,90/(2*P[0].t+P[1].t))),cx=Wd/2;
+    var layers=R.ns===2?[{p:P[0],t:P[0].t,nm:'levy 1'},{p:P[1],t:P[1].t,nm:'levy 2'},{p:P[0],t:P[0].t,nm:'levy 1'}]:[{p:P[0],t:P[0].t,nm:'levy 1'},{p:P[1],t:P[1].t,nm:'levy 2'}];
+    if(R.tp>0){var pk={p:null,t:R.tp,nm:'täyte'};layers.splice(1,0,pk);}
+    var y=34,g='',ys=[];
+    layers.forEach(function(l){var h=l.t*ts,a,b;
+      if(l.p){var e1=ext(lo(l.p)),e2=ext(hi(l.p));a=e1===null?cx-(span)*sx:cx-(half+e1)*sx;b=e2===null?cx+(span)*sx:cx+(half+e2)*sx;}
+      else{a=cx-(half+30)*sx;b=cx+(half+30)*sx;}
+      g+='<rect x="'+a+'" y="'+y+'" width="'+(b-a)+'" height="'+h+'" fill="'+(l.p?(l.nm==='levy 2'?'#5a5e66':'#474a51'):'#3a3d43')+'" stroke="#aeaba4"'+(l.p?'':' stroke-dasharray="3 2"')+'/>';
+      if(l.p&&ext(lo(l.p))===null) g+='<path d="M'+(a+6)+' '+(y-2)+' l-6 '+(h/2+2)+' l6 '+(h/2+2)+'" stroke="#aeaba4" fill="none"/>';
+      if(l.p&&ext(hi(l.p))===null) g+='<path d="M'+(b-6)+' '+(y-2)+' l6 '+(h/2+2)+' l-6 '+(h/2+2)+'" stroke="#aeaba4" fill="none"/>';
+      g+='<text x="'+(Wd-4)+'" y="'+(y+h/2+4)+'" fill="#aeaba4" font-size="10" text-anchor="end">'+l.nm+' '+f(l.t,0)+'</text>';
+      ys.push([y,y+h,l]);y+=h;});
+    var yT=34,yB=y,dd=Math.max(3,R.d*sx/2*1.0),hd=dd*1.7;
+    for(var i=0;i<n;i++){var x=cx+(i*pp-half)*sx;
+      g+='<rect x="'+(x-dd)+'" y="'+(yT-6)+'" width="'+2*dd+'" height="'+(yB-yT+12)+'" fill="#e9e6e0"/>';
+      g+='<rect x="'+(x-hd)+'" y="'+(yT-12)+'" width="'+2*hd+'" height="6" fill="#e9e6e0"/><rect x="'+(x-hd)+'" y="'+(yB+6)+'" width="'+2*hd+'" height="6" fill="#e9e6e0"/>';}
+    // leiketasot: levyjen rajapinnat, joissa ruuvi leikkautuu (täytelevy on levyjen välissä)
+    var planes=[];for(var k=0;k<ys.length-1;k++){var A=ys[k][2],Bn=ys[k+1][2];if(A.p&&Bn.p) planes.push(ys[k][1]);else if(A.p&&!Bn.p) planes.push(ys[k][1]);}
+    if(R.tp>0&&R.ns===1) planes=[ys[1][1]];
+    planes.forEach(function(yy,k){g+='<line x1="'+(cx-span*sx)+'" y1="'+yy+'" x2="'+(cx+span*sx)+'" y2="'+yy+'" stroke="#e8907f" stroke-width="1.6" stroke-dasharray="7 4"/>';
+      g+='<text x="'+(cx-span*sx+2)+'" y="'+(yy-3)+'" fill="#e8907f" font-size="10">leiketaso'+(planes.length>1?' '+(k+1):'')+'</text>';});
+    // voimakomponentti
+    var V=ax==='x'?R.Vx:R.Vy;if(Math.abs(V)>1e-9){var sg=V>0?1:-1,ya=34+P[0].t*ts/2,xa=cx+sg*(span*sx-4);g+='<line x1="'+(xa-sg*44)+'" y1="'+(ya-16)+'" x2="'+xa+'" y2="'+(ya-16)+'" stroke="#E3824F" stroke-width="2.2"/><polygon points="'+(xa+sg*6)+','+(ya-16)+' '+xa+','+(ya-21)+' '+xa+','+(ya-11)+'" fill="#E3824F"/><text x="'+(xa-sg*22)+'" y="'+(ya-21)+'" fill="#E3824F" font-size="11" text-anchor="middle">V<tspan font-size="8" dy="3">'+ax+'</tspan><tspan dy="-3"> '+f(Math.abs(V),0)+' kN</tspan></text>';}
+    // mitat
+    var yd=yB+26;if(n>1) g+='<path d="M'+(cx-half*sx)+' '+yd+' H'+(cx+(pp-half)*sx)+'" stroke="#aeaba4"/><text x="'+(cx+(pp/2-half)*sx)+'" y="'+(yd+12)+'" fill="#aeaba4" font-size="10" text-anchor="middle">p<tspan font-size="8" dy="3">'+ax+'</tspan><tspan dy="-3"> = '+f(pp,0)+'</tspan></text>';
+    var H=yd+22,title=ax==='x'?'Leikkaus A–A (x-suunta)':'Leikkaus B–B (y-suunta)';
+    return '<figure style="margin:0;flex:1;min-width:280px"><figcaption class="lt-note" style="margin:0 0 4px;font-weight:600;color:var(--lt-fg)">'+title+'</figcaption><svg viewBox="0 0 '+Wd+' '+H+'" style="width:100%;max-width:'+Wd+'px;height:auto;display:block" role="img" aria-label="'+title+'">'+g+'</svg></figure>';
+  }
   function fig(R){
     var B=R.B,ext=function(v,def){return isFinite(v)?v:def;},p=R.P[0],xmax=(R.nx-1)/2*R.px,ymax=(R.ny-1)/2*R.py;
     var X0=-xmax-ext(p.xl,60),X1=xmax+ext(p.xr,60),Y0=-ymax-ext(p.yb,60),Y1=ymax+ext(p.yt,60),pad=50,W=X1-X0+2*pad,H=Y1-Y0+2*pad,sc=Math.min(1,460/Math.max(W,H))*Math.max(1,300/Math.max(W,H));
@@ -343,7 +378,27 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       if(b.F>1e-9){var k=al*b.F/fmax,ux=b.fx/b.F,uy=-b.fy/b.F,x2=cx+ux*k,y2=cy+uy*k;s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x2+'" y2="'+y2+'" stroke="#E3824F" stroke-width="2"/><polygon points="'+(x2+ux*7)+','+(y2+uy*7)+' '+(x2-uy*4)+','+(y2+ux*4)+' '+(x2+uy*4)+','+(y2-ux*4)+'" fill="#E3824F"/>';}
     });
     if(R.Vx||R.Vy){var lx=tx(R.ex),ly=ty(R.ey),V=Math.hypot(R.Vx,R.Vy),vx=R.Vx/V,vy=-R.Vy/V;s+='<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="#e9e6e0"/><line x1="'+(lx-vx*40)+'" y1="'+(ly-vy*40)+'" x2="'+lx+'" y2="'+ly+'" stroke="#e9e6e0" stroke-width="2.5"/><text x="'+(lx-vx*44+4)+'" y="'+(ly-vy*44-4)+'" fill="#e9e6e0" font-size="12" font-family="Arial">V = '+f(V,0)+' kN</text>';}
-    return '<svg viewBox="0 0 '+W*sc+' '+H*sc+'" style="width:100%;max-width:'+Math.round(W*sc)+'px;height:auto;display:block" role="img" aria-label="Ruuviryhmä, ruuvivoimat ja käyttöasteet">'+s+'</svg><p class="lt-note">Levyn 1 ääriviiva (katkoviiva = jatkuva reuna). Nuolet = ruuvivoimat, väri = ruuvin suurin käyttöaste.</p>';
+    // mitat: reunaetäisyydet ja jaot (levy 1), kuorman epäkeskisyys
+    var DC='#c9c6bf',hdim=function(xa,xb,y,t){return '<path d="M'+xa+' '+y+' H'+xb+' M'+xa+' '+(y-4)+' v8 M'+xb+' '+(y-4)+' v8" stroke="'+DC+'" stroke-width="1"/><text x="'+((xa+xb)/2)+'" y="'+(y-4)+'" fill="'+DC+'" font-size="10.5" text-anchor="middle">'+t+'</text>';},
+      vdim=function(ya,yb,x,t){var ym=(ya+yb)/2;return '<path d="M'+x+' '+ya+' V'+yb+' M'+(x-4)+' '+ya+' h8 M'+(x-4)+' '+yb+' h8" stroke="'+DC+'" stroke-width="1"/><text x="'+(x-5)+'" y="'+ym+'" fill="'+DC+'" font-size="10.5" text-anchor="middle" transform="rotate(-90 '+(x-5)+' '+ym+')">'+t+'</text>';};
+    var yD=ty(Y0)+34,xD=tx(X0)-34,i;
+    if(isFinite(p.xl)) s+=hdim(tx(X0),tx(-xmax),yD,f(p.xl,0));
+    for(i=0;i<R.nx-1;i++) s+=hdim(tx(-xmax+i*R.px),tx(-xmax+(i+1)*R.px),yD,f(R.px,0));
+    if(isFinite(p.xr)) s+=hdim(tx(xmax),tx(X1),yD,f(p.xr,0));
+    if(isFinite(p.xl)&&isFinite(p.xr)) s+=hdim(tx(X0),tx(X1),yD+20,f(X1-X0,0));
+    if(isFinite(p.yb)) s+=vdim(ty(Y0),ty(-ymax),xD,f(p.yb,0));
+    for(i=0;i<R.ny-1;i++) s+=vdim(ty(-ymax+i*R.py),ty(-ymax+(i+1)*R.py),xD,f(R.py,0));
+    if(isFinite(p.yt)) s+=vdim(ty(ymax),ty(Y1),xD,f(p.yt,0));
+    if(isFinite(p.yb)&&isFinite(p.yt)) s+=vdim(ty(Y0),ty(Y1),xD-20,f(Y1-Y0,0));
+    if(Math.abs(R.ex)>1e-9) s+=hdim(tx(0),tx(R.ex),ty(Y1)-30,'e<tspan font-size="8" dy="3">x</tspan><tspan dy="-3"> = '+f(R.ex,0)+'</tspan>');
+    if(Math.abs(R.ey)>1e-9) s+=vdim(ty(0),ty(R.ey),tx(X1)+34,'e<tspan font-size="8" dy="3">y</tspan><tspan dy="-3"> = '+f(R.ey,0)+'</tspan>');
+    s+='<circle cx="'+tx(0)+'" cy="'+ty(0)+'" r="3" fill="none" stroke="#92b8dd"/><path d="M'+(tx(0)-6)+' '+ty(0)+' h12 M'+tx(0)+' '+(ty(0)-6)+' v12" stroke="#92b8dd"/>';
+    // leikkauslinjat A–A ja B–B
+    var ya=ty(R.ny>1?-ymax:0),xb=tx(R.nx>1?xmax:0);
+    s+='<line x1="'+(tx(X0)-14)+'" y1="'+ya+'" x2="'+(tx(X1)+14)+'" y2="'+ya+'" stroke="#92b8dd" stroke-width="1" stroke-dasharray="10 3 2 3"/><text x="'+(tx(X0)-16)+'" y="'+(ya+4)+'" fill="#92b8dd" font-size="12" font-weight="700" text-anchor="end">A</text><text x="'+(tx(X1)+16)+'" y="'+(ya+4)+'" fill="#92b8dd" font-size="12" font-weight="700">A</text>';
+    s+='<line x1="'+xb+'" y1="'+(ty(Y1)-14)+'" x2="'+xb+'" y2="'+(ty(Y0)+14)+'" stroke="#92b8dd" stroke-width="1" stroke-dasharray="10 3 2 3"/><text x="'+xb+'" y="'+(ty(Y1)-18)+'" fill="#92b8dd" font-size="12" font-weight="700" text-anchor="middle">B</text><text x="'+xb+'" y="'+(ty(Y0)+28)+'" fill="#92b8dd" font-size="12" font-weight="700" text-anchor="middle">B</text>';
+    var plan='<figure style="margin:0;flex:1;min-width:260px"><figcaption class="lt-note" style="margin:0 0 4px;font-weight:600;color:var(--lt-fg)">Tasokuva</figcaption><svg viewBox="-60 -50 '+(W*sc+120)+' '+(H*sc+110)+'" style="width:100%;max-width:'+Math.round(W*sc+120)+'px;height:auto;display:block" role="img" aria-label="Ruuviryhmä, ruuvivoimat ja käyttöasteet">'+s+'</svg></figure>';
+    return '<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">'+plan+secView(R,'x')+secView(R,'y')+'</div><p class="lt-note">Tasokuvassa levyn 1 ääriviiva mittoineen [mm] (katkoviiva = jatkuva reuna), ruuviryhmän painopiste (risti), nuolet = ruuvivoimat ja väri = ruuvin suurin käyttöaste. Leikkauksissa näkyvät levyt, täytelevy ja leiketasot (punainen katkoviiva).</p>';
   }
 
   function render(){
@@ -364,10 +419,15 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     var b=R.gS.b;
     s+=step('Ruuvit ja reiät',[R.bs.d?'M'+R.d+' '+R.bcN+': f<sub>ub</sub> = '+R.bc.fub+' N/mm², A<sub>s</sub> = '+f(R.As,0)+' mm², d<sub>0</sub> = '+f(R.d0,0)+' mm'+c_(R.hole==='o'?'(ylisuuri reikä)':R.hole==='n'?'(normaali reikä)':'(soikioreikä)'):'',
       'Ruuveja n = '+R.nx+' × '+R.ny+' = '+R.n+', leikkeitä '+R.ns]);
+    var Ix=R.B.reduce(function(a,q){return a+q.x*q.x;},0),Iy=R.B.reduce(function(a,q){return a+q.y*q.y;},0);
+    var bt='<div class="lt-scroll" style="margin-top:6px"><table class="lt-table rr-calc"><thead><tr><th>Ruuvi</th><th>x<small>mm</small></th><th>y<small>mm</small></th><th>V<sub>x</sub>/n<small>kN</small></th><th>−M·y/I<sub>p</sub><small>kN</small></th><th>F<sub>x</sub><small>kN</small></th><th>V<sub>y</sub>/n<small>kN</small></th><th>M·x/I<sub>p</sub><small>kN</small></th><th>F<sub>y</sub><small>kN</small></th><th>F = √(F<sub>x</sub>² + F<sub>y</sub>²)<small>kN</small></th></tr></thead><tbody>'+
+      R.B.map(function(q,k){var mx_=R.Ip>0?-R.M*q.y/R.Ip:0,my_=R.Ip>0?R.M*q.x/R.Ip:0;return '<tr'+(q===b?' class="sel"':'')+'><td>'+(k+1)+'</td><td>'+f(q.x,0)+'</td><td>'+f(q.y,0)+'</td><td>'+f(R.Vx/R.n,2)+'</td><td>'+f(mx_,2)+'</td><td><b>'+f(q.fx,2)+'</b></td><td>'+f(R.Vy/R.n,2)+'</td><td>'+f(my_,2)+'</td><td><b>'+f(q.fy,2)+'</b></td><td><b>'+f(q.F,2)+'</b></td></tr>';}).join('')+'</tbody></table></div>';
     s+=step('Ruuvivoimat (kimmoteoria)',[
-      'I<sub>p</sub> = Σ(x² + y²) = '+f(R.Ip,0)+' mm²',
+      'Ruuvien koordinaatit ryhmän painopisteestä: x<sub>i</sub> = (i − (n<sub>x</sub> − 1)/2)·p<sub>x</sub>, y<sub>j</sub> = (j − (n<sub>y</sub> − 1)/2)·p<sub>y</sub>',
+      'Σx² = '+f(Ix,0)+' mm², Σy² = '+f(Iy,0)+' mm² → I<sub>p</sub> = Σx² + Σy² = '+f(R.Ip,0)+' mm²',
       'M = M<sub>Ed</sub> + V<sub>y</sub>·e<sub>x</sub> − V<sub>x</sub>·e<sub>y</sub> = '+f(R.M0,2)+'·10³ + '+f(R.Vy,1)+'·'+f(R.ex,0)+' − '+f(R.Vx,1)+'·'+f(R.ey,0)+' = '+f(R.M/1000,2)+' kNm',
-      'F<sub>x,i</sub> = V<sub>x</sub>/n − M·y<sub>i</sub>/I<sub>p</sub>, F<sub>y,i</sub> = V<sub>y</sub>/n + M·x<sub>i</sub>/I<sub>p</sub>',
+      'Keskeinen osuus: V<sub>x</sub>/n = '+f(R.Vx,1)+'/'+R.n+' = '+f(R.Vx/R.n,2)+' kN, V<sub>y</sub>/n = '+f(R.Vy,1)+'/'+R.n+' = '+f(R.Vy/R.n,2)+' kN',
+      'Momentin osuus on kohtisuorassa sädettä r<sub>i</sub> vastaan, suuruus M·r<sub>i</sub>/I<sub>p</sub>: F<sub>x,i</sub> = V<sub>x</sub>/n − M·y<sub>i</sub>/I<sub>p</sub>, F<sub>y,i</sub> = V<sub>y</sub>/n + M·x<sub>i</sub>/I<sub>p</sub>'+bt,
       'Suurin: ruuvi ('+f(b.x,0)+'; '+f(b.y,0)+'): F<sub>x</sub> = '+f(b.fx,2)+', F<sub>y</sub> = '+f(b.fy,2)+' → F<sub>v,Ed</sub> = <span class="lt-r">'+f(b.F,2)+' kN</span>']);
     s+=step('Leikkauskestävyys (taul. 3.4, 3.6.1(12), 3.8)',[
       'F<sub>v,Rd</sub> = α<sub>v</sub>·f<sub>ub</sub>·A/γ<sub>M2</sub> = '+f(R.av,1)+'·'+R.bc.fub+'·'+f(R.Ash,0)+'/'+f(R.g2,2)+' = '+f(R.FvRd1,1)+' kN / leike'+c_(R.thr?'(A = A_s, kierre leikkaustasossa)':'(A = varren pinta-ala)'),

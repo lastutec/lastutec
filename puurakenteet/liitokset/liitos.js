@@ -6,8 +6,11 @@
 
   // syöte o: { fast:'naula'|'ruuvi', ntype:'sq'|'rd'|'pr', stype:'kansi'|'itse', d, di, L, dh, lg (kierreosa), fax (profiloitu naula), fhead, ftens,
   //   conn:'pp1'|'pp2'|'lp'|'tp', mA, tA (kannan puoli/ulko-osa), mB, tB (kärjen puoli / keskiosa), plate, tP, tS (teräs), pre (esiporaus), heated,
-  //   kl, ai ('P','K','H'), acc, Fv (kN), Fax (kN), nf (kpl), alpha (°), ang (ruuvin kulma syyhyn °), bonus (ruuvin 1,15-kerroin) }
+  //   kl, ai ('P','K','H'), acc, Fv (kN), Fax (kN), nf (kpl), alpha (°), ang (ruuvin kulma syyhyn °), bonus (ruuvin 1,15-kerroin),
+  //   mode: 'yhd' (leikkaus + ulosveto, oletus) | 'leikkaus' (vain leikkausliitos) | 'veto' (vain ulosvetoliitos) }
   function calc(o) {
+    var mode = o.mode === 'leikkaus' || o.mode === 'veto' ? o.mode : 'yhd';
+    if (mode === 'leikkaus') o.Fax = 0; if (mode === 'veto') { o.Fv = 0; o.alpha = 0; }
     var S = [], C = [], W = [], d = +o.d, nf = Math.max(1, Math.round(+o.nf || 1)), gm = o.acc ? 1.0 : 1.3;
     var isNail = o.fast === 'naula', smooth = isNail && o.ntype !== 'pr', square = isNail && o.ntype === 'sq';
     var MA = P.MAT[o.mA], MB = P.MAT[o.mB], PL = P.PLATE[o.plate];
@@ -40,6 +43,7 @@
     if (isNail && !o.pre && (rho > 500 || d > 6)) W.push('Esiporaus vaaditaan (ρ<sub>k</sub> &gt; 500 kg/m³ tai d &gt; 6 mm).');
 
     // leikkaus
+    var sS = S.length, sW = W.length;
     var Rv = 0, m = o.conn === 'pp2' ? 2 : 1, t1, t2, L = +o.L, sh = [];
     if (o.conn === 'pp1') { t1 = +o.tA; t2 = Math.min(+o.tB, L - t1); sh.push('Kannan puolella t<sub>1</sub> = ' + f1(t1) + ' mm, kärjen tunkeuma t<sub>2</sub> = min(t<sub>B</sub>; L − t<sub>1</sub>) = min(' + f1(+o.tB) + '; ' + f1(L - t1) + ') = ' + f1(t2) + ' mm'); }
     else if (o.conn === 'pp2') { var pen = L - 2 * (+o.tA) / 2 - (+o.tB); t2 = +o.tB; var tp2 = L - (+o.tA) - (+o.tB); t1 = Math.min(+o.tA, tp2); sh.push('Kaksileikkeinen: ulko-osat t<sub>A</sub> = ' + f1(+o.tA) + ' mm, keskiosa t<sub>2</sub> = ' + f1(t2) + ' mm, kärjen tunkeuma ulko-osaan L − t<sub>A</sub> − t<sub>2</sub> = ' + f1(tp2) + ' mm → t<sub>1</sub> = ' + f1(t1) + ' mm, m = 2'); }
@@ -95,7 +99,10 @@
       S.push(['Leikkauskestävyys, teräslevy–puu (6.10)'].concat(sh, [txt, 'R<sub>d</sub> = k<sub>mod</sub>/γ<sub>M</sub> · k<sub>s</sub> · 120d<sup>1,7</sup> = ' + n(kmod / gm, 3) + ' · ' + n(kst, 3) + ' · ' + f1(base) + ' = <b>' + f1(Rv) + ' N / liitin</b>']));
     }
 
+    if (mode === 'veto') { S.length = sS; W.length = sW; }
+
     // ulosveto
+    var aW = W.length;
     var Fax = Math.max(0, +o.Fax || 0) * 1000, Fv = Math.max(0, +o.Fv || 0) * 1000, Rax = null, tpen = (o.conn === 'pp2') ? L - (+o.tA) - (+o.tB) : t2, ax = [];
     if (isNail) {
       var faxk, fheadk = 70e-6 * rhoH * rhoH, red2 = o.heated ? (smooth ? 0.4 : 0.7) : 1;
@@ -112,7 +119,7 @@
       Rax = kmod / gm * Rk2;
       ax.push('R<sub>ax,d</sub> = k<sub>mod</sub>/γ<sub>M</sub> · R<sub>k</sub> = <b>' + f1(Rax) + ' N / naula</b>');
       if (smooth && Fax > 0 && o.ai !== 'H') W.push('Sileävartista naulaa ei saa kuormittaa pysyvällä tai pitkäaikaisella ulosvedolla.');
-      if (Fax > 0) S.push(['Ulosvetokestävyys (6.13–6.15)'].concat(ax));
+      if (Fax > 0 || mode === 'veto') S.push(['Ulosvetokestävyys (6.13–6.15)'].concat(ax));
     } else {
       var lef = Math.min(+o.lg || tpen, tpen), ang = (+o.ang || 90) * Math.PI / 180, kd = Math.min(d / 8, 1), Fw, wt;
       if (lef < 6 * d - 1e-6) W.push('Kierreosan tunkeuma kärjen puolella l<sub>ef</sub> ≥ 6d = ' + f1(6 * d) + ' mm ei täyty.');
@@ -127,8 +134,10 @@
         o.conn === 'tp' ? 'Kannan läpiveto: kansi teräslevyä vasten → ei määrää' : 'Kannan läpiveto F<sub>ax,head,Rk</sub> = n<sup>0,9</sup>f<sub>head,k</sub>d<sub>h</sub>²(ρ<sub>k</sub>/350)<sup>0,8</sup> = ' + f1(Fh) + ' N (6.21, f<sub>head,k</sub> = ' + f1(fh0) + ', d<sub>h</sub> = ' + f1(dh2) + ')',
         Ft > 0 ? 'Vetokestävyys F<sub>t,Rk</sub> = n<sup>0,9</sup>f<sub>tens,k</sub> = ' + f1(Ft) + ' N' : 'Vetokestävyys: anna valmistajan f<sub>tens,k</sub>',
         'R<sub>ax,d</sub> = k<sub>mod</sub>/γ<sub>M</sub> · min / n = <b>' + f1(Rax) + ' N / ruuvi</b> (ryhmä ' + f1(Rax * nf) + ' N)'];
-      if (Fax > 0) S.push(['Ulosvetokestävyys (6.18–6.21)'].concat(ax));
+      if (Fax > 0 || mode === 'veto') S.push(['Ulosvetokestävyys (6.18–6.21)'].concat(ax));
     }
+
+    if (mode === 'leikkaus') W.length = aW;
 
     // mitoitus
     var Rvt = Rv * nf, nreq = Rv > 0 ? Math.ceil(Fv / Rv) : Infinity, uv = Fv > 0 ? (Rvt > 0 ? Fv / Rvt : Infinity) : 0, ua = Fax > 0 ? (Rax > 0 ? Fax / (Rax * nf) : Infinity) : 0;
@@ -137,15 +146,22 @@
     var inter = null;
     if (Fv > 0 && Fax > 0) { inter = (isNail && smooth) ? ua + uv : ua * ua + uv * uv; C.push([(isNail && smooth) ? 'Yhteisvaikutus F<sub>ax</sub>/R<sub>ax</sub> + F<sub>v</sub>/R<sub>v</sub>' : 'Yhteisvaikutus (F<sub>ax</sub>/R<sub>ax</sub>)² + (F<sub>v</sub>/R<sub>v</sub>)²', inter, 1, inter]); }
     if (isNail && nf < 2) W.push('Naulaliitoksessa tulee olla vähintään 2 naulaa.');
-    S.push(['Liitoksen kestävyys', 'Leikkaus: n · R<sub>v,d</sub> = ' + nf + ' · ' + f1(Rv) + ' = <b>' + n(Rvt / 1000, 2) + ' kN</b>' + (Fv > 0 ? ' ≥ F<sub>v,Ed</sub> = ' + n(Fv / 1000, 2) + ' kN ' + P.ok(uv) + ' · tarvittava määrä ⌈F<sub>v,Ed</sub>/R<sub>v,d</sub>⌉ = <b>' + nreq + ' kpl</b>' : '')].concat(
-      Fax > 0 ? ['Ulosveto: ' + n(Rax * nf / 1000, 2) + ' kN ≥ ' + n(Fax / 1000, 2) + ' kN ' + P.ok(ua)] : [], inter !== null ? ['Yhteisvaikutus (6.17): ' + n(inter, 3) + ' ≤ 1 ' + P.ok(inter)] : []));
+    // ulosvedon tarvittava liitinmäärä (ruuveilla ryhmäkerroin n^0,9 → iteroidaan)
+    var nreqAx = Infinity;
+    if (Fax > 0 && !o._inner) {
+      if (isNail) nreqAx = Rax > 0 ? Math.ceil(Fax / Rax) : Infinity;
+      else for (var ni = 1; ni <= 500; ni++) { var r2 = calc(Object.assign({}, o, { nf: ni, mode: 'veto', _inner: true })); if (r2.Rax * ni >= Fax) { nreqAx = ni; break; } }
+    }
+    var shearLine = 'Leikkaus: n · R<sub>v,d</sub> = ' + nf + ' · ' + f1(Rv) + ' = <b>' + n(Rvt / 1000, 2) + ' kN</b>' + (Fv > 0 ? ' ≥ F<sub>v,Ed</sub> = ' + n(Fv / 1000, 2) + ' kN ' + P.ok(uv) + ' · tarvittava määrä ⌈F<sub>v,Ed</sub>/R<sub>v,d</sub>⌉ = <b>' + nreq + ' kpl</b>' : '');
+    var axLine = 'Ulosveto: ' + (isNail ? 'n · R<sub>ax,d</sub> = ' + nf + ' · ' + f1(Rax) + ' = ' : 'ryhmä n<sup>0,9</sup>-kertoimella = ') + '<b>' + n(Rax * nf / 1000, 2) + ' kN</b>' + (Fax > 0 ? ' ≥ F<sub>ax,Ed</sub> = ' + n(Fax / 1000, 2) + ' kN ' + P.ok(ua) + ' · tarvittava määrä = <b>' + (isFinite(nreqAx) ? nreqAx : '–') + ' kpl</b>' : '');
+    if (!o._inner) S.push(['Liitoksen kestävyys'].concat(mode === 'veto' ? [axLine] : [shearLine], mode === 'yhd' && Fax > 0 ? [axLine] : [], inter !== null ? ['Yhteisvaikutus (6.17): ' + n(inter, 3) + ' ≤ 1 ' + P.ok(inter)] : []));
 
     // vähimmäisetäisyydet (kuva 6.3)
     var al2 = (+o.alpha || 0) * Math.PI / 180, fp = pre ? 0.7 : 1, fv2 = o.conn === 'lp' ? 0.85 : o.conn === 'tp' ? 0.7 : 1;
     var sp = { a1: 10 * D * fp * fv2, a2: 5 * D * fp * fv2, a3t: 15 * D * fp, a3c: 10 * D * fp, a4t: (5 + 5 * Math.sin(al2)) * D * fp, a4c: 5 * D * fp };
     if (!isNail && Fax > 0) { sp.a1 = Math.max(sp.a1, 7 * d); sp.a2 = Math.max(sp.a2, 5 * d); sp.a3t = Math.max(sp.a3t, 10 * d); sp.a3c = Math.max(sp.a3c, 10 * d); sp.a4t = Math.max(sp.a4t, 4 * d); sp.a4c = Math.max(sp.a4c, 4 * d); }
     var umax = C.length ? Math.max.apply(null, C.map(function (c) { return c[3]; })) : 0;
-    return { S: S, C: C, W: W, Rv: Rv, Rax: Rax, Rvt: Rvt, nreq: nreq, umax: umax, sp: sp, D: D, kmod: kmod, gm: gm, kp: kp, fp: fp, fv2: fv2, pre: pre };
+    return { S: S, C: C, W: W, Rv: Rv, Rax: Rax, Rvt: Rvt, nreq: nreq, nreqAx: nreqAx, mode: mode, umax: umax, sp: sp, D: D, kmod: kmod, gm: gm, kp: kp, fp: fp, fv2: fv2, pre: pre };
   }
   g.LIITOS = { calc: calc };
 })(typeof window !== 'undefined' ? window : global);

@@ -5,7 +5,7 @@
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../');}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Puurakenteet – Lastutec</title>
-<meta name="description" content="Puurakenteiden suunnittelutyökalut Eurokoodi 5:n mukaan: suunnitteluperusteet ja naula- ja ruuviliitokset.">
+<meta name="description" content="Puurakenteiden suunnittelutyökalut Eurokoodi 5:n mukaan: suunnitteluperusteet, naula- ja ruuviliitokset sekä erilliset leikkaus- ja vetoliitokset.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <style>
 :root{
@@ -63,6 +63,20 @@ h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em
     <div class="no">Työkalu 2</div>
     <h2>Naula- ja ruuviliitokset</h2>
     <p>Puu–puu-, puulevy–puu- ja teräslevy–puu-liitokset yksi- tai kaksileikkeisinä. Työkalu laskee leikkauksen, ulosvedon ja niiden yhteisvaikutuksen, tarvittavan liitinmäärän ja pienimmät liitinvälit.</p>
+    <span>Avaa laskuri →</span>
+  </div></a></li>
+  <li><a href="liitokset/?tila=leikkaus">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="12" width="42" height="11" fill="#9a6a3a"/><rect x="3" y="25" width="42" height="11" fill="#c99a62"/><line x1="24" y1="8" x2="24" y2="40" stroke="#b9c0c6" stroke-width="2"/><rect x="20.5" y="6" width="7" height="3" rx="1" fill="#b9c0c6"/><path d="M6 17h12" stroke="var(--accent)" stroke-width="2.4"/><path d="M6 17l5-3.5v7z" fill="var(--accent)"/><path d="M42 30H30" stroke="var(--accent)" stroke-width="2.4"/><path d="M42 30l-5-3.5v7z" fill="var(--accent)"/></svg></div><div class="tx">
+    <div class="no">Työkalu 3</div>
+    <h2>Leikkausliitos</h2>
+    <p>Naula- ja ruuviliitos, jossa voima vaikuttaa kohtisuoraan liittimeen nähden. Työkalu laskee liittimen leikkauskestävyyden puu–puu-, puulevy–puu- ja teräslevy–puu-liitoksille, tarvittavan liitinmäärän ja pienimmät liitinvälit.</p>
+    <span>Avaa laskuri →</span>
+  </div></a></li>
+  <li><a href="liitokset/?tila=veto">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="26" width="42" height="16" fill="#9a6a3a"/><path d="M3 34q20-3 42 0" fill="none" stroke="#6b4423" stroke-width=".9" opacity=".7"/><rect x="20.5" y="20" width="7" height="3" rx="1" fill="#b9c0c6"/><line x1="24" y1="23" x2="24" y2="40" stroke="#b9c0c6" stroke-width="2"/><polygon points="23,40 25,40 24,43" fill="#b9c0c6"/><path d="M24 18V5" stroke="var(--accent)" stroke-width="2.4"/><path d="M24 4l-4 6h8z" fill="var(--accent)"/></svg></div><div class="tx">
+    <div class="no">Työkalu 4</div>
+    <h2>Vetoliitos (ulosveto)</h2>
+    <p>Naula- ja ruuviliitos, jossa voima vetää liitintä sen akselin suuntaan. Työkalu tarkistaa kärjen ulosvedon, kannan läpiveton ja ruuvin vetomurron sekä laskee tarvittavan liitinmäärän. Ruuviryhmissä huomioidaan kerroin n<sup>0,9</sup>.</p>
     <span>Avaa laskuri →</span>
   </div></a></li>
 </ul>

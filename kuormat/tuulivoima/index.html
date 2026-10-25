@@ -270,6 +270,7 @@ function calc(){
   $('#v-dirs').innerHTML=html;
   // sivut
   const X=R.x,Y=R.y;
+  try{ localStorage.setItem('lastutec-tuulivoima-tulos',JSON.stringify({ts:Date.now(),H,h,Lx,Ly,x:{b:X.b,F:X.Ftot,M:X.M0,zR:X.zR},y:{b:Y.b,F:Y.Ftot,M:Y.M0,zR:Y.zR}})); }catch(e){}
   $('#v-kpis').innerHTML=[['q<sub>p</sub>(h)',fmt(Qh.q,3)+' <span class="small">kN/m²</span>'],['F<sub>x</sub> yhteensä',fmt(X.Ftot,1)+' <span class="small">kN</span>',1],['F<sub>y</sub> yhteensä',fmt(Y.Ftot,1)+' <span class="small">kN</span>',1],['c<sub>f</sub> x / y',fmt(X.cf,2)+' / '+fmt(Y.cf,2)]]
     .map(k=>`<div class="kpi ${k[2]?'hl':''}"><div class="k">${k[0]}</div><div class="v">${k[1]}</div></div>`).join('');
   const side=(lab,r,line,c)=>`<tr><td class="l k">${lab}</td><td class="num">${fmt(r.b,2)}</td><td class="num"><b>${fmt(r.Ftot,1)}</b></td><td class="num">${fmt(r.zR,2)}</td><td class="num">${fmt(r.M0,0)}</td><td class="num">${line} = ${fmt(c,2)} ± ${fmt(r.e,2)}</td><td class="num">${fmt(r.Mt,0)}</td></tr>`;

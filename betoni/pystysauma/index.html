@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<script src="../../lt-pdf.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Seinän pystysauma (kesken) – Lastutec</title>
+<meta name="description" content="Seinän pystysauman leikkausvoiman suuruusluokkatarkastus tuulikuormasta ja Peikko PVL-vaijerilenkkien tyypin ja jaon ehdotus elementeittäin teknisen käyttöohjeen (FI 09/2021) mukaan.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+/* ===== Lastutec-työkalut: kaikki tyylit rajattu .lt-tool-luokan sisään ===== */
+.lt-tool{--lt-bg:#ffffff;--lt-fg:#1d2329;--lt-muted:#5b6670;--lt-line:#d9dee3;--lt-soft:#f3f5f7;--lt-accent:#c8501e;--lt-accent-soft:#fbeee8;--lt-ok:#1f7a3f;--lt-bad:#b42318;
+  font-family:Arial,Helvetica,sans-serif;color:var(--lt-fg);background:var(--lt-bg);max-width:1100px;margin:0 auto;padding:16px;line-height:1.45;font-size:15px}
+.lt-tool *{box-sizing:border-box}
+.lt-tool h1{font-size:1.55rem;margin:0 0 4px;line-height:1.2}
+.lt-tool h2{font-size:1.15rem;margin:30px 0 8px}
+.lt-tool h3{font-size:1rem;margin:0 0 10px}
+.lt-tool p{margin:0 0 10px}
+.lt-crumb{font-size:.82rem;color:var(--lt-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.lt-sub{color:var(--lt-muted);margin:0 0 16px}
+.lt-card{border:1px solid var(--lt-line);border-radius:10px;padding:16px;background:var(--lt-bg);margin:12px 0}
+.lt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.lt-tool label{display:flex;flex-direction:column;justify-content:space-between;font-size:.84rem;color:var(--lt-muted);gap:4px}
+.lt-tool label.lt-chk{flex-direction:row;align-items:center;gap:8px;color:var(--lt-fg)}
+.lt-tool label.lt-chk input{width:auto}
+.lt-tool input,.lt-tool select{font:inherit;font-size:.95rem;color:var(--lt-fg);padding:8px 10px;border:1px solid var(--lt-line);border-radius:6px;background:var(--lt-bg);min-width:0;width:100%}
+.lt-tool input:focus,.lt-tool select:focus{outline:2px solid var(--lt-accent);outline-offset:1px}
+.lt-pills{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.lt-pill{border:1px solid var(--lt-line);background:var(--lt-soft);color:var(--lt-fg);padding:6px 14px;border-radius:999px;cursor:pointer;font:inherit;font-size:.9rem}
+.lt-pill[aria-pressed="true"]{background:var(--lt-accent);border-color:var(--lt-accent);color:#fff}
+.lt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--lt-line);border-radius:8px}
+.lt-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.9rem}
+.lt-table th,.lt-table td{padding:8px 10px;border-bottom:1px solid var(--lt-line);text-align:right;white-space:nowrap}
+.lt-table th:first-child,.lt-table td:first-child{text-align:left;position:sticky;left:0;background:inherit;font-weight:600}
+.lt-table thead tr{background:var(--lt-soft)}
+.lt-table thead th{font-weight:600;vertical-align:bottom;line-height:1.25}
+.lt-table thead th small{display:block;font-weight:400;color:var(--lt-muted)}
+.lt-table tbody tr{cursor:pointer;background:var(--lt-bg)}
+.lt-table tbody tr:hover,.lt-table tbody tr.sel{background:var(--lt-accent-soft)}
+.lt-table tbody tr:last-child td{border-bottom:0}
+.lt-table tfoot td{background:var(--lt-soft);font-size:.82rem;color:var(--lt-muted)}
+.lt-note{font-size:.84rem;color:var(--lt-muted)}
+.lt-cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:0 0 12px}
+.lt-case{background:var(--lt-soft);border-radius:8px;padding:12px}
+.lt-case b{font-size:1.05rem}
+.lt-case svg{display:block;margin:8px 0;width:100%;max-width:300px;height:auto}
+.lt-case p{font-size:.85rem;margin:0;color:var(--lt-muted)}
+.lt-steps{counter-reset:lts;list-style:none;padding:0;margin:0}
+.lt-step{border-left:3px solid var(--lt-line);padding:6px 0 8px 14px;margin:0 0 10px}
+.lt-step h4{margin:0 0 6px;font-size:.98rem}
+.lt-step h4::before{counter-increment:lts;content:counter(lts) ". ";color:var(--lt-accent)}
+.lt-f{font-family:Arial,Helvetica,sans-serif;font-size:.95rem;margin:3px 0;overflow-x:auto}
+.lt-f .lt-c{color:var(--lt-muted);font-family:Arial,Helvetica,sans-serif;font-size:.84rem}
+.lt-r{font-weight:700}
+.lt-ok{color:var(--lt-ok);font-weight:600}
+.lt-bad{color:var(--lt-bad);font-weight:600}
+.lt-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:0 0 16px}
+.lt-kpi{background:var(--lt-soft);border-radius:8px;padding:10px 12px}
+.lt-kpi span{display:block;font-size:.8rem;color:var(--lt-muted)}
+.lt-kpi b{font-size:1.25rem;font-variant-numeric:tabular-nums}
+.lt-bar{height:6px;background:var(--lt-line);border-radius:3px;margin-top:6px;overflow:hidden}
+.lt-bar i{display:block;height:100%;background:var(--lt-ok)}
+.lt-bar i.over{background:var(--lt-bad)}
+.lt-tool details{margin-top:8px}
+.lt-tool summary{cursor:pointer;font-weight:600}
+.lt-tool ul{margin:6px 0 0;padding-left:20px}
+.lt-disc{margin-top:24px;font-size:.8rem;color:var(--lt-muted);border-top:1px solid var(--lt-line);padding-top:10px}
+@media (max-width:520px){.lt-tool{padding:12px}.lt-grid{grid-template-columns:1fr 1fr}}
+
+
+
+/* Sivuston runko (sama kuin muissa Lastutecin työkaluissa) */
+:root{--bg:#1b1c1f;--paper:#24262a;--ink:#e9e6e0;--muted:#aeaba4;--line:#3d4046;--accent:#E3824F;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:18px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+/* Työkalun tumma teema */
+.lt-tool{--lt-bg:#24262a;--lt-fg:#e9e6e0;--lt-muted:#aeaba4;--lt-line:#3d4046;--lt-soft:#2e3035;--lt-accent:#E3824F;--lt-accent-soft:#3e2c24;--lt-ok:#82c79f;--lt-bad:#e8907f;
+  font-family:Arial,Helvetica,sans-serif!important;background:transparent!important;max-width:none!important;padding:0!important}
+.lt-tool .lt-pill[aria-pressed="true"]{color:#111!important}
+.lt-tool input[type=number]{background:#2c2723!important}
+.lt-tool select{background:var(--bg,#1b1c1f)!important}
+.lt-tool .lt-sub{max-width:85ch}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#c63a00;color-scheme:light}
+  .lt-tool{--lt-bg:#fff;--lt-fg:#000;--lt-muted:#444;--lt-line:#bbb;--lt-soft:#f1f1f1;--lt-accent:#c63a00;--lt-accent-soft:#fde2d5;--lt-ok:#1d6b3a;--lt-bad:#b3261e}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back,.lt-pills{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  .lt-tool input,.lt-tool select{background:#fff!important;color:#000!important}
+  .lt-card,tr{break-inside:avoid}
+  details.lt-card{display:block}
+}
+
+
+.ps-warn{margin:0 0 12px;padding-left:20px;color:#e2c47f;font-size:.9rem}
+.lt-tool .lt-table tbody tr{cursor:default}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Betonirakenteet</a><h1>Seinän pystysauma ja PVL-vaijerilenkit</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 6 · Laatinut: INS (YAMK) Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<div role="note" style="border:1px solid #e2c47f;background:#2a2208;color:#e2c47f;border-radius:6px;padding:10px 14px;margin:0 0 16px;font:600 14px Arial,Helvetica,sans-serif">⚠ KESKEN – työkalu on vielä kehitysvaiheessa. Tuloksia ei tule käyttää mitoitukseen ennen kuin laskenta on tarkastettu ja hyväksytty.</div>
+<div class="lt-tool" id="lt-ps">
+
+  <p class="lt-sub">Jäykistävän seinän pystysauman leikkausvoiman suuruusluokkatarkastus käsinlaskennalla. Tuulikuorman momentista lasketaan kolmiomaisen jännitysjakauman vetopuolen resultantti, joka siirtyy pystysauman kautta. Leikkausvoiman oletetaan pienenevän lineaarisesti nollaan seinän korkeussuunnassa. Sen jälkeen työkalu ehdottaa Peikko PVL<sup>®</sup>-vaijerilenkkien tyypin ja jaon (tekninen käyttöohje FI 09/2021).</p>
+
+  <div class="lt-card">
+    <h3>1. Pystysauman leikkausvoima</h3>
+    <div class="lt-grid" style="margin-bottom:12px">
+      <label><span>Tuulikuorman lähde</span><select id="w-src"><option value="q" selected>Syötä q<sub>wd</sub> suoraan</option><option value="imp">Tuo voimakerroinmenetelmästä</option></select></label>
+      <label class="w-imp"><span>Tuulen suunta</span><select id="w-dir"><option value="x">x-suunta (F<sub>x</sub>)</option><option value="y">y-suunta (F<sub>y</sub>)</option></select></label>
+      <label class="w-imp"><span>Seinän osuus</span><select id="w-mode"><option value="w" selected>Kuormitusleveys (m)</option><option value="p">Prosenttiosuus (%)</option></select></label>
+      <label class="w-imp"><span id="w-vlab">Kuormitusleveys (m)</span><input id="w-val" type="number" step="0.1" min="0" value="6"></label>
+      <label class="w-imp"><span>γ<sub>Q</sub>·K<sub>FI</sub></span><input id="w-g" type="number" step="0.05" value="1.5"></label>
+      <label class="w-imp lt-chk"><input id="w-useH" type="checkbox" checked> <span>Seinän korkeus = rakennuksen korkeus</span></label>
+    </div>
+    <p class="lt-note w-imp" id="w-info" style="margin:-4px 0 12px"></p>
+    <div class="lt-grid">
+      <label><span>Seinän leveys b<sub>seinä</sub> (m)</span><input id="s-b" type="number" step="0.1" min="0.1" value="19.4"></label>
+      <label><span>Seinän korkeus h<sub>seinä</sub> (m)</span><input id="s-h" type="number" step="0.1" min="0.1" value="18.6"></label>
+      <label id="s-qw"><span>Tuulikuorma q<sub>wd</sub> (kN/m)</span><input id="s-q" type="number" step="0.5" value="37.5"></label>
+      <label><span>Elementin korkeus (m)</span><input id="s-he" type="number" step="0.1" min="0.5" value="3.0"></label>
+    </div>
+    <div id="s-fig" style="margin-top:10px"></div>
+  </div>
+
+  <div class="lt-card">
+    <h3>2. PVL-vaijerilenkit</h3>
+    <div class="lt-grid">
+      <label><span>Seinän paksuus b<sub>seinä</sub> (mm)</span><input id="p-t" type="number" step="10" min="80" value="200"></label>
+      <label><span>Betoni (heikompi: elementti tai saumavalu)</span><select id="p-c"><option value="0">C25/30</option><option value="1" selected>C30/37</option><option value="2">C35/45</option><option value="3">C40/50</option><option value="4">C45/55</option><option value="5">C50/60</option></select></label>
+      <label><span>Sauman tyyppi</span><select id="p-joint"><option value="k" selected>Vaarnattu sauma</option><option value="s">Sileä sauma</option></select></label>
+      <label><span>Poikittainen leikkaus V<sub>Ed,⊥</sub> (kN/m)</span><input id="p-Vt" type="number" step="0.5" min="0" value="0"></label>
+      <label><span>Veto N<sub>Ed</sub> (kN/m)</span><input id="p-N" type="number" step="0.5" min="0" value="0"></label>
+      <label><span>Suurin sallittu käyttöaste</span><input id="p-u" type="number" step="0.05" min="0.1" max="1" value="1.0"></label>
+    </div>
+    <p class="lt-note" style="margin:8px 0 0">Jakovaihtoehdot ovat 250, 300, 350, 400, 450, 500, 600, 800, 1000 ja 1200 mm. Vähimmäisjako on 250 mm (PVL 140: 350 mm). Saumaan tulee aina vähintään kaksi vaijerilenkkiparia. Poikittainen leikkaus ja veto vaikuttavat koko seinän korkeudella yhtä suurina.</p>
+  </div>
+
+  <div class="lt-sum" id="p-sum"></div>
+  <ul class="ps-warn" id="p-warn"></ul>
+
+  <div class="lt-card">
+    <h3>Vaijerilenkkityypit ja suurin sallittu jako</h3>
+    <div class="lt-scroll"><table class="lt-table" id="p-types"></table></div>
+  </div>
+
+  <div class="lt-card">
+    <h3>Ehdotettu jako elementeittäin</h3>
+    <div class="lt-scroll"><table class="lt-table" id="p-zones"></table></div>
+    <p class="lt-note" style="margin-top:8px">Jokaisen elementin jako mitoitetaan sen alareunan leikkausvoimalla, joka on elementin suurin. Ylimpien elementtien jako voi olla harvempi.</p>
+  </div>
+
+  <h2>Laskenta välivaiheineen</h2>
+  <div class="lt-card"><ol class="lt-steps" id="p-steps"></ol></div>
+
+  <p class="lt-disc">Pystysauman leikkausvoima lasketaan suuruusluokkatarkastuksena (seinä ulokkeena, kolmiomainen jännitysjakauma, leikkausvoima lineaarisesti nollaan yläreunaan). PVL-kestävyydet ovat Peikon teknisestä käyttöohjeesta (PVL®-vaijerilenkki, versio FI 09/2021, taulukot 1, 4, 5, 6–9 ja kaavat 1–5; SFS-EN 1992-1-1/NA:2019). Lisäraudoitus (U-lenkit, verkot ja pieliteräkset) tehdään ohjeen liitteen A mukaan. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
+</div>
+
+<script>
+(function(){
+  var root=document.getElementById('lt-ps');
+  function $(s){return root.querySelector(s);}
+  function f(x,d){if(d===undefined)d=1;if(isFinite(x)&&Math.abs(x)<0.5*Math.pow(10,-d))x=0;return isFinite(x)?x.toLocaleString('fi-FI',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';}
+  function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
+  function step(t,ls){return '<li class="lt-step"><h4>'+t+'</h4>'+ls.filter(Boolean).map(function(l){return '<div class="lt-f">'+l+'</div>';}).join('')+'</li>';}
+  var CL=['C25/30','C30/37','C35/45','C40/50','C45/55','C50/60'];
+  // Peikko PVL, tekninen käyttöohje FI 09/2021
+  var PVL=[
+    {n:'PVL 60', tmin:80, smin:250,Nt:[9.1,10.9,12.7,14.6,16.4,18.2],V:[13.0,15.2,17.4,19.8,22.0,24.2],Vt2:[3.0,3.3,3.7,4.2,4.5,4.8],t2:120,k:'s'},
+    {n:'PVL 80', tmin:80, smin:250,Nt:[9.1,10.9,12.7,14.6,16.4,18.2],V:[13.0,15.2,17.4,19.8,22.0,24.2],Vt2:[3.0,3.3,3.7,4.2,4.5,4.8],t2:120,k:'s'},
+    {n:'PVL 100',tmin:120,smin:250,Nt:[9.1,10.9,12.7,14.6,16.4,18.2],V:[13.0,15.2,17.4,19.8,22.0,24.2],Vt2:[3.0,3.3,3.7,4.2,4.5,4.8],t2:120,k:'s'},
+    {n:'PVL 120',tmin:120,smin:250,Nt:[9.1,10.9,12.7,14.6,16.4,18.2],V:[13.0,15.2,17.4,19.8,22.0,24.2],Vt2:[3.0,3.3,3.7,4.2,4.5,4.8],t2:120,k:'s'},
+    {n:'PVL 140',tmin:150,smin:350,Nt:[21.7,26.1,30.4,34.8,36.1,36.1],V:[28.0,32.8,37.7,43.0,45.1,46.0],Vt2:[3.4,3.7,4.1,4.7,5.1,5.4],t2:150,k:'L'},
+    {n:'PVL SOLO',tmin:150,smin:250,Nt:[21.7,26.1,30.4,34.8,36.1,36.1],V:[24.6,29.1,33.6,38.4,40.1,40.6],Vt2:[2.0,2.2,2.4,2.8,3.0,3.2],t2:150,k:'S'}];
+  // vaarnatun sauman poikittainen kestävyys VRd,⊥,1 [kN/m] (taulukot 6–8) seinän paksuuden mukaan
+  function Vt1(p,t,c){
+    if(p.k==='s') return t>=140?[17.2,19.1,21.0,23.9,25.8,27.7][c]:null;
+    if(p.k==='S') return t>=150?[13.6,15.1,16.6,18.8,20.4,21.9][c]:null;
+    var T={150:[7.7,8.6,9.5,10.7,11.6,12.5],160:[9.8,10.9,12.0,13.6,14.7,15.8],170:[12.1,13.4,14.8,16.8,18.2,19.5],180:[14.6,16.3,17.9,20.4,22.0,23.6]};
+    if(t<150) return null; if(t>=190) return [17.4,19.4,21.3,24.2,26.2,28.1][c];
+    var k=[180,170,160,150].find(function(x){return t>=x;}); return T[k][c];
+  }
+  var SP=[250,300,350,400,450,500,600,800,1000,1200];
+
+  function calc(){
+    var b=num('#s-b'),h=num('#s-h'),q=num('#s-q'),he=Math.max(0.5,num('#s-he')),imp=null,M;
+    var src=$('#w-src').value;
+    root.querySelectorAll('.w-imp').forEach(function(e){e.style.display=src==='imp'?'':'none';});$('#s-qw').style.display=src==='imp'?'none':'';
+    $('#w-vlab').textContent=$('#w-mode').value==='p'?'Prosenttiosuus (%)':'Kuormitusleveys (m)';
+    if(src==='imp'){var W=null;try{W=JSON.parse(localStorage.getItem('lastutec-tuulivoima-tulos')||'null');}catch(e){}
+      if(W&&W[$('#w-dir').value]){var D=W[$('#w-dir').value],dir=$('#w-dir').value,mode=$('#w-mode').value,v=num('#w-val'),g=num('#w-g')||1.5;
+        var share=mode==='p'?v/100:(D.b>0?v/D.b:0);
+        if($('#w-useH').checked&&W.H>0){h=W.H;if(Math.abs(num('#s-h')-h)>1e-6)$('#s-h').value=+h.toFixed(2);}
+        M=g*share*D.M;q=h>0?2*M/(h*h):0;
+        imp={W:W,D:D,dir:dir,mode:mode,v:v,g:g,share:share,F:g*share*D.F};
+        $('#w-info').innerHTML='Voimakerroinmenetelmä ('+new Date(W.ts).toLocaleString('fi-FI')+'): '+dir+'-suunta, tuulenpuoleisen sivun leveys b = '+f(D.b,2)+' m, F = '+f(D.F,1)+' kN, kaatava momentti M<sub>0</sub> = '+f(D.M,0)+' kNm (ominaisarvot), rakennuksen korkeus '+f(W.H,2)+' m. Seinän osuus '+f(share*100,1)+' %.';}
+      else{$('#w-info').innerHTML='<span class="lt-bad">Voimakerroinmenetelmän tuloksia ei löytynyt. Avaa ensin <a href="../../kuormat/tuulivoima/">Tuulikuorma – voimakerroinmenetelmä</a>, laske tuulikuorma ja palaa tähän.</span>';M=0;q=0;}}
+    else M=q*h*h/2;
+    var Rr=b>0?3*M/(2*b):Infinity,T=h>0?2*Rr/h:Infinity;
+    var t=num('#p-t'),c=+$('#p-c').value,joint=$('#p-joint').value,Vt=num('#p-Vt'),N=num('#p-N'),umax=num('#p-u')||1;
+    var R={imp:imp,b:b,h:h,q:q,he:he,M:M,R:Rr,T:T,t:t,c:c,joint:joint,Vt:Vt,N:N,umax:umax,warn:[]};
+    // käyttöaste annetulla V∥ ja jaolla
+    function util(p,s,V){var eta=1000/s,SV=eta*p.V[c],Vt2=eta*p.Vt2[c],SN=eta*p.Nt[c],VtR,u;
+      if(joint==='k'){var v1=Vt1(p,t,c);VtR=v1===null?Vt2:v1;} else VtR=Vt2;
+      if(N>0) u=N/SN+V/(0.67*SV)+Vt/Vt2; else u=V/SV+(Vt>0?Vt/VtR:0);
+      return {u:u,eta:eta,SV:SV,VtR:VtR,Vt2:Vt2,SN:SN};}
+    R.util=util;
+    R.types=PVL.map(function(p){var ok=t>=p.tmin,best=null;
+      if(ok) SP.forEach(function(s){if(s<p.smin)return;var r=util(p,s,T);if(r.u<=umax&&(!best||s>best.s))best={s:s,r:r};});
+      return {p:p,ok:ok,best:best};});
+    // suositus: vähiten lenkkejä (suurin jako), tasatilanteessa kevyempi tyyppi
+    var cand=R.types.filter(function(x){return x.best;});
+    R.rec=cand.length?cand.reduce(function(a,x){return (x.best.s>a.best.s||(x.best.s===a.best.s&&x.p.k===a.p.k&&x.p.tmin>a.p.tmin))?x:a;},cand[0]):null;
+    // elementeittäin
+    var nE=Math.max(1,Math.ceil(h/he-1e-9));R.zones=[];
+    for(var i=0;i<nE;i++){var z0=i*he,z1=Math.min(h,(i+1)*he),Tz=T*(1-z0/h),hz=z1-z0,zone={i:i+1,z0:z0,z1:z1,T:Tz,h:hz};
+      if(R.rec){var p=R.rec.p,best=null;SP.forEach(function(s){if(s<p.smin)return;var r=util(p,s,Tz);if(r.u<=umax&&(!best||s>best.s))best={s:s,r:r};});
+        if(best){var n=Math.max(2,Math.floor(hz*1000/best.s));zone.s=best.s;zone.n=n;zone.r=best.r;}}
+      R.zones.push(zone);}
+    if(!R.rec) R.warn.push('Mikään PVL-tyyppi ei riitä tällä seinän paksuudella ja betoniluokalla edes 250 mm jaolla. Kasvata seinän paksuutta tai betoniluokkaa, tai tarkista liitos muulla tavalla.');
+    if(joint==='k'&&Vt>0&&R.rec&&Vt1(R.rec.p,t,c)===null) R.warn.push('Vaarnatun sauman poikittaista kestävyyttä ei ole annettu tälle seinän paksuudelle (taulukot 6–8). Poikittainen kestävyys on laskettu sileän sauman arvoilla (taulukko 9).');
+    return R;
+  }
+
+  function fig(R){
+    var W=520,H=230,x0=60,y0=20,wh=180,ww=Math.min(260,Math.max(80,wh*R.b/R.h)),s='',X=function(z){return y0+wh-(z/R.h)*wh;};
+    s+='<rect x="'+x0+'" y="'+y0+'" width="'+ww+'" height="'+wh+'" fill="#6b6b6b" stroke="#aeaba4"/>';
+    var xm=x0+ww/2;s+='<line x1="'+xm+'" y1="'+y0+'" x2="'+xm+'" y2="'+(y0+wh)+'" stroke="#e9e6e0" stroke-width="2" stroke-dasharray="6 3"/><text x="'+(xm+4)+'" y="'+(y0+12)+'" fill="#e9e6e0" font-size="10.5">pystysauma</text>';
+    for(var z=R.he;z<R.h-1e-6;z+=R.he){var y=X(z);s+='<line x1="'+x0+'" y1="'+y+'" x2="'+(x0+ww)+'" y2="'+y+'" stroke="#8f8f8f"/>';}
+    for(var k=0;k<6;k++){var y2=y0+8+k*(wh-16)/5;s+='<line x1="'+(x0-44)+'" y1="'+y2+'" x2="'+(x0-6)+'" y2="'+y2+'" stroke="#E3824F" stroke-width="2"/><polygon points="'+x0+','+y2+' '+(x0-7)+','+(y2-4)+' '+(x0-7)+','+(y2+4)+'" fill="#E3824F"/>';}
+    s+='<text x="'+(x0-44)+'" y="'+(y0-6)+'" fill="#E3824F" font-size="11">q<tspan font-size="8" dy="3">wd</tspan><tspan dy="-3"> = '+f(R.q,1)+' kN/m</tspan></text>';
+    var gx=x0+ww+60,gw=150;s+='<line x1="'+gx+'" y1="'+y0+'" x2="'+gx+'" y2="'+(y0+wh)+'" stroke="#aeaba4"/><polygon points="'+gx+','+X(R.h)+' '+gx+','+X(0)+' '+(gx+gw)+','+X(0)+'" fill="#92b8dd" opacity=".35" stroke="#92b8dd"/>';
+    s+='<text x="'+(gx+gw)+'" y="'+(X(0)+14)+'" fill="#92b8dd" font-size="11" text-anchor="end">T = '+f(R.T,1)+' kN/m</text><text x="'+(gx+4)+'" y="'+(y0+10)+'" fill="#92b8dd" font-size="10.5">leikkausvoima pystysaumassa</text>';
+    s+='<text x="'+(x0+ww/2)+'" y="'+(y0+wh+16)+'" fill="#c9c6bf" font-size="10.5" text-anchor="middle">b = '+f(R.b,1)+' m</text><text x="'+(x0+ww+6)+'" y="'+(y0+wh/2)+'" fill="#c9c6bf" font-size="10.5">h = '+f(R.h,1)+' m</text>';
+    return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:'+W+'px;height:auto;display:block" role="img" aria-label="Seinä, tuulikuorma ja pystysauman leikkausvoima">'+s+'</svg>';
+  }
+
+  function render(){
+    var R=calc(),c=R.c,s='',rec=R.rec;
+    $('#s-fig').innerHTML=fig(R);
+    $('#p-sum').innerHTML='<div class="lt-kpi"><span>Pystysauman leikkausvoima (huippu)</span><b>'+f(R.T,1)+' kN/m</b></div>'+
+      '<div class="lt-kpi"><span>Ehdotus (alin elementti)</span><b>'+(rec?rec.p.n+' k'+rec.best.s:'–')+'</b></div>'+
+      '<div class="lt-kpi"><span>Käyttöaste</span><b class="'+(rec&&rec.best.r.u<=1?'lt-ok':'lt-bad')+'">'+(rec?f(rec.best.r.u*100,0)+' %':'–')+'</b></div>'+
+      '<div class="lt-kpi"><span>Lenkkipareja yhteensä</span><b>'+(rec?R.zones.reduce(function(a,z){return a+(z.n||0);},0)+' kpl':'–')+'</b></div>';
+    $('#p-warn').innerHTML=R.warn.map(function(w){return '<li>'+w+'</li>';}).join('');
+    $('#p-types').innerHTML='<thead><tr><th>Tyyppi</th><th>min b<sub>seinä</sub><small>mm</small></th><th>V<sub>Rd,∥</sub><small>kN / pari</small></th><th>V<sub>Rd,⊥</sub><small>'+(R.joint==='k'?'kN/m (vaarnattu)':'kN / pari (sileä)')+'</small></th><th>N<sub>t,Rd</sub><small>kN / pari</small></th><th>Suurin jako<small>mm</small></th><th>ΣV<sub>Rd,∥</sub><small>kN/m</small></th><th>Käyttöaste</th></tr></thead><tbody>'+
+      R.types.map(function(x){var p=x.p,v1=Vt1(p,R.t,c);return '<tr'+(x===rec?' class="sel"':'')+'><td>'+p.n+'</td><td>'+p.tmin+'</td><td>'+f(p.V[c],1)+'</td><td>'+(R.joint==='k'?(v1===null?'–':f(v1,1)):f(p.Vt2[c],1))+'</td><td>'+f(p.Nt[c],1)+'</td><td>'+(!x.ok?'<span class="lt-bad">seinä liian ohut</span>':x.best?'<b>'+x.best.s+'</b>':'<span class="lt-bad">ei riitä</span>')+'</td><td>'+(x.best?f(x.best.r.SV,1):'–')+'</td><td>'+(x.best?f(x.best.r.u*100,0)+' %':'–')+'</td></tr>';}).join('')+'</tbody>';
+    $('#p-zones').innerHTML='<thead><tr><th>Elementti<small>alhaalta</small></th><th>Korkeus<small>m</small></th><th>T alareunassa<small>kN/m</small></th><th>Tyyppi</th><th>Jako<small>mm</small></th><th>Pareja<small>kpl</small></th><th>ΣV<sub>Rd,∥</sub><small>kN/m</small></th><th>Käyttöaste</th><th>U-lenkit</th></tr></thead><tbody>'+
+      R.zones.map(function(z){return '<tr><td>'+z.i+'</td><td>'+f(z.z0,1)+'…'+f(z.z1,1)+'</td><td>'+f(z.T,1)+'</td><td>'+(rec?rec.p.n:'–')+'</td><td><b>'+(z.s||'–')+'</b></td><td>'+(z.n||'–')+'</td><td>'+(z.r?f(z.r.SV,1):'–')+'</td><td class="'+(z.r&&z.r.u<=1?'lt-ok':'lt-bad')+'">'+(z.r?f(z.r.u*100,0)+' %':'–')+'</td><td>'+(z.s?(z.s<600||R.N>0?'tarvitaan':'ei vaadita'):'–')+'</td></tr>';}).join('')+'</tbody>';
+    if(R.imp){var I=R.imp;s+=step('Momentti tuulikuormasta (voimakerroinmenetelmä)',[
+      'Rakennuksen kaatava momentti maanpinnan tasossa M<sub>0,k</sub> = '+f(I.D.M,1)+' kNm ja kokonaisvoima F<sub>k</sub> = '+f(I.D.F,1)+' kN ('+I.dir+'-suunta)',
+      'Seinän osuus: '+(I.mode==='p'?f(I.v,1)+' %':'kuormitusleveys '+f(I.v,2)+' m / sivun leveys '+f(I.D.b,2)+' m = '+f(I.share*100,1)+' %'),
+      'M<sub>Ed</sub> = γ<sub>Q</sub>·K<sub>FI</sub>·osuus·M<sub>0,k</sub> = '+f(I.g,2)+'·'+f(I.share,3)+'·'+f(I.D.M,1)+' = <span class="lt-r">'+f(R.M,1)+' kNm</span>; seinän vaakavoima F<sub>Ed</sub> = '+f(I.F,1)+' kN',
+      'Vastaava tasainen kuorma q<sub>wd</sub> = 2·M<sub>Ed</sub>/h<sub>seinä</sub>² = '+f(R.q,2)+' kN/m (tiedoksi)']);}
+    else s+=step('Momentti tuulikuormasta',['M<sub>Ed</sub> = q<sub>wd</sub>·h<sub>seinä</sub>²/2 = '+f(R.q,1)+'·'+f(R.h,2)+'²/2 = <span class="lt-r">'+f(R.M,1)+' kNm</span>']);
+    s+=step('Vetopuolen resultantti',['Kolmiomainen jännitysjakauma: vetopuolen ja puristuspuolen resultanttien etäisyys on 2b/3, joten R = 3M<sub>Ed</sub>/(2b<sub>seinä</sub>) = 3·'+f(R.M,1)+'/(2·'+f(R.b,2)+') = <span class="lt-r">'+f(R.R,1)+' kN</span>']);
+    s+=step('Leikkausvoima pystysaumassa',['Leikkausvoima pienenee lineaarisesti nollaan seinän yläreunaan, joten R = T·h/2 → T = 2R/h<sub>seinä</sub> = 2·'+f(R.R,1)+'/'+f(R.h,2)+' = <span class="lt-r">'+f(R.T,2)+' kN/m</span> (alareunassa)']);
+    if(rec){var p=rec.p,r=rec.best.r;
+      s+=step('PVL-vaijerilenkit (Peikko, tekninen käyttöohje FI 09/2021)',[
+        'Betoni '+CL[c]+', seinän paksuus '+f(R.t,0)+' mm ≥ '+p.tmin+' mm (taulukko 1), '+(R.joint==='k'?'vaarnattu':'sileä')+' sauma',
+        p.n+': V<sub>Rd,∥</sub> = '+f(p.V[c],1)+' kN / kotelopari (taulukko 5), N<sub>t,Rd</sub> = '+f(p.Nt[c],1)+' kN / pari (taulukko 4), V<sub>Rd,⊥,2</sub> = '+f(p.Vt2[c],1)+' kN / pari (taulukko 9)',
+        'Jako '+rec.best.s+' mm: η<sub>PVL</sub> = 1000/'+rec.best.s+' = '+f(r.eta,2)+' paria/m → ΣV<sub>Rd,∥</sub> = η·V<sub>Rd,∥</sub> = '+f(r.SV,1)+' kN/m (kaava 2)',
+        R.N>0?'Veto mukana (kaava 5): N<sub>Ed</sub>/ΣN<sub>t,Rd</sub> + V<sub>Ed,∥</sub>/(0,67·ΣV<sub>Rd,∥</sub>) + V<sub>Ed,⊥</sub>/ΣV<sub>Rd,⊥,2</sub> = '+f(R.N,1)+'/'+f(r.SN,1)+' + '+f(R.T,1)+'/(0,67·'+f(r.SV,1)+') + '+f(R.Vt,1)+'/'+f(r.Vt2,1)+' = <span class="lt-r">'+f(r.u,3)+'</span> ≤ 1,0'
+          :'Ei vetoa (kaava 4): V<sub>Ed,∥</sub>/ΣV<sub>Rd,∥</sub> + V<sub>Ed,⊥</sub>/ΣV<sub>Rd,⊥</sub> = '+f(R.T,1)+'/'+f(r.SV,1)+(R.Vt>0?' + '+f(R.Vt,1)+'/'+f(r.VtR,1):'')+' = <span class="lt-r">'+f(r.u,3)+'</span> ≤ 1,0',
+        'Suositus: '+p.n+' jaolla k'+rec.best.s+' alimmassa elementissä. Valituksi tulee tyyppi, jolla lenkkejä tarvitaan vähiten. Samoilla kestävyyksillä valitaan seinän paksuuteen parhaiten sopiva tyyppi (taulukko 1).',
+        'Lisäraudoitus (liite A): U-lenkit ('+(p.k==='s'?'Ø8 tai 2×Ø6':'Ø10 tai 2×Ø8')+') tarvitaan, jos jako on alle 600 mm, saumassa on vetoa tai lenkki on alle 450 mm:n päässä seinän reunasta. Verkko molemmissa pinnoissa vähintään Ø6 k150 ja pieliteräkset vähintään 2Ø10.']);}
+    $('#p-steps').innerHTML=s;
+  }
+  root.querySelectorAll('input,select').forEach(function(el){el.addEventListener('input',render);el.addEventListener('change',render);});
+  render();
+})();
+</script>
+</div>
+</body>
+</html>

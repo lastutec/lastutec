@@ -216,6 +216,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     <div class="lt-grid">
       <label><span>a-mitta (mm)</span><input id="c-a" type="number" min="1" step="0.5" value="5"></label>
       <label><span>Hitsin pituus L (mm)</span><input id="c-L" type="number" min="1" step="1" value="150"></label>
+      <label><span>Paksumman osan paksuus t (mm)</span><input id="c-t" type="number" min="1" step="1" value="10"></label>
       <label><span>Hitsien lukumäärä n</span><input id="c-n" type="number" min="1" step="1" value="2"></label>
       <label><span>Kuormitussuunta</span>
         <select id="c-dir">
@@ -239,18 +240,53 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     <ol class="lt-steps" id="c-steps"></ol>
   </div>
 
-  <details class="lt-card">
-    <summary>Mistä kertoimet √1, √2 ja √3 tulevat?</summary>
-    <ul>
-      <li>Mitoitusehdot (4.1): √(σ<sub>⊥</sub>² + 3(τ<sub>⊥</sub>² + τ<sub>∥</sub>²)) ≤ f<sub>u</sub> / (β<sub>w</sub> · γ<sub>M2</sub>) ja σ<sub>⊥</sub> ≤ 0,9 · f<sub>u</sub> / γ<sub>M2</sub>.</li>
-      <li><b>√3:</b> vain τ<sub>∥</sub> = F/(a·L) → √(3τ<sub>∥</sub>²) = √3 · τ<sub>∥</sub>.</li>
-      <li><b>√2:</b> 45° pienahitsi, voima kohtisuoraan akselia vastaan → σ<sub>⊥</sub> = τ<sub>⊥</sub> = F/(√2·a·L) → √(σ<sub>⊥</sub>² + 3τ<sub>⊥</sub>²) = 2 · F/(√2·a·L) = √2 · F/(a·L).</li>
-      <li><b>√1:</b> vain σ<sub>⊥</sub> = F/(a·L) → √(σ<sub>⊥</sub>²) = 1 · σ<sub>⊥</sub>. Tällöin myös ehto σ<sub>⊥</sub> ≤ 0,9 f<sub>u</sub>/γ<sub>M2</sub> on tarkistettava – se määrää kaikilla teräslajeilla.</li>
-      <li><b>Vino voima θ:</b> kerroin k = √(3 − sin²θ), joka antaa θ = 0° → √3 ja θ = 90° → √2.</li>
-      <li>Läpihitsatun päittäishitsin kestävyys = heikomman liitettävän osan kestävyys (kohta 4.7.1), joten sitä ei mitoiteta tällä taulukolla.</li>
-      <li>Rajat: a ≥ 3 mm, tehollinen pituus ≥ max(30 mm; 6a), pienahitsin kylkikulma 60°–120°. Pitkässä limiliitoksessa (L<sub>j</sub> &gt; 150a) β<sub>Lw</sub> = 1,2 − 0,2 · L<sub>j</sub>/(150a) ≤ 1,0.</li>
-    </ul>
-  </details>
+  <h2 id="w-derive">Kaavojen johtaminen √1, √2 ja √3</h2>
+  <p class="lt-note">Johdot noudattavat opinnäytetyötä Eloranta, J. (2015): <i>Hitsausliitosten mitoittaminen</i>, SAMK, liite 1 (SFS 2373 ja SFS-EN 1993-1-8).</p>
+  <div class="lt-card"><ol class="lt-steps">
+    <li class="lt-step"><h4>Lähtökohta: komponenttimenetelmä</h4>
+      <div class="lt-f">Hitsin laskentapinta on a · L. Voima F jaetaan laskentapinnalle komponenteiksi σ<sub>⊥</sub>, τ<sub>⊥</sub> ja τ<sub>∥</sub>. Jännitystä σ<sub>∥</sub> ei huomioida.</div>
+      <div class="lt-f">Ehto 1 (von Mises): √(σ<sub>⊥</sub>² + 3(τ<sub>⊥</sub>² + τ<sub>∥</sub>²)) ≤ f<sub>u</sub> / (β<sub>w</sub> · γ<sub>M2</sub>)</div>
+      <div class="lt-f">Ehto 2: σ<sub>⊥</sub> ≤ 0,9 · f<sub>u</sub> / γ<sub>M2</sub> <span class="lt-c">(kerroin 0,9 Suomen kansallisesta liitteestä)</span></div>
+      <div class="lt-f">Kun vertailujännitys kirjoitetaan muotoon k · F/(a·L), saadaan f<sub>w,d</sub> = f<sub>u</sub> / (k · β<sub>w</sub> · γ<sub>M2</sub>) ja F<sub>w,Rd</sub> = f<sub>w,d</sub> · a.</div>
+    </li>
+    <li class="lt-step"><h4>√3 – voima hitsin akselin suuntaan (kylkihitsi)</h4>
+      <div class="lt-f">τ<sub>∥</sub> = F / (a·L), σ<sub>⊥</sub> = τ<sub>⊥</sub> = 0</div>
+      <div class="lt-f">√(0 + 3(0 + τ<sub>∥</sub>²)) = √3 · τ<sub>∥</sub> = <span class="lt-r">√3 · F / (a·L)</span></div>
+      <div class="lt-f">f<sub>w,d</sub> = f<sub>u</sub> / (√3 · β<sub>w</sub> · γ<sub>M2</sub>) <span class="lt-c">(sama kuin yksinkertaistettu menetelmä, kaava 3.5)</span></div>
+      <div class="lt-f">Tarvittava a-mitta: a ≥ √3 · β<sub>w</sub> · γ<sub>M2</sub> · F / (f<sub>u</sub> · L)</div>
+    </li>
+    <li class="lt-step"><h4>√2 – voima poikittain hitsiin (otsahitsi, T-liitos)</h4>
+      <div class="lt-f">Tasakylkisessä pienahitsissä laskentapinta on 45° kulmassa. Voima jakautuu tasan pinnan normaalin ja pinnan suuntaan: F/√2 kumpaankin.</div>
+      <div class="lt-f">σ<sub>⊥</sub> = τ<sub>⊥</sub> = F / (√2 · a·L), τ<sub>∥</sub> = 0</div>
+      <div class="lt-f">√(σ<sub>⊥</sub>² + 3σ<sub>⊥</sub>²) = √4 · σ<sub>⊥</sub> = 2 · F/(√2·a·L) = <span class="lt-r">√2 · F / (a·L)</span></div>
+      <div class="lt-f">f<sub>w,d</sub> = f<sub>u</sub> / (√2 · β<sub>w</sub> · γ<sub>M2</sub>)</div>
+      <div class="lt-f">Ehto 2: σ<sub>⊥</sub> = f<sub>u</sub>/(2β<sub>w</sub>γ<sub>M2</sub>) ≤ 0,9 f<sub>u</sub>/γ<sub>M2</sub> pätee, kun β<sub>w</sub> ≥ 0,56, eli aina. Ehto 1 määrää.</div>
+      <div class="lt-f">Tarvittava a-mitta: a ≥ √2 · β<sub>w</sub> · γ<sub>M2</sub> · F / (f<sub>u</sub> · L)</div>
+    </li>
+    <li class="lt-step"><h4>√1 – voima kohtisuoraan laskentapintaa vastaan</h4>
+      <div class="lt-f">σ<sub>⊥</sub> = F / (a·L), τ<sub>⊥</sub> = τ<sub>∥</sub> = 0</div>
+      <div class="lt-f">√(σ<sub>⊥</sub>²) = <span class="lt-r">√1 · F / (a·L)</span></div>
+      <div class="lt-f">Ehto 1: σ<sub>⊥</sub> ≤ f<sub>u</sub>/(β<sub>w</sub>γ<sub>M2</sub>). Ehto 2: σ<sub>⊥</sub> ≤ 0,9 f<sub>u</sub>/γ<sub>M2</sub>.</div>
+      <div class="lt-f">Koska β<sub>w</sub> ≤ 1, on 1/β<sub>w</sub> ≥ 1 &gt; 0,9. Siksi <b>ehto 2 määrää aina</b>: f<sub>w,d</sub> = 0,9 · f<sub>u</sub> / γ<sub>M2</sub></div>
+      <div class="lt-f">Tarvittava a-mitta: a ≥ γ<sub>M2</sub> · F / (0,9 · f<sub>u</sub> · L)</div>
+    </li>
+    <li class="lt-step"><h4>Vino voima kulmassa θ (opinnäytetyön esimerkki 3)</h4>
+      <div class="lt-f">τ<sub>∥</sub> = F cos θ / (a·L), σ<sub>⊥</sub> = τ<sub>⊥</sub> = F sin θ / (√2 · a·L)</div>
+      <div class="lt-f">√(4σ<sub>⊥</sub>² + 3τ<sub>∥</sub>²) = F/(a·L) · √(2 sin²θ + 3 cos²θ) = <span class="lt-r">F/(a·L) · √(3 − sin²θ)</span></div>
+      <div class="lt-f">θ = 0° → √3, θ = 90° → √2. Kerroin √3 on aina varmalla puolella.</div>
+    </li>
+    <li class="lt-step"><h4>Vertailu SFS 2373:een ja opinnäytetyön esimerkit</h4>
+      <div class="lt-f">SFS 2373: σ<sub>vert</sub> = β · k · F/(a·L) ≤ σ<sub>sall</sub> → a ≥ k · β · F / (L · σ<sub>sall</sub>). Kertoimet k ovat samat.</div>
+      <div class="lt-f">Esim. 1, otsahitsi (√2): F = 50 kN, L = 60 mm, Fe 37 (β = 0,7), σ<sub>sall</sub> = 147 N/mm² → a ≥ √2 · 0,7 · 50 000 / (60 · 147) = <span class="lt-r">5,61 mm → a6</span></div>
+      <div class="lt-f">Esim. 2, kylkihitsi (√3): F = 100 kN, L = 200 mm, Fe 44 (β = 0,8), σ<sub>sall</sub> = 180 N/mm² → a ≥ √3 · 0,8 · 100 000 / (200 · 180) = <span class="lt-r">3,85 mm → a4</span></div>
+      <div class="lt-f">Erot: SFS 2373 käyttää myötörajaa, Eurocode 3 murtolujuutta f<sub>u</sub> ja γ<sub>M2</sub> = 1,25. SFS 2373:n pituusrajat 8a ≤ L ≤ 100a korvautuvat Eurocodessa ehdoilla L<sub>eff</sub> ≥ max(30 mm; 6a) ja pitkän liitoksen kertoimella β<sub>Lw</sub>.</div>
+    </li>
+    <li class="lt-step"><h4>Rajat ja suositukset</h4>
+      <div class="lt-f">a ≥ 3 mm, L<sub>eff</sub> ≥ max(30 mm; 6a), pienahitsin kylkikulma 60°–120°. Pitkässä limiliitoksessa (L<sub>j</sub> &gt; 150a) β<sub>Lw</sub> = 1,2 − 0,2 · L<sub>j</sub>/(150a) ≤ 1,0.</div>
+      <div class="lt-f">Lämmöntuonnin nyrkkisääntö: a ≥ √t − 0,5 mm, t = paksumman liitettävän osan paksuus. Esim. t = 40 mm → a ≥ 5,9 mm → a6.</div>
+      <div class="lt-f">Läpihitsatun päittäishitsin kestävyys on heikomman liitettävän osan kestävyys (kohta 4.7.1), joten sitä ei mitoiteta tällä taulukolla.</div>
+    </li>
+  </ol></div>
 
   <p class="lt-disc">Laskenta SFS-EN 1993-1-8:2005 ja kansallisen liitteen (γ<sub>M2</sub> = 1,25) mukaan. Perusaineen f<sub>u</sub> SFS-EN 1993-1-1 taulukosta 3.1, β<sub>w</sub> taulukosta 4.1. Lisäaineen lujuuden oletetaan vastaavan vähintään perusainetta. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
 </div>
@@ -334,7 +370,8 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     s+=step('Tehollinen pituus L<sub>eff</sub>',[
       ends?'L<sub>eff</sub> = L − 2a = '+f(L,0)+' − 2 · '+f(a,1)+' = <span class="lt-r">'+f(Leff,0)+' mm</span>':'L<sub>eff</sub> = L = <span class="lt-r">'+f(Leff,0)+' mm</span>'+c_('(hitsi täysimittainen koko pituudelta)'),
       'L<sub>eff</sub> ≥ max(30; 6a) = '+f(lmin,0)+' mm'+chk(Leff>=lmin),
-      'a = '+f(a,1)+' mm ≥ 3 mm'+chk(a>=3)
+      'a = '+f(a,1)+' mm ≥ 3 mm'+chk(a>=3),
+      (function(){var t=num('#c-t'),am=Math.sqrt(t)-0.5;return 'Suositus (lämmöntuonti): a ≥ √t − 0,5 = √'+f(t,0)+' − 0,5 = '+f(am,1)+' mm'+(a>=am?' <span class="lt-ok">✓</span>':' <span class="lt-c">⚠ alittaa suosituksen</span>');})()
     ]);
 
     // 2. Jännityskomponentit

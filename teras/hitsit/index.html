@@ -6,7 +6,7 @@
 <script src="../../lt-pdf.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hitsitaulukko (kesken) – Lastutec</title>
-<meta name="description" content="Hitsien kestävyydet kertoimilla √1, √2 ja √3 SFS-EN 1993-1-8:n ja Suomen kansallisen liitteen mukaan, valmiit taulukot a3–a15 ja laskenta välivaiheineen.">
+<meta name="description" content="Pienahitsien pitkittäinen ja poikittainen kestävyys SFS-EN 1993-1-8:n ja Suomen kansallisen liitteen mukaan, valmiit taulukot a3–a15 ja laskenta välivaiheineen.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <style>
 /* ===== Lastutec-työkalut: kaikki tyylit rajattu .lt-tool-luokan sisään ===== */
@@ -116,11 +116,11 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 <div role="note" style="border:1px solid #e2c47f;background:#2a2208;color:#e2c47f;border-radius:6px;padding:10px 14px;margin:0 0 16px;font:600 14px Arial,Helvetica,sans-serif">⚠ KESKEN – työkalu on vielä kehitysvaiheessa. Tuloksia ei tule käyttää mitoitukseen ennen kuin laskenta on tarkastettu ja hyväksytty.</div>
 <div class="lt-tool" id="lt-hitsit">
 
-  <p class="lt-sub">Hitsien mitoituskestävyydet pituusyksikköä kohden SFS-EN 1993-1-8 kohdan 4.5.3.2 komponenttimenetelmällä ja Suomen kansallisen liitteen (KL) mukaan. KL on määräävä. Kerroin √1, √2 tai √3 riippuu siitä, missä suunnassa voima rasittaa hitsiä.</p>
+  <p class="lt-sub">Hitsien mitoituskestävyydet pituusyksikköä kohden SFS-EN 1993-1-8 kohdan 4.5.3.2 komponenttimenetelmällä ja Suomen kansallisen liitteen (KL) mukaan. KL on määräävä. Taulukossa on Structural Engineer’s Pocket Bookin tapaan pitkittäinen kapasiteetti F<sub>w,L,Rd</sub> (voima hitsin suuntaan, kerroin √3) ja poikittainen kapasiteetti F<sub>w,T,Rd</sub> (voima kohtisuoraan hitsiä vastaan, kerroin √2).</p>
 
   <div class="lt-cases">
     <div class="lt-case">
-      <b>√3 – pitkittäinen</b>
+      <b>Pitkittäinen F<sub>w,L,Rd</sub> (√3)</b>
       <svg viewBox="0 0 260 110" role="img" aria-label="Tasokuva: limiliitos kylkihitseillä, voima hitsin suuntaan"><defs><marker id="ar1" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="context-stroke"/></marker></defs>
 <rect x="40" y="38" width="130" height="44" fill="#6b6b6b" stroke="#aeaba4" stroke-width="1"/>
 <rect x="100" y="48" width="120" height="24" fill="#8f8f8f" stroke="#aeaba4" stroke-width="1"/>
@@ -129,10 +129,10 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 <text x="16" y="54" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700" fill="#e9e6e0">F</text><text x="238" y="54" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700" fill="#e9e6e0">F</text>
 <path d="M112 30 H158" stroke="#E3824F" stroke-width="1.8" marker-end="url(#ar1)"/><text x="135" y="24" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#e9e6e0" text-anchor="middle">τ∥</text>
 <text x="130" y="100" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#aeaba4" text-anchor="middle">Tasokuva · kylkihitsit, F ∥ hitsin akseli</text></svg>
-      <p>Voima hitsin akselin suuntaan, vain τ<sub>∥</sub>. Esim. limiliitoksen kylkihitsit ja palkin uuman ja laipan välinen hitsi. Vastaa yksinkertaistettua menetelmää.</p>
+      <p>Voima hitsin akselin suuntaan, vain τ<sub>∥</sub>. Esim. limiliitoksen kylkihitsit ja palkin uuman ja laipan välinen hitsi. Vastaa yksinkertaistettua menetelmää (kohta 4.5.3.3).</p>
     </div>
     <div class="lt-case">
-      <b>√2 – poikittainen pienahitsi</b>
+      <b>Poikittainen F<sub>w,T,Rd</sub> (√2)</b>
       <svg viewBox="0 0 260 110" role="img" aria-label="Leikkaus: T-liitos, kaksipuolinen pienahitsi, voima kohtisuoraan hitsin akselia vastaan"><defs><marker id="ar2" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="context-stroke"/></marker></defs>
 <rect x="40" y="70" width="180" height="16" fill="#6b6b6b" stroke="#aeaba4" stroke-width="1"/>
 <rect x="122" y="26" width="16" height="44" fill="#8f8f8f" stroke="#aeaba4" stroke-width="1"/>
@@ -143,21 +143,6 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 <text x="170" y="44" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#e9e6e0">σ⊥ = τ⊥</text>
 <text x="130" y="102" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#aeaba4" text-anchor="middle">Leikkaus · hitsin akseli ⊥ kuvatasoon</text></svg>
       <p>Voima kohtisuoraan hitsin akselia vastaan tasakylkisessä 90° pienahitsissä, jolloin a-tasossa σ<sub>⊥</sub> = τ<sub>⊥</sub>. Esim. T-liitos ja otsahitsi.</p>
-    </div>
-    <div class="lt-case">
-      <b>√1 – kohtisuora a-tasoon</b>
-      <svg viewBox="0 0 260 110" role="img" aria-label="Leikkaus: osatunkeumainen päittäishitsi, veto kohtisuoraan a-tasoon"><defs><marker id="ar3" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="context-stroke"/></marker></defs>
-<rect x="40" y="40" width="90" height="28" fill="#6b6b6b" stroke="#aeaba4" stroke-width="1"/>
-<rect x="130" y="40" width="90" height="28" fill="#6b6b6b" stroke="#aeaba4" stroke-width="1"/>
-<path d="M118 40 L142 40 L134 54 L126 54 Z" fill="#E3824F"/>
-<path d="M130 54 V68" stroke="#000" stroke-width="2"/>
-<path d="M150 40 V54 M146 40 H154 M146 54 H154" stroke="#e9e6e0" stroke-width="1.2"/>
-<text x="158" y="51" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700" fill="#e9e6e0">a</text>
-<path d="M40 54 H12" stroke="#e9e6e0" stroke-width="2.5" marker-end="url(#ar3)"/><path d="M220 54 H250" stroke="#e9e6e0" stroke-width="2.5" marker-end="url(#ar3)"/>
-<text x="16" y="48" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700" fill="#e9e6e0">F</text><text x="238" y="48" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700" fill="#e9e6e0">F</text>
-<text x="130" y="30" font-family="Arial,Helvetica,sans-serif" font-size="11" fill="#e9e6e0" text-anchor="middle">σ⊥ (a-tasossa)</text>
-<text x="130" y="88" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#aeaba4" text-anchor="middle">Leikkaus · juuri hitsaamaton</text></svg>
-      <p>Voima kohtisuoraan a-tasoa vastaan, vain σ<sub>⊥</sub>. Esim. osatunkeumainen päittäishitsi vedossa. a = hitsin tunkeuma.</p>
     </div>
   </div>
 
@@ -208,20 +193,19 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
   <h2>Lujuusarvot välivaiheineen</h2>
   <div class="lt-card"><ol class="lt-steps" id="w-base"></ol></div>
 
-  <h2>Valmiiksi lasketut kestävyydet F<sub>w,Rd</sub> = f<sub>w,d</sub> · a</h2>
+  <h2>Pienahitsin kapasiteetti F<sub>w,Rd</sub> = f<sub>w,d</sub> · a</h2>
   <div class="lt-scroll">
     <table class="lt-table" id="w-table">
       <thead>
         <tr>
           <th>a<small>mm</small></th>
-          <th>√1<small>kohtisuora</small></th>
-          <th>√2<small>poikittainen</small></th>
-          <th>√3<small>pitkittäinen</small></th>
+          <th>Pitkittäinen<small>F<sub>w,L,Rd</sub></small></th>
+          <th>Poikittainen<small>F<sub>w,T,Rd</sub></small></th>
           <th>s = a·√2<small>kylkimitta, mm</small></th>
         </tr>
       </thead>
       <tbody></tbody>
-      <tfoot><tr><td colspan="5" id="w-foot"></td></tr></tfoot>
+      <tfoot><tr><td colspan="4" id="w-foot"></td></tr></tfoot>
     </table>
   </div>
   <p class="lt-note" style="margin-top:8px">Arvot ovat yhtä hitsiä kohden. Kaksipuolisen pienahitsin kestävyys on kaksinkertainen. s on tasakylkisen 90° pienahitsin kylkimitta (Pocket Book pyöristää a = 0,7·s). Valitse rivi, niin a siirtyy laskuriin.</p>
@@ -235,13 +219,10 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       <label><span>Hitsien lukumäärä n</span><input id="c-n" type="number" min="1" step="1" value="2"></label>
       <label><span>Kuormitussuunta</span>
         <select id="c-dir">
-          <option value="3">√3 pitkittäinen (θ = 0°)</option>
-          <option value="2">√2 poikittainen pienahitsi (θ = 90°)</option>
-          <option value="1">√1 kohtisuora a-tasoon</option>
-          <option value="th">Vino voima, kulma θ</option>
+          <option value="3">Pitkittäinen Fw,L,Rd (√3)</option>
+          <option value="2">Poikittainen Fw,T,Rd (√2)</option>
         </select>
       </label>
-      <label id="c-th-w"><span>Kulma θ hitsin akselista (°)</span><input id="c-th" type="number" min="0" max="90" step="1" value="45"></label>
       <label><span>F<sub>Ed</sub> (kN), koko liitos</span><input id="c-F" type="number" min="0" step="0.1" value="250"></label>
     </div>
     <div class="lt-grid" style="margin-top:12px">
@@ -255,8 +236,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     <ol class="lt-steps" id="c-steps"></ol>
   </div>
 
-  <h2 id="w-derive">Kaavojen johtaminen √1, √2 ja √3</h2>
-  <p class="lt-note">Johdot noudattavat opinnäytetyötä Eloranta, J. (2015): <i>Hitsausliitosten mitoittaminen</i>, SAMK, liite 1 (SFS 2373 ja SFS-EN 1993-1-8).</p>
+  <h2 id="w-derive">Kaavojen johtaminen</h2>
   <div class="lt-card"><ol class="lt-steps">
     <li class="lt-step"><h4>Lähtökohta: komponenttimenetelmä</h4>
       <div class="lt-f">Hitsin laskentapinta on a · L. Voima F jaetaan laskentapinnalle komponenteiksi σ<sub>⊥</sub>, τ<sub>⊥</sub> ja τ<sub>∥</sub>. Jännitystä σ<sub>∥</sub> ei huomioida.</div>
@@ -264,13 +244,13 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       <div class="lt-f">Ehto 2: σ<sub>⊥</sub> ≤ 0,9 · f<sub>u</sub> / γ<sub>M2</sub> <span class="lt-c">(SFS-EN 1993-1-8 kaava 4.1; kerroin 0,9 ei ole kansallisesti valittava parametri)</span></div>
       <div class="lt-f">Kun vertailujännitys kirjoitetaan muotoon k · F/(a·L), saadaan f<sub>w,d</sub> = f<sub>u</sub> / (k · β<sub>w</sub> · γ<sub>M2</sub>) ja F<sub>w,Rd</sub> = f<sub>w,d</sub> · a.</div>
     </li>
-    <li class="lt-step"><h4>√3 – voima hitsin akselin suuntaan (kylkihitsi)</h4>
+    <li class="lt-step"><h4>Pitkittäinen kapasiteetti F<sub>w,L,Rd</sub> – voima hitsin akselin suuntaan (√3)</h4>
       <div class="lt-f">τ<sub>∥</sub> = F / (a·L), σ<sub>⊥</sub> = τ<sub>⊥</sub> = 0</div>
       <div class="lt-f">√(0 + 3(0 + τ<sub>∥</sub>²)) = √3 · τ<sub>∥</sub> = <span class="lt-r">√3 · F / (a·L)</span></div>
       <div class="lt-f">f<sub>w,d</sub> = f<sub>u</sub> / (√3 · β<sub>w</sub> · γ<sub>M2</sub>) <span class="lt-c">(sama kuin yksinkertaistettu menetelmä, kaava 3.5)</span></div>
       <div class="lt-f">Tarvittava a-mitta: a ≥ √3 · β<sub>w</sub> · γ<sub>M2</sub> · F / (f<sub>u</sub> · L)</div>
     </li>
-    <li class="lt-step"><h4>√2 – voima poikittain hitsiin (otsahitsi, T-liitos)</h4>
+    <li class="lt-step"><h4>Poikittainen kapasiteetti F<sub>w,T,Rd</sub> – voima kohtisuoraan hitsiä vastaan (√2)</h4>
       <div class="lt-f">Tasakylkisessä pienahitsissä laskentapinta on 45° kulmassa. Voima jakautuu tasan pinnan normaalin ja pinnan suuntaan: F/√2 kumpaankin.</div>
       <div class="lt-f">σ<sub>⊥</sub> = τ<sub>⊥</sub> = F / (√2 · a·L), τ<sub>∥</sub> = 0</div>
       <div class="lt-f">√(σ<sub>⊥</sub>² + 3σ<sub>⊥</sub>²) = √4 · σ<sub>⊥</sub> = 2 · F/(√2·a·L) = <span class="lt-r">√2 · F / (a·L)</span></div>
@@ -278,17 +258,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       <div class="lt-f">Ehto 2: σ<sub>⊥</sub> = f<sub>u</sub>/(2β<sub>w</sub>γ<sub>M2</sub>) ≤ 0,9 f<sub>u</sub>/γ<sub>M2</sub> pätee, kun β<sub>w</sub> ≥ 0,56, eli aina. Ehto 1 määrää.</div>
       <div class="lt-f">Tarvittava a-mitta: a ≥ √2 · β<sub>w</sub> · γ<sub>M2</sub> · F / (f<sub>u</sub> · L)</div>
     </li>
-    <li class="lt-step"><h4>√1 – voima kohtisuoraan laskentapintaa vastaan</h4>
-      <div class="lt-f">σ<sub>⊥</sub> = F / (a·L), τ<sub>⊥</sub> = τ<sub>∥</sub> = 0</div>
-      <div class="lt-f">√(σ<sub>⊥</sub>²) = <span class="lt-r">√1 · F / (a·L)</span></div>
-      <div class="lt-f">Ehto 1: σ<sub>⊥</sub> ≤ f<sub>u</sub>/(β<sub>w</sub>γ<sub>M2</sub>). Ehto 2: σ<sub>⊥</sub> ≤ 0,9 f<sub>u</sub>/γ<sub>M2</sub>.</div>
-      <div class="lt-f">Koska β<sub>w</sub> ≤ 1, on 1/β<sub>w</sub> ≥ 1 &gt; 0,9. Siksi <b>ehto 2 määrää aina</b>: f<sub>w,d</sub> = 0,9 · f<sub>u</sub> / γ<sub>M2</sub></div>
-      <div class="lt-f">Tarvittava a-mitta: a ≥ γ<sub>M2</sub> · F / (0,9 · f<sub>u</sub> · L)</div>
-    </li>
-    <li class="lt-step"><h4>Vino voima kulmassa θ (opinnäytetyön esimerkki 3)</h4>
-      <div class="lt-f">τ<sub>∥</sub> = F cos θ / (a·L), σ<sub>⊥</sub> = τ<sub>⊥</sub> = F sin θ / (√2 · a·L)</div>
-      <div class="lt-f">√(4σ<sub>⊥</sub>² + 3τ<sub>∥</sub>²) = F/(a·L) · √(2 sin²θ + 3 cos²θ) = <span class="lt-r">F/(a·L) · √(3 − sin²θ)</span></div>
-      <div class="lt-f">θ = 0° → √3, θ = 90° → √2. Kerroin √3 on aina varmalla puolella.</div>
+    <li class="lt-step"><h4>Poikittaisen ja pitkittäisen kapasiteetin suhde</h4>
       <div class="lt-f">Poikittaisen ja pitkittäisen kestävyyden suhde on √3/√2 = <span class="lt-r">1,225</span>. Sama luku on Pocket Bookin taulukossa F<sub>w,T,Rd</sub>/F<sub>w,L,Rd</sub> (esim. 0,76/0,62).</div>
     </li>
     <li class="lt-step"><h4>Tarkistus: Pocket Book, s. 224 (S275, liitoskulma 90°)</h4>
@@ -296,12 +266,6 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       <div class="lt-f">f<sub>vw,d</sub> = f<sub>u</sub>/(√3·β<sub>w</sub>·γ<sub>M2</sub>) = 410/(√3 · 0,85 · 1,25) = <span class="lt-r" id="bk-fvw"></span></div>
       <div class="lt-scroll" style="margin-top:6px"><table class="lt-table" id="bk-table"><thead><tr><th>s<small>mm</small></th><th>a<small>mm</small></th><th>Pitkittäinen √3<small>laskuri, kN/mm</small></th><th>Kirja<small>F<sub>w,L,Rd</sub></small></th><th>Poikittainen √2<small>laskuri, kN/mm</small></th><th>Kirja<small>F<sub>w,T,Rd</sub></small></th></tr></thead><tbody></tbody></table></div>
       <div class="lt-f lt-c" style="margin-top:6px">Laskuri antaa samat arvot, kun f<sub>u</sub>:n lähteeksi valitaan tuotestandardi. Taulukon 3.1 arvolla (S275, t ≤ 40 mm: f<sub>u</sub> = 430 N/mm²) kestävyydet ovat 430/410 = 1,049 kertaiset. KL sallii molemmat.</div>
-    </li>
-    <li class="lt-step"><h4>Vertailu SFS 2373:een ja opinnäytetyön esimerkit</h4>
-      <div class="lt-f">SFS 2373: σ<sub>vert</sub> = β · k · F/(a·L) ≤ σ<sub>sall</sub> → a ≥ k · β · F / (L · σ<sub>sall</sub>). Kertoimet k ovat samat.</div>
-      <div class="lt-f">Esim. 1, otsahitsi (√2): F = 50 kN, L = 60 mm, Fe 37 (β = 0,7), σ<sub>sall</sub> = 147 N/mm² → a ≥ √2 · 0,7 · 50 000 / (60 · 147) = <span class="lt-r">5,61 mm → a6</span></div>
-      <div class="lt-f">Esim. 2, kylkihitsi (√3): F = 100 kN, L = 200 mm, Fe 44 (β = 0,8), σ<sub>sall</sub> = 180 N/mm² → a ≥ √3 · 0,8 · 100 000 / (200 · 180) = <span class="lt-r">3,85 mm → a4</span></div>
-      <div class="lt-f">Erot: SFS 2373 käyttää myötörajaa, Eurocode 3 murtolujuutta f<sub>u</sub> ja γ<sub>M2</sub> = 1,25. SFS 2373:n pituusrajat 8a ≤ L ≤ 100a korvautuvat Eurocodessa ehdoilla L<sub>eff</sub> ≥ max(30 mm; 6a) ja pitkän liitoksen kertoimella β<sub>Lw</sub>.</div>
     </li>
     <li class="lt-step"><h4>Rajat ja suositukset</h4>
       <div class="lt-f">a ≥ 3 mm, L<sub>eff</sub> ≥ max(30 mm; 6a), pienahitsin kylkikulma 60°–120°. L<sub>eff</sub> on se pituus, jolla hitsi on täysimittainen. Muuten L<sub>eff</sub> = L − 2a (kohta 4.5.2).</div>
@@ -311,7 +275,8 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       <div class="lt-f">Pocket Bookin taulukon oletus a ≥ 0,5·t<sub>p</sub> on kirjan suositus. Se ei ole SFS-EN 1993-1-8:n eikä KL:n vaatimus.</div>
       <div class="lt-f">Pitkässä limiliitoksessa (L<sub>j</sub> &gt; 150a) β<sub>Lw</sub> = 1,2 − 0,2 · L<sub>j</sub>/(150a) ≤ 1,0 (kohta 4.11(4)).</div>
       <div class="lt-f">Lämmöntuonnin nyrkkisääntö: a ≥ √t − 0,5 mm, t = paksumman liitettävän osan paksuus. Esim. t = 40 mm → a ≥ 5,9 mm → a6.</div>
-      <div class="lt-f">Läpihitsatun päittäishitsin kestävyys on heikomman liitettävän osan kestävyys (kohta 4.7.1), joten sitä ei mitoiteta tällä taulukolla.</div>
+      <div class="lt-f">Läpihitsatun päittäishitsin kestävyys on heikomman liitettävän osan kestävyys (kohta 4.7.1), ja osatunkeumainen päittäishitsi mitoitetaan kuten syvätunkeumainen pienahitsi (kohta 4.7.2). Niitä ei mitoiteta tällä taulukolla.</div>
+      <div class="lt-f">Vinon voiman voi tarkistaa varmalla puolella pitkittäisellä kapasiteetilla, koska √3-kerroin on suurin.</div>
     </li>
   </ol></div>
 
@@ -368,7 +333,6 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     var base=m.fu/(m.bw*gm);         // fu/(βw·γM2)
     var lim=0.9*m.fu/gm;              // 0,9·fu/γM2
     return {m:m,gm:gm,base:base,lim:lim,
-      s1:Math.min(base,lim),
       s2:base/Math.SQRT2,
       s3:base/Math.sqrt(3)};
   }
@@ -386,9 +350,8 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       '0,9 · f<sub>u</sub> / γ<sub>M2</sub> = 0,9 · '+m.fu+' / '+f(gm,2)+' = <span class="lt-r">'+f(S.lim,1)+' N/mm²</span>'+c_('(raja σ⊥:lle)')
     ]);
     s+=step('Hitsin mitoituslujuus f<sub>w,d</sub> kuormitussuunnittain',[
-      '√1: f<sub>w,d</sub> = min('+f(S.base,1)+' / 1; '+f(S.lim,1)+') = <span class="lt-r">'+f(S.s1,1)+' N/mm²</span>'+c_(S.lim<S.base?'(0,9·fu/γM2 määrää)':'(vertailujännitys määrää)'),
-      '√2: f<sub>w,d</sub> = '+f(S.base,1)+' / √2 = <span class="lt-r">'+f(S.s2,1)+' N/mm²</span>'+c_('(tarkistus σ⊥ = f_w,d/√2 = '+f(S.s2/Math.SQRT2,1)+' ≤ '+f(S.lim,1)+' ✓)'),
-      '√3: f<sub>w,d</sub> = '+f(S.base,1)+' / √3 = <span class="lt-r">'+f(S.s3,1)+' N/mm²</span>'
+      'Pitkittäinen (√3): f<sub>w,L,d</sub> = '+f(S.base,1)+' / √3 = <span class="lt-r">'+f(S.s3,1)+' N/mm²</span>',
+      'Poikittainen (√2): f<sub>w,T,d</sub> = '+f(S.base,1)+' / √2 = <span class="lt-r">'+f(S.s2,1)+' N/mm²</span>'+c_('(tarkistus σ⊥ = f_w,d/√2 = '+f(S.s2/Math.SQRT2,1)+' ≤ '+f(S.lim,1)+' ✓)')
     ]);
     $('#w-base').innerHTML=s;
     return S;
@@ -397,24 +360,23 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
   function renderTable(S){
     var u=+$('#w-unit').value,tb=$('#w-table tbody'),aSel=num('#c-a');
     var d=u===1?3:1,unit=u===1?'kN/mm':'kN/100 mm';
-    root.querySelectorAll('#w-table thead th small')[1].textContent='kohtisuora, '+unit;
-    root.querySelectorAll('#w-table thead th small')[2].textContent='poikittainen, '+unit;
-    root.querySelectorAll('#w-table thead th small')[3].textContent='pitkittäinen, '+unit;
+    var sm=root.querySelectorAll('#w-table thead th small');
+    sm[1].innerHTML='F<sub>w,L,Rd</sub>, '+unit;
+    sm[2].innerHTML='F<sub>w,T,Rd</sub>, '+unit;
     tb.innerHTML='';
     A_LIST.forEach(function(a){
       var tr=document.createElement('tr');
       if(a===aSel)tr.className='sel';
-      tr.innerHTML='<td>a'+a+'</td><td>'+f(S.s1*a*u/1000,d)+'</td><td>'+f(S.s2*a*u/1000,d)+'</td><td>'+f(S.s3*a*u/1000,d)+'</td><td>'+f(a*Math.SQRT2,1)+'</td>';
+      tr.innerHTML='<td>a'+a+'</td><td>'+f(S.s3*a*u/1000,d)+'</td><td>'+f(S.s2*a*u/1000,d)+'</td><td>'+f(a*Math.SQRT2,1)+'</td>';
       tr.addEventListener('click',function(){$('#c-a').value=a;update();$('#w-calc-h').scrollIntoView({behavior:'smooth',block:'start'});});
       tb.appendChild(tr);
     });
-    $('#w-foot').innerHTML='Esimerkki: a5, √3 → F<sub>w,Rd</sub> = '+f(S.s3,1)+' N/mm² · 5 mm = '+f(S.s3*5,0)+' N/mm = '+f(S.s3*5*u/1000,d)+' '+unit;
+    $('#w-foot').innerHTML='Esimerkki: a5, pitkittäinen → F<sub>w,L,Rd</sub> = '+f(S.s3,1)+' N/mm² · 5 mm = '+f(S.s3*5,0)+' N/mm = '+f(S.s3*5*u/1000,d)+' '+unit;
   }
 
   function calc(S){
     var m=S.m,gm=S.gm,a=num('#c-a'),L=num('#c-L'),n=Math.max(1,Math.round(num('#c-n')));
-    var dir=$('#c-dir').value,th=Math.min(90,Math.max(0,num('#c-th'))),F=num('#c-F');
-    $('#c-th-w').style.display=dir==='th'?'':'none';
+    var dir=$('#c-dir').value==='2'?'2':'3',F=num('#c-F');
     var s='';
 
     // 1. Tehollinen pituus
@@ -439,24 +401,8 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       fwd=S.base/k;
       lines.push('f<sub>w,d</sub> = '+f(S.base,1)+' / √2 = <span class="lt-r">'+f(fwd,1)+' N/mm²</span>');
       lines.push('Tarkistus: σ<sub>⊥</sub> = f<sub>w,d</sub>/√2 = '+f(fwd/Math.SQRT2,1)+' ≤ 0,9f<sub>u</sub>/γ<sub>M2</sub> = '+f(S.lim,1)+chk(fwd/Math.SQRT2<=S.lim));
-    }else if(dir==='1'){k=1;label='√1';
-      lines.push('σ<sub>⊥</sub> = F / (a · L) , τ<sub>⊥</sub> = τ<sub>∥</sub> = 0');
-      lines.push('Ehto 1: σ<sub>⊥</sub> ≤ f<sub>u</sub>/(β<sub>w</sub>γ<sub>M2</sub>) = '+f(S.base,1)+' N/mm²');
-      lines.push('Ehto 2: σ<sub>⊥</sub> ≤ 0,9f<sub>u</sub>/γ<sub>M2</sub> = '+f(S.lim,1)+' N/mm²');
-      fwd=S.s1;
-      lines.push('f<sub>w,d</sub> = min('+f(S.base,1)+'; '+f(S.lim,1)+') = <span class="lt-r">'+f(fwd,1)+' N/mm²</span>');
-    }else{
-      var r=th*Math.PI/180,sn=Math.sin(r);k=Math.sqrt(3-sn*sn);label='k';
-      lines.push('τ<sub>∥</sub> = F·cos θ / (a·L) , σ<sub>⊥</sub> = τ<sub>⊥</sub> = F·sin θ / (√2·a·L)');
-      lines.push('√(σ<sub>⊥</sub>² + 3(τ<sub>⊥</sub>² + τ<sub>∥</sub>²)) = F/(a·L) · √(3 − sin²θ)');
-      lines.push('k = √(3 − sin²'+f(th,0)+'°) = √(3 − '+f(sn*sn,3)+') = <span class="lt-r">'+f(k,3)+'</span>'+c_('(√2 = 1,414 … √3 = 1,732)'));
-      var f1=S.base/k,f2=sn>0?S.lim*Math.SQRT2/sn:Infinity;
-      lines.push('Vertailujännitys: f<sub>w,d</sub> = '+f(S.base,1)+' / '+f(k,3)+' = '+f(f1,1)+' N/mm²');
-      lines.push('σ<sub>⊥</sub>-ehto: f<sub>w,d</sub> ≤ √2 · 0,9f<sub>u</sub>/γ<sub>M2</sub> / sin θ = '+(isFinite(f2)?f(f2,1):'∞')+' N/mm²');
-      fwd=Math.min(f1,f2);
-      lines.push('f<sub>w,d</sub> = <span class="lt-r">'+f(fwd,1)+' N/mm²</span>');
     }
-    s+=step('Jännityskomponentit ja mitoituslujuus ('+(dir==='th'?'θ = '+f(th,0)+'°':label)+')',lines);
+    s+=step('Jännityskomponentit ja mitoituslujuus ('+(dir==='3'?'pitkittäinen, ':'poikittainen, ')+label+')',lines);
 
     // 3. Pitkä liitos
     var bLw=1,lj=[];

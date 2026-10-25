@@ -157,7 +157,7 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
     <div class="brand"><a href="../" class="back">← Kuormalaskenta</a><h1>Kuormien alaslaskenta</h1></div>
     <div class="hdr-r"><span class="meta">Työkalu 5 · Laatinut: INS (YAMK) Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
 </header>
-<p class="lead">Karkea kuormien alaslaskenta arkkitehti- tai rakennepohjasta. Tuo pohja PDF:nä tai kuvana, syötä piirustuksen mittakaava (tai kalibroi tunnetulla mitalla) ja piirrä laatta-alueet, pilarit ja kantavat seinät. Kuormitusalat jaetaan lähimmän tuen periaatteella. Yksi mitoituskuorma q<sub>d</sub> kerrotaan kuormitusalalla ja kerrosmäärällä, ja pilareille annetaan alustava dimensio.</p>
+<p class="lead">Karkea kuormien alaslaskenta arkkitehti- tai rakennepohjasta. Tuo pohja PDF:nä tai kuvana, syötä piirustuksen mittakaava (tai kalibroi tunnetulla mitalla) ja piirrä laatta-alueet, pilarit, kantavat seinät ja palkit – tai luo systemaattinen rakenne moduuliverkosta. Palkin kuorma siirtyy tukireaktioina pilareille, seinille tai toisille palkeille. Kuormitusalat jaetaan lähimmän tuen periaatteella. Yksi mitoituskuorma q<sub>d</sub> kerrotaan kuormitusalalla ja kerrosmäärällä, ja pilareille annetaan alustava dimensio.</p>
 
 <div class="wgrid">
   <div>
@@ -180,6 +180,25 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
       <label class="chk"><input type="checkbox" id="mast"> Hoikka pilari / mastopilari (hoikkuusraja)</label>
       <p class="small" style="margin:4px 0 0" id="fcdTxt"></p>
     </div>
+    <div class="card">
+      <h2>Moduuliverkko</h2>
+      <div class="f2">
+        <label class="fl">Akselivälit x [m]<input type="text" id="gx" value="4*6" spellcheck="false"></label>
+        <label class="fl">Akselivälit y [m]<input type="text" id="gy" value="2*7,2" spellcheck="false"></label>
+        <label class="fl">Origo X [m]<input type="number" id="gox" step="0.1" value="0"></label>
+        <label class="fl">Origo Y [m]<input type="number" id="goy" step="0.1" value="0"></label>
+      </div>
+      <p class="small" style="margin:4px 0 6px">Erota välit välilyönnillä, toistot muodossa <b>n*väli</b>: esim. <code>3*6 7,2</code> = 6 + 6 + 6 + 7,2 m. Akselit numeroidaan x-suunnassa 1, 2, 3… ja y-suunnassa A, B, C…</p>
+      <div class="f2">
+        <label class="fl">Palkit<select id="gBeams"><option value="none">Ei palkkeja</option><option value="x" selected>x-suuntaan (akselit A, B…)</option><option value="y">y-suuntaan (akselit 1, 2…)</option><option value="xy">Molempiin suuntiin</option></select></label>
+        <label class="fl">Laatta<select id="gSlab"><option value="auto" selected>Koko verkon alue, kantosuunta palkeista</option><option value="none">Ei laattaa</option></select></label>
+      </div>
+      <label class="chk"><input type="checkbox" id="gCols" checked> Pilarit akselien risteyksiin</label>
+      <label class="chk"><input type="checkbox" id="gWalls"> Reunoille kantavat seinät (reunapilarit ja -palkit jätetään pois)</label>
+      <label class="chk"><input type="checkbox" id="gRepl" checked> Korvaa nykyiset piirretyt osat</label>
+      <div class="flex" style="margin-top:8px"><button class="btn primary" id="gMake">Luo akselit ja rakenne</button><button class="btn" id="gAxOnly">Vain akselit</button><button class="btn ghost danger" id="gDel">Poista akselit</button></div>
+      <p class="small" id="gInfo" style="margin:6px 0 0"></p>
+    </div>
     <div class="card" id="props"></div>
   </div>
 
@@ -190,6 +209,7 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
         <button class="tb" data-tool="slab" aria-pressed="false"><svg viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="8" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Laatta-alue</button>
         <button class="tb" data-tool="col" aria-pressed="false"><svg viewBox="0 0 16 16"><rect x="5" y="5" width="6" height="6" fill="currentColor"/></svg>Pilari</button>
         <button class="tb" data-tool="wall" aria-pressed="false"><svg viewBox="0 0 16 16"><path d="M2 8h12" stroke="currentColor" stroke-width="4"/></svg>Seinä</button>
+        <button class="tb" data-tool="beam" aria-pressed="false"><svg viewBox="0 0 16 16"><path d="M1 8h14" stroke="currentColor" stroke-width="2.4" stroke-dasharray="3 1.6"/><path d="M2 11l1.5-2.5L5 11zM11 11l1.5-2.5L14 11z" fill="currentColor"/></svg>Palkki</button>
         <span class="sep"></span>
         <button class="tb ghost" data-tool="scale" aria-pressed="false"><svg viewBox="0 0 16 16"><path d="M2 12L14 4M2 9v6M14 1v6" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>Mittakaava</button>
         <label class="tb ghost" for="file"><svg viewBox="0 0 16 16"><path d="M8 11V2M4.5 5.5L8 2l3.5 3.5M2 11v3h12v-3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>Tuo pohja (PDF/kuva)</label>
@@ -223,7 +243,7 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
           <button class="btn ghost danger" id="reset">Palauta esimerkki</button>
         </span>
       </div>
-      <div class="legend"><span><span class="chip" style="background:#92b8dd"></span>laatta-alue</span><span>värialue = tuen kuormitusala (lähin tuki)</span><span><span class="chip" style="background:#e9e6e0"></span>kantava seinä</span><span><span class="chip" style="background:#e2c47f"></span>pilari: N<sub>Ed</sub> alimmassa kerroksessa ja alustava koko</span></div>
+      <div class="legend"><span><span class="chip" style="background:#92b8dd"></span>laatta-alue</span><span>värialue = tuen kuormitusala (lähin tuki)</span><span><span class="chip" style="background:#e9e6e0"></span>kantava seinä</span><span><span class="chip" style="background:#b994dd"></span>palkki (○ = tuki)</span><span><span class="chip" style="background:#e2c47f"></span>pilari: N<sub>Ed</sub> alimmassa kerroksessa ja alustava koko</span></div>
     </div>
   </div>
 </div>
@@ -236,6 +256,8 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
   <div class="tbl-wrap"><table class="res" id="tCol"></table></div>
   <h3>Seinät</h3>
   <div class="tbl-wrap"><table class="res" id="tWall"></table></div>
+  <h3>Palkit <span class="small" style="font-weight:400">(yhden kerroksen palkki, mitoitusarvot)</span></h3>
+  <div class="tbl-wrap"><table class="res" id="tBeam"></table></div>
   <details class="step"><summary>Laskentaperiaate ja pilarin alustava dimensio</summary><div class="calc" id="method"></div></details>
 </div>
 
@@ -286,15 +308,16 @@ function segDist(e,p){ const dx=e.b[0]-e.a[0],dy=e.b[1]-e.a[1],L2=dx*dx+dy*dy||1
   return [Math.hypot(p[0]-(e.a[0]+t*dx),p[1]-(e.a[1]+t*dy)),t]; }
 const byId=id=>st.els.find(e=>e.id===id);
 function nextId(pre){ let n=0; st.els.forEach(e=>{ const m=e.id.match(new RegExp('^'+pre+'(\\d+)$')); if(m) n=Math.max(n,+m[1]); }); return pre+(n+1); }
+const isLine=e=>e.t==='wall'||e.t==='beam';
 const inSlab=(x,y,s)=>x>=Math.min(s.x0,s.x1)&&x<=Math.max(s.x0,s.x1)&&y>=Math.min(s.y0,s.y1)&&y<=Math.max(s.y0,s.y1);
 
 /* ---------- kuormitusalat: lähin tuki ---------- */
-let trib=null;
+let trib=null; const NB=100;
 const HUES=[28,205,140,330,55,260,175,0,95,300,230,15];
 function computeTrib(fast){
-  const slabs=st.els.filter(e=>e.t==='slab'), sups=st.els.filter(e=>e.t==='col'||e.t==='wall');
-  const area={}; sups.forEach(s=>area[s.id]=0);
-  if(!slabs.length||!sups.length){ trib={area,img:null,total:slabs.reduce((s,e)=>s+Math.abs((e.x1-e.x0)*(e.y1-e.y0)),0),covered:0}; return; }
+  const slabs=st.els.filter(e=>e.t==='slab'), sups=st.els.filter(e=>e.t==='col'||isLine(e));
+  const area={},bins={}; sups.forEach(s=>{ area[s.id]=0; if(s.t==='beam') bins[s.id]=new Float64Array(NB); });
+  if(!slabs.length||!sups.length){ trib={area,bins,img:null,total:slabs.reduce((s,e)=>s+Math.abs((e.x1-e.x0)*(e.y1-e.y0)),0),covered:0}; return; }
   let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9; slabs.forEach(s=>{ x0=Math.min(x0,s.x0,s.x1); y0=Math.min(y0,s.y0,s.y1); x1=Math.max(x1,s.x0,s.x1); y1=Math.max(y1,s.y0,s.y1); });
   const Abox=(x1-x0)*(y1-y0), cell=Math.max(0.05,Math.sqrt(Abox/(fast?40000:160000)));
   const nx=Math.max(1,Math.ceil((x1-x0)/cell)), ny=Math.max(1,Math.ceil((y1-y0)/cell));
@@ -308,12 +331,12 @@ function computeTrib(fast){
       const sl=slabs.find(s=>inSlab(x,y,s));
       if(sl&&(sl.span==='1'||sl.span==='4')) best=spanSupport(sl,x,y,sups,cell);
       if(best<0) for(let k=0;k<sups.length;k++){ const s=sups[k]; const d=s.t==='col'?Math.hypot(s.p[0]-x,s.p[1]-y):segDist(s,[x,y])[0]; if(d<bd){ bd=d; best=k; } }
-      const a=cell*cell; area[sups[best].id]+=a; covered+=a;
+      const a=cell*cell,sb=sups[best]; area[sb.id]+=a; covered+=a; if(sb.t==='beam'){ const tt=segDist(sb,[x,y])[1]; bins[sb.id][Math.min(NB-1,Math.floor(tt*NB))]+=a; }
       const o=(j*nx+i)*4,c=cols[best]; im.data[o]=c[0]; im.data[o+1]=c[1]; im.data[o+2]=c[2]; im.data[o+3]=255; } }
   oc.putImageData(im,0,0);
   // tarkka pinta-ala skaalaukseen (solujako pyöristää reunoilla)
   const total=slabs.reduce((s,e)=>s+Math.abs((e.x1-e.x0)*(e.y1-e.y0)),0);
-  trib={area,img:off,x0,y0,cell,nx,ny,total,covered,colors:Object.fromEntries(sups.map((s,i)=>[s.id,cols[i]]))};
+  trib={area,bins,img:off,x0,y0,cell,nx,ny,total,covered,colors:Object.fromEntries(sups.map((s,i)=>[s.id,cols[i]]))};
 }
 /* Kantosuunta: piste kuuluu sille tuelle, johon kantosuuntaan (1-suuntainen: ±u, 4-suuntainen: ±u ja ±v)
    ammuttu säde osuu ensimmäisenä laatan sisällä. Suorakaidelaatta neljällä seinällä → 45° jako (kolmio/puolisuunnikas). */
@@ -351,21 +374,71 @@ function colDesign(N){ // N [kN]
   return {fcd,Ac,aReq,hMin,formula,tRow,tNote,size,label:fmtS(size),fmtS,rd,l0,gov:size===formula&&(!tSize||formula>=tSize)?(hMin>aReq?'hoikkuus':'kaava'):'taulukko'};
 }
 
+
+/* ---------- palkit: tuet, tukireaktiot (vipusääntö jänteittäin) ja M, V ---------- */
+function segX(b,o){ const r=[b.b[0]-b.a[0],b.b[1]-b.a[1]],q=[o.b[0]-o.a[0],o.b[1]-o.a[1]],den=r[0]*q[1]-r[1]*q[0]; if(Math.abs(den)<1e-12) return null;
+  const w=[o.a[0]-b.a[0],o.a[1]-b.a[1]],t=(w[0]*q[1]-w[1]*q[0])/den,u=(w[0]*r[1]-w[1]*r[0])/den; return (t>=0&&t<=1&&u>=-0.01&&u<=1.01)?{t,u}:null; }
+const ptOn=(b,t)=>[b.a[0]+t*(b.b[0]-b.a[0]),b.a[1]+t*(b.b[1]-b.a[1])];
+function beamSupports(b){
+  const L=lenE(b)||1,tolT=0.3/L,pts=[],pri={col:3,wall:2,beam:1};
+  st.els.forEach(o=>{ if(o===b) return;
+    if(o.t==='col'){ const [d,t]=segDist(b,o.p); if(d<=0.35) pts.push({t,id:o.id,k:'col'}); }
+    else if(o.t==='wall'){ [[b.a,0],[b.b,1]].forEach(([p,t])=>{ if(segDist(o,p)[0]<=0.3) pts.push({t,id:o.id,k:'wall'}); });
+      const X=segX(b,o); if(X&&X.t>tolT&&X.t<1-tolT) pts.push({t:X.t,id:o.id,k:'wall'}); }
+    else if(o.t==='beam'){ [[b.a,0],[b.b,1]].forEach(([p,t])=>{ const [d,u]=segDist(o,p),Lo=lenE(o)||1; if(d<=0.3&&u>0.3/Lo&&u<1-0.3/Lo) pts.push({t,id:o.id,k:'beam'}); }); } });
+  pts.sort((p,q)=>p.t-q.t); const out=[];
+  for(const p of pts){ const last=out[out.length-1]; if(last&&p.t-last.t<tolT){ if(pri[p.k]>pri[last.k]) out[out.length-1]={...p,t:last.t}; } else out.push({...p}); }
+  return out; }
+function beamCalc(qd,warns){
+  const beams=st.els.filter(e=>e.t==='beam'),sp={},res={},toSup={};
+  beams.forEach(b=>sp[b.id]=beamSupports(b));
+  let pl={}; beams.forEach(b=>pl[b.id]=[]);
+  let R={};
+  for(let it=0;it<40;it++){
+    const npl={}; beams.forEach(b=>npl[b.id]=[]); R={};
+    beams.forEach(b=>{ const S=sp[b.id],Rb=new Array(S.length).fill(0),bins=trib.bins&&trib.bins[b.id];
+      const add=(t,F)=>{ if(!S.length||!F) return; if(t<=S[0].t){ Rb[0]+=F; return; } if(t>=S[S.length-1].t){ Rb[S.length-1]+=F; return; }
+        for(let i=0;i<S.length-1;i++) if(t<=S[i+1].t){ const f=(t-S[i].t)/(S[i+1].t-S[i].t||1); Rb[i]+=F*(1-f); Rb[i+1]+=F*f; return; } };
+      if(bins) for(let k=0;k<NB;k++) add((k+0.5)/NB,qd*bins[k]);
+      pl[b.id].forEach(q=>add(q.t,q.F));
+      S.forEach((s,i)=>{ if(s.k==='beam'){ const o=byId(s.id); npl[s.id].push({t:segDist(o,ptOn(b,s.t))[1],F:Rb[i],from:b.id}); } });
+      R[b.id]=Rb; });
+    let diff=0; beams.forEach(b=>{ const a=pl[b.id].reduce((x,q)=>x+q.F,0),c=npl[b.id].reduce((x,q)=>x+q.F,0); diff=Math.max(diff,Math.abs(a-c)); });
+    pl=npl; if(diff<1e-6) break; }
+  beams.forEach(b=>{ const S=sp[b.id],L=lenE(b)||1,A=trib.area[b.id]||0,bins=trib.bins&&trib.bins[b.id],Rb=R[b.id]||[];
+    const loads=[]; if(bins) for(let k=0;k<NB;k++) if(bins[k]) loads.push({t:(k+0.5)/NB,F:qd*bins[k]}); pl[b.id].forEach(q=>loads.push({t:q.t,F:q.F}));
+    let M=0,V=0;
+    // jänteet (vapaasti tuettu) ja ulokkeet
+    for(let i=0;i<S.length-1;i++){ const t0=S[i].t,t1=S[i+1].t,l=(t1-t0)*L; if(l<=1e-6) continue; const inS=loads.filter(q=>q.t>t0&&q.t<=t1);
+      let Ra=0; inS.forEach(q=>Ra+=q.F*(t1-q.t)/(t1-t0)); const Rbb=inS.reduce((x,q)=>x+q.F,0)-Ra; V=Math.max(V,Ra,Rbb);
+      for(let j=1;j<40;j++){ const t=t0+(t1-t0)*j/40; let m=Ra*(t-t0)*L; inS.forEach(q=>{ if(q.t<t) m-=q.F*(t-q.t)*L; }); M=Math.max(M,Math.abs(m)); } }
+    if(S.length){ const tl=S[0].t,tr=S[S.length-1].t; let ml=0,vl=0,mr=0,vr=0;
+      loads.forEach(q=>{ if(q.t<tl){ ml+=q.F*(tl-q.t)*L; vl+=q.F; } if(q.t>tr){ mr+=q.F*(q.t-tr)*L; vr+=q.F; } }); M=Math.max(M,ml,mr); V=Math.max(V,vl,vr); }
+    const Pin=pl[b.id].reduce((x,q)=>x+q.F,0),tot=loads.reduce((x,q)=>x+q.F,0);
+    S.forEach((s,i)=>{ if(s.k!=='beam') toSup[s.id]=(toSup[s.id]||0)+(Rb[i]||0); });
+    if(!S.length&&tot>0.01) warns.push(`${b.id}: palkilla ei ole tukea – vie palkin päät pilarin, seinän tai toisen palkin päälle. Palkin kuorma ${fmt(tot,0)} kN/kerros jää jakamatta.`);
+    else if(S.length===1&&tot>0.01) warns.push(`${b.id}: palkki on tuettu vain yhdestä kohdasta (${S[0].id}) – koko kuorma viedään sille.`);
+    else if(S.length>=2&&(S[0].t>0.05||S[S.length-1].t<0.95)) warns.push(`${b.id}: palkin pää ulottuu tuen yli (uloke).`);
+    res[b.id]={L,A,q:qd*A/L,Pin,tot,sup:S.map((s,i)=>({...s,R:Rb[i]||0})),M,V,spans:Math.max(0,S.length-1)}; });
+  return {res,toSup}; }
+
 let res=null;
 function compute(fast){
   computeTrib(fast);
   const n=Math.max(1,Math.round(+st.fl.n||1)), qd=+st.fl.qd||0, warns=[];
   const out={};
-  st.els.filter(e=>e.t==='col').forEach(e=>{ const A=trib.area[e.id]||0, N1=qd*A, N=N1*n; out[e.id]={A,N1,N,d:colDesign(N)}; if(A<0.01) warns.push(`${e.id}: pilarilla ei ole kuormitusalaa. Onko se laatta-alueen sisällä?`); });
-  st.els.filter(e=>e.t==='wall').forEach(e=>{ const A=trib.area[e.id]||0, L=lenE(e)||1; out[e.id]={A,L,n1:qd*A/L,n:qd*A*n/L,N:qd*A*n}; });
+  const bm=beamCalc(qd,warns); out.beams=bm;
+  st.els.filter(e=>e.t==='col').forEach(e=>{ const A=trib.area[e.id]||0, Pb=bm.toSup[e.id]||0, N1=qd*A+Pb, N=N1*n; out[e.id]={A,Pb,N1,N,d:colDesign(N)}; if(A<0.01&&Pb<0.01) warns.push(`${e.id}: pilarilla ei ole kuormitusalaa eikä palkkikuormaa. Onko se laatta-alueen sisällä?`); });
+  st.els.filter(e=>e.t==='wall').forEach(e=>{ const A=trib.area[e.id]||0, L=lenE(e)||1, Pb=bm.toSup[e.id]||0, N1=qd*A+Pb; out[e.id]={A,L,Pb,N1,n1:N1/L,n:N1*n/L,N:N1*n}; });
+  st.els.filter(e=>e.t==='beam').forEach(e=>{ out[e.id]=bm.res[e.id]; });
   if(!st.els.some(e=>e.t==='slab')) warns.push('Piirrä vähintään yksi laatta-alue, jolta kuorma jaetaan.');
-  if(!st.els.some(e=>e.t==='col'||e.t==='wall')) warns.push('Piirrä pilarit ja kantavat seinät.');
+  if(!st.els.some(e=>e.t==='col'||isLine(e))) warns.push('Piirrä pilarit ja kantavat seinät.');
   res={out,n,qd,warns};
 }
 
 /* ---------- piirto ---------- */
 const cv=$('plan'),ctx=cv.getContext('2d');
-const COL={bg:'#24262a',fg:'#e9e6e0',muted:'#aeaba4',grid:'#202020',grid5:'#2a2a2a',slab:'#92b8dd',wall:'#e9e6e0',col:'#e2c47f',sel:'#82c79f',acc:'#E3824F'};
+const COL={bg:'#24262a',fg:'#e9e6e0',muted:'#aeaba4',grid:'#202020',grid5:'#2a2a2a',slab:'#92b8dd',wall:'#e9e6e0',col:'#e2c47f',sel:'#82c79f',acc:'#E3824F',beam:'#b994dd',ax:'#7d8590'};
 let view={s:30,ox:30,oy:30},W=0,H=0,dpr=1;
 let tool='select',sel=null,draft=null,calibLine=null,snapMark=null;
 const toS=([x,y])=>[view.ox+x*view.s,view.oy+y*view.s];
@@ -374,6 +447,7 @@ function resize(){ const r=cv.getBoundingClientRect(); if(r.width<10) return; dp
 function bounds(){ let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9; const add=(x,y)=>{x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);};
   st.els.forEach(e=>{ if(e.t==='slab'){add(e.x0,e.y0);add(e.x1,e.y1);} else if(e.t==='col') add(...e.p); else {add(...e.a);add(...e.b);} });
   if(st.bg&&bgImg){ add(st.bg.x,st.bg.y); add(st.bg.x+bgImg.width*st.bg.mpp,st.bg.y+bgImg.height*st.bg.mpp); }
+  if(st.ax&&st.ax.xs&&st.ax.xs.length){ add(st.ax.xs[0]-2.4,st.ax.ys[0]-2.4); add(st.ax.xs[st.ax.xs.length-1]+0.6,st.ax.ys[st.ax.ys.length-1]+0.6); }
   if(x0>x1){x0=0;y0=0;x1=10;y1=8;} return [x0,y0,x1,y1]; }
 function fit(){ if(!W) return; const [x0,y0,x1,y1]=bounds(),pad=W<500?28:70;
   view.s=Math.min((W-2*pad)/Math.max(x1-x0,1),(H-2*pad)/Math.max(y1-y0,1));
@@ -397,6 +471,7 @@ function render(){
       for(let x=Math.floor(wx0/s2)*s2;x<=wx1;x+=s2){ const X=Math.round(toS([x,0])[0])+.5; ctx.moveTo(X,0); ctx.lineTo(X,H); }
       for(let y=Math.floor(wy0/s2)*s2;y<=wy1;y+=s2){ const Y=Math.round(toS([0,y])[1])+.5; ctx.moveTo(0,Y); ctx.lineTo(W,Y); }
       ctx.stroke(); } }
+  drawAxes();
   // kuormitusalat
   if($('showAreas').checked&&trib&&trib.img){ const [sx,sy]=toS([trib.x0,trib.y0]); ctx.imageSmoothingEnabled=false; ctx.globalAlpha=.30;
     ctx.drawImage(trib.img,sx,sy,trib.nx*trib.cell*view.s,trib.ny*trib.cell*view.s); ctx.globalAlpha=1; ctx.imageSmoothingEnabled=true; }
@@ -409,13 +484,17 @@ function render(){
     if(sel===e.id){ ctx.strokeStyle=COL.sel; ctx.lineWidth=Math.max(7,0.2*view.s)+6; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); }
     ctx.strokeStyle=COL.wall; ctx.lineWidth=Math.max(6,0.2*view.s); ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); }
   const showL=$('showLoads').checked&&res;
+  for(const e of st.els.filter(e=>e.t==='beam')){ const a=toS(e.a),b=toS(e.b),lw=Math.max(4,0.13*view.s);
+    if(sel===e.id){ ctx.strokeStyle=COL.sel; ctx.lineWidth=lw+6; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); }
+    ctx.strokeStyle=COL.beam; ctx.lineWidth=lw; ctx.setLineDash([lw*2.2,lw*0.9]); ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); ctx.setLineDash([]);
+    const r=res&&res.out[e.id]; if(r) r.sup.forEach(s=>{ const [x,y]=toS(ptOn(e,s.t)); ctx.fillStyle=COL.bg; ctx.strokeStyle=COL.beam; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,Math.max(3.5,lw*0.7),0,7); ctx.fill(); ctx.stroke(); }); }
   for(const e of st.els.filter(e=>e.t==='col')){ const r=res&&res.out[e.id], sz=r?r.d.size/1000:0.38, [x,y]=toS(e.p), hs=Math.max(5,sz*view.s/2);
     if(sel===e.id){ ctx.fillStyle=COL.sel; ctx.fillRect(x-hs-4,y-hs-4,2*hs+8,2*hs+8); }
     ctx.fillStyle=COL.col; if(r&&r.d.rd){ ctx.beginPath(); ctx.arc(x,y,hs,0,7); ctx.fill(); } else ctx.fillRect(x-hs,y-hs,2*hs,2*hs); }
   // seinien tunnukset
-  st.els.filter(e=>e.t==='wall').forEach(e=>{ const a=toS(e.a),b=toS(e.b),mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,hor=Math.abs(b[0]-a[0])>=Math.abs(b[1]-a[1]),off=Math.max(14,0.1*view.s+11);
-    let t=e.id; if(showL&&res.out[e.id]) t+=` · ${fmt(res.out[e.id].n,0)} kN/m`;
-    if(hor) label(t,mx,my-off,COL.fg); else { ctx.save(); ctx.translate(mx-off,my); ctx.rotate(-Math.PI/2); label(t,0,0,COL.fg); ctx.restore(); } });
+  st.els.filter(isLine).forEach(e=>{ const a=toS(e.a),b=toS(e.b),mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,hor=Math.abs(b[0]-a[0])>=Math.abs(b[1]-a[1]),off=Math.max(14,0.1*view.s+11),bm=e.t==='beam',col=bm?COL.beam:COL.fg;
+    let t=e.id; if(showL&&res.out[e.id]) t+=bm?` · q ${fmt(res.out[e.id].q,0)} kN/m · M ${fmt(res.out[e.id].M,0)} kNm`:` · ${fmt(res.out[e.id].n,0)} kN/m`;
+    if(hor) label(t,mx,my-off,col); else { ctx.save(); ctx.translate(mx-off,my); ctx.rotate(-Math.PI/2); label(t,0,0,col); ctx.restore(); } });
   // pilarien kuormat ja dimensiot
   for(const e of st.els.filter(e=>e.t==='col')){ const r=res&&res.out[e.id],[x,y]=toS(e.p),hs=Math.max(5,(r?r.d.size/1000:0.38)*view.s/2);
     if(showL&&r&&view.s>=14) tag([{t:e.id+'  A = '+fmt(r.A,1)+' m²',c:COL.muted,s:11},{t:'N = '+fmt(r.N,0)+' kN',b:1,c:COL.col},{t:r.d.label+(r.d.tRow?'  '+r.d.tRow[2].split(',')[0]:''),b:1}],x+hs+6,y-hs-8,COL.col);
@@ -423,7 +502,7 @@ function render(){
   if(draft){ ctx.strokeStyle=COL.acc; ctx.fillStyle=COL.acc; ctx.lineWidth=2; const a=toS(draft.p0),b=toS(draft.p1);
     if(draft.t==='slab'){ ctx.setLineDash([5,4]); ctx.strokeRect(a[0],a[1],b[0]-a[0],b[1]-a[1]); ctx.setLineDash([]);
       label(`${fmt(Math.abs(draft.p1[0]-draft.p0[0]),2)} × ${fmt(Math.abs(draft.p1[1]-draft.p0[1]),2)} m`,(a[0]+b[0])/2,(a[1]+b[1])/2,COL.acc); }
-    else { ctx.strokeStyle=draft.t==='scale'?COL.sel:COL.acc; ctx.lineWidth=draft.t==='wall'?6:2.5; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke();
+    else { ctx.strokeStyle=draft.t==='scale'?COL.sel:COL.acc; ctx.lineWidth=draft.t==='wall'?6:draft.t==='beam'?4:2.5; if(draft.t==='beam') ctx.strokeStyle=COL.beam; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke();
       label(`${fmt(Math.hypot(draft.p1[0]-draft.p0[0],draft.p1[1]-draft.p0[1]),2)} m`,(a[0]+b[0])/2,(a[1]+b[1])/2-15,draft.t==='scale'?COL.sel:COL.acc); } }
   if(calibLine){ const a=toS(calibLine[0]),b=toS(calibLine[1]); ctx.strokeStyle=COL.sel; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); }
   if(flashP){ const [x,y]=toS(flashP); ctx.strokeStyle=COL.sel; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(x,y,13,0,7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x-18,y); ctx.lineTo(x+18,y); ctx.moveTo(x,y-18); ctx.lineTo(x,y+18); ctx.stroke(); }
@@ -432,6 +511,45 @@ function render(){
   ctx.strokeStyle=COL.fg; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+m*view.s,by); ctx.moveTo(bx,by-4); ctx.lineTo(bx,by+4); ctx.moveTo(bx+m*view.s,by-4); ctx.lineTo(bx+m*view.s,by+4); ctx.stroke();
   label(`${fmt(m,m<1?1:0)} m`,bx+m*view.s/2,by-11,COL.fg,'center',11);
 }
+
+
+/* ---------- moduuliverkko ---------- */
+const AXL=i=>{ let s='',n=i; do{ s=String.fromCharCode(65+n%26)+s; n=Math.floor(n/26)-1; }while(n>=0); return s; };
+function drawAxes(){ const ax=st.ax; if(!ax||!ax.xs||!ax.ys||!ax.xs.length||!ax.ys.length) return;
+  const X=ax.xs,Y=ax.ys,ext=1.6,x0=X[0],x1=X[X.length-1],y0=Y[0],y1=Y[Y.length-1],r=Math.max(8,Math.min(13,0.5*view.s));
+  ctx.strokeStyle=COL.ax; ctx.lineWidth=1; ctx.setLineDash([14,4,2,4]);
+  X.forEach(x=>{ const a=toS([x,y0-ext]),b=toS([x,y1+0.6]); ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); });
+  Y.forEach(y=>{ const a=toS([x0-ext,y]),b=toS([x1+0.6,y]); ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); });
+  ctx.setLineDash([]);
+  const bub=(p,t)=>{ const [x,y]=toS(p); ctx.fillStyle=COL.bg; ctx.strokeStyle=COL.ax; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill(); ctx.stroke(); label(t,x,y+0.5,COL.fg,'center',Math.round(r*1.05)); };
+  X.forEach((x,i)=>{ const [sx,sy]=toS([x,y0-ext]); bub(p2(sx,sy-r),String(i+1)); });
+  Y.forEach((y,j)=>{ const [sx,sy]=toS([x0-ext,y]); bub(p2(sx-r,sy),AXL(j)); });
+  if(view.s>=8){ for(let i=0;i<X.length-1;i++){ const [a,ay]=toS([X[i],y0-ext*0.55]),[b]=toS([X[i+1],y0]); label(fmt(X[i+1]-X[i],X[i+1]-X[i]<10?2:1).replace(/,?0+$/,''),(a+b)/2,ay,COL.muted,'center',11,false); }
+    for(let j=0;j<Y.length-1;j++){ const [ax_,a]=toS([x0-ext*0.55,Y[j]]),[,b]=toS([x0,Y[j+1]]); ctx.save(); ctx.translate(ax_,(a+b)/2); ctx.rotate(-Math.PI/2); label(fmt(Y[j+1]-Y[j],2).replace(/,?0+$/,''),0,0,COL.muted,'center',11,false); ctx.restore(); } } }
+function p2(sx,sy){ return toW(sx,sy); }
+function parseSp(str){ const out=[]; String(str||'').replace(/,/g,'.').split(/[\s;]+/).filter(Boolean).forEach(tok=>{ const m=tok.match(/^(\d+)\s*[x×*]\s*(\d+(?:\.\d+)?)$/i); if(m){ for(let i=0;i<Math.min(200,+m[1]);i++) out.push(+m[2]); } else { const v=parseFloat(tok); if(v>0) out.push(v); } }); return out.filter(v=>v>0); }
+function makeGrid(build){
+  const sx=parseSp($('gx').value),sy=parseSp($('gy').value),ox=parseFloat($('gox').value)||0,oy=parseFloat($('goy').value)||0;
+  if(!sx.length||!sy.length){ $('gInfo').textContent='Anna akselivälit molempiin suuntiin, esim. 4*6 ja 2*7,2.'; return; }
+  const X=[ox],Y=[oy]; sx.forEach(v=>X.push(+(X[X.length-1]+v).toFixed(4))); sy.forEach(v=>Y.push(+(Y[Y.length-1]+v).toFixed(4)));
+  st.ax={xs:X,ys:Y}; Object.assign(st.fl,{gx:$('gx').value,gy:$('gy').value,gox:ox,goy:oy,gBeams:$('gBeams').value,gSlab:$('gSlab').value,gCols:$('gCols').checked,gWalls:$('gWalls').checked,gRepl:$('gRepl').checked});
+  let made='';
+  if(build){
+    if($('gRepl').checked) st.els=[];
+    const bm=$('gBeams').value,walls=$('gWalls').checked,x0=X[0],x1=X[X.length-1],y0=Y[0],y1=Y[Y.length-1],add=(pre,o)=>{ o.id=nextId(pre); st.els.push(o); };
+    const edgeX=x=>Math.abs(x-x0)<1e-6||Math.abs(x-x1)<1e-6,edgeY=y=>Math.abs(y-y0)<1e-6||Math.abs(y-y1)<1e-6;
+    if($('gSlab').value==='auto'){ const o={t:'slab',x0,y0,x1,y1}; if(bm==='x'){ o.span='1'; o.dir=90; } else if(bm==='y'){ o.span='1'; o.dir=0; } else if(bm==='xy'){ o.span='4'; o.dir=0; } add('L',o); }
+    if(walls){ add('S',{t:'wall',a:[x0,y0],b:[x1,y0]}); add('S',{t:'wall',a:[x1,y0],b:[x1,y1]}); add('S',{t:'wall',a:[x1,y1],b:[x0,y1]}); add('S',{t:'wall',a:[x0,y1],b:[x0,y0]}); }
+    if(bm==='x'||bm==='xy') Y.forEach(y=>{ if(walls&&edgeY(y)) return; add('PA',{t:'beam',a:[x0,y],b:[x1,y]}); });
+    const split=bm==='xy'&&!$('gCols').checked; // ilman pilareita: y-palkit toisiopalkkeina x-palkkien väliin
+    if(bm==='y'||bm==='xy') X.forEach(x=>{ if(walls&&edgeX(x)) return; if(split){ for(let j=0;j<Y.length-1;j++) add('PA',{t:'beam',a:[x,Y[j]],b:[x,Y[j+1]]}); } else add('PA',{t:'beam',a:[x,y0],b:[x,y1]}); });
+    let nc=0; if($('gCols').checked) X.forEach(x=>Y.forEach(y=>{ if(walls&&(edgeX(x)||edgeY(y))) return; add('P',{t:'col',p:[x,y]}); nc++; }));
+    const nb=st.els.filter(e=>e.t==='beam').length; made=` Luotu: ${nc} pilaria, ${nb} palkkia${walls?', 4 seinää':''}${$('gSlab').value==='auto'?', laatta':''}.`;
+    sel=null; }
+  $('gInfo').textContent=`Akselit 1–${X.length} × A–${AXL(Y.length-1)}, alue ${fmt(X[X.length-1]-X[0],2)} × ${fmt(Y[Y.length-1]-Y[0],2)} m.`+made;
+  update(true); renderProps(); fit(); }
+$('gMake').onclick=()=>makeGrid(true); $('gAxOnly').onclick=()=>makeGrid(false);
+$('gDel').onclick=()=>{ st.ax=null; $('gInfo').textContent='Akselit poistettu.'; update(true); };
 
 /* ---------- laatan kantosuuntanuolet ja kahvat ---------- */
 function slabRect(e){ return [Math.min(e.x0,e.x1),Math.min(e.y0,e.y1),Math.max(e.x0,e.x1),Math.max(e.y0,e.y1)]; }
@@ -462,9 +580,11 @@ function snap(w,line0){
   const tol=14/view.s; let best=null,bd=tol,p=w;
   if(line0&&$('ortho').checked){ const dx=w[0]-line0[0],dy=w[1]-line0[1]; p=Math.abs(dx)>=Math.abs(dy)?[w[0],line0[1]]:[line0[0],w[1]]; }
   const cand=[]; st.els.forEach(e=>{ if(e.t==='slab') cand.push([e.x0,e.y0],[e.x1,e.y0],[e.x0,e.y1],[e.x1,e.y1]); else if(e.t==='col') cand.push(e.p); else cand.push(e.a,e.b); });
+  if(st.ax&&st.ax.xs) st.ax.xs.forEach(x=>st.ax.ys.forEach(y=>cand.push([x,y])));
   for(const c of cand){ const d=Math.hypot(c[0]-p[0],c[1]-p[1]); if(d<bd){ bd=d; best=c; } }
   if(best){ snapMark=best; return [...best]; }
-  for(const e of st.els.filter(e=>e.t==='wall')){ const [d,t]=segDist(e,p); if(d<bd){ bd=d; best=[e.a[0]+t*(e.b[0]-e.a[0]),e.a[1]+t*(e.b[1]-e.a[1])]; } }
+  const segs=st.els.filter(isLine); if(st.ax&&st.ax.xs){ const X=st.ax.xs,Y=st.ax.ys; X.forEach(x=>segs.push({a:[x,Y[0]-1.6],b:[x,Y[Y.length-1]+0.6]})); Y.forEach(y=>segs.push({a:[X[0]-1.6,y],b:[X[X.length-1]+0.6,y]})); }
+  for(const e of segs){ const [d,t]=segDist(e,p); if(d<bd){ bd=d; best=[e.a[0]+t*(e.b[0]-e.a[0]),e.a[1]+t*(e.b[1]-e.a[1])]; } }
   if(best){ snapMark=best; return best; }
   const g=+st.fl.grid||0.1,r=v=>Math.round(v/g)*g; snapMark=null;
   if(line0&&$('ortho').checked) return Math.abs(p[1]-line0[1])<1e-9?[r(p[0]),line0[1]]:[line0[0],r(p[1])];
@@ -473,7 +593,7 @@ function snap(w,line0){
 function hit(w){
   const tol=10/view.s;
   for(const e of st.els.filter(e=>e.t==='col')) if(Math.max(Math.abs(e.p[0]-w[0]),Math.abs(e.p[1]-w[1]))<=Math.max(0.25,tol)) return e;
-  for(const e of st.els.filter(e=>e.t==='wall')) if(segDist(e,w)[0]<=Math.max(0.15,tol)) return e;
+  for(const e of st.els.filter(isLine)) if(segDist(e,w)[0]<=Math.max(0.15,tol)) return e;
   for(const e of st.els.filter(e=>e.t==='slab')){ const near=Math.min(Math.abs(w[0]-e.x0),Math.abs(w[0]-e.x1),Math.abs(w[1]-e.y0),Math.abs(w[1]-e.y1));
     if(inSlab(w[0],w[1],e)&&near<=Math.max(0.3,tol*1.5)) return e; }
   for(const e of st.els.filter(e=>e.t==='slab')) if(inSlab(w[0],w[1],e)) return {pan:true,slab:e};
@@ -486,7 +606,7 @@ function pos(ev){ const r=cv.getBoundingClientRect(); return [ev.clientX-r.left,
 cv.addEventListener('mousedown',ev=>{ if(ev.button===1) ev.preventDefault(); });
 cv.addEventListener('auxclick',ev=>{ if(ev.button===1) ev.preventDefault(); });
 function nearEnd(e,w){ const tol=Math.max(0.2,12/view.s); if(Math.hypot(e.a[0]-w[0],e.a[1]-w[1])<=tol) return 'a'; if(Math.hypot(e.b[0]-w[0],e.b[1]-w[1])<=tol) return 'b'; return null; }
-function startMove(e,w,px,py){ select(e.id); const end=e.t==='wall'?nearEnd(e,w):null;
+function startMove(e,w,px,py){ select(e.id); const end=isLine(e)?nearEnd(e,w):null;
   drag={k:end?'end':'move',end,id:e.id,w0:w,s0:[px,py],orig:JSON.parse(JSON.stringify(e)),moved:false}; }
 cv.addEventListener('pointerdown',ev=>{
   hideMenu();
@@ -506,7 +626,7 @@ cv.addEventListener('pointerdown',ev=>{
   else if(tool==='col'){
     if(h&&!h.pan&&h.t==='col') startMove(h,w,px,py);   // olemassa olevaa pilaria raahataan / klikkaus avaa valikon
     else { let p=snap(w); const q=pdfOn()?pdfCol(w):null; if(q){ p=q; flash(q); } addEl({id:nextId('P'),t:'col',p}); } }
-  else if(tool==='wall'&&h&&!h.pan&&h.t==='col'){ startMove(h,w,px,py); }
+  else if((tool==='wall'||tool==='beam')&&h&&!h.pan&&h.t==='col'){ startMove(h,w,px,py); }
   else { const p0=snap(w); draft={t:tool,p0,p1:p0,hit0:h?(h.pan?h.slab.id:h.id):null,s0:[px,py]}; }
   render();
 });
@@ -555,7 +675,7 @@ function endPtr(ev){
       if(w>=0.2&&h>=0.2) addEl({id:nextId('L'),t:'slab',x0:Math.min(d.p0[0],d.p1[0]),y0:Math.min(d.p0[1],d.p1[1]),x1:Math.max(d.p0[0],d.p1[0]),y1:Math.max(d.p0[1],d.p1[1])});
       else if(d.hit0&&Math.hypot(px-d.s0[0],py-d.s0[1])<5){ const e=byId(d.hit0); if(e){ select(e.id); showMenu(e,px,py); } } }
     else if(d.t==='scale'){ if(Math.hypot(d.p1[0]-d.p0[0],d.p1[1]-d.p0[1])>0.05){ calibLine=[d.p0,d.p1]; showCalib(); } }
-    else if(Math.hypot(d.p1[0]-d.p0[0],d.p1[1]-d.p0[1])>=0.2){ const e={id:nextId('S'),t:'wall',a:d.p0,b:d.p1}; if(pdfOn()) pdfWallFix(e); addEl(e); }
+    else if(Math.hypot(d.p1[0]-d.p0[0],d.p1[1]-d.p0[1])>=0.2){ const bm=d.t==='beam',e={id:nextId(bm?'PA':'S'),t:bm?'beam':'wall',a:d.p0,b:d.p1}; if(pdfOn()&&!bm) pdfWallFix(e); addEl(e); }
     else if(d.hit0&&Math.hypot(px-d.s0[0],py-d.s0[1])<5){ const e=byId(d.hit0); if(e){ select(e.id); showMenu(e,px,py); } }
     render(); }
 }
@@ -572,6 +692,7 @@ function select(id){ sel=id; renderProps(); markRows(); render(); }
 const HINTS={select:'Raahaa pilaria tai seinää hiiren vasemmalla, seinän päästä raahaamalla muutat pituutta. Klikkaus avaa valikon (poisto, kohdistus, laatan kantosuunta). Valitun laatan kokoa muutetaan kulma- ja reunakahvoista, yhteen suuntaan kantavan laatan nuolta kierretään nuolen päässä olevasta pallosta. Rulla zoomaa, rulla pohjassa siirtää näkymää. Delete poistaa valitun.',
   slab:'Vedä laatta-alue nurkasta nurkkaan. Alueen kuorma jaetaan lähimmälle pilarille tai seinälle.',
   col:'Napauta pilarin paikka – pilari kohdistuu pohjakuvan pilarin keskelle. Olemassa olevaa pilaria voi raahata, klikkaus avaa valikon.',
+  beam:'Vedä palkki tuelta tuelle (pilari, seinä tai toinen palkki). Palkki kantaa laatan kuorman ja vie sen tukireaktioina tuilleen – välituet (pilarit palkin linjalla) jakavat palkin jänteisiin.',
   wall:'Vedä kantava seinä – seinä kohdistuu pohjakuvan seinän keskilinjaan. Klikkaus olemassa olevaan seinään avaa valikon.',
   scale:'Vedä viiva pohjakuvassa tunnetun mitan päälle (esim. mittaviiva tai akseliväli) ja syötä mitan todellinen pituus.'};
 function setTool(t){ tool=t; draft=null; document.querySelectorAll('#tools [data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool===t)); $('hint').textContent=HINTS[t]||''; cv.style.cursor=t==='select'?'default':'crosshair'; hideMenu(); }
@@ -708,10 +829,10 @@ function flash(p){ flashP=p; clearTimeout(flashT); flashT=setTimeout(()=>{ flash
 function hideMenu(){ const m=$('ctxm'); if(m&&!m.hidden){ m.hidden=true; m.innerHTML=''; } }
 function showMenu(e,px,py){
   if(e.t==='slab') return showSlabMenu(e,px,py);
-  const m=$('ctxm'),r=res&&res.out[e.id],isCol=e.t==='col';
-  const info=isCol?(r?`N<sub>Ed</sub> ${fmt(r.N,0)} kN · ${r.d.label}`:''):(r?`L ${fmt(r.L,2)} m · n<sub>Ed</sub> ${fmt(r.n,0)} kN/m`+(e.th?` · t ≈ ${e.th} mm`:''):'');
-  m.innerHTML=`<div class="mh">${isCol?'Pilari':'Seinä'} ${esc(e.id)}</div><div class="ms">${info}</div>
-    <button role="menuitem" data-m="snap"${st.bg?'':' disabled title="Tuo ensin pohjakuva"'}>${isCol?'Kohdista pohjakuvan pilarin keskelle':'Kohdista seinän keskilinjaan'}</button>
+  const m=$('ctxm'),r=res&&res.out[e.id],isCol=e.t==='col',isB=e.t==='beam';
+  const info=isB?(r?`L ${fmt(r.L,2)} m · q<sub>Ed</sub> ${fmt(r.q,0)} kN/m · M<sub>Ed</sub> ${fmt(r.M,0)} kNm`:''):isCol?(r?`N<sub>Ed</sub> ${fmt(r.N,0)} kN · ${r.d.label}`:''):(r?`L ${fmt(r.L,2)} m · n<sub>Ed</sub> ${fmt(r.n,0)} kN/m`+(e.th?` · t ≈ ${e.th} mm`:''):'');
+  m.innerHTML=`<div class="mh">${isCol?'Pilari':isB?'Palkki':'Seinä'} ${esc(e.id)}</div><div class="ms">${info}</div>
+    ${isB?'':`<button role="menuitem" data-m="snap"${st.bg?'':' disabled title="Tuo ensin pohjakuva"'}>`}${isB?'':(isCol?'Kohdista pohjakuvan pilarin keskelle':'Kohdista seinän keskilinjaan')+'</button>'}
     <button role="menuitem" data-m="edit">Muokkaa koordinaatteja</button>
     <button role="menuitem" data-m="del" class="danger">Poista ${esc(e.id)}</button>`;
   m.hidden=false; const cw=cv.clientWidth,ch=cv.clientHeight,mw=m.offsetWidth,mh=m.offsetHeight;
@@ -749,16 +870,17 @@ const numF=(id,lab,val,step)=>`<label class="fl">${lab}<input type="number" id="
 function renderProps(){
   const e=sel&&byId(sel),P=$('props');
   if(!e){ P.innerHTML='<h2>Valittu osa</h2><p class="small" style="margin:0">Valitse osa kuvasta tai tulostaulukosta, tai piirrä uusi työkaluilla.</p>'; return; }
-  const names={slab:'Laatta-alue',wall:'Seinä',col:'Pilari'}, r=res&&res.out[e.id];
+  const names={slab:'Laatta-alue',wall:'Seinä',col:'Pilari',beam:'Palkki'}, r=res&&res.out[e.id];
   let h=`<h2>${names[e.t]} ${e.id}</h2>`;
   if(e.t==='slab') h+=`<div class="f2">${numF('pX','X [m]',Math.min(e.x0,e.x1))}${numF('pY','Y [m]',Math.min(e.y0,e.y1))}${numF('pW','Leveys x [m]',Math.abs(e.x1-e.x0))}${numF('pH','Syvyys y [m]',Math.abs(e.y1-e.y0))}</div><p class="small" style="margin:6px 0 0">Pinta-ala ${fmt(Math.abs((e.x1-e.x0)*(e.y1-e.y0)),2)} m².</p>
     <div class="f2" style="margin-top:8px"><label class="fl">Kantosuunta<select id="pSpan"><option value="0"${!e.span?' selected':''}>Ei valittu (lähin tuki)</option><option value="1"${e.span==='1'?' selected':''}>Yhteen suuntaan</option><option value="4"${e.span==='4'?' selected':''}>Neljään suuntaan</option></select></label>
     ${e.span?numF('pDir',e.span==='1'?'Kantosuunnan kulma [°]':'Nuolten kulma [°]',+e.dir||0,15):''}</div>
     <p class="small" style="margin:6px 0 0">0° = x-suunta, 90° = y-suunta. Venytä laattaa kuvassa kulma- ja reunakahvoista${e.span==='1'?', kierrä kantosuuntaa nuolen päässä olevasta pallosta':''}.</p>`;
   else if(e.t==='col'){ h+=`<div class="f2">${numF('pPx','X [m]',e.p[0])}${numF('pPy','Y [m]',e.p[1])}</div>`;
-    if(r) h+=`<div class="calc" style="margin-top:6px">${row('Kuormitusala','A = '+fmt(r.A,2)+' m²')}${row('N<sub>Ed</sub> alin kerros',fmt(res.qd,2)+' · '+fmt(r.A,2)+' · '+res.n+' = <b>'+fmt(r.N,0)+' kN</b>')}${row('Alustava koko','<b>'+r.d.label+'</b>'+(r.d.tRow?', raudoitus '+r.d.tRow[2]:''))}</div>`; }
+    if(r) h+=`<div class="calc" style="margin-top:6px">${row('Kuormitusala','A = '+fmt(r.A,2)+' m²')}${r.Pb?row('Palkeilta / kerros',fmt(r.Pb,1)+' kN'):''}${row('N<sub>Ed</sub> alin kerros','('+fmt(res.qd,2)+' · '+fmt(r.A,2)+(r.Pb?' + '+fmt(r.Pb,1):'')+') · '+res.n+' = <b>'+fmt(r.N,0)+' kN</b>')}${row('Alustava koko','<b>'+r.d.label+'</b>'+(r.d.tRow?', raudoitus '+r.d.tRow[2]:''))}</div>`; }
   else { h+=`<div class="f2">${numF('pAx','Alku X [m]',e.a[0])}${numF('pAy','Alku Y [m]',e.a[1])}${numF('pBx','Loppu X [m]',e.b[0])}${numF('pBy','Loppu Y [m]',e.b[1])}</div>`;
-    if(r) h+=`<p class="small" style="margin:6px 0 0">${e.th?'Pohjakuvan seinäpaksuus ≈ '+e.th+' mm. ':''}Pituus ${fmt(r.L,2)} m, kuormitusala ${fmt(r.A,1)} m², n<sub>Ed</sub> = ${fmt(r.n,0)} kN/m alimmassa kerroksessa.</p>`; }
+    if(r&&e.t==='beam') h+=`<div class="calc" style="margin-top:6px">${row('Pituus · jänteitä','L = '+fmt(r.L,2)+' m · '+r.spans)}${row('Kuormitusala','A = '+fmt(r.A,2)+' m² → q<sub>Ed</sub> = '+fmt(r.q,1)+' kN/m')}${r.Pin?row('Pistekuormat palkeilta',fmt(r.Pin,1)+' kN'):''}${row('Tukireaktiot / kerros',r.sup.map(s=>esc(s.id)+' '+fmt(s.R,0)+' kN').join(' · ')||'–')}${row('M<sub>Ed</sub> · V<sub>Ed</sub>','<b>'+fmt(r.M,0)+' kNm</b> · <b>'+fmt(r.V,0)+' kN</b>')}</div>`;
+    else if(r) h+=`<p class="small" style="margin:6px 0 0">${e.th?'Pohjakuvan seinäpaksuus ≈ '+e.th+' mm. ':''}Pituus ${fmt(r.L,2)} m, kuormitusala ${fmt(r.A,1)} m²${r.Pb?', palkeilta '+fmt(r.Pb,0)+' kN/kerros':''}, n<sub>Ed</sub> = ${fmt(r.n,0)} kN/m alimmassa kerroksessa.</p>`; }
   h+=`<div class="flex" style="margin-top:10px"><button class="btn ghost danger" id="pDel">Poista ${e.id}</button></div>`;
   P.innerHTML=h;
   const on=(id,fn)=>{ const i=$(id); if(i) i.onchange=()=>{ const v=parseFloat(i.value); if(!isFinite(v)) return; fn(v); update(true); renderProps(); }; };
@@ -769,7 +891,7 @@ function renderProps(){
   on('pPx',v=>e.p[0]=v); on('pPy',v=>e.p[1]=v); on('pAx',v=>e.a[0]=v); on('pAy',v=>e.a[1]=v); on('pBx',v=>e.b[0]=v); on('pBy',v=>e.b[1]=v);
   $('pDel').onclick=()=>delEl(e.id);
 }
-function syncInputs(){ const f=st.fl; $('pdfScale').value=f.pdfScale||100; $('imgDpi').value=f.dpi||150; $('pdfSnap').checked=f.pdfSnap!==false; $('qd').value=f.qd; $('flN').value=f.n; $('conc').value=String(f.conc); $('shape').value=f.shape; $('l0').value=f.l0; $('mast').checked=!!f.mast; $('gridS').value=f.grid; }
+function syncInputs(){ const f=st.fl; if(f.gx!==undefined){ $('gx').value=f.gx; $('gy').value=f.gy; $('gox').value=f.gox||0; $('goy').value=f.goy||0; $('gBeams').value=f.gBeams||'x'; $('gSlab').value=f.gSlab||'auto'; $('gCols').checked=f.gCols!==false; $('gWalls').checked=!!f.gWalls; $('gRepl').checked=f.gRepl!==false; } $('pdfScale').value=f.pdfScale||100; $('imgDpi').value=f.dpi||150; $('pdfSnap').checked=f.pdfSnap!==false; $('qd').value=f.qd; $('flN').value=f.n; $('conc').value=String(f.conc); $('shape').value=f.shape; $('l0').value=f.l0; $('mast').checked=!!f.mast; $('gridS').value=f.grid; }
 [['qd','qd'],['flN','n'],['l0','l0'],['gridS','grid']].forEach(([id,k])=>$(id).addEventListener('input',()=>{ const v=parseFloat($(id).value); if(v>0){ st.fl[k]=k==='n'?Math.round(v):v; update(true,false,k==='grid'); } }));
 $('conc').onchange=()=>{ st.fl.conc=+$('conc').value; update(true); };
 $('shape').onchange=()=>{ st.fl.shape=$('shape').value; update(true); };
@@ -781,15 +903,19 @@ function renderResults(){
   const r=res, cols=st.els.filter(e=>e.t==='col'), walls=st.els.filter(e=>e.t==='wall'), f=st.fl, fcd=fcdOf(+f.conc);
   const ra=id=>`data-id="${id}" class="${sel===id?'sel':''}"`;
   $('fcdTxt').innerHTML=`f<sub>cd</sub> = 0,85·${f.conc}/1,5 = ${fmt(fcd,1)} N/mm². Taulukkokoot on laadittu C35/45:lle ja l<sub>0</sub> = 3…6 m.`;
-  $('tCol').innerHTML=cols.length?`<thead><tr><th class="l">Pilari</th><th>Kuormitusala<br>A [m²]</th><th>N<sub>Ed</sub> / kerros<br>[kN]</th><th>N<sub>Ed</sub> alin kerros<br>[kN]</th><th>A<sub>c,req</sub> = N<sub>Ed</sub>/0,8f<sub>cd</sub><br>[mm²]</th><th>Kaavan koko<br>[mm]</th><th class="l">Taulukko<br>koko · raudoitus</th><th>Alustava koko<br>[mm]</th></tr></thead><tbody>`+
-    cols.map(e=>{ const o=r.out[e.id],d=o.d; return `<tr ${ra(e.id)}><td class="l k"><span class="chip" style="background:rgb(${(trib.colors[e.id]||[245,200,107]).join(',')})"></span>${e.id}</td><td class="num">${fmt(o.A,1)}</td><td class="num">${fmt(o.N1,0)}</td><td class="num"><b>${fmt(o.N,0)}</b></td><td class="num">${fmt(d.Ac,0)}</td><td class="num">${d.fmtS(d.formula)}${d.hMin>d.aReq?' (hoikkuus)':''}</td><td class="l">${d.tRow?d.fmtS(d.tRow[1])+' · '+d.tRow[2]:''}${d.tNote?' <span class="small">('+d.tNote+')</span>':''}</td><td class="num"><b>${d.label}</b></td></tr>`; }).join('')+'</tbody>'
+  $('tCol').innerHTML=cols.length?`<thead><tr><th class="l">Pilari</th><th>Kuormitusala<br>A [m²]</th><th>Palkeilta / kerros<br>[kN]</th><th>N<sub>Ed</sub> / kerros<br>[kN]</th><th>N<sub>Ed</sub> alin kerros<br>[kN]</th><th>A<sub>c,req</sub> = N<sub>Ed</sub>/0,8f<sub>cd</sub><br>[mm²]</th><th>Kaavan koko<br>[mm]</th><th class="l">Taulukko<br>koko · raudoitus</th><th>Alustava koko<br>[mm]</th></tr></thead><tbody>`+
+    cols.map(e=>{ const o=r.out[e.id],d=o.d; return `<tr ${ra(e.id)}><td class="l k"><span class="chip" style="background:rgb(${(trib.colors[e.id]||[245,200,107]).join(',')})"></span>${e.id}</td><td class="num">${fmt(o.A,1)}</td><td class="num">${o.Pb?fmt(o.Pb,0):'–'}</td><td class="num">${fmt(o.N1,0)}</td><td class="num"><b>${fmt(o.N,0)}</b></td><td class="num">${fmt(d.Ac,0)}</td><td class="num">${d.fmtS(d.formula)}${d.hMin>d.aReq?' (hoikkuus)':''}</td><td class="l">${d.tRow?d.fmtS(d.tRow[1])+' · '+d.tRow[2]:''}${d.tNote?' <span class="small">('+d.tNote+')</span>':''}</td><td class="num"><b>${d.label}</b></td></tr>`; }).join('')+'</tbody>'
     :'<tbody><tr><td class="l small">Ei pilareita. Lisää pilari työkalulla Pilari.</td></tr></tbody>';
-  $('tWall').innerHTML=walls.length?`<thead><tr><th class="l">Seinä</th><th>Pituus<br>[m]</th><th>Kuormitusala<br>A [m²]</th><th>n<sub>Ed</sub> / kerros<br>[kN/m]</th><th>n<sub>Ed</sub> alin kerros<br>[kN/m]</th><th>N<sub>Ed</sub> koko seinä<br>[kN]</th></tr></thead><tbody>`+
-    walls.map(e=>{ const o=r.out[e.id]; return `<tr ${ra(e.id)}><td class="l k"><span class="chip" style="background:rgb(${(trib.colors[e.id]||[244,244,244]).join(',')})"></span>${e.id}</td><td class="num">${fmt(o.L,2)}</td><td class="num">${fmt(o.A,1)}</td><td class="num">${fmt(o.n1,1)}</td><td class="num"><b>${fmt(o.n,1)}</b></td><td class="num">${fmt(o.N,0)}</td></tr>`; }).join('')+'</tbody>'
+  $('tWall').innerHTML=walls.length?`<thead><tr><th class="l">Seinä</th><th>Pituus<br>[m]</th><th>Kuormitusala<br>A [m²]</th><th>Palkeilta / kerros<br>[kN]</th><th>n<sub>Ed</sub> / kerros<br>[kN/m]</th><th>n<sub>Ed</sub> alin kerros<br>[kN/m]</th><th>N<sub>Ed</sub> koko seinä<br>[kN]</th></tr></thead><tbody>`+
+    walls.map(e=>{ const o=r.out[e.id]; return `<tr ${ra(e.id)}><td class="l k"><span class="chip" style="background:rgb(${(trib.colors[e.id]||[244,244,244]).join(',')})"></span>${e.id}</td><td class="num">${fmt(o.L,2)}</td><td class="num">${fmt(o.A,1)}</td><td class="num">${o.Pb?fmt(o.Pb,0):'–'}</td><td class="num">${fmt(o.n1,1)}</td><td class="num"><b>${fmt(o.n,1)}</b></td><td class="num">${fmt(o.N,0)}</td></tr>`; }).join('')+'</tbody>'
     :'<tbody><tr><td class="l small">Ei seiniä.</td></tr></tbody>';
+  const beams=st.els.filter(e=>e.t==='beam');
+  $('tBeam').innerHTML=beams.length?`<thead><tr><th class="l">Palkki</th><th>Pituus<br>[m]</th><th>Jänteitä</th><th>Kuormitusala<br>A [m²]</th><th>q<sub>Ed</sub><br>[kN/m]</th><th>Pistekuormat<br>palkeilta [kN]</th><th class="l">Tuet ja tukireaktiot<br>[kN]</th><th>M<sub>Ed</sub><br>[kNm]</th><th>V<sub>Ed</sub><br>[kN]</th></tr></thead><tbody>`+
+    beams.map(e=>{ const o=r.out[e.id]; return `<tr ${ra(e.id)}><td class="l k"><span class="chip" style="background:rgb(${(trib.colors&&trib.colors[e.id]||[185,148,221]).join(',')})"></span>${e.id}</td><td class="num">${fmt(o.L,2)}</td><td class="num">${o.spans}</td><td class="num">${fmt(o.A,1)}</td><td class="num">${fmt(o.q,1)}</td><td class="num">${o.Pin?fmt(o.Pin,0):'–'}</td><td class="l">${o.sup.map(s=>esc(s.id)+' '+fmt(s.R,0)).join(' · ')||'<span class="small">ei tukea</span>'}</td><td class="num"><b>${fmt(o.M,0)}</b></td><td class="num">${fmt(o.V,0)}</td></tr>`; }).join('')+'</tbody>'
+    :'<tbody><tr><td class="l small">Ei palkkeja. Lisää palkki työkalulla Palkki tai luo rakenne moduuliverkosta.</td></tr></tbody>';
   document.querySelectorAll('table.res tbody tr[data-id]').forEach(tr=>tr.onclick=()=>select(tr.dataset.id));
   const Nc=cols.map(e=>r.out[e.id].N), Nmax=Nc.length?Math.max(...Nc):0, cmax=cols.find(e=>r.out[e.id].N===Nmax);
-  const Atot=trib?trib.total:0, sumAll=st.els.filter(e=>e.t==='col'||e.t==='wall').reduce((s,e)=>s+(r.out[e.id].A||0),0);
+  const Atot=trib?trib.total:0, Ntot1=st.els.filter(e=>e.t==='col'||e.t==='wall').reduce((s,e)=>s+(r.out[e.id].N1||0),0), sumAll=r.qd>0?Ntot1/r.qd:0;
   $('sum').innerHTML=`<div class="kpi hl"><div class="k">Suurin pilarikuorma</div><div class="v">${fmt(Nmax,0)} <span class="small">kN</span></div><div class="small">${cmax?cmax.id+' · '+r.out[cmax.id].d.label:'–'}</div></div>
     <div class="kpi"><div class="k">Laatta-ala / taso</div><div class="v">${fmt(Atot,1)} <span class="small">m²</span></div><div class="small">jaettu ${fmt(sumAll,1)} m²</div></div>
     <div class="kpi"><div class="k">Kuorma perustuksille</div><div class="v">${fmt(r.qd*sumAll*r.n,0)} <span class="small">kN</span></div><div class="small">q<sub>d</sub> ${fmt(r.qd,1)} kN/m² · ${r.n} krs</div></div>`;
@@ -798,8 +924,10 @@ function renderResults(){
   $('method').innerHTML=
     row('Kuormitusalat','laatta-alueen jokainen kohta kuuluu lähimmälle pilarille tai seinälle (lähimmän tuen jako, vrt. Voronoi), kun kantosuuntaa ei ole valittu. Karkea menetelmä: jatkuvuutta ja ulokkeita ei huomioida.')+
     row('Kantosuunta','yhteen suuntaan kantava laatta: kohta kuuluu tuelle, jonka se kohtaa ensimmäisenä kantosuuntaan (nuolen suuntaan tai vastakkaiseen) laatan sisällä, eli kuorma jakautuu kantosuunnan päätytuille. Neljään suuntaan kantava: sama neljään suuntaan (nuolten suunnat), jolloin neljältä sivulta tuettu suorakaidelaatta jakautuu 45° linjoin kolmioihin ja puolisuunnikkaisiin. Jos säde ei osu tukeen, käytetään lähintä tukea.')+
-    row('Pilarikuorma','N<sub>Ed</sub> = q<sub>d</sub> · A · kerrosmäärä (pilarin omaa painoa ei lisätä)')+
-    row('Seinäkuorma','n<sub>Ed</sub> = q<sub>d</sub> · A · kerrosmäärä / L')+
+    row('Palkit','palkki on laatan tuki kuten seinä. Palkin tuet: pilarit palkin linjalla, seinät palkin päissä tai palkin alla sekä toinen palkki, jonka keskiosalle palkin pää tukeutuu. Kuormitusalan kuorma ja muilta palkeilta tulevat pistekuormat jaetaan tuille vipusäännöllä jänteittäin (jänteet vapaasti tuettuina, jatkuvuutta ei huomioida – jatkuvan palkin välituen reaktio on todellisuudessa noin 10–25 % suurempi). M<sub>Ed</sub> ja V<sub>Ed</sub> ovat suurimmat arvot jänteittäin yhden kerroksen palkille. Ristikkäiset palkit eivät tue toisiaan, ellei palkin pää ole toisen palkin päällä: piirrä toisiopalkki pääpalkkien väliin.')+
+    row('Pilarikuorma','N<sub>Ed</sub> = (q<sub>d</sub> · A + palkkien tukireaktiot) · kerrosmäärä (pilarin omaa painoa ei lisätä)')+
+    row('Seinäkuorma','n<sub>Ed</sub> = (q<sub>d</sub> · A + palkkien tukireaktiot) · kerrosmäärä / L')+
+    row('Moduuliverkko','akselivälit annetaan muodossa n*väli; risteyksiin pilarit, akselilinjoille jatkuvat palkit ja verkon alueelle laatta. Kantosuunta valitaan palkeista: palkit x-suuntaan → laatta kantaa y-suuntaan, molempiin suuntiin → neljään suuntaan.')+
     row('Pilarin alustava koko','A<sub>c</sub> = N<sub>Ed</sub> / (0,8 · f<sub>cd</sub>), f<sub>cd</sub> = 0,85 · f<sub>ck</sub> / 1,5; sivu = √A<sub>c</sub> (pyöreä: d = √(4A<sub>c</sub>/π)) pyöristettynä ylöspäin vakiokokoon')+
     row('Esimerkki (ohje)','N<sub>Ed</sub> = 2 000 kN, C35/45, f<sub>cd</sub> = 19,8 N/mm² → A<sub>c</sub> = 2 000·10³ / (0,8·19,8) ≈ 126 300 mm² → valitaan 380×380 (A<sub>c</sub> = 144 400 mm²)')+
     row('Hoikkuusraja (mastopilarit)','kantti h = 3,46 · l<sub>0</sub> / 140, pyöreä d = 4,0 · l<sub>0</sub> / 140'+(f.mast?' → '+(f.shape==='rd'?'d ≥ '+fmt(4*l0*1000/140,0):'h ≥ '+fmt(3.46*l0*1000/140,0))+' mm':' (ei käytössä)'))+

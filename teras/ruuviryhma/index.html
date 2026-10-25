@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<script src="../../lt-pdf.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ruuviryhmän leikkausliitos (kesken) – Lastutec</title>
+<meta name="description" content="Leikkausrasitetun ruuviryhmän mitoitus SFS-EN 1993-1-8:n ja Suomen kansallisen liitteen mukaan: epäkeskinen kuorma, leikkaus, reunapuristus, liukuminen (luokat A, B, C), pitkä liitos, täytelevyt, reuna- ja keskiöetäisyydet, palalommahdus ja levyn poikkileikkaus.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+/* ===== Lastutec-työkalut: kaikki tyylit rajattu .lt-tool-luokan sisään ===== */
+.lt-tool{--lt-bg:#ffffff;--lt-fg:#1d2329;--lt-muted:#5b6670;--lt-line:#d9dee3;--lt-soft:#f3f5f7;--lt-accent:#c8501e;--lt-accent-soft:#fbeee8;--lt-ok:#1f7a3f;--lt-bad:#b42318;
+  font-family:Arial,Helvetica,sans-serif;color:var(--lt-fg);background:var(--lt-bg);max-width:1100px;margin:0 auto;padding:16px;line-height:1.45;font-size:15px}
+.lt-tool *{box-sizing:border-box}
+.lt-tool h1{font-size:1.55rem;margin:0 0 4px;line-height:1.2}
+.lt-tool h2{font-size:1.15rem;margin:30px 0 8px}
+.lt-tool h3{font-size:1rem;margin:0 0 10px}
+.lt-tool p{margin:0 0 10px}
+.lt-crumb{font-size:.82rem;color:var(--lt-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.lt-sub{color:var(--lt-muted);margin:0 0 16px}
+.lt-card{border:1px solid var(--lt-line);border-radius:10px;padding:16px;background:var(--lt-bg);margin:12px 0}
+.lt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.lt-tool label{display:flex;flex-direction:column;justify-content:space-between;font-size:.84rem;color:var(--lt-muted);gap:4px}
+.lt-tool label.lt-chk{flex-direction:row;align-items:center;gap:8px;color:var(--lt-fg)}
+.lt-tool label.lt-chk input{width:auto}
+.lt-tool input,.lt-tool select{font:inherit;font-size:.95rem;color:var(--lt-fg);padding:8px 10px;border:1px solid var(--lt-line);border-radius:6px;background:var(--lt-bg);min-width:0;width:100%}
+.lt-tool input:focus,.lt-tool select:focus{outline:2px solid var(--lt-accent);outline-offset:1px}
+.lt-pills{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.lt-pill{border:1px solid var(--lt-line);background:var(--lt-soft);color:var(--lt-fg);padding:6px 14px;border-radius:999px;cursor:pointer;font:inherit;font-size:.9rem}
+.lt-pill[aria-pressed="true"]{background:var(--lt-accent);border-color:var(--lt-accent);color:#fff}
+.lt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--lt-line);border-radius:8px}
+.lt-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.9rem}
+.lt-table th,.lt-table td{padding:8px 10px;border-bottom:1px solid var(--lt-line);text-align:right;white-space:nowrap}
+.lt-table th:first-child,.lt-table td:first-child{text-align:left;position:sticky;left:0;background:inherit;font-weight:600}
+.lt-table thead tr{background:var(--lt-soft)}
+.lt-table thead th{font-weight:600;vertical-align:bottom;line-height:1.25}
+.lt-table thead th small{display:block;font-weight:400;color:var(--lt-muted)}
+.lt-table tbody tr{cursor:pointer;background:var(--lt-bg)}
+.lt-table tbody tr:hover,.lt-table tbody tr.sel{background:var(--lt-accent-soft)}
+.lt-table tbody tr:last-child td{border-bottom:0}
+.lt-table tfoot td{background:var(--lt-soft);font-size:.82rem;color:var(--lt-muted)}
+.lt-note{font-size:.84rem;color:var(--lt-muted)}
+.lt-cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:0 0 12px}
+.lt-case{background:var(--lt-soft);border-radius:8px;padding:12px}
+.lt-case b{font-size:1.05rem}
+.lt-case svg{display:block;margin:8px 0;width:100%;max-width:300px;height:auto}
+.lt-case p{font-size:.85rem;margin:0;color:var(--lt-muted)}
+.lt-steps{counter-reset:lts;list-style:none;padding:0;margin:0}
+.lt-step{border-left:3px solid var(--lt-line);padding:6px 0 8px 14px;margin:0 0 10px}
+.lt-step h4{margin:0 0 6px;font-size:.98rem}
+.lt-step h4::before{counter-increment:lts;content:counter(lts) ". ";color:var(--lt-accent)}
+.lt-f{font-family:Arial,Helvetica,sans-serif;font-size:.95rem;margin:3px 0;overflow-x:auto}
+.lt-f .lt-c{color:var(--lt-muted);font-family:Arial,Helvetica,sans-serif;font-size:.84rem}
+.lt-r{font-weight:700}
+.lt-ok{color:var(--lt-ok);font-weight:600}
+.lt-bad{color:var(--lt-bad);font-weight:600}
+.lt-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:0 0 16px}
+.lt-kpi{background:var(--lt-soft);border-radius:8px;padding:10px 12px}
+.lt-kpi span{display:block;font-size:.8rem;color:var(--lt-muted)}
+.lt-kpi b{font-size:1.25rem;font-variant-numeric:tabular-nums}
+.lt-bar{height:6px;background:var(--lt-line);border-radius:3px;margin-top:6px;overflow:hidden}
+.lt-bar i{display:block;height:100%;background:var(--lt-ok)}
+.lt-bar i.over{background:var(--lt-bad)}
+.lt-tool details{margin-top:8px}
+.lt-tool summary{cursor:pointer;font-weight:600}
+.lt-tool ul{margin:6px 0 0;padding-left:20px}
+.lt-disc{margin-top:24px;font-size:.8rem;color:var(--lt-muted);border-top:1px solid var(--lt-line);padding-top:10px}
+@media (max-width:520px){.lt-tool{padding:12px}.lt-grid{grid-template-columns:1fr 1fr}}
+
+
+
+/* Sivuston runko (sama kuin muissa Lastutecin työkaluissa) */
+:root{--bg:#1b1c1f;--paper:#24262a;--ink:#e9e6e0;--muted:#aeaba4;--line:#3d4046;--accent:#E3824F;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:18px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+/* Työkalun tumma teema */
+.lt-tool{--lt-bg:#24262a;--lt-fg:#e9e6e0;--lt-muted:#aeaba4;--lt-line:#3d4046;--lt-soft:#2e3035;--lt-accent:#E3824F;--lt-accent-soft:#3e2c24;--lt-ok:#82c79f;--lt-bad:#e8907f;
+  font-family:Arial,Helvetica,sans-serif!important;background:transparent!important;max-width:none!important;padding:0!important}
+.lt-tool .lt-pill[aria-pressed="true"]{color:#111!important}
+.lt-tool input[type=number]{background:#2c2723!important}
+.lt-tool select{background:var(--bg,#1b1c1f)!important}
+.lt-tool .lt-sub{max-width:85ch}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#c63a00;color-scheme:light}
+  .lt-tool{--lt-bg:#fff;--lt-fg:#000;--lt-muted:#444;--lt-line:#bbb;--lt-soft:#f1f1f1;--lt-accent:#c63a00;--lt-accent-soft:#fde2d5;--lt-ok:#1d6b3a;--lt-bad:#b3261e}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back,.lt-pills{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  .lt-tool input,.lt-tool select{background:#fff!important;color:#000!important}
+  .lt-card,tr{break-inside:avoid}
+  details.lt-card{display:block}
+}
+
+
+.rr-warn{margin:0 0 12px;padding-left:20px;color:#e2c47f;font-size:.9rem}
+.lt-tool .rr-inp input,.lt-tool .rr-inp select{width:84px;padding:4px 6px}
+.lt-tool .rr-inp select{width:auto}
+.lt-tool .rr-inp tbody tr{cursor:default}
+.lt-tool .rr-inp tbody tr:hover{background:var(--lt-bg)}
+</style>
+<script src="../teras.js"></script>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Teräsrakenteet</a><h1>Ruuviryhmän leikkausliitos</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 5 · Laatinut: INS (YAMK) Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<div role="note" style="border:1px solid #e2c47f;background:#2a2208;color:#e2c47f;border-radius:6px;padding:10px 14px;margin:0 0 16px;font:600 14px Arial,Helvetica,sans-serif">⚠ KESKEN – työkalu on vielä kehitysvaiheessa. Tuloksia ei tule käyttää mitoitukseen ennen kuin laskenta on tarkastettu ja hyväksytty.</div>
+<div class="lt-tool" id="lt-rr">
+
+  <p class="lt-sub">Leikkausrasitetun ruuviryhmän mitoitus SFS-EN 1993-1-8:n ja Suomen kansallisen liitteen (KL) mukaan. Ruuvivoimat lasketaan kimmoteorialla, jolloin keskeinen voima jakautuu tasan ja epäkeskisyydestä syntyvä momentti ruuvien etäisyyksien suhteessa painopisteestä. Työkalu tarkistaa jokaisen ruuvin leikkauksen ja reunapuristuksen molemmissa levyissä sekä tarvittaessa liukumisen. Lisäksi se tarkistaa pitkän liitoksen, täytelevyjen ja yksileikkeisen liitoksen rajoitukset, reuna- ja keskiöetäisyydet sekä levyjen palalommahduksen ja poikkileikkaukset.</p>
+
+  <div class="lt-card">
+    <h3>Ruuvit</h3>
+    <div class="lt-grid">
+      <label><span>Ruuvikoko</span><select id="r-bs"></select></label>
+      <label><span>Lujuusluokka</span><select id="r-bc"><option>4.6</option><option>5.6</option><option selected>8.8</option><option>10.9</option></select></label>
+      <label><span>Leikkeitä n</span><select id="r-ns"><option value="1" selected>1 (yksileikkeinen)</option><option value="2">2 (kaksileikkeinen)</option></select></label>
+      <label><span>Leikkaustaso</span><select id="r-thr"><option value="1" selected>Kierteellisen osan kohdalla</option><option value="0">Varren kohdalla</option></select></label>
+      <label><span>Reikätyyppi</span><select id="r-hole"><option value="n" selected>Normaali reikä</option><option value="o">Ylisuuri reikä</option><option value="ss">Lyhyt soikioreikä</option><option value="ls">Pitkä soikioreikä</option></select></label>
+      <label id="r-slotw" hidden><span>Soikion pituussuunta</span><select id="r-slot"><option value="x">x-suunta</option><option value="y" selected>y-suunta</option></select></label>
+      <label><span>Liitosluokka</span><select id="r-cat"><option value="A" selected>A – reunapuristus</option><option value="B">B – liukumaton KRT</option><option value="C">C – liukumaton MRT</option></select></label>
+      <label id="r-muw" hidden><span>Kitkapintaluokka</span><select id="r-mu"><option value="0.5">A, μ = 0,5</option><option value="0.4" selected>B, μ = 0,4</option><option value="0.3">C, μ = 0,3</option><option value="0.2">D, μ = 0,2</option></select></label>
+      <label><span>Täytelevyt t<sub>p</sub> (mm)</span><input id="r-tp" type="number" min="0" step="1" value="0"></label>
+    </div>
+  </div>
+
+  <div class="lt-card">
+    <h3>Ruuviryhmä</h3>
+    <div class="lt-grid">
+      <label><span>Ruuveja x-suunnassa n<sub>x</sub></span><input id="r-nx" type="number" min="1" step="1" value="2"></label>
+      <label><span>Ruuveja y-suunnassa n<sub>y</sub></span><input id="r-ny" type="number" min="1" step="1" value="3"></label>
+      <label><span>Jako x-suunnassa p<sub>x</sub> (mm)</span><input id="r-px" type="number" min="1" step="1" value="70"></label>
+      <label><span>Jako y-suunnassa p<sub>y</sub> (mm)</span><input id="r-py" type="number" min="1" step="1" value="70"></label>
+    </div>
+  </div>
+
+  <div class="lt-card">
+    <h3>Levyt</h3>
+    <p class="lt-note" style="margin:0 0 8px">Reunaetäisyydet mitataan uloimpien ruuvien keskiöistä levyn reunaan. Jos levy jatkuu, jätä kenttä tyhjäksi. Kaksileikkeisessä liitoksessa levy 1 on ulkolevy (kaksi kappaletta, paksuus t<sub>1</sub> kumpikin) ja levy 2 keskilevy.</p>
+    <div class="lt-scroll"><table class="lt-table rr-inp">
+      <thead><tr><th>Levy</th><th>t<small>mm</small></th><th>Teräs</th><th>e<sub>x−</sub><small>vasen, mm</small></th><th>e<sub>x+</sub><small>oikea, mm</small></th><th>e<sub>y−</sub><small>ala, mm</small></th><th>e<sub>y+</sub><small>ylä, mm</small></th></tr></thead>
+      <tbody>
+        <tr><td>Levy 1</td><td><input id="p1-t" type="number" step="1" value="10"></td><td><select id="p1-s"></select></td><td><input id="p1-xl" type="number" step="1" value="40"></td><td><input id="p1-xr" type="number" step="1" value="40"></td><td><input id="p1-yb" type="number" step="1" value="40"></td><td><input id="p1-yt" type="number" step="1" value="40"></td></tr>
+        <tr><td>Levy 2</td><td><input id="p2-t" type="number" step="1" value="8"></td><td><select id="p2-s"></select></td><td><input id="p2-xl" type="number" step="1" value="40"></td><td><input id="p2-xr" type="number" step="1" value=""></td><td><input id="p2-yb" type="number" step="1" value="50"></td><td><input id="p2-yt" type="number" step="1" value="50"></td></tr>
+      </tbody></table></div>
+    <div class="lt-grid" style="margin-top:10px">
+      <label class="lt-chk"><input id="r-exp" type="checkbox"> <span>Rakenne alttiina säälle tai korroosiolle (taul. 3.3 enimmäisarvot)</span></label>
+    </div>
+  </div>
+
+  <div class="lt-card">
+    <h3>Kuormitus (murtorajatila)</h3>
+    <div class="lt-grid">
+      <label><span>V<sub>x,Ed</sub> (kN)</span><input id="r-Vx" type="number" step="any" value="0"></label>
+      <label><span>V<sub>y,Ed</sub> (kN)</span><input id="r-Vy" type="number" step="any" value="150"></label>
+      <label><span>Epäkeskisyys e<sub>x</sub> (mm)</span><input id="r-ex" type="number" step="any" value="60"></label>
+      <label><span>Epäkeskisyys e<sub>y</sub> (mm)</span><input id="r-ey" type="number" step="any" value="0"></label>
+      <label><span>Lisämomentti M<sub>Ed</sub> (kNm)</span><input id="r-M" type="number" step="any" value="0"></label>
+    </div>
+    <div class="lt-grid" id="r-serw" hidden style="margin-top:10px">
+      <label><span>V<sub>x,Ed,ser</sub> (kN), KRT</span><input id="r-Vxs" type="number" step="any" value="0"></label>
+      <label><span>V<sub>y,Ed,ser</sub> (kN), KRT</span><input id="r-Vys" type="number" step="any" value="110"></label>
+      <label><span>M<sub>Ed,ser</sub> (kNm), KRT</span><input id="r-Ms" type="number" step="any" value="0"></label>
+    </div>
+    <p class="lt-note" style="margin:10px 0 0">Kuorman vaikutuspiste on etäisyydellä (e<sub>x</sub>, e<sub>y</sub>) ruuviryhmän painopisteestä. Ryhmän momentti on M = M<sub>Ed</sub> + V<sub>y</sub>·e<sub>x</sub> − V<sub>x</sub>·e<sub>y</sub> (vastapäivään positiivinen).</p>
+  </div>
+
+  <div class="lt-card">
+    <h3>Osavarmuusluvut</h3>
+    <div class="lt-grid">
+      <label><span>γ<sub>M0</sub></span><input id="g0" type="number" step="0.05" value="1.0"></label>
+      <label><span>γ<sub>M2</sub></span><input id="g2" type="number" step="0.05" value="1.25"></label>
+      <label><span>γ<sub>M3</sub> (MRT)</span><input id="g3" type="number" step="0.05" value="1.25"></label>
+      <label><span>γ<sub>M3,ser</sub> (KRT)</span><input id="g3s" type="number" step="0.05" value="1.1"></label>
+    </div>
+    <p class="lt-note" style="margin:8px 0 0">γ<sub>M0</sub> = 1,0 (KL SFS-EN 1993-1-1). γ<sub>M2</sub>, γ<sub>M3</sub> ja γ<sub>M3,ser</sub> ovat SFS-EN 1993-1-8:n taulukon 2.1 suositusarvot. Tarkista kansallisen liitteen arvot.</p>
+  </div>
+
+  <div class="lt-sum" id="r-sum"></div>
+  <ul class="rr-warn" id="r-warn"></ul>
+
+  <div class="lt-card">
+    <h3>Ruuviryhmä ja ruuvivoimat</h3>
+    <div id="r-fig"></div>
+    <div class="lt-scroll" style="margin-top:8px"><table class="lt-table" id="r-tbl"></table></div>
+  </div>
+
+  <div class="lt-card">
+    <h3>Tarkistukset</h3>
+    <div class="lt-scroll"><table class="lt-table" id="r-chk"></table></div>
+  </div>
+
+  <h2>Laskenta välivaiheineen</h2>
+  <div class="lt-card"><ol class="lt-steps" id="r-steps"></ol></div>
+
+  <p class="lt-disc">Laskenta SFS-EN 1993-1-8:2005 (kohdat 3.4–3.10, taulukot 3.3, 3.4, 3.6 ja 3.7) ja SFS-EN 1993-1-1 (6.2.3, 6.2.6) sekä Suomen kansallisten liitteiden mukaan. KL SFS-EN 1993-1-8 3.1.1(3): suositellaan vain lujuusluokkia 8.8 ja 10.9. Vinon ruuvivoiman reunapuristus tarkistetaan komponenteittain yhteisvaikutuksena √((F<sub>x</sub>/F<sub>b,x,Rd</sub>)² + (F<sub>y</sub>/F<sub>b,y,Rd</sub>)²) ≤ 1. Palalommahdus ja poikkileikkaukset tarkistetaan x- ja y-komponenteille erikseen. Levyn taivutusta, ruuvien vetoa ja vääntöä ei tarkisteta. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
+</div>
+
+<script>
+(function(){
+  var root=document.getElementById('lt-rr'),L=window.LT;
+  function $(s){return root.querySelector(s);}
+  function f(x,d){if(d===undefined)d=1;return isFinite(x)?x.toLocaleString('fi-FI',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';}
+  function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
+  function edge(id){var s=$(id).value.trim();if(s==='')return Infinity;var v=parseFloat(s);return isFinite(v)&&v>0?v:Infinity;}
+  function step(t,ls){return '<li class="lt-step"><h4>'+t+'</h4>'+ls.filter(Boolean).map(function(l){return '<div class="lt-f">'+l+'</div>';}).join('')+'</li>';}
+  function c_(t){return ' <span class="lt-c">'+t+'</span>';}
+  // ylisuuren reiän välys (SFS-EN 1090-2): M12–M14 3, M16–M22 4, M24 6, M27+ 8 mm
+  function d0Of(b,type){var d=b.d,n=b.d0;if(type==='o')return d+(d<=14?3:d<=22?4:d===24?6:8);return n;}
+  var BS=Object.keys(L.BOLTS);
+  $('#r-bs').innerHTML=BS.map(function(k){return '<option'+(k==='M20'?' selected':'')+'>'+k+'</option>';}).join('');
+  ['#p1-s','#p2-s'].forEach(function(id){$(id).innerHTML=Object.keys(L.STEEL).map(function(k){return '<option value="'+k+'"'+(k==='S355'?' selected':'')+'>'+(L.STEEL[k].label||k)+'</option>';}).join('');});
+
+  function calc(){
+    var R={warn:[],chk:[]};
+    var bs=L.BOLTS[$('#r-bs').value],bcN=$('#r-bc').value,bc=L.BCLS[bcN],d=bs.d,As=bs.As,ns=+$('#r-ns').value,thr=$('#r-thr').value==='1';
+    var hole=$('#r-hole').value,slot=$('#r-slot').value,cat=$('#r-cat').value,mu=+$('#r-mu').value,tp=num('#r-tp');
+    var g0=num('#g0')||1,g2=num('#g2')||1.25,g3=num('#g3')||1.25,g3s=num('#g3s')||1.1;
+    var d0=d0Of(bs,hole),nx=Math.max(1,Math.round(num('#r-nx'))),ny=Math.max(1,Math.round(num('#r-ny'))),px=num('#r-px'),py=num('#r-py'),n=nx*ny;
+    R.bs=bs;R.bcN=bcN;R.bc=bc;R.d=d;R.d0=d0;R.As=As;R.ns=ns;R.thr=thr;R.hole=hole;R.cat=cat;R.nx=nx;R.ny=ny;R.px=px;R.py=py;R.n=n;R.g0=g0;R.g2=g2;R.g3=g3;R.g3s=g3s;R.tp=tp;R.mu=mu;
+    if(bcN==='4.6'||bcN==='5.6') R.warn.push('KL SFS-EN 1993-1-8 3.1.1(3): suositellaan vain lujuusluokkia 8.8 ja 10.9.');
+    if(cat!=='A'&&!(bcN==='8.8'||bcN==='10.9')){R.warn.push('Liukumaton liitos (luokka B/C) edellyttää esijännitettyjä ruuveja 8.8 tai 10.9.');}
+    // levyt
+    var P=[1,2].map(function(i){var t=num('#p'+i+'-t'),sg=$('#p'+i+'-s').value;return {i:i,t:t,teff:(ns===2&&i===1)?2*t:t,st:L.steel(sg,t),xl:edge('#p'+i+'-xl'),xr:edge('#p'+i+'-xr'),yb:edge('#p'+i+'-yb'),yt:edge('#p'+i+'-yt')};});
+    R.P=P;
+    // ruuvit
+    var B=[],Ip=0;for(var j=0;j<ny;j++)for(var i=0;i<nx;i++){var x=(i-(nx-1)/2)*px,y=(j-(ny-1)/2)*py;B.push({i:i,j:j,x:x,y:y});Ip+=x*x+y*y;}
+    var Vx=num('#r-Vx'),Vy=num('#r-Vy'),ex=num('#r-ex'),ey=num('#r-ey'),M0=num('#r-M'),M=M0*1000+Vy*ex-Vx*ey; // kNmm
+    R.Vx=Vx;R.Vy=Vy;R.M=M;R.Ip=Ip;R.ex=ex;R.ey=ey;R.M0=M0;
+    function forces(vx,vy,m){return B.map(function(b){var fx=vx/n-(Ip>0?m*b.y/Ip:0),fy=vy/n+(Ip>0?m*b.x/Ip:0);return {fx:fx,fy:fy,F:Math.hypot(fx,fy)};});}
+    var FF=forces(Vx,Vy,M);B.forEach(function(b,k){b.fx=FF[k].fx;b.fy=FF[k].fy;b.F=FF[k].F;});
+    if(n===1&&Math.abs(M)>1e-6) R.warn.push('Yksi ruuvi ei voi siirtää momenttia. Momentti on jätetty huomiotta.');
+    // leikkauskestävyys (taul. 3.4)
+    var av=thr?bc.av:0.6,Ash=thr?As:Math.PI*d*d/4,FvRd1=av*bc.fub*Ash/g2/1000;
+    // pitkä liitos 3.8
+    var main=Math.abs(Vx)>=Math.abs(Vy)?'x':'y',Lj=main==='x'?(nx-1)*px:(ny-1)*py,bLf=1;
+    if(Lj>15*d) bLf=Math.max(0.75,Math.min(1,1-(Lj-15*d)/(200*d)));
+    // täytelevyt 3.6.1(12)
+    var bp=tp>d/3?Math.min(1,9*d/(8*d+3*tp)):1;
+    var FvRd=FvRd1*ns*bLf*bp;
+    R.av=av;R.Ash=Ash;R.FvRd1=FvRd1;R.FvRd=FvRd;R.bLf=bLf;R.Lj=Lj;R.main=main;R.bp=bp;
+    // reunapuristus komponenteittain
+    var xmax=(nx-1)/2*px,ymax=(ny-1)/2*py,single=ns===1&&(nx===1||ny===1);
+    function bearing(p,b,dir,sgn){ // dir 'x' tai 'y', sgn voiman suunta
+      var e1,p1,isEnd,e2,p2,nPerp,coordPar=dir==='x'?b.x:b.y,coordPerp=dir==='x'?b.y:b.x,maxPar=dir==='x'?xmax:ymax,maxPerp=dir==='x'?ymax:xmax;
+      p1=dir==='x'?px:py; p2=dir==='x'?py:px; nPerp=dir==='x'?ny:nx;
+      var nPar=dir==='x'?nx:ny;
+      isEnd=nPar===1||Math.abs(coordPar-sgn*maxPar)<1e-6;
+      e1=dir==='x'?(sgn>0?p.xr:p.xl):(sgn>0?p.yt:p.yb);
+      var ad=isEnd?e1/(3*d0):p1/(3*d0)-0.25;
+      var lo=dir==='x'?p.yb:p.xl,hi=dir==='x'?p.yt:p.xr,isEdge,e2v;
+      if(nPerp===1){isEdge=true;e2v=Math.min(lo,hi);}
+      else if(Math.abs(coordPerp-maxPerp)<1e-6){isEdge=true;e2v=hi;}
+      else if(Math.abs(coordPerp+maxPerp)<1e-6){isEdge=true;e2v=lo;}
+      else isEdge=false;
+      var k1=isEdge?Math.min(isFinite(e2v)?2.8*e2v/d0-1.7:2.5,nPerp>1?1.4*p2/d0-1.7:2.5,2.5):Math.min(1.4*p2/d0-1.7,2.5);
+      var ab=Math.min(isFinite(ad)?ad:Infinity,bc.fub/p.st.fu,1);
+      var kh=hole==='o'?0.8:((hole==='ss'||hole==='ls')&&slot!==dir)?0.6:1; // soikio poikittain voimaan nähden
+      var Fb=k1*ab*p.st.fu*d*p.teff/g2/1000*kh,cap='';
+      if(single){var lim=1.5*p.st.fu*d*p.teff/g2/1000;if(Fb>lim){Fb=lim;cap=' (raja 1,5·f<sub>u</sub>·d·t/γ<sub>M2</sub>, kohta 3.6.1(10))';}}
+      return {Fb:Fb,k1:k1,ab:ab,ad:ad,isEnd:isEnd,isEdge:isEdge,e1:e1,e2:e2v,kh:kh,cap:cap,dir:dir};
+    }
+    B.forEach(function(b){
+      b.us=b.F/FvRd;
+      b.ub=P.map(function(p){var bx=Math.abs(b.fx)>1e-9?bearing(p,b,'x',Math.sign(b.fx)):null,by=Math.abs(b.fy)>1e-9?bearing(p,b,'y',Math.sign(b.fy)):null;
+        var u=Math.sqrt(Math.pow(bx?Math.abs(b.fx)/bx.Fb:0,2)+Math.pow(by?Math.abs(b.fy)/by.Fb:0,2));return {u:u,bx:bx,by:by};});
+    });
+    // liukuminen 3.9
+    var ks=1;if(hole==='o')ks=0.85;else if(hole==='ss')ks=(slot===main)?0.76:0.85;else if(hole==='ls')ks=(slot===main)?0.63:0.7;
+    var FpC=0.7*bc.fub*As/1000,FsRd=ks*ns*mu*FpC/g3,FsRdS=ks*ns*mu*FpC/g3s;
+    R.ks=ks;R.FpC=FpC;R.FsRd=FsRd;R.FsRdS=FsRdS;
+    if(cat==='B'){var Fs=forces(num('#r-Vxs'),num('#r-Vys'),num('#r-Ms')*1000+num('#r-Vys')*ex-num('#r-Vxs')*ey);B.forEach(function(b,k){b.Fser=Fs[k].F;b.uslip=Fs[k].F/FsRdS;});}
+    else if(cat==='C'){B.forEach(function(b){b.uslip=b.F/FsRd;});}
+    R.B=B;
+    // määräävä ruuvi
+    function mx(fn){var best=null;B.forEach(function(b){var v=fn(b);if(!best||v>best.v)best={v:v,b:b};});return best;}
+    var gS=mx(function(b){return b.us;}),gB1=mx(function(b){return b.ub[0].u;}),gB2=mx(function(b){return b.ub[1].u;});
+    R.gS=gS;R.gB=[gB1,gB2];
+    R.chk.push(['Ruuvin leikkaus (taul. 3.4)','F<sub>v,Ed</sub> = '+f(gS.b.F,1)+' kN ≤ F<sub>v,Rd</sub> = '+f(FvRd,1)+' kN',gS.v]);
+    R.chk.push(['Reunapuristus, levy 1'+(ns===2?' (2 × t₁)':''),'ruuvi ('+f(gB1.b.x,0)+'; '+f(gB1.b.y,0)+')',gB1.v]);
+    R.chk.push(['Reunapuristus, levy 2','ruuvi ('+f(gB2.b.x,0)+'; '+f(gB2.b.y,0)+')',gB2.v]);
+    if(cat==='B'){var gl=mx(function(b){return b.uslip;});R.chk.push(['Liukuminen KRT (3.9)','F<sub>v,Ed,ser</sub> = '+f(gl.b.Fser,1)+' kN ≤ F<sub>s,Rd,ser</sub> = '+f(FsRdS,1)+' kN',gl.v]);R.gSl=gl;}
+    if(cat==='C'){var gl2=mx(function(b){return b.uslip;});R.chk.push(['Liukuminen MRT (3.9)','F<sub>v,Ed</sub> = '+f(gl2.b.F,1)+' kN ≤ F<sub>s,Rd</sub> = '+f(FsRd,1)+' kN',gl2.v]);R.gSl=gl2;}
+    // levyjen palalommahdus ja poikkileikkaukset komponenteittain
+    R.plate=[];
+    P.forEach(function(p){
+      [['x',Vx],['y',Vy]].forEach(function(a){var dir=a[0],V=Math.abs(a[1]);if(V<1e-9)return;var sg=Math.sign(a[1]);
+        var nPar=dir==='x'?nx:ny,nPerp=dir==='x'?ny:nx,p1=dir==='x'?px:py,p2=dir==='x'?py:px;
+        var eEnd=dir==='x'?(sg>0?p.xr:p.xl):(sg>0?p.yt:p.yb),eLo=dir==='x'?p.yb:p.xl,eHi=dir==='x'?p.yt:p.xr,t=p.teff,fy=p.st.fy,fu=p.st.fu;
+        var res=[];
+        if(isFinite(eEnd)){
+          var lv=eEnd+(nPar-1)*p1-(nPar-0.5)*d0;
+          if(nPerp>1){var Ant=t*((nPerp-1)*p2-(nPerp-1)*d0),Anv=2*t*lv,V1=(fu*Ant/g2+fy*Anv/(Math.sqrt(3)*g0))/1000;res.push({nm:'Palalommahdus, keskeinen (3.10.2(2))',Rd:V1,txt:'A<sub>nt</sub> = '+f(Ant,0)+', A<sub>nv</sub> = '+f(Anv,0)+' mm² → V<sub>eff,1,Rd</sub> = f<sub>u</sub>A<sub>nt</sub>/γ<sub>M2</sub> + f<sub>y</sub>A<sub>nv</sub>/(√3γ<sub>M0</sub>) = '+f(V1,1)+' kN'});}
+          var eS=Math.min(eLo,eHi);
+          if(isFinite(eS)){var Ant2=t*(eS+(nPerp-1)*p2-(nPerp-0.5)*d0),Anv2=t*lv,V2=(0.5*fu*Ant2/g2+fy*Anv2/(Math.sqrt(3)*g0))/1000;res.push({nm:'Palalommahdus, reunaan (3.10.2(3))',Rd:V2,txt:'A<sub>nt</sub> = '+f(Ant2,0)+', A<sub>nv</sub> = '+f(Anv2,0)+' mm² → V<sub>eff,2,Rd</sub> = 0,5f<sub>u</sub>A<sub>nt</sub>/γ<sub>M2</sub> + f<sub>y</sub>A<sub>nv</sub>/(√3γ<sub>M0</sub>) = '+f(V2,1)+' kN'});}
+        }
+        if(isFinite(eLo)&&isFinite(eHi)){var W=eLo+eHi+(nPerp-1)*p2,Ag=W*t,An=(W-nPerp*d0)*t,Npl=Ag*fy/g0/1000,Nu=0.9*An*fu/g2/1000;
+          res.push({nm:'Poikkileikkaus, bruttopinta-ala (SFS-EN 1993-1-1, 6.2.3)',Rd:Npl,txt:'A = '+f(W,0)+'·'+f(t,0)+' = '+f(Ag,0)+' mm² → N<sub>pl,Rd</sub> = A·f<sub>y</sub>/γ<sub>M0</sub> = '+f(Npl,1)+' kN'});
+          res.push({nm:'Poikkileikkaus, nettopinta-ala (6.2.3)',Rd:Nu,txt:'A<sub>net</sub> = ('+f(W,0)+' − '+nPerp+'·'+f(d0,0)+')·'+f(t,0)+' = '+f(An,0)+' mm² → N<sub>u,Rd</sub> = 0,9·A<sub>net</sub>·f<sub>u</sub>/γ<sub>M2</sub> = '+f(Nu,1)+' kN'});
+          if(cat==='C'){var Nnet=An*fy/g0/1000;res.push({nm:'Nettopoikkileikkaus, luokka C (N<sub>net,Rd</sub>)',Rd:Nnet,txt:'N<sub>net,Rd</sub> = A<sub>net</sub>·f<sub>y</sub>/γ<sub>M0</sub> = '+f(Nnet,1)+' kN'});}
+        }
+        res.forEach(function(r){R.plate.push({p:p,dir:dir,V:V,r:r});R.chk.push(['Levy '+p.i+', '+dir+'-suunta: '+r.nm,'V = '+f(V,1)+' kN ≤ '+f(r.Rd,1)+' kN',V/r.Rd]);});
+      });
+    });
+    // reuna- ja keskiöetäisyydet (taul. 3.3)
+    var tmin=Math.min(P[0].t,P[1].t),exp=$('#r-exp').checked,sp=[];
+    function lim(nm,v,mn,mxv){if(!isFinite(v))return;var ok=v>=mn-1e-9&&(mxv===undefined||v<=mxv+1e-9);sp.push([nm,v,mn,mxv,ok]);}
+    P.forEach(function(p){[['e<sub>x−</sub>',p.xl],['e<sub>x+</sub>',p.xr],['e<sub>y−</sub>',p.yb],['e<sub>y+</sub>',p.yt]].forEach(function(e){lim('Levy '+p.i+' '+e[0],e[1],1.2*d0,exp?4*p.t+40:undefined);});});
+    var pmax=Math.min(14*tmin,200),pMinMain=2.2*d0,pMinPerp=2.4*d0;
+    if(nx>1) lim('p<sub>x</sub>',px,main==='x'?pMinMain:pMinPerp,pmax);
+    if(ny>1) lim('p<sub>y</sub>',py,main==='y'?pMinMain:pMinPerp,pmax);
+    R.sp=sp;R.tmin=tmin;R.pmax=pmax;R.exp=exp;
+    sp.forEach(function(s){if(!s[4])R.warn.push(s[0].replace(/<[^>]+>/g,'')+' = '+f(s[1],0)+' mm ei täytä taulukon 3.3 rajaa '+f(s[2],0)+(s[3]!==undefined?'…'+f(s[3],0):'')+' mm.');});
+    if(!P.some(function(p){return isFinite(p.xl)||isFinite(p.xr)||isFinite(p.yb)||isFinite(p.yt);})) R.warn.push('Kaikki reunat ovat jatkuvia: palalommahdusta ja poikkileikkauksia ei tarkisteta.');
+    R.max=R.chk.reduce(function(a,c){return c[2]>a[2]?c:a;},['',0,0]);
+    return R;
+  }
+
+  function colU(u){return u>1?'#e8907f':u>0.85?'#e2c47f':'#82c79f';}
+  function fig(R){
+    var B=R.B,ext=function(v,def){return isFinite(v)?v:def;},p=R.P[0],xmax=(R.nx-1)/2*R.px,ymax=(R.ny-1)/2*R.py;
+    var X0=-xmax-ext(p.xl,60),X1=xmax+ext(p.xr,60),Y0=-ymax-ext(p.yb,60),Y1=ymax+ext(p.yt,60),pad=50,W=X1-X0+2*pad,H=Y1-Y0+2*pad,sc=Math.min(1,460/Math.max(W,H))*Math.max(1,300/Math.max(W,H));
+    var tx=function(x){return (x-X0+pad)*sc;},ty=function(y){return (Y1-y+pad)*sc;},s='';
+    s+='<rect x="'+tx(X0)+'" y="'+ty(Y1)+'" width="'+(X1-X0)*sc+'" height="'+(Y1-Y0)*sc+'" fill="#3a3d43" stroke="#aeaba4" stroke-width="1.2"'+(isFinite(p.xl)&&isFinite(p.xr)&&isFinite(p.yb)&&isFinite(p.yt)?'':' stroke-dasharray="6 4"')+'/>';
+    var fmax=Math.max.apply(null,B.map(function(b){return b.F;}))||1,al=Math.min(R.px||60,R.py||60,70)*sc*0.9;
+    B.forEach(function(b){var u=Math.max(b.us||0,b.ub[0].u,b.ub[1].u,b.uslip||0),cx=tx(b.x),cy=ty(b.y),r=Math.max(4,R.d0/2*sc);
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+colU(u)+'" stroke="#111" stroke-width="1"/>';
+      if(b.F>1e-9){var k=al*b.F/fmax,ux=b.fx/b.F,uy=-b.fy/b.F,x2=cx+ux*k,y2=cy+uy*k;s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x2+'" y2="'+y2+'" stroke="#E3824F" stroke-width="2"/><polygon points="'+(x2+ux*7)+','+(y2+uy*7)+' '+(x2-uy*4)+','+(y2+ux*4)+' '+(x2+uy*4)+','+(y2-ux*4)+'" fill="#E3824F"/>';}
+    });
+    if(R.Vx||R.Vy){var lx=tx(R.ex),ly=ty(R.ey),V=Math.hypot(R.Vx,R.Vy),vx=R.Vx/V,vy=-R.Vy/V;s+='<circle cx="'+lx+'" cy="'+ly+'" r="3" fill="#e9e6e0"/><line x1="'+(lx-vx*40)+'" y1="'+(ly-vy*40)+'" x2="'+lx+'" y2="'+ly+'" stroke="#e9e6e0" stroke-width="2.5"/><text x="'+(lx-vx*44+4)+'" y="'+(ly-vy*44-4)+'" fill="#e9e6e0" font-size="12" font-family="Arial">V = '+f(V,0)+' kN</text>';}
+    return '<svg viewBox="0 0 '+W*sc+' '+H*sc+'" style="width:100%;max-width:'+Math.round(W*sc)+'px;height:auto;display:block" role="img" aria-label="Ruuviryhmä, ruuvivoimat ja käyttöasteet">'+s+'</svg><p class="lt-note">Levyn 1 ääriviiva (katkoviiva = jatkuva reuna). Nuolet = ruuvivoimat, väri = ruuvin suurin käyttöaste.</p>';
+  }
+
+  function render(){
+    $('#r-slotw').hidden=!($('#r-hole').value==='ss'||$('#r-hole').value==='ls');
+    var cat=$('#r-cat').value;$('#r-muw').hidden=cat==='A';$('#r-serw').hidden=cat!=='B';
+    var R=calc(),s='',g=R.max;
+    $('#r-sum').innerHTML='<div class="lt-kpi"><span>Määräävä käyttöaste</span><b class="'+(g[2]>1?'lt-bad':'lt-ok')+'">'+f(g[2]*100,0)+' %</b><div class="lt-bar"><i class="'+(g[2]>1?'over':'')+'" style="width:'+Math.min(g[2]*100,100)+'%"></i></div></div>'+
+      '<div class="lt-kpi"><span>Määräävä tarkistus</span><b style="font-size:1rem">'+g[0]+'</b></div>'+
+      '<div class="lt-kpi"><span>Suurin ruuvivoima</span><b>'+f(R.gS.b.F,1)+' kN</b></div>'+
+      '<div class="lt-kpi"><span>F<sub>v,Rd</sub> / ruuvi</span><b>'+f(R.FvRd,1)+' kN</b></div>';
+    $('#r-warn').innerHTML=R.warn.map(function(w){return '<li>'+w+'</li>';}).join('');
+    $('#r-fig').innerHTML=fig(R);
+    $('#r-tbl').innerHTML='<thead><tr><th>Ruuvi<small>(x; y) mm</small></th><th>F<sub>x</sub><small>kN</small></th><th>F<sub>y</sub><small>kN</small></th><th>F<small>kN</small></th><th>Leikkaus</th><th>Reunap. levy 1</th><th>Reunap. levy 2</th>'+(R.cat!=='A'?'<th>Liukuminen</th>':'')+'</tr></thead><tbody>'+
+      R.B.map(function(b){var cl=function(u){return '<td class="'+(u>1?'lt-bad':'lt-ok')+'">'+f(u*100,0)+' %</td>';};return '<tr'+(b===R.gS.b?' class="sel"':'')+'><td>('+f(b.x,0)+'; '+f(b.y,0)+')</td><td>'+f(b.fx,1)+'</td><td>'+f(b.fy,1)+'</td><td>'+f(b.F,1)+'</td>'+cl(b.us)+cl(b.ub[0].u)+cl(b.ub[1].u)+(R.cat!=='A'?cl(b.uslip):'')+'</tr>';}).join('')+'</tbody>';
+    $('#r-chk').innerHTML='<thead><tr><th>Tarkistus</th><th>Arvot</th><th>Käyttöaste</th></tr></thead><tbody>'+R.chk.map(function(c){return '<tr'+(c===g?' class="sel"':'')+'><td>'+c[0]+'</td><td>'+c[1]+'</td><td class="'+(c[2]>1?'lt-bad':'lt-ok')+'">'+f(c[2]*100,0)+' %</td></tr>';}).join('')+
+      R.sp.map(function(x){return '<tr><td>Taul. 3.3: '+x[0]+'</td><td>'+f(x[1],0)+' mm, raja '+f(x[2],0)+(x[3]!==undefined?'…'+f(x[3],0):'')+' mm</td><td class="'+(x[4]?'lt-ok':'lt-bad')+'">'+(x[4]?'✓ OK':'✗ EI OK')+'</td></tr>';}).join('')+'</tbody>';
+    // välivaiheet
+    var b=R.gS.b;
+    s+=step('Ruuvit ja reiät',[R.bs.d?'M'+R.d+' '+R.bcN+': f<sub>ub</sub> = '+R.bc.fub+' N/mm², A<sub>s</sub> = '+f(R.As,0)+' mm², d<sub>0</sub> = '+f(R.d0,0)+' mm'+c_(R.hole==='o'?'(ylisuuri reikä)':R.hole==='n'?'(normaali reikä)':'(soikioreikä)'):'',
+      'Ruuveja n = '+R.nx+' × '+R.ny+' = '+R.n+', leikkeitä '+R.ns]);
+    s+=step('Ruuvivoimat (kimmoteoria)',[
+      'I<sub>p</sub> = Σ(x² + y²) = '+f(R.Ip,0)+' mm²',
+      'M = M<sub>Ed</sub> + V<sub>y</sub>·e<sub>x</sub> − V<sub>x</sub>·e<sub>y</sub> = '+f(R.M0,2)+'·10³ + '+f(R.Vy,1)+'·'+f(R.ex,0)+' − '+f(R.Vx,1)+'·'+f(R.ey,0)+' = '+f(R.M/1000,2)+' kNm',
+      'F<sub>x,i</sub> = V<sub>x</sub>/n − M·y<sub>i</sub>/I<sub>p</sub>, F<sub>y,i</sub> = V<sub>y</sub>/n + M·x<sub>i</sub>/I<sub>p</sub>',
+      'Suurin: ruuvi ('+f(b.x,0)+'; '+f(b.y,0)+'): F<sub>x</sub> = '+f(b.fx,2)+', F<sub>y</sub> = '+f(b.fy,2)+' → F<sub>v,Ed</sub> = <span class="lt-r">'+f(b.F,2)+' kN</span>']);
+    s+=step('Leikkauskestävyys (taul. 3.4, 3.6.1(12), 3.8)',[
+      'F<sub>v,Rd</sub> = α<sub>v</sub>·f<sub>ub</sub>·A/γ<sub>M2</sub> = '+f(R.av,1)+'·'+R.bc.fub+'·'+f(R.Ash,0)+'/'+f(R.g2,2)+' = '+f(R.FvRd1,1)+' kN / leike'+c_(R.thr?'(A = A_s, kierre leikkaustasossa)':'(A = varren pinta-ala)'),
+      'Pitkä liitos: L<sub>j</sub> = '+f(R.Lj,0)+' mm '+(R.Lj>15*R.d?'> 15d = '+f(15*R.d,0)+' → β<sub>Lf</sub> = 1 − (L<sub>j</sub> − 15d)/(200d) = '+f(R.bLf,3):'≤ 15d = '+f(15*R.d,0)+' mm → β<sub>Lf</sub> = 1'),
+      'Täytelevyt: t<sub>p</sub> = '+f(R.tp,0)+' mm '+(R.tp>R.d/3?'> d/3 → β<sub>p</sub> = 9d/(8d + 3t<sub>p</sub>) = '+f(R.bp,3):'≤ d/3 → β<sub>p</sub> = 1'),
+      'F<sub>v,Rd</sub> = '+f(R.FvRd1,1)+'·'+R.ns+'·'+f(R.bLf,3)+'·'+f(R.bp,3)+' = <span class="lt-r">'+f(R.FvRd,1)+' kN</span> → '+f(b.F/R.FvRd*100,0)+' %']);
+    [0,1].forEach(function(k){var gB=R.gB[k],bb=gB.b,ub=bb.ub[k],p=R.P[k],ls=[];
+      ls.push('Levy '+p.i+': t = '+f(p.teff,0)+' mm'+(R.ns===2&&k===0?' (2 × '+f(p.t,0)+')':'')+', '+p.st.label+' f<sub>u</sub> = '+p.st.fu+' N/mm²'+c_('ruuvi ('+f(bb.x,0)+'; '+f(bb.y,0)+')'));
+      [ub.bx,ub.by].forEach(function(q){if(!q)return;var F=q.dir==='x'?bb.fx:bb.fy;
+        ls.push(q.dir+'-suunta: '+(q.isEnd?'päätyruuvi α<sub>d</sub> = e<sub>1</sub>/(3d<sub>0</sub>) = '+(isFinite(q.e1)?f(q.e1,0)+'/(3·'+f(R.d0,0)+')':'∞')+' = '+f(q.ad,2):'sisäruuvi α<sub>d</sub> = p<sub>1</sub>/(3d<sub>0</sub>) − 1/4 = '+f(q.ad,2))+
+          ', α<sub>b</sub> = '+f(q.ab,2)+', k<sub>1</sub> = '+f(q.k1,2)+(q.isEdge?' (reunaruuvi'+(isFinite(q.e2)?', e<sub>2</sub> = '+f(q.e2,0):'')+')':' (sisäruuvi)')+(q.kh<1?', reikäkerroin '+f(q.kh,1):'')+
+          ' → F<sub>b,Rd</sub> = k<sub>1</sub>·α<sub>b</sub>·f<sub>u</sub>·d·t/γ<sub>M2</sub> = '+f(q.Fb,1)+' kN'+q.cap+'; |F| = '+f(Math.abs(F),1)+' kN');});
+      ls.push('Yhteisvaikutus √((F<sub>x</sub>/F<sub>b,x</sub>)² + (F<sub>y</sub>/F<sub>b,y</sub>)²) = <span class="lt-r">'+f(ub.u,3)+'</span>');
+      s+=step('Reunapuristus, levy '+p.i+' (taul. 3.4)',ls);});
+    if(R.cat!=='A') s+=step('Liukumiskestävyys (3.9)',[
+      'F<sub>p,C</sub> = 0,7·f<sub>ub</sub>·A<sub>s</sub> = 0,7·'+R.bc.fub+'·'+f(R.As,0)+' = '+f(R.FpC,1)+' kN, k<sub>s</sub> = '+f(R.ks,2)+' (taul. 3.6), μ = '+f(R.mu,1)+' (taul. 3.7)',
+      R.cat==='B'?'F<sub>s,Rd,ser</sub> = k<sub>s</sub>·n·μ·F<sub>p,C</sub>/γ<sub>M3,ser</sub> = '+f(R.FsRdS,1)+' kN (käyttörajatila); lisäksi murtorajatilassa leikkaus ja reunapuristus':'F<sub>s,Rd</sub> = k<sub>s</sub>·n·μ·F<sub>p,C</sub>/γ<sub>M3</sub> = '+f(R.FsRd,1)+' kN (murtorajatila); lisäksi reunapuristus ja N<sub>net,Rd</sub>',
+      R.gSl?'Suurin käyttöaste '+f(R.gSl.v*100,0)+' %':'']);
+    if(R.plate.length) s+=step('Levyjen palalommahdus ja poikkileikkaukset',R.plate.map(function(q){return 'Levy '+q.p.i+', '+q.dir+'-suunta, '+q.r.nm+': '+q.r.txt+' → '+f(q.V/q.r.Rd*100,0)+' %';}));
+    s+=step('Reuna- ja keskiöetäisyydet (taul. 3.3)',[
+      'e<sub>1</sub>, e<sub>2</sub> ≥ 1,2·d<sub>0</sub> = '+f(1.2*R.d0,1)+' mm; p<sub>1</sub> ≥ 2,2·d<sub>0</sub> = '+f(2.2*R.d0,1)+' mm (kuorman suuntaan, pääsuunta '+R.main+'); p<sub>2</sub> ≥ 2,4·d<sub>0</sub> = '+f(2.4*R.d0,1)+' mm',
+      'Enimmäisjako p ≤ min(14t; 200) = '+f(R.pmax,0)+' mm (t = '+f(R.tmin,0)+' mm)'+(R.exp?'; reunat ≤ 4t + 40 mm':'; reunojen enimmäisarvoa ei tarkisteta (ei säärasitusta)')]);
+    $('#r-steps').innerHTML=s;
+  }
+  root.querySelectorAll('input,select').forEach(function(el){el.addEventListener('input',render);el.addEventListener('change',render);});
+  render();
+})();
+</script>
+</div>
+</body>
+</html>

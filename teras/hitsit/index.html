@@ -435,7 +435,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
         'F<sub>w,fi,Rd</sub> = F<sub>w,Rd</sub>·k<sub>w,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub> = '+f(FRd,1)+'·'+f(fi.kw,3)+'·'+f(fi.gM2,2)+'/'+f(fi.gfi,2)+' = <span class="lt-r">'+f(FRdF,1)+' kN</span> (D.4)',
         'F<sub>fi,Ed</sub> = η<sub>fi</sub>·F<sub>Ed</sub> = '+f(fi.eta,2)+'·'+f(F,1)+' = '+f(Ff,1)+' kN → '+f(uf*100,0)+' %'+chk(uf<=1)]));
       fiK='<div class="lt-kpi"><span>Palo R'+(fi.own?'':fi.tmin)+' ('+f(fi.theta,0)+' °C): F<sub>fi,Rd</sub></span><b>'+f(FRdF,1)+' kN</b>'+(F>0?'<div class="lt-bar"><i class="'+(uf>1?'over':'')+'" style="width:'+Math.min(uf*100,100)+'%"></i></div><span>Käyttöaste '+f(uf*100,0)+' %</span>':'')+'</div>';}
-    $('#fi-out').innerHTML=fi.on?fi.lines.join('<br>'):'';
+    LTPALO.show(root,fi,[['Perusaineen murtolujuus f<sub>u</sub>',m.fu,['k<sub>w,θ</sub>',fi.kw],'N/mm²'],['Hitsin mitoituslujuus f<sub>u</sub>/(β<sub>w</sub>γ<sub>M2</sub>)',S.base,['k<sub>w,θ</sub>',fi.kw],'N/mm²'],['Pitkittäinen f<sub>w,L,d</sub>',S.s3,['k<sub>w,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub>',fi.fw],'N/mm²'],['Poikittainen f<sub>w,T,d</sub>',S.s2,['k<sub>w,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub>',fi.fw],'N/mm²']]);
     $('#c-steps').innerHTML=s;
 
     var kp='<div class="lt-kpi"><span>f<sub>w,d</sub></span><b>'+f(fwd,1)+' N/mm²</b></div>'+

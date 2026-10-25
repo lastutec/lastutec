@@ -338,7 +338,9 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       var fS=mx(function(b){return b.usF;}),fB1=mx(function(b){return b.ubF[0];}),fB2=mx(function(b){return b.ubF[1];});R.fS=fS;R.fB=[fB1,fB2];
       R.chk.push(['Palo: ruuvin leikkaus (D.1)','F<sub>v,fi,Ed</sub> = '+f(fi.eta*fS.b.F,1)+' kN ≤ F<sub>v,fi,Rd</sub> = '+f(FvFi,1)+' kN',fS.v]);
       R.chk.push(['Palo: reunapuristus, levy 1 (D.2)','η<sub>fi</sub>·u<sub>b</sub>/(k<sub>b,θ</sub>γ<sub>M2</sub>/γ<sub>M,fi</sub>)',fB1.v]);
-      R.chk.push(['Palo: reunapuristus, levy 2 (D.2)','η<sub>fi</sub>·u<sub>b</sub>/(k<sub>b,θ</sub>γ<sub>M2</sub>/γ<sub>M,fi</sub>)',fB2.v]);}
+      R.chk.push(['Palo: reunapuristus, levy 2 (D.2)','η<sub>fi</sub>·u<sub>b</sub>/(k<sub>b,θ</sub>γ<sub>M2</sub>/γ<sub>M,fi</sub>)',fB2.v]);
+      // levyt palossa: perusaineen lujuus k_y,θ (SFS-EN 1993-1-2, 4.2.3), varmalla puolella γ_M0/γ_M,fi
+      R.plateFi=R.plate.map(function(q){var Rd=q.r.Rd*fi.ky*g0/fi.gfi,V=fi.eta*q.V;R.chk.push(['Palo: levy '+q.p.i+', '+q.dir+'-suunta: '+q.r.nm,'V<sub>fi</sub> = '+f(V,1)+' kN ≤ '+f(Rd,1)+' kN',V/Rd]);return {q:q,Rd:Rd,V:V};});}
     R.max=R.chk.reduce(function(a,c){return c[2]>a[2]?c:a;},['',0,0]);
     return R;
   }
@@ -465,8 +467,9 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       'F<sub>v,fi,Rd</sub> = α<sub>v</sub>·f<sub>ub</sub>·A<sub>s</sub>/γ<sub>M2</sub>·n·β<sub>Lf</sub>·β<sub>p</sub>·k<sub>b,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub> = <span class="lt-r">'+f(R.FvFi,1)+' kN</span>',
       'Ruuvivoimat palossa F<sub>fi,Ed</sub> = η<sub>fi</sub>·F<sub>Ed</sub> = '+f(fi.eta,2)+'·'+f(R.fS.b.F,1)+' = '+f(fi.eta*R.fS.b.F,1)+' kN (suurin) → leikkaus '+f(R.fS.v*100,0)+' %',
       'Reunapuristus: F<sub>b,fi,Rd</sub> = F<sub>b,Rd</sub>·k<sub>b,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub> → levy 1 '+f(R.fB[0].v*100,0)+' %, levy 2 '+f(R.fB[1].v*100,0)+' %',
-      'Levyjen palalommahdusta ja poikkileikkauksia ei tarkisteta palotilanteessa.']));
-      $('#fi-out').innerHTML=fi.lines.join('<br>');} else $('#fi-out').innerHTML='';
+      R.plateFi.length?'Levyt: perusaineen lujuus pienennetään kertoimella k<sub>y,θ</sub> = '+f(fi.ky,3)+' (taulukko 3.1, kohta 4.2.3): R<sub>fi,Rd</sub> = R<sub>Rd</sub>·k<sub>y,θ</sub>·γ<sub>M0</sub>/γ<sub>M,fi</sub>':'',
+      ].concat(R.plateFi.map(function(z){return 'Levy '+z.q.p.i+', '+z.q.dir+'-suunta, '+z.q.r.nm+': '+f(z.q.r.Rd,1)+'·'+f(fi.ky,3)+' = '+f(z.Rd,1)+' kN, V<sub>fi</sub> = '+f(z.V,1)+' kN → '+f(z.V/z.Rd*100,0)+' %';}))));
+      LTPALO.show(root,fi,[['Ruuvin murtolujuus f<sub>ub</sub>',R.bc.fub,['k<sub>b,θ</sub>',fi.kb],'N/mm²']].concat(R.P.map(function(p){return ['Levy '+p.i+' f<sub>y</sub>',p.st.fy,['k<sub>y,θ</sub>',fi.ky],'N/mm²'];}),R.P.map(function(p){return ['Levy '+p.i+' f<sub>u</sub>, reunapuristus (D.2)',p.st.fu,['k<sub>b,θ</sub>',fi.kb],'N/mm²'];})));} else LTPALO.show(root,R.fi,[]);
     $('#r-steps').innerHTML=s;
   }
   root.querySelectorAll('input,select').forEach(function(el){el.addEventListener('input',render);el.addEventListener('change',render);});

@@ -388,7 +388,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
         'Yhdistetty: '+f(uIf,3)+' ≤ 1,0'+chk(uIf<=1)]));
       fiK=kpi('Palo R'+(fi.own?'':fi.tmin)+' ('+f(fi.theta,0)+' °C): leikkaus',f(Math.min(FvFi,FbFi),1)+' kN',Fv_f>0?uVf:undefined)+kpi('Palo: veto',f(Math.min(FtFi,BpFi),1)+' kN',Ft_f>0?uTf:undefined);
     }
-    $('#fi-out').innerHTML=fi.on?fi.lines.join('<br>'):'';
+    LTPALO.show(root,fi,[['Ruuvin murtolujuus f<sub>ub</sub>',c.fub,['k<sub>b,θ</sub>',fi.kb],'N/mm²'],['Levyn f<sub>u</sub>, reunapuristus (D.2)',FU,['k<sub>b,θ</sub>',fi.kb],'N/mm²'],['Levyn lujuus, lävistys (taul. 3.1)',FU,['k<sub>y,θ</sub>',fi.ky],'N/mm²']]);
     $('#c-steps').innerHTML=S;
     $('#c-sum').innerHTML=
       kpi('Leikkaus min(F<sub>v,Rd</sub>; F<sub>b,Rd</sub>)',f(FvGov,1)+' kN',FvEd>0?uV:undefined)+

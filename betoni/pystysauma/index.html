@@ -5,7 +5,7 @@
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
 <script src="../../lt-pdf.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Seinän pystysauma (kesken) – Lastutec</title>
+<title>Seinän pystysauma – Lastutec</title>
 <meta name="description" content="Seinän pystysauman leikkausvoiman suuruusluokkatarkastus tuulikuormasta ja Peikko PVL-vaijerilenkkien tyypin ja jaon ehdotus elementeittäin teknisen käyttöohjeen (FI 09/2021) mukaan.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <style>
@@ -115,62 +115,56 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
   <div class="brand"><a href="../" class="back">← Betonirakenteet</a><h1>Seinän pystysauma ja PVL-vaijerilenkit</h1></div>
   <div class="hdr-r"><span class="meta">Työkalu 6 · Laatinut: INS (YAMK) Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
 </header>
-<div role="note" style="border:1px solid #e2c47f;background:#2a2208;color:#e2c47f;border-radius:6px;padding:10px 14px;margin:0 0 16px;font:600 14px Arial,Helvetica,sans-serif">⚠ KESKEN – työkalu on vielä kehitysvaiheessa. Tuloksia ei tule käyttää mitoitukseen ennen kuin laskenta on tarkastettu ja hyväksytty.</div>
 <div class="lt-tool" id="lt-ps">
 
-  <p class="lt-sub">Jäykistävän seinän pystysauman leikkausvoiman suuruusluokkatarkastus käsinlaskennalla. Tuulikuorman momentista lasketaan kolmiomaisen jännitysjakauman vetopuolen resultantti, joka siirtyy pystysauman kautta. Leikkausvoiman oletetaan pienenevän lineaarisesti nollaan seinän korkeussuunnassa. Sen jälkeen työkalu ehdottaa Peikko PVL<sup>®</sup>-vaijerilenkkien tyypin ja jaon (tekninen käyttöohje FI 09/2021).</p>
+  <p class="lt-sub">Jäykistävän seinän pystysauman mitoitus Peikko PVL<sup>®</sup>-vaijerilenkeillä. Valitse ensin vaijerilenkki ja anna sitten tuulikuorma ja seinän kuormitusleveys. Tuulikuorman momentista lasketaan kolmiomaisen jännitysjakauman vetopuolen resultantti, joka siirtyy pystysauman kautta. Leikkausvoiman oletetaan pienenevän lineaarisesti nollaan seinän yläreunaan.</p>
 
   <div class="lt-card">
-    <h3>1. Pystysauman leikkausvoima</h3>
-    <div class="lt-grid" style="margin-bottom:12px">
-      <label><span>Tuulikuorman lähde</span><select id="w-src"><option value="q" selected>Syötä q<sub>wd</sub> suoraan</option><option value="imp">Tuo voimakerroinmenetelmästä</option></select></label>
-      <label class="w-imp"><span>Tuulen suunta</span><select id="w-dir"><option value="x">x-suunta (F<sub>x</sub>)</option><option value="y">y-suunta (F<sub>y</sub>)</option></select></label>
-      <label class="w-imp"><span>Seinän osuus</span><select id="w-mode"><option value="w" selected>Kuormitusleveys (m)</option><option value="p">Prosenttiosuus (%)</option></select></label>
-      <label class="w-imp"><span id="w-vlab">Kuormitusleveys (m)</span><input id="w-val" type="number" step="0.1" min="0" value="6"></label>
-      <label class="w-imp"><span>γ<sub>Q</sub>·K<sub>FI</sub></span><input id="w-g" type="number" step="0.05" value="1.5"></label>
-      <label class="w-imp lt-chk"><input id="w-useH" type="checkbox" checked> <span>Seinän korkeus = rakennuksen korkeus</span></label>
-    </div>
-    <p class="lt-note w-imp" id="w-info" style="margin:-4px 0 12px"></p>
+    <h3>1. Vaijerilenkki</h3>
     <div class="lt-grid">
-      <label><span>Seinän leveys b<sub>seinä</sub> (m)</span><input id="s-b" type="number" step="0.1" min="0.1" value="19.4"></label>
-      <label><span>Seinän korkeus h<sub>seinä</sub> (m)</span><input id="s-h" type="number" step="0.1" min="0.1" value="18.6"></label>
-      <label id="s-qw"><span>Tuulikuorma q<sub>wd</sub> (kN/m)</span><input id="s-q" type="number" step="0.5" value="37.5"></label>
-      <label><span>Elementin korkeus (m)</span><input id="s-he" type="number" step="0.1" min="0.5" value="3.0"></label>
+      <label><span>PVL-vaijerilenkki</span><select id="p-type"></select></label>
+      <label><span>Betoni (heikompi: elementti tai saumavalu)</span><select id="p-c"><option value="0">C25/30</option><option value="1" selected>C30/37</option><option value="2">C35/45</option><option value="3">C40/50</option><option value="4">C45/55</option><option value="5">C50/60</option></select></label>
+      <label><span>Seinän paksuus b<sub>seinä</sub> (mm)</span><input id="p-t" type="number" step="10" min="80" value="200"></label>
+      <label><span>Sauman tyyppi</span><select id="p-joint"><option value="k" selected>Vaarnattu sauma</option><option value="s">Sileä sauma</option></select></label>
     </div>
-    <div id="s-fig" style="margin-top:10px"></div>
+    <div class="lt-sum" id="p-cap" style="margin:12px 0 0"></div>
+    <p class="lt-note" style="margin:8px 0 0">Kestävyydet: Peikko, <a href="https://media.peikko.com/file/dl/i/p_Tvlw/Gg6iwCtTXofMr2XoYIKiww/PVLFI003TechnicalManual_Web.pdf" target="_blank" rel="noopener" style="color:var(--lt-accent)">PVL®-vaijerilenkki, tekninen käyttöohje FI 09/2021</a> (taulukko 1 seinän vähimmäispaksuus, taulukko 4 veto, taulukko 5 pystysuuntainen leikkaus, taulukot 6–9 poikittainen leikkaus). Arvot ovat koteloparia kohden.</p>
   </div>
 
   <div class="lt-card">
-    <h3>2. PVL-vaijerilenkit</h3>
+    <h3>2. Tuulikuorma ja seinä</h3>
     <div class="lt-grid">
-      <label><span>Seinän paksuus b<sub>seinä</sub> (mm)</span><input id="p-t" type="number" step="10" min="80" value="200"></label>
-      <label><span>Betoni (heikompi: elementti tai saumavalu)</span><select id="p-c"><option value="0">C25/30</option><option value="1" selected>C30/37</option><option value="2">C35/45</option><option value="3">C40/50</option><option value="4">C45/55</option><option value="5">C50/60</option></select></label>
-      <label><span>Sauman tyyppi</span><select id="p-joint"><option value="k" selected>Vaarnattu sauma</option><option value="s">Sileä sauma</option></select></label>
+      <label><span>Tuulikuorman lähde</span><select id="w-src"><option value="w" selected>Tuulikuorma × kuormitusleveys</option><option value="imp">Tuo voimakerroinmenetelmästä</option></select></label>
+      <label class="w-man"><span>Tuulikuorma w<sub>d</sub> (kN/m²), mitoitusarvo</span><input id="w-w" type="number" step="0.05" value="1.25"></label>
+      <label class="w-man"><span>Seinän kuormitusleveys (m)</span><input id="w-L" type="number" step="0.1" min="0" value="30"></label>
+      <label class="w-imp"><span>Tuulen suunta</span><select id="w-dir"><option value="x">x-suunta (F<sub>x</sub>)</option><option value="y">y-suunta (F<sub>y</sub>)</option></select></label>
+      <label class="w-imp"><span>Seinän kuormitusleveys (m)</span><input id="w-Li" type="number" step="0.1" min="0" value="6"></label>
+      <label class="w-imp"><span>γ<sub>Q</sub>·K<sub>FI</sub></span><input id="w-g" type="number" step="0.05" value="1.5"></label>
+    </div>
+    <p class="lt-note w-imp" id="w-info" style="margin:8px 0 0"></p>
+    <div class="lt-grid" style="margin-top:12px">
+      <label><span>Seinän leveys b (m)</span><input id="s-b" type="number" step="0.1" min="0.1" value="19.4"></label>
+      <label><span>Seinän korkeus h (m)</span><input id="s-h" type="number" step="0.1" min="0.1" value="18.6"></label>
+      <label><span>Elementin korkeus (m)</span><input id="s-he" type="number" step="0.1" min="0.5" value="3.0"></label>
       <label><span>Poikittainen leikkaus V<sub>Ed,⊥</sub> (kN/m)</span><input id="p-Vt" type="number" step="0.5" min="0" value="0"></label>
       <label><span>Veto N<sub>Ed</sub> (kN/m)</span><input id="p-N" type="number" step="0.5" min="0" value="0"></label>
       <label><span>Suurin sallittu käyttöaste</span><input id="p-u" type="number" step="0.05" min="0.1" max="1" value="1.0"></label>
     </div>
-    <p class="lt-note" style="margin:8px 0 0">Jakovaihtoehdot ovat 250, 300, 350, 400, 450, 500, 600, 800, 1000 ja 1200 mm. Vähimmäisjako on 250 mm (PVL 140: 350 mm). Saumaan tulee aina vähintään kaksi vaijerilenkkiparia. Poikittainen leikkaus ja veto vaikuttavat koko seinän korkeudella yhtä suurina.</p>
+    <div id="s-fig" style="margin-top:10px"></div>
   </div>
 
+  <h2>3. Mitoitus</h2>
   <div class="lt-sum" id="p-sum"></div>
   <ul class="ps-warn" id="p-warn"></ul>
-
   <div class="lt-card">
-    <h3>Vaijerilenkkityypit ja suurin sallittu jako</h3>
-    <div class="lt-scroll"><table class="lt-table" id="p-types"></table></div>
-  </div>
-
-  <div class="lt-card">
-    <h3>Ehdotettu jako elementeittäin</h3>
+    <h3>Jako elementeittäin</h3>
     <div class="lt-scroll"><table class="lt-table" id="p-zones"></table></div>
-    <p class="lt-note" style="margin-top:8px">Jokaisen elementin jako mitoitetaan sen alareunan leikkausvoimalla, joka on elementin suurin. Ylimpien elementtien jako voi olla harvempi.</p>
+    <p class="lt-note" style="margin-top:8px">Jokaisen elementin jako mitoitetaan sen alareunan leikkausvoimalla, joka on elementin suurin. Jakovaihtoehdot ovat 250, 300, 350, 400, 450, 500, 600, 800, 1000 ja 1200 mm, eikä jako alita valitun tyypin vähimmäisjakoa. Saumaan tulee aina vähintään kaksi vaijerilenkkiparia.</p>
   </div>
-
-  <h2>Laskenta välivaiheineen</h2>
   <div class="lt-card"><ol class="lt-steps" id="p-steps"></ol></div>
+  <details class="lt-card"><summary>Vertailu muihin PVL-tyyppeihin</summary><div class="lt-scroll" style="margin-top:8px"><table class="lt-table" id="p-types"></table></div></details>
 
-  <p class="lt-disc">Pystysauman leikkausvoima lasketaan suuruusluokkatarkastuksena (seinä ulokkeena, kolmiomainen jännitysjakauma, leikkausvoima lineaarisesti nollaan yläreunaan). PVL-kestävyydet ovat Peikon teknisestä käyttöohjeesta (PVL®-vaijerilenkki, versio FI 09/2021, taulukot 1, 4, 5, 6–9 ja kaavat 1–5; SFS-EN 1992-1-1/NA:2019). Lisäraudoitus (U-lenkit, verkot ja pieliteräkset) tehdään ohjeen liitteen A mukaan. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
+  <p class="lt-disc">Pystysauman leikkausvoima lasketaan suuruusluokkatarkastuksena (seinä ulokkeena, kolmiomainen jännitysjakauma, leikkausvoima lineaarisesti nollaan yläreunaan). PVL-kestävyydet ja tarkistusehdot (kaavat 1–5) ovat Peikon teknisestä käyttöohjeesta FI 09/2021 (SFS-EN 1992-1-1/NA:2019). Lisäraudoitus (U-lenkit, verkot ja pieliteräkset) tehdään ohjeen liitteen A mukaan. Työkalu on apuväline; lopullinen mitoitus on rakennesuunnittelijan vastuulla.</p>
 </div>
 
 <script>
@@ -181,66 +175,56 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
   function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
   function step(t,ls){return '<li class="lt-step"><h4>'+t+'</h4>'+ls.filter(Boolean).map(function(l){return '<div class="lt-f">'+l+'</div>';}).join('')+'</li>';}
   var CL=['C25/30','C30/37','C35/45','C40/50','C45/55','C50/60'];
+  var A=[9.1,10.9,12.7,14.6,16.4,18.2],B=[13.0,15.2,17.4,19.8,22.0,24.2],C=[3.0,3.3,3.7,4.2,4.5,4.8];
   // Peikko PVL, tekninen käyttöohje FI 09/2021
   var PVL=[
-    {n:'PVL 60', tmin:80, smin:250,Nt:[9.1,10.9,12.7,14.6,16.4,18.2],V:[13.0,15.2,17.4,19.8,22.0,24.2],Vt2:[3.0,3.3,3.7,4.2,4.5,4.8],t2:120,k:'s'},
-    {n:'PVL 80', tmin:80, smin:250,Nt:[9.1,10.9,12.7,14.6,16.4,18.2],V:[13.0,15.2,17.4,19.8,22.0,24.2],Vt2:[3.0,3.3,3.7,4.2,4.5,4.8],t2:120,k:'s'},
-    {n:'PVL 100',tmin:120,smin:250,Nt:[9.1,10.9,12.7,14.6,16.4,18.2],V:[13.0,15.2,17.4,19.8,22.0,24.2],Vt2:[3.0,3.3,3.7,4.2,4.5,4.8],t2:120,k:'s'},
-    {n:'PVL 120',tmin:120,smin:250,Nt:[9.1,10.9,12.7,14.6,16.4,18.2],V:[13.0,15.2,17.4,19.8,22.0,24.2],Vt2:[3.0,3.3,3.7,4.2,4.5,4.8],t2:120,k:'s'},
-    {n:'PVL 140',tmin:150,smin:350,Nt:[21.7,26.1,30.4,34.8,36.1,36.1],V:[28.0,32.8,37.7,43.0,45.1,46.0],Vt2:[3.4,3.7,4.1,4.7,5.1,5.4],t2:150,k:'L'},
-    {n:'PVL SOLO',tmin:150,smin:250,Nt:[21.7,26.1,30.4,34.8,36.1,36.1],V:[24.6,29.1,33.6,38.4,40.1,40.6],Vt2:[2.0,2.2,2.4,2.8,3.0,3.2],t2:150,k:'S'}];
-  // vaarnatun sauman poikittainen kestävyys VRd,⊥,1 [kN/m] (taulukot 6–8) seinän paksuuden mukaan
-  function Vt1(p,t,c){
+    {n:'PVL 60', tmin:80, smin:250,Nt:A,V:B,Vt2:C,k:'s',U:'Ø8 tai 2×Ø6'},
+    {n:'PVL 80', tmin:80, smin:250,Nt:A,V:B,Vt2:C,k:'s',U:'Ø8 tai 2×Ø6'},
+    {n:'PVL 100',tmin:120,smin:250,Nt:A,V:B,Vt2:C,k:'s',U:'Ø8 tai 2×Ø6'},
+    {n:'PVL 120',tmin:120,smin:250,Nt:A,V:B,Vt2:C,k:'s',U:'Ø8 tai 2×Ø6'},
+    {n:'PVL 140',tmin:150,smin:350,Nt:[21.7,26.1,30.4,34.8,36.1,36.1],V:[28.0,32.8,37.7,43.0,45.1,46.0],Vt2:[3.4,3.7,4.1,4.7,5.1,5.4],k:'L',U:'Ø10 tai 2×Ø8'},
+    {n:'PVL SOLO',tmin:150,smin:250,Nt:[21.7,26.1,30.4,34.8,36.1,36.1],V:[24.6,29.1,33.6,38.4,40.1,40.6],Vt2:[2.0,2.2,2.4,2.8,3.0,3.2],k:'S',U:'Ø10 tai 2×Ø8'}];
+  $('#p-type').innerHTML=PVL.map(function(p,i){return '<option value="'+i+'"'+(p.n==='PVL 120'?' selected':'')+'>'+p.n+'</option>';}).join('');
+  function Vt1(p,t,c){ // vaarnatun sauman VRd,⊥,1 [kN/m], taulukot 6–8
     if(p.k==='s') return t>=140?[17.2,19.1,21.0,23.9,25.8,27.7][c]:null;
     if(p.k==='S') return t>=150?[13.6,15.1,16.6,18.8,20.4,21.9][c]:null;
     var T={150:[7.7,8.6,9.5,10.7,11.6,12.5],160:[9.8,10.9,12.0,13.6,14.7,15.8],170:[12.1,13.4,14.8,16.8,18.2,19.5],180:[14.6,16.3,17.9,20.4,22.0,23.6]};
     if(t<150) return null; if(t>=190) return [17.4,19.4,21.3,24.2,26.2,28.1][c];
-    var k=[180,170,160,150].find(function(x){return t>=x;}); return T[k][c];
+    return T[[180,170,160,150].find(function(x){return t>=x;})][c];
   }
   var SP=[250,300,350,400,450,500,600,800,1000,1200];
 
   function calc(){
-    var b=num('#s-b'),h=num('#s-h'),q=num('#s-q'),he=Math.max(0.5,num('#s-he')),imp=null,M;
-    var src=$('#w-src').value;
-    root.querySelectorAll('.w-imp').forEach(function(e){e.style.display=src==='imp'?'':'none';});$('#s-qw').style.display=src==='imp'?'none':'';
-    $('#w-vlab').textContent=$('#w-mode').value==='p'?'Prosenttiosuus (%)':'Kuormitusleveys (m)';
+    var c=+$('#p-c').value,t=num('#p-t'),joint=$('#p-joint').value,P=PVL[+$('#p-type').value];
+    var b=num('#s-b'),h=num('#s-h'),he=Math.max(0.5,num('#s-he')),Vt=num('#p-Vt'),N=num('#p-N'),umax=num('#p-u')||1;
+    var src=$('#w-src').value,imp=null,q,M;
+    root.querySelectorAll('.w-imp').forEach(function(e){e.style.display=src==='imp'?'':'none';});
+    root.querySelectorAll('.w-man').forEach(function(e){e.style.display=src==='imp'?'none':'';});
     if(src==='imp'){var W=null;try{W=JSON.parse(localStorage.getItem('lastutec-tuulivoima-tulos')||'null');}catch(e){}
-      if(W&&W[$('#w-dir').value]){var D=W[$('#w-dir').value],dir=$('#w-dir').value,mode=$('#w-mode').value,v=num('#w-val'),g=num('#w-g')||1.5;
-        var share=mode==='p'?v/100:(D.b>0?v/D.b:0);
-        if($('#w-useH').checked&&W.H>0){h=W.H;if(Math.abs(num('#s-h')-h)>1e-6)$('#s-h').value=+h.toFixed(2);}
-        M=g*share*D.M;q=h>0?2*M/(h*h):0;
-        imp={W:W,D:D,dir:dir,mode:mode,v:v,g:g,share:share,F:g*share*D.F};
-        $('#w-info').innerHTML='Voimakerroinmenetelmä ('+new Date(W.ts).toLocaleString('fi-FI')+'): '+dir+'-suunta, tuulenpuoleisen sivun leveys b = '+f(D.b,2)+' m, F = '+f(D.F,1)+' kN, kaatava momentti M<sub>0</sub> = '+f(D.M,0)+' kNm (ominaisarvot), rakennuksen korkeus '+f(W.H,2)+' m. Seinän osuus '+f(share*100,1)+' %.';}
-      else{$('#w-info').innerHTML='<span class="lt-bad">Voimakerroinmenetelmän tuloksia ei löytynyt. Avaa ensin <a href="../../kuormat/tuulivoima/">Tuulikuorma – voimakerroinmenetelmä</a>, laske tuulikuorma ja palaa tähän.</span>';M=0;q=0;}}
-    else M=q*h*h/2;
+      var dir=$('#w-dir').value;
+      if(W&&W[dir]){var D=W[dir],Li=num('#w-Li'),g=num('#w-g')||1.5,share=D.b>0?Li/D.b:0;M=g*share*D.M;q=h>0?2*M/(h*h):0;
+        imp={D:D,dir:dir,Li:Li,g:g,share:share,F:g*share*D.F,H:W.H};
+        $('#w-info').innerHTML='Voimakerroinmenetelmä ('+new Date(W.ts).toLocaleString('fi-FI')+'): '+dir+'-suunta, tuulenpuoleisen sivun leveys '+f(D.b,2)+' m, F<sub>k</sub> = '+f(D.F,1)+' kN, M<sub>0,k</sub> = '+f(D.M,0)+' kNm, rakennuksen korkeus '+f(W.H,2)+' m. Seinän osuus '+f(share*100,1)+' %.';}
+      else{M=0;q=0;$('#w-info').innerHTML='<span class="lt-bad">Voimakerroinmenetelmän tuloksia ei löytynyt. Avaa ensin <a href="../../kuormat/tuulivoima/">Tuulikuorma – voimakerroinmenetelmä</a> ja palaa tähän.</span>';}}
+    else{q=num('#w-w')*num('#w-L');M=q*h*h/2;}
     var Rr=b>0?3*M/(2*b):Infinity,T=h>0?2*Rr/h:Infinity;
-    var t=num('#p-t'),c=+$('#p-c').value,joint=$('#p-joint').value,Vt=num('#p-Vt'),N=num('#p-N'),umax=num('#p-u')||1;
-    var R={imp:imp,b:b,h:h,q:q,he:he,M:M,R:Rr,T:T,t:t,c:c,joint:joint,Vt:Vt,N:N,umax:umax,warn:[]};
-    // käyttöaste annetulla V∥ ja jaolla
-    function util(p,s,V){var eta=1000/s,SV=eta*p.V[c],Vt2=eta*p.Vt2[c],SN=eta*p.Nt[c],VtR,u;
-      if(joint==='k'){var v1=Vt1(p,t,c);VtR=v1===null?Vt2:v1;} else VtR=Vt2;
+    function util(p,s,V){var eta=1000/s,SV=eta*p.V[c],Vt2=eta*p.Vt2[c],SN=eta*p.Nt[c],v1=joint==='k'?Vt1(p,t,c):null,VtR=v1===null?Vt2:v1,u;
       if(N>0) u=N/SN+V/(0.67*SV)+Vt/Vt2; else u=V/SV+(Vt>0?Vt/VtR:0);
-      return {u:u,eta:eta,SV:SV,VtR:VtR,Vt2:Vt2,SN:SN};}
-    R.util=util;
-    R.types=PVL.map(function(p){var ok=t>=p.tmin,best=null;
-      if(ok) SP.forEach(function(s){if(s<p.smin)return;var r=util(p,s,T);if(r.u<=umax&&(!best||s>best.s))best={s:s,r:r};});
-      return {p:p,ok:ok,best:best};});
-    // suositus: vähiten lenkkejä (suurin jako), tasatilanteessa kevyempi tyyppi
-    var cand=R.types.filter(function(x){return x.best;});
-    R.rec=cand.length?cand.reduce(function(a,x){return (x.best.s>a.best.s||(x.best.s===a.best.s&&x.p.k===a.p.k&&x.p.tmin>a.p.tmin))?x:a;},cand[0]):null;
-    // elementeittäin
+      return {u:u,eta:eta,SV:SV,Vt2:Vt2,VtR:VtR,v1:v1,SN:SN};}
+    function bestS(p,V){var best=null;SP.forEach(function(s){if(s<p.smin)return;var r=util(p,s,V);if(r.u<=umax&&(!best||s>best.s))best={s:s,r:r};});return best;}
+    var R={c:c,t:t,joint:joint,P:P,b:b,h:h,he:he,Vt:Vt,N:N,umax:umax,src:src,imp:imp,q:q,M:M,R:Rr,T:T,warn:[]};
+    if(t<P.tmin) R.warn.push(P.n+': seinän vähimmäispaksuus on '+P.tmin+' mm (taulukko 1), annettu '+f(t,0)+' mm.');
+    if(joint==='k'&&Vt>0&&Vt1(P,t,c)===null) R.warn.push('Vaarnatun sauman poikittaista kestävyyttä ei ole annettu tälle seinän paksuudelle (taulukot 6–8). Poikittainen kestävyys on laskettu sileän sauman arvoilla (taulukko 9).');
     var nE=Math.max(1,Math.ceil(h/he-1e-9));R.zones=[];
-    for(var i=0;i<nE;i++){var z0=i*he,z1=Math.min(h,(i+1)*he),Tz=T*(1-z0/h),hz=z1-z0,zone={i:i+1,z0:z0,z1:z1,T:Tz,h:hz};
-      if(R.rec){var p=R.rec.p,best=null;SP.forEach(function(s){if(s<p.smin)return;var r=util(p,s,Tz);if(r.u<=umax&&(!best||s>best.s))best={s:s,r:r};});
-        if(best){var n=Math.max(2,Math.floor(hz*1000/best.s));zone.s=best.s;zone.n=n;zone.r=best.r;}}
-      R.zones.push(zone);}
-    if(!R.rec) R.warn.push('Mikään PVL-tyyppi ei riitä tällä seinän paksuudella ja betoniluokalla edes 250 mm jaolla. Kasvata seinän paksuutta tai betoniluokkaa, tai tarkista liitos muulla tavalla.');
-    if(joint==='k'&&Vt>0&&R.rec&&Vt1(R.rec.p,t,c)===null) R.warn.push('Vaarnatun sauman poikittaista kestävyyttä ei ole annettu tälle seinän paksuudelle (taulukot 6–8). Poikittainen kestävyys on laskettu sileän sauman arvoilla (taulukko 9).');
+    for(var i=0;i<nE;i++){var z0=i*he,z1=Math.min(h,(i+1)*he),Tz=T*(1-z0/h),bz=bestS(P,Tz),z={i:i+1,z0:z0,z1:z1,T:Tz};
+      if(bz){z.s=bz.s;z.r=bz.r;z.n=Math.max(2,Math.floor((z1-z0)*1000/bz.s));} R.zones.push(z);}
+    if(!R.zones[0].s) R.warn.push(P.n+' ei riitä alimmassa elementissä edes vähimmäisjaolla '+P.smin+' mm (leikkausvoima '+f(T,1)+' kN/m). Valitse järeämpi vaijerilenkki, parempi betoni tai muu liitos.');
+    R.types=PVL.map(function(p){return {p:p,ok:t>=p.tmin,best:t>=p.tmin?bestS(p,T):null};});
     return R;
   }
 
   function fig(R){
-    var W=520,H=230,x0=60,y0=20,wh=180,ww=Math.min(260,Math.max(80,wh*R.b/R.h)),s='',X=function(z){return y0+wh-(z/R.h)*wh;};
+    var W=520,H=230,x0=60,y0=20,wh=180,ww=Math.min(260,Math.max(80,wh*R.b/Math.max(R.h,0.1))),s='',X=function(z){return y0+wh-(z/R.h)*wh;};
     s+='<rect x="'+x0+'" y="'+y0+'" width="'+ww+'" height="'+wh+'" fill="#6b6b6b" stroke="#aeaba4"/>';
     var xm=x0+ww/2;s+='<line x1="'+xm+'" y1="'+y0+'" x2="'+xm+'" y2="'+(y0+wh)+'" stroke="#e9e6e0" stroke-width="2" stroke-dasharray="6 3"/><text x="'+(xm+4)+'" y="'+(y0+12)+'" fill="#e9e6e0" font-size="10.5">pystysauma</text>';
     for(var z=R.he;z<R.h-1e-6;z+=R.he){var y=X(z);s+='<line x1="'+x0+'" y1="'+y+'" x2="'+(x0+ww)+'" y2="'+y+'" stroke="#8f8f8f"/>';}
@@ -253,35 +237,40 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
   }
 
   function render(){
-    var R=calc(),c=R.c,s='',rec=R.rec;
+    var R=calc(),P=R.P,c=R.c,s='',z0=R.zones[0],v1=Vt1(P,R.t,c);
+    $('#p-cap').innerHTML='<div class="lt-kpi"><span>Pystysuuntainen leikkauskestävyys V<sub>Rd,∥</sub></span><b>'+f(P.V[c],1)+' kN / kotelopari</b><span>'+P.n+', '+CL[c]+' (taulukko 5)</span></div>'+
+      '<div class="lt-kpi"><span>Vetokestävyys N<sub>t,Rd</sub></span><b>'+f(P.Nt[c],1)+' kN / pari</b><span>taulukko 4</span></div>'+
+      '<div class="lt-kpi"><span>Poikittainen V<sub>Rd,⊥</sub></span><b>'+(R.joint==='k'&&v1!==null?f(v1,1)+' kN/m':f(P.Vt2[c],1)+' kN / pari')+'</b><span>'+(R.joint==='k'&&v1!==null?'vaarnattu sauma (taulukot 6–8)':'sileä sauma (taulukko 9)')+'</span></div>'+
+      '<div class="lt-kpi"><span>Seinän vähimmäispaksuus</span><b class="'+(R.t>=P.tmin?'lt-ok':'lt-bad')+'">'+P.tmin+' mm</b><span>vähimmäisjako '+P.smin+' mm</span></div>';
     $('#s-fig').innerHTML=fig(R);
-    $('#p-sum').innerHTML='<div class="lt-kpi"><span>Pystysauman leikkausvoima (huippu)</span><b>'+f(R.T,1)+' kN/m</b></div>'+
-      '<div class="lt-kpi"><span>Ehdotus (alin elementti)</span><b>'+(rec?rec.p.n+' k'+rec.best.s:'–')+'</b></div>'+
-      '<div class="lt-kpi"><span>Käyttöaste</span><b class="'+(rec&&rec.best.r.u<=1?'lt-ok':'lt-bad')+'">'+(rec?f(rec.best.r.u*100,0)+' %':'–')+'</b></div>'+
-      '<div class="lt-kpi"><span>Lenkkipareja yhteensä</span><b>'+(rec?R.zones.reduce(function(a,z){return a+(z.n||0);},0)+' kpl':'–')+'</b></div>';
+    var tot=R.zones.reduce(function(a,z){return a+(z.n||0);},0);
+    $('#p-sum').innerHTML='<div class="lt-kpi"><span>Pystysauman leikkausvoima (alareuna)</span><b>'+f(R.T,1)+' kN/m</b></div>'+
+      '<div class="lt-kpi"><span>Jako alimmassa elementissä</span><b>'+(z0.s?P.n+' k'+z0.s:'<span class="lt-bad">ei riitä</span>')+'</b></div>'+
+      '<div class="lt-kpi"><span>Käyttöaste</span><b class="'+(z0.r&&z0.r.u<=1?'lt-ok':'lt-bad')+'">'+(z0.r?f(z0.r.u*100,0)+' %':'–')+'</b></div>'+
+      '<div class="lt-kpi"><span>Lenkkipareja yhteensä</span><b>'+(z0.s?tot+' kpl':'–')+'</b></div>';
     $('#p-warn').innerHTML=R.warn.map(function(w){return '<li>'+w+'</li>';}).join('');
-    $('#p-types').innerHTML='<thead><tr><th>Tyyppi</th><th>min b<sub>seinä</sub><small>mm</small></th><th>V<sub>Rd,∥</sub><small>kN / pari</small></th><th>V<sub>Rd,⊥</sub><small>'+(R.joint==='k'?'kN/m (vaarnattu)':'kN / pari (sileä)')+'</small></th><th>N<sub>t,Rd</sub><small>kN / pari</small></th><th>Suurin jako<small>mm</small></th><th>ΣV<sub>Rd,∥</sub><small>kN/m</small></th><th>Käyttöaste</th></tr></thead><tbody>'+
-      R.types.map(function(x){var p=x.p,v1=Vt1(p,R.t,c);return '<tr'+(x===rec?' class="sel"':'')+'><td>'+p.n+'</td><td>'+p.tmin+'</td><td>'+f(p.V[c],1)+'</td><td>'+(R.joint==='k'?(v1===null?'–':f(v1,1)):f(p.Vt2[c],1))+'</td><td>'+f(p.Nt[c],1)+'</td><td>'+(!x.ok?'<span class="lt-bad">seinä liian ohut</span>':x.best?'<b>'+x.best.s+'</b>':'<span class="lt-bad">ei riitä</span>')+'</td><td>'+(x.best?f(x.best.r.SV,1):'–')+'</td><td>'+(x.best?f(x.best.r.u*100,0)+' %':'–')+'</td></tr>';}).join('')+'</tbody>';
-    $('#p-zones').innerHTML='<thead><tr><th>Elementti<small>alhaalta</small></th><th>Korkeus<small>m</small></th><th>T alareunassa<small>kN/m</small></th><th>Tyyppi</th><th>Jako<small>mm</small></th><th>Pareja<small>kpl</small></th><th>ΣV<sub>Rd,∥</sub><small>kN/m</small></th><th>Käyttöaste</th><th>U-lenkit</th></tr></thead><tbody>'+
-      R.zones.map(function(z){return '<tr><td>'+z.i+'</td><td>'+f(z.z0,1)+'…'+f(z.z1,1)+'</td><td>'+f(z.T,1)+'</td><td>'+(rec?rec.p.n:'–')+'</td><td><b>'+(z.s||'–')+'</b></td><td>'+(z.n||'–')+'</td><td>'+(z.r?f(z.r.SV,1):'–')+'</td><td class="'+(z.r&&z.r.u<=1?'lt-ok':'lt-bad')+'">'+(z.r?f(z.r.u*100,0)+' %':'–')+'</td><td>'+(z.s?(z.s<600||R.N>0?'tarvitaan':'ei vaadita'):'–')+'</td></tr>';}).join('')+'</tbody>';
-    if(R.imp){var I=R.imp;s+=step('Momentti tuulikuormasta (voimakerroinmenetelmä)',[
-      'Rakennuksen kaatava momentti maanpinnan tasossa M<sub>0,k</sub> = '+f(I.D.M,1)+' kNm ja kokonaisvoima F<sub>k</sub> = '+f(I.D.F,1)+' kN ('+I.dir+'-suunta)',
-      'Seinän osuus: '+(I.mode==='p'?f(I.v,1)+' %':'kuormitusleveys '+f(I.v,2)+' m / sivun leveys '+f(I.D.b,2)+' m = '+f(I.share*100,1)+' %'),
-      'M<sub>Ed</sub> = γ<sub>Q</sub>·K<sub>FI</sub>·osuus·M<sub>0,k</sub> = '+f(I.g,2)+'·'+f(I.share,3)+'·'+f(I.D.M,1)+' = <span class="lt-r">'+f(R.M,1)+' kNm</span>; seinän vaakavoima F<sub>Ed</sub> = '+f(I.F,1)+' kN',
-      'Vastaava tasainen kuorma q<sub>wd</sub> = 2·M<sub>Ed</sub>/h<sub>seinä</sub>² = '+f(R.q,2)+' kN/m (tiedoksi)']);}
-    else s+=step('Momentti tuulikuormasta',['M<sub>Ed</sub> = q<sub>wd</sub>·h<sub>seinä</sub>²/2 = '+f(R.q,1)+'·'+f(R.h,2)+'²/2 = <span class="lt-r">'+f(R.M,1)+' kNm</span>']);
-    s+=step('Vetopuolen resultantti',['Kolmiomainen jännitysjakauma: vetopuolen ja puristuspuolen resultanttien etäisyys on 2b/3, joten R = 3M<sub>Ed</sub>/(2b<sub>seinä</sub>) = 3·'+f(R.M,1)+'/(2·'+f(R.b,2)+') = <span class="lt-r">'+f(R.R,1)+' kN</span>']);
-    s+=step('Leikkausvoima pystysaumassa',['Leikkausvoima pienenee lineaarisesti nollaan seinän yläreunaan, joten R = T·h/2 → T = 2R/h<sub>seinä</sub> = 2·'+f(R.R,1)+'/'+f(R.h,2)+' = <span class="lt-r">'+f(R.T,2)+' kN/m</span> (alareunassa)']);
-    if(rec){var p=rec.p,r=rec.best.r;
-      s+=step('PVL-vaijerilenkit (Peikko, tekninen käyttöohje FI 09/2021)',[
-        'Betoni '+CL[c]+', seinän paksuus '+f(R.t,0)+' mm ≥ '+p.tmin+' mm (taulukko 1), '+(R.joint==='k'?'vaarnattu':'sileä')+' sauma',
-        p.n+': V<sub>Rd,∥</sub> = '+f(p.V[c],1)+' kN / kotelopari (taulukko 5), N<sub>t,Rd</sub> = '+f(p.Nt[c],1)+' kN / pari (taulukko 4), V<sub>Rd,⊥,2</sub> = '+f(p.Vt2[c],1)+' kN / pari (taulukko 9)',
-        'Jako '+rec.best.s+' mm: η<sub>PVL</sub> = 1000/'+rec.best.s+' = '+f(r.eta,2)+' paria/m → ΣV<sub>Rd,∥</sub> = η·V<sub>Rd,∥</sub> = '+f(r.SV,1)+' kN/m (kaava 2)',
-        R.N>0?'Veto mukana (kaava 5): N<sub>Ed</sub>/ΣN<sub>t,Rd</sub> + V<sub>Ed,∥</sub>/(0,67·ΣV<sub>Rd,∥</sub>) + V<sub>Ed,⊥</sub>/ΣV<sub>Rd,⊥,2</sub> = '+f(R.N,1)+'/'+f(r.SN,1)+' + '+f(R.T,1)+'/(0,67·'+f(r.SV,1)+') + '+f(R.Vt,1)+'/'+f(r.Vt2,1)+' = <span class="lt-r">'+f(r.u,3)+'</span> ≤ 1,0'
-          :'Ei vetoa (kaava 4): V<sub>Ed,∥</sub>/ΣV<sub>Rd,∥</sub> + V<sub>Ed,⊥</sub>/ΣV<sub>Rd,⊥</sub> = '+f(R.T,1)+'/'+f(r.SV,1)+(R.Vt>0?' + '+f(R.Vt,1)+'/'+f(r.VtR,1):'')+' = <span class="lt-r">'+f(r.u,3)+'</span> ≤ 1,0',
-        'Suositus: '+p.n+' jaolla k'+rec.best.s+' alimmassa elementissä. Valituksi tulee tyyppi, jolla lenkkejä tarvitaan vähiten. Samoilla kestävyyksillä valitaan seinän paksuuteen parhaiten sopiva tyyppi (taulukko 1).',
-        'Lisäraudoitus (liite A): U-lenkit ('+(p.k==='s'?'Ø8 tai 2×Ø6':'Ø10 tai 2×Ø8')+') tarvitaan, jos jako on alle 600 mm, saumassa on vetoa tai lenkki on alle 450 mm:n päässä seinän reunasta. Verkko molemmissa pinnoissa vähintään Ø6 k150 ja pieliteräkset vähintään 2Ø10.']);}
+    $('#p-zones').innerHTML='<thead><tr><th>Elementti<small>alhaalta</small></th><th>Korkeus<small>m</small></th><th>V<sub>Ed,∥</sub> alareunassa<small>kN/m</small></th><th>Jako<small>mm</small></th><th>η<sub>PVL</sub><small>paria/m</small></th><th>ΣV<sub>Rd,∥</sub><small>kN/m</small></th><th>Pareja<small>kpl</small></th><th>Käyttöaste</th><th>U-lenkit</th></tr></thead><tbody>'+
+      R.zones.map(function(z){return '<tr><td>'+z.i+'</td><td>'+f(z.z0,1)+'…'+f(z.z1,1)+'</td><td>'+f(z.T,1)+'</td><td><b>'+(z.s||'<span class="lt-bad">ei riitä</span>')+'</b></td><td>'+(z.r?f(z.r.eta,2):'–')+'</td><td>'+(z.r?f(z.r.SV,1):'–')+'</td><td>'+(z.n||'–')+'</td><td class="'+(z.r&&z.r.u<=1?'lt-ok':'lt-bad')+'">'+(z.r?f(z.r.u*100,0)+' %':'–')+'</td><td>'+(z.s?(z.s<600||R.N>0?'tarvitaan':'ei vaadita'):'–')+'</td></tr>';}).join('')+'</tbody>';
+    // välivaiheet
+    if(R.imp){var I=R.imp;s+=step('Tuulikuorma voimakerroinmenetelmästä',[
+      'M<sub>0,k</sub> = '+f(I.D.M,1)+' kNm, F<sub>k</sub> = '+f(I.D.F,1)+' kN ('+I.dir+'-suunta, sivun leveys '+f(I.D.b,2)+' m)',
+      'Seinän osuus = kuormitusleveys / sivun leveys = '+f(I.Li,2)+'/'+f(I.D.b,2)+' = '+f(I.share*100,1)+' %',
+      'M<sub>Ed</sub> = γ<sub>Q</sub>·K<sub>FI</sub>·osuus·M<sub>0,k</sub> = '+f(I.g,2)+'·'+f(I.share,3)+'·'+f(I.D.M,1)+' = <span class="lt-r">'+f(R.M,1)+' kNm</span> (vastaava q<sub>wd</sub> = 2M/h² = '+f(R.q,2)+' kN/m)']);}
+    else s+=step('Tuulikuorma seinälle',[
+      'q<sub>wd</sub> = w<sub>d</sub>·kuormitusleveys = '+f(num('#w-w'),2)+'·'+f(num('#w-L'),2)+' = <span class="lt-r">'+f(R.q,2)+' kN/m</span>',
+      'M<sub>Ed</sub> = q<sub>wd</sub>·h²/2 = '+f(R.q,2)+'·'+f(R.h,2)+'²/2 = <span class="lt-r">'+f(R.M,1)+' kNm</span>']);
+    s+=step('Pystysauman leikkausvoima',[
+      'Kolmiomainen jännitysjakauma, resultanttien etäisyys 2b/3: R = 3M<sub>Ed</sub>/(2b) = 3·'+f(R.M,1)+'/(2·'+f(R.b,2)+') = <span class="lt-r">'+f(R.R,1)+' kN</span>',
+      'Leikkausvoima pienenee lineaarisesti nollaan yläreunaan: V<sub>Ed,∥</sub> = 2R/h = 2·'+f(R.R,1)+'/'+f(R.h,2)+' = <span class="lt-r">'+f(R.T,2)+' kN/m</span> (alareunassa)']);
+    if(z0.r){var r=z0.r;s+=step('Mitoitus, alin elementti ('+P.n+', '+CL[c]+')',[
+      'Jako '+z0.s+' mm → η<sub>PVL</sub> = 1000/'+z0.s+' = '+f(r.eta,2)+' paria/m',
+      'ΣV<sub>Rd,∥</sub> = η<sub>PVL</sub>·V<sub>Rd,∥</sub> = '+f(r.eta,2)+'·'+f(P.V[c],1)+' = <span class="lt-r">'+f(r.SV,1)+' kN/m</span> (kaava 2)',
+      R.N>0?'Veto mukana (kaava 5): N<sub>Ed</sub>/ΣN<sub>t,Rd</sub> + V<sub>Ed,∥</sub>/(0,67·ΣV<sub>Rd,∥</sub>) + V<sub>Ed,⊥</sub>/ΣV<sub>Rd,⊥,2</sub> = '+f(R.N,1)+'/'+f(r.SN,1)+' + '+f(R.T,1)+'/(0,67·'+f(r.SV,1)+') + '+f(R.Vt,1)+'/'+f(r.Vt2,1)+' = <span class="lt-r">'+f(r.u,3)+'</span> ≤ 1,0'
+        :'Ei vetoa (kaava 4): V<sub>Ed,∥</sub>/ΣV<sub>Rd,∥</sub>'+(R.Vt>0?' + V<sub>Ed,⊥</sub>/ΣV<sub>Rd,⊥</sub>':'')+' = '+f(R.T,1)+'/'+f(r.SV,1)+(R.Vt>0?' + '+f(R.Vt,1)+'/'+f(r.VtR,1):'')+' = <span class="lt-r">'+f(r.u,3)+'</span> ≤ 1,0',
+      'Lisäraudoitus (liite A): U-lenkit '+P.U+', jos jako on alle 600 mm, saumassa on vetoa tai lenkki on alle 450 mm:n päässä seinän reunasta. Verkko molemmissa pinnoissa vähintään Ø6 k150 ja pieliteräkset vähintään 2Ø10.']);}
     $('#p-steps').innerHTML=s;
+    $('#p-types').innerHTML='<thead><tr><th>Tyyppi</th><th>min b<sub>seinä</sub><small>mm</small></th><th>V<sub>Rd,∥</sub><small>kN / pari</small></th><th>Suurin jako alimmassa elementissä<small>mm</small></th><th>Käyttöaste</th></tr></thead><tbody>'+
+      R.types.map(function(x){return '<tr'+(x.p===P?' class="sel"':'')+'><td>'+x.p.n+'</td><td>'+x.p.tmin+'</td><td>'+f(x.p.V[c],1)+'</td><td>'+(!x.ok?'<span class="lt-bad">seinä liian ohut</span>':x.best?x.best.s:'<span class="lt-bad">ei riitä</span>')+'</td><td>'+(x.best?f(x.best.r.u*100,0)+' %':'–')+'</td></tr>';}).join('')+'</tbody>';
   }
   root.querySelectorAll('input,select').forEach(function(el){el.addEventListener('input',render);el.addEventListener('change',render);});
   render();

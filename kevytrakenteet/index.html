@@ -34,6 +34,13 @@ h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em
 .tools p{margin:.35rem 0 0;font-size:13.5px;color:var(--muted)}
 .tools span{display:block;margin-top:.5rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent)}
 .tools li.soon span{color:var(--muted)}
+
+/* työkalukuvakkeet */
+.tools a,.tools .in{display:grid;grid-template-columns:52px minmax(0,1fr);gap:0 16px;align-items:start}
+.tools .ic{width:52px;height:52px;margin-top:.15rem}
+.tools .ic svg{width:100%;height:100%;display:block;overflow:visible}
+.tools li.soon .ic{opacity:.45}
+@media (max-width:380px){.tools a,.tools .in{grid-template-columns:40px minmax(0,1fr);gap:0 12px}.tools .ic{width:40px;height:40px}}
 </style>
 </head>
 <body>
@@ -44,29 +51,33 @@ h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em
 </header>
 <ul class="tools">
   <li><a href="valiseinat/">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="14" y="4" width="3" height="40" fill="#cfc8b6"/><rect x="17.5" y="4" width="3" height="40" fill="#cfc8b6"/><rect x="31" y="4" width="3" height="40" fill="#cfc8b6"/><rect x="27.5" y="4" width="3" height="40" fill="#cfc8b6"/><rect x="20.5" y="4" width="7" height="40" fill="#e0b33a" opacity=".85"/><path d="M20.5 18h4v12h-4" fill="none" stroke="var(--accent)" stroke-width="2"/><path d="M12.5 20a4 4 0 0 0 0 8" fill="none" stroke="#a29f98" stroke-width="1.6" stroke-linecap="round"/><path d="M12.5 17a7 7 0 0 0 0 14" fill="none" stroke="#a29f98" stroke-width="1.6" stroke-linecap="round"/><path d="M12.5 14a10 10 0 0 0 0 20" fill="none" stroke="#a29f98" stroke-width="1.6" stroke-linecap="round"/><path d="M40 20a4 4 0 0 1 0 8" fill="none" stroke="#a29f98" stroke-width="1.4" opacity=".5" stroke-linecap="round"/></svg></div><div class="tx">
     <div class="no">Työkalu 1</div>
     <h2>Väliseinävalitsin</h2>
     <p>Gyprocin ja Knaufin teräsrankaiset väliseinätyypit. Valitse ääniluokka D<sub>nT,w</sub>, paloluokka, seinäkorkeus ja paksuus, niin sopivat rakenteet näkyvät leikkauskuvineen.</p>
     <span>Avaa valitsin →</span>
-  </a></li>
+  </div></a></li>
   <li><a href="tuenta/">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="10" width="11.5" height="7" fill="#cfc8b6"/><rect x="18.5" y="10" width="11.5" height="7" fill="#cfc8b6"/><rect x="31" y="10" width="11" height="7" fill="#cfc8b6"/><rect x="6" y="18" width="5" height="7" fill="#cfc8b6"/><rect x="12" y="18" width="11.5" height="7" fill="#cfc8b6"/><rect x="24.5" y="18" width="11.5" height="7" fill="#cfc8b6"/><rect x="37" y="18" width="5" height="7" fill="#cfc8b6"/><rect x="6" y="26" width="11.5" height="7" fill="#cfc8b6"/><rect x="18.5" y="26" width="11.5" height="7" fill="#cfc8b6"/><rect x="31" y="26" width="11" height="7" fill="#cfc8b6"/><rect x="6" y="34" width="5" height="7" fill="#cfc8b6"/><rect x="12" y="34" width="11.5" height="7" fill="#cfc8b6"/><rect x="24.5" y="34" width="11.5" height="7" fill="#cfc8b6"/><rect x="37" y="34" width="5" height="7" fill="#cfc8b6"/><rect x="3" y="42" width="42" height="3" fill="#a29f98"/><path d="M3 3h42" stroke="#a29f98" stroke-width="3"/><path d="M10 4v6M38 4v6M5 9v-5M43 9V4" stroke="var(--accent)" stroke-width="2.6" stroke-linecap="square"/><path d="M1 18v14M47 18v14" stroke="var(--accent)" stroke-width="2.6"/></svg></div><div class="tx">
     <div class="no">Työkalu 2</div>
     <h2>Muuratun seinän tuentatarve</h2>
     <p>Tuo IFC-malli ja valitse muuratut ei-kantavat Kahi-väliseinät tunnuksella. Ohjelma hakee mallista seinien mitat ja tuennat ja tarkastaa ne Weberin kapasiteettikäyrillä. 3D-mallissa OK-seinät näkyvät vihreinä ja tuentaa tarvitsevat punaisina.</p>
     <span>Avaa työkalu →</span>
-  </a></li>
+  </div></a></li>
   <li><a href="uarvo/">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="4" width="10" height="40" fill="#8f8f8f"/><circle cx="8" cy="12" r="1" fill="#6f6f6f"/><circle cx="10" cy="28" r="1" fill="#6f6f6f"/><circle cx="7" cy="38" r="1" fill="#6f6f6f"/><rect x="14" y="4" width="20" height="40" fill="#e0b33a" opacity=".85"/><path d="M14 9c5 0 5 5 10 5s5-5 10-5M14 19c5 0 5 5 10 5s5-5 10-5M14 29c5 0 5 5 10 5s5-5 10-5" fill="none" stroke="#b88a1e" stroke-width="1.2"/><rect x="34" y="4" width="4" height="40" fill="#cfc8b6"/><line x1="1" y1="40" x2="12" y2="40" stroke="var(--accent)" stroke-width="3"/><polygon points="15,40 10.24,36.6 10.24,43.4" fill="var(--accent)"/><line x1="38" y1="40" x2="43" y2="40" stroke="var(--accent)" stroke-width="1.2" opacity=".6"/><polygon points="46,40 43.48,38.2 43.48,41.8" fill="var(--accent)"/></svg></div><div class="tx">
     <div class="no">Työkalu 3</div>
     <h2>Eristemäärän laskuri</h2>
     <p>Vaadittu lämmöneristepaksuus rakennusosittain ja eristeittäin, jotta YM 1010/2017 vertailuarvot täyttyvät (normitalo, matalaenergia, passiivitalo).</p>
     <span>Avaa laskuri →</span>
-  </a></li>
+  </div></a></li>
   <li class="soon"><div class="in">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M2 4h44" stroke="#a29f98" stroke-width="3"/><line x1="10" y1="5" x2="10" y2="26" stroke="var(--ink)" stroke-width="1.4"/><line x1="24" y1="5" x2="24" y2="26" stroke="var(--ink)" stroke-width="1.4"/><line x1="38" y1="5" x2="38" y2="26" stroke="var(--ink)" stroke-width="1.4"/><rect x="4" y="26" width="40" height="2.5" fill="var(--accent)"/><rect x="4" y="29" width="12.6" height="5" fill="#cfc8b6"/><rect x="17.7" y="29" width="12.6" height="5" fill="#cfc8b6"/><rect x="31.4" y="29" width="12.6" height="5" fill="#cfc8b6"/></svg></div><div class="tx">
     <div class="no">Työkalu 4</div>
     <h2>Alakatot</h2>
     <p>Levy- ja akustiikka-alakattojen rakennetyypit ja ripustusjaot.</p>
     <span>Tulossa</span>
-  </div></li>
+  </div></div></li>
 </ul>
 </div>
 </body>

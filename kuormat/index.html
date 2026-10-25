@@ -34,6 +34,13 @@ h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em
 .tools p{margin:.35rem 0 0;font-size:13.5px;color:var(--muted)}
 .tools span{display:block;margin-top:.5rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent)}
 .tools li.soon span{color:var(--muted)}
+
+/* työkalukuvakkeet */
+.tools a,.tools .in{display:grid;grid-template-columns:52px minmax(0,1fr);gap:0 16px;align-items:start}
+.tools .ic{width:52px;height:52px;margin-top:.15rem}
+.tools .ic svg{width:100%;height:100%;display:block;overflow:visible}
+.tools li.soon .ic{opacity:.45}
+@media (max-width:380px){.tools a,.tools .in{grid-template-columns:40px minmax(0,1fr);gap:0 12px}.tools .ic{width:40px;height:40px}}
 </style>
 </head>
 <body>
@@ -44,41 +51,47 @@ h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em
 </header>
 <ul class="tools">
   <li><a href="yhdistelmat/">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="40" width="40" height="4" fill="var(--ink)"/><rect x="6" y="31" width="36" height="8" rx="1" fill="#a29f98"/><rect x="10" y="21" width="28" height="9" rx="1" fill="var(--accent)"/><rect x="14" y="12" width="20" height="8" rx="1" fill="#92b8dd"/><path d="M24 2v7M20.5 5.5h7" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round"/></svg></div><div class="tx">
     <div class="no">Työkalu 1</div>
     <h2>Kuormayhdistelmät</h2>
     <p>Murtorajatilan (STR/GEO, EQU), onnettomuustilanteen ja käyttörajatilojen yhdistelmät K<sub>FI</sub>- ja ψ-kertoimin. Määräävät yhdistelmät korostetaan, ja taulukon voi ladata CSV:nä.</p>
     <span>Avaa generaattori →</span>
-  </a></li>
+  </div></a></li>
   <li><a href="lumi/">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M5 26L24 10l19 16" fill="none" stroke="#c4d8ec" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><path d="M8 30L24 17l16 13" fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linejoin="round"/><path d="M11 28v16h26V28" fill="none" stroke="#a29f98" stroke-width="2.2"/><g stroke="#c4d8ec" stroke-width="1.6" stroke-linecap="round"><path d="M40 2v9M36.1 4.2l7.8 4.6M36.1 8.8l7.8-4.6"/></g></svg></div><div class="tx">
     <div class="no">Työkalu 2</div>
     <h2>Lumikuorma</h2>
     <p>Paikkakunnan s<sub>k</sub> kartalta, pulpetti-, harja- ja sahakattojen lumikuormat sekä C<sub>e</sub> ja laajojen kattojen korotus (SFS-EN 1991-1-3, YM 6/16).</p>
     <span>Avaa laskuri →</span>
-  </a></li>
+  </div></a></li>
   <li><a href="kinoslumi/">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="30" y="6" width="14" height="38" fill="#a29f98"/><rect x="4" y="30" width="26" height="14" fill="#77756f"/><polygon points="4,30 30,30 30,16" fill="#c4d8ec"/><line x1="4" y1="30" x2="30" y2="30" stroke="var(--ink)" stroke-width="2"/><g stroke="#c4d8ec" stroke-width="1.5" stroke-linecap="round"><path d="M12 6v8M8.5 8l7 4M8.5 12l7-4"/></g></svg></div><div class="tx">
     <div class="no">Työkalu 3</div>
     <h2>Kinoslumikuorma</h2>
     <p>Kinostuma korkeampaa rakennusosaa ja estettä tai kaidetta vasten, lumiesteen kuorma ja räystäältä riippuva lumi. Paikkakuntakohtainen s<sub>k</sub> kartalta (SFS-EN 1991-1-3, YM 6/16).</p>
     <span>Avaa laskuri →</span>
-  </a></li>
+  </div></a></li>
   <li><a href="tuuli/">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="26" y="14" width="18" height="30" fill="#a29f98"/><rect x="23" y="14" width="3" height="30" fill="var(--accent)"/><path d="M3 20c4-3 8 3 12 0" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="20" x2="18" y2="20" stroke="var(--ink)" stroke-width="2"/><polygon points="21.5,20 17.86,17.4 17.86,22.6" fill="var(--ink)"/><path d="M3 29c4-3 8 3 12 0" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="29" x2="18" y2="29" stroke="var(--ink)" stroke-width="2"/><polygon points="21.5,29 17.86,26.4 17.86,31.6" fill="var(--ink)"/><path d="M3 38c4-3 8 3 12 0" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="38" x2="18" y2="38" stroke="var(--ink)" stroke-width="2"/><polygon points="21.5,38 17.86,35.4 17.86,40.6" fill="var(--ink)"/><path d="M30 8c4-3 8 3 12 0" fill="none" stroke="#a29f98" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="tx">
     <div class="no">Työkalu 4</div>
     <h2>Tuulikuorma – painekertoimet</h2>
     <p>Puuskanopeuspaine q<sub>p</sub>(z), seinien ja tasakaton vyöhykkeet, nettopaineet tarkempaan tuulikuormien määritykseen (SFS-EN 1991-1-4, YM 7/16).</p>
     <span>Avaa laskuri →</span>
-  </a></li>
+  </div></a></li>
   <li><a href="alaslaskenta/">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="4" width="40" height="40" fill="none" stroke="#a29f98" stroke-width="1.6"/><rect x="14" y="14" width="20" height="20" fill="var(--accent)" opacity=".35"/><rect x="14" y="14" width="20" height="20" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="3 2"/><rect x="3.5" y="3.5" width="5" height="5" fill="var(--ink)"/><rect x="3.5" y="21.5" width="5" height="5" fill="var(--ink)"/><rect x="3.5" y="39.5" width="5" height="5" fill="var(--ink)"/><rect x="21.5" y="3.5" width="5" height="5" fill="var(--ink)"/><rect x="21.5" y="21.5" width="5" height="5" fill="var(--ink)"/><rect x="21.5" y="39.5" width="5" height="5" fill="var(--ink)"/><rect x="39.5" y="3.5" width="5" height="5" fill="var(--ink)"/><rect x="39.5" y="21.5" width="5" height="5" fill="var(--ink)"/><rect x="39.5" y="39.5" width="5" height="5" fill="var(--ink)"/></svg></div><div class="tx">
     <div class="no">Työkalu 5</div>
     <h2>Kuormien alaslaskenta</h2>
     <p>Arkkitehti- tai rakennepohja PDF:nä tai kuvana: pilarien ja seinien kuormitusalat, yksi mitoituskuorma kerrosmäärän mukaan sekä pilarien suurimmat puristukset ja alustava dimensio.</p>
     <span>Avaa työkalu →</span>
-  </a></li>
+  </div></a></li>
   <li><a href="tuulivoima/">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="22" y="6" width="22" height="38" fill="#a29f98"/><line x1="22" y1="15.5" x2="44" y2="15.5" stroke="#77756f" stroke-width="1.4"/><line x1="22" y1="25" x2="44" y2="25" stroke="#77756f" stroke-width="1.4"/><line x1="22" y1="34.5" x2="44" y2="34.5" stroke="#77756f" stroke-width="1.4"/><line x1="11" y1="10.5" x2="17" y2="10.5" stroke="var(--ink)" stroke-width="1.6"/><polygon points="20.5,10.5 17.42,8.3 17.42,12.7" fill="var(--ink)"/><line x1="11" y1="20" x2="17" y2="20" stroke="var(--ink)" stroke-width="1.6"/><polygon points="20.5,20 17.42,17.8 17.42,22.2" fill="var(--ink)"/><line x1="11" y1="29.5" x2="17" y2="29.5" stroke="var(--ink)" stroke-width="1.6"/><polygon points="20.5,29.5 17.42,27.3 17.42,31.7" fill="var(--ink)"/><line x1="11" y1="39" x2="17" y2="39" stroke="var(--ink)" stroke-width="1.6"/><polygon points="20.5,39 17.42,36.8 17.42,41.2" fill="var(--ink)"/><line x1="2" y1="25" x2="10" y2="25" stroke="var(--accent)" stroke-width="3.2"/><polygon points="14,25 8.4,21 8.4,29" fill="var(--accent)"/></svg></div><div class="tx">
     <div class="no">Työkalu 6</div>
     <h2>Tuulikuorma – voimakerroinmenetelmä</h2>
     <p>Kokonaistuulikuorma voimakertoimilla (c<sub>f,0</sub>, ψ<sub>λ</sub>, kitka), resultantit sivuittain, kerroskuormat ja vienti jäykistyslaskentaan (SFS-EN 1991-1-4, YM 7/16).</p>
     <span>Avaa laskuri →</span>
-  </a></li>
+  </div></a></li>
 </ul>
 </div>
 </body>

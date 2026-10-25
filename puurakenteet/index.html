@@ -35,6 +35,13 @@ h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em
 .tools span{display:block;margin-top:.5rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent)}
 .tools li.soon span{color:var(--muted)}
 .wip{display:inline-block;margin-left:8px;padding:2px 7px;border-radius:3px;background:#3b3010;color:#e2c47f;font-size:11px;font-weight:700;letter-spacing:.08em;vertical-align:middle;font-style:normal}
+
+/* työkalukuvakkeet */
+.tools a,.tools .in{display:grid;grid-template-columns:52px minmax(0,1fr);gap:0 16px;align-items:start}
+.tools .ic{width:52px;height:52px;margin-top:.15rem}
+.tools .ic svg{width:100%;height:100%;display:block;overflow:visible}
+.tools li.soon .ic{opacity:.45}
+@media (max-width:380px){.tools a,.tools .in{grid-template-columns:40px minmax(0,1fr);gap:0 12px}.tools .ic{width:40px;height:40px}}
 </style>
 </head>
 <body>
@@ -45,17 +52,19 @@ h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em
 </header>
 <ul class="tools">
   <li><a href="perusteet/">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="4" width="26" height="40" rx="1" fill="#9a6a3a"/><line x1="4" y1="12" x2="30" y2="12" stroke="#6b4423" stroke-width="1.2"/><line x1="4" y1="20" x2="30" y2="20" stroke="#6b4423" stroke-width="1.2"/><line x1="4" y1="28" x2="30" y2="28" stroke="#6b4423" stroke-width="1.2"/><line x1="4" y1="36" x2="30" y2="36" stroke="#6b4423" stroke-width="1.2"/><path d="M8 8q9-3 18 0" fill="none" stroke="#c99a62" stroke-width="1"/><path d="M8 16q9-3 18 0" fill="none" stroke="#c99a62" stroke-width="1"/><path d="M8 24q9-3 18 0" fill="none" stroke="#c99a62" stroke-width="1"/><path d="M8 32q9-3 18 0" fill="none" stroke="#c99a62" stroke-width="1"/><path d="M8 40q9-3 18 0" fill="none" stroke="#c99a62" stroke-width="1"/><circle cx="35" cy="33" r="10" fill="#1b1c1f" stroke="var(--accent)" stroke-width="2.4"/><path d="M35 27v6.5l4 2.5" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="tx">
     <div class="no">Työkalu 1</div>
     <h2>Suunnitteluperusteet</h2>
     <p>Valitse käyttöluokka, kuorman aikaluokka, seuraamusluokka ja mitoitustilanne. Työkalu antaa k<sub>mod</sub>-, γ<sub>M</sub>- ja k<sub>def</sub>-arvot sekä sahatavaran, liimapuun, LVL:n ja puulevyjen mitoituslujuudet. Valinnat siirtyvät muihin puutyökaluihin.</p>
     <span>Avaa työkalu →</span>
-  </a></li>
+  </div></a></li>
   <li><a href="liitokset/">
+    <div class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="10" width="42" height="12" fill="#9a6a3a"/><rect x="3" y="24" width="42" height="12" fill="#c99a62"/><path d="M3 16q20-3 42 0M3 30q20 3 42 0" fill="none" stroke="#6b4423" stroke-width=".9" opacity=".7"/><rect x="9.5" y="6.5" width="7" height="3" rx="1" fill="#b9c0c6"/><line x1="13" y1="9.5" x2="13" y2="40" stroke="#b9c0c6" stroke-width="1.8"/><polygon points="12,40 14,40 13,43" fill="#b9c0c6"/><rect x="20.5" y="6.5" width="7" height="3" rx="1" fill="#b9c0c6"/><line x1="24" y1="9.5" x2="24" y2="40" stroke="#b9c0c6" stroke-width="1.8"/><polygon points="23,40 25,40 24,43" fill="#b9c0c6"/><rect x="31.5" y="6.5" width="7" height="3" rx="1" fill="#b9c0c6"/><line x1="35" y1="9.5" x2="35" y2="40" stroke="#b9c0c6" stroke-width="1.8"/><polygon points="34,40 36,40 35,43" fill="#b9c0c6"/></svg></div><div class="tx">
     <div class="no">Työkalu 2</div>
     <h2>Naula- ja ruuviliitokset</h2>
     <p>Puu–puu-, puulevy–puu- ja teräslevy–puu-liitokset yksi- tai kaksileikkeisinä. Työkalu laskee leikkauksen, ulosvedon ja niiden yhteisvaikutuksen, tarvittavan liitinmäärän ja pienimmät liitinvälit.</p>
     <span>Avaa laskuri →</span>
-  </a></li>
+  </div></a></li>
 </ul>
 <p class="meta" style="margin-top:18px">Lähde: Puuinfo, Puurakenteiden lyhennetty suunnitteluohje, Eurokoodi 5, 5. painos (2020).</p>
 </div>

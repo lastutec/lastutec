@@ -114,6 +114,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 .lt-tool .rr-inp tbody tr:hover{background:var(--lt-bg)}
 </style>
 <script src="../teras.js"></script>
+<script src="../palo.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -216,6 +217,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 <script>
 (function(){
   var root=document.getElementById('lt-rr'),L=window.LT;
+  (function(){var h=document.createElement('div');h.innerHTML=LTPALO.card({amv:200,R:30});var t=document.getElementById('r-sum');t.parentNode.insertBefore(h.firstChild,t);})();
   function $(s){return root.querySelector(s);}
   function f(x,d){if(d===undefined)d=1;if(isFinite(x)&&Math.abs(x)<0.5*Math.pow(10,-d))x=0;return isFinite(x)?x.toLocaleString('fi-FI',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';}
   function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
@@ -329,6 +331,14 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     R.sp=sp;R.tmin=tmin;R.pmax=pmax;R.exp=exp;
     sp.forEach(function(s){if(!s[4])R.warn.push(s[0].replace(/<[^>]+>/g,'')+' = '+f(s[1],0)+' mm ei täytä taulukon 3.3 rajaa '+f(s[2],0)+(s[3]!==undefined?'…'+f(s[3],0):'')+' mm.');});
     if(!P.some(function(p){return isFinite(p.xl)||isFinite(p.xr)||isFinite(p.yb)||isFinite(p.yt);})) R.warn.push('Kaikki reunat ovat jatkuvia: palalommahdusta ja poikkileikkauksia ei tarkisteta.');
+    // palotilanne (SFS-EN 1993-1-2 liite D): liukumattomat liitokset liukuneina, leikkaus kierteen pinta-alalla
+    var fi=LTPALO.read(root,g2);R.fi=fi;
+    if(fi.on){var FvFi1=bc.av*bc.fub*As/g2/1000,FvFi=FvFi1*ns*bLf*bp*fi.fb;R.FvFi=FvFi;
+      B.forEach(function(b){b.usF=fi.eta*b.F/FvFi;b.ubF=b.ub.map(function(q){return fi.eta*q.u/fi.fb;});});
+      var fS=mx(function(b){return b.usF;}),fB1=mx(function(b){return b.ubF[0];}),fB2=mx(function(b){return b.ubF[1];});R.fS=fS;R.fB=[fB1,fB2];
+      R.chk.push(['Palo: ruuvin leikkaus (D.1)','F<sub>v,fi,Ed</sub> = '+f(fi.eta*fS.b.F,1)+' kN ≤ F<sub>v,fi,Rd</sub> = '+f(FvFi,1)+' kN',fS.v]);
+      R.chk.push(['Palo: reunapuristus, levy 1 (D.2)','η<sub>fi</sub>·u<sub>b</sub>/(k<sub>b,θ</sub>γ<sub>M2</sub>/γ<sub>M,fi</sub>)',fB1.v]);
+      R.chk.push(['Palo: reunapuristus, levy 2 (D.2)','η<sub>fi</sub>·u<sub>b</sub>/(k<sub>b,θ</sub>γ<sub>M2</sub>/γ<sub>M,fi</sub>)',fB2.v]);}
     R.max=R.chk.reduce(function(a,c){return c[2]>a[2]?c:a;},['',0,0]);
     return R;
   }
@@ -411,8 +421,8 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       '<div class="lt-kpi"><span>F<sub>v,Rd</sub> / ruuvi</span><b>'+f(R.FvRd,1)+' kN</b></div>';
     $('#r-warn').innerHTML=R.warn.map(function(w){return '<li>'+w+'</li>';}).join('');
     $('#r-fig').innerHTML=fig(R);
-    $('#r-tbl').innerHTML='<thead><tr><th>Ruuvi<small>(x; y) mm</small></th><th>F<sub>x</sub><small>kN</small></th><th>F<sub>y</sub><small>kN</small></th><th>F<small>kN</small></th><th>Leikkaus</th><th>Reunap. levy 1</th><th>Reunap. levy 2</th>'+(R.cat!=='A'?'<th>Liukuminen</th>':'')+'</tr></thead><tbody>'+
-      R.B.map(function(b){var cl=function(u){return '<td class="'+(u>1?'lt-bad':'lt-ok')+'">'+f(u*100,0)+' %</td>';};return '<tr'+(b===R.gS.b?' class="sel"':'')+'><td>('+f(b.x,0)+'; '+f(b.y,0)+')</td><td>'+f(b.fx,1)+'</td><td>'+f(b.fy,1)+'</td><td>'+f(b.F,1)+'</td>'+cl(b.us)+cl(b.ub[0].u)+cl(b.ub[1].u)+(R.cat!=='A'?cl(b.uslip):'')+'</tr>';}).join('')+'</tbody>';
+    $('#r-tbl').innerHTML='<thead><tr><th>Ruuvi<small>(x; y) mm</small></th><th>F<sub>x</sub><small>kN</small></th><th>F<sub>y</sub><small>kN</small></th><th>F<small>kN</small></th><th>Leikkaus</th><th>Reunap. levy 1</th><th>Reunap. levy 2</th>'+(R.cat!=='A'?'<th>Liukuminen</th>':'')+(R.fi.on?'<th>Palo leikkaus</th><th>Palo reunap. 1</th><th>Palo reunap. 2</th>':'')+'</tr></thead><tbody>'+
+      R.B.map(function(b){var cl=function(u){return '<td class="'+(u>1?'lt-bad':'lt-ok')+'">'+f(u*100,0)+' %</td>';};return '<tr'+(b===R.gS.b?' class="sel"':'')+'><td>('+f(b.x,0)+'; '+f(b.y,0)+')</td><td>'+f(b.fx,1)+'</td><td>'+f(b.fy,1)+'</td><td>'+f(b.F,1)+'</td>'+cl(b.us)+cl(b.ub[0].u)+cl(b.ub[1].u)+(R.cat!=='A'?cl(b.uslip):'')+(R.fi.on?cl(b.usF)+cl(b.ubF[0])+cl(b.ubF[1]):'')+'</tr>';}).join('')+'</tbody>';
     $('#r-chk').innerHTML='<thead><tr><th>Tarkistus</th><th>Arvot</th><th>Käyttöaste</th></tr></thead><tbody>'+R.chk.map(function(c){return '<tr'+(c===g?' class="sel"':'')+'><td>'+c[0]+'</td><td>'+c[1]+'</td><td class="'+(c[2]>1?'lt-bad':'lt-ok')+'">'+f(c[2]*100,0)+' %</td></tr>';}).join('')+
       R.sp.map(function(x){return '<tr><td>Taul. 3.3: '+x[0]+'</td><td>'+f(x[1],0)+' mm, raja '+f(x[2],0)+(x[3]!==undefined?'…'+f(x[3],0):'')+' mm</td><td class="'+(x[4]?'lt-ok':'lt-bad')+'">'+(x[4]?'✓ OK':'✗ EI OK')+'</td></tr>';}).join('')+'</tbody>';
     // välivaiheet
@@ -450,6 +460,13 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     s+=step('Reuna- ja keskiöetäisyydet (taul. 3.3)',[
       'e<sub>1</sub>, e<sub>2</sub> ≥ 1,2·d<sub>0</sub> = '+f(1.2*R.d0,1)+' mm; p<sub>1</sub> ≥ 2,2·d<sub>0</sub> = '+f(2.2*R.d0,1)+' mm (kuorman suuntaan, pääsuunta '+R.main+'); p<sub>2</sub> ≥ 2,4·d<sub>0</sub> = '+f(2.4*R.d0,1)+' mm',
       'Enimmäisjako p ≤ min(14t; 200) = '+f(R.pmax,0)+' mm (t = '+f(R.tmin,0)+' mm)'+(R.exp?'; reunat ≤ 4t + 40 mm':'; reunojen enimmäisarvoa ei tarkisteta (ei säärasitusta)')]);
+    if(R.fi.on){var fi=R.fi;s+=step('Palotilanne, suojaamaton liitos (SFS-EN 1993-1-2, liite D)',fi.lines.concat([
+      'Liukumattomat liitokset oletetaan palossa liukuneiksi (D.1(2)), joten ruuvit tarkistetaan leikkaukselle ja reunapuristukselle. Leikkaus lasketaan kierteen pinta-alalla A<sub>s</sub>.',
+      'F<sub>v,fi,Rd</sub> = α<sub>v</sub>·f<sub>ub</sub>·A<sub>s</sub>/γ<sub>M2</sub>·n·β<sub>Lf</sub>·β<sub>p</sub>·k<sub>b,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub> = <span class="lt-r">'+f(R.FvFi,1)+' kN</span>',
+      'Ruuvivoimat palossa F<sub>fi,Ed</sub> = η<sub>fi</sub>·F<sub>Ed</sub> = '+f(fi.eta,2)+'·'+f(R.fS.b.F,1)+' = '+f(fi.eta*R.fS.b.F,1)+' kN (suurin) → leikkaus '+f(R.fS.v*100,0)+' %',
+      'Reunapuristus: F<sub>b,fi,Rd</sub> = F<sub>b,Rd</sub>·k<sub>b,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub> → levy 1 '+f(R.fB[0].v*100,0)+' %, levy 2 '+f(R.fB[1].v*100,0)+' %',
+      'Levyjen palalommahdusta ja poikkileikkauksia ei tarkisteta palotilanteessa.']));
+      $('#fi-out').innerHTML=fi.lines.join('<br>');} else $('#fi-out').innerHTML='';
     $('#r-steps').innerHTML=s;
   }
   root.querySelectorAll('input,select').forEach(function(el){el.addEventListener('input',render);el.addEventListener('change',render);});

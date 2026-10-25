@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
 <script src="../../lt-pdf.js"></script>
+<script src="../palo.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hitsitaulukko – Lastutec</title>
 <meta name="description" content="Pienahitsien pitkittäinen ja poikittainen kestävyys SFS-EN 1993-1-8:n ja Suomen kansallisen liitteen mukaan, valmiit taulukot a3–a15 ja laskenta välivaiheineen.">
@@ -201,6 +202,8 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
           <th>Pitkittäinen<small>F<sub>w,L,Rd</sub></small></th>
           <th>Poikittainen<small>F<sub>w,T,Rd</sub></small></th>
           <th>s = a·√2<small>kylkimitta, mm</small></th>
+          <th class="fi-col">Palo F<sub>w,L,fi,Rd</sub><small></small></th>
+          <th class="fi-col">Palo F<sub>w,T,fi,Rd</sub><small></small></th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -285,6 +288,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 <script>
 (function(){
   var root=document.getElementById('lt-hitsit');
+  (function(){var h=document.createElement('div');h.innerHTML=LTPALO.card({amv:200,R:30});var t=document.getElementById('w-table').closest('.lt-scroll').previousElementSibling;t.parentNode.insertBefore(h.firstChild,t);})();
   function $(s){return root.querySelector(s);}
   // tab: SFS-EN 1993-1-1 taul. 3.1 [t ≤ 40, 40 < t ≤ 80]
   // prod: tuotestandardin R_m,min paksuusalueittain [t_max, f_u]
@@ -362,11 +366,13 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     var sm=root.querySelectorAll('#w-table thead th small');
     sm[1].innerHTML='F<sub>w,L,Rd</sub>, '+unit;
     sm[2].innerHTML='F<sub>w,T,Rd</sub>, '+unit;
+    var fi=LTPALO.read(root,g());sm[4].innerHTML=unit;sm[5].innerHTML=unit;
+    root.querySelectorAll('#w-table .fi-col').forEach(function(e){e.style.display=fi.on?'':'none';});
     tb.innerHTML='';
     A_LIST.forEach(function(a){
       var tr=document.createElement('tr');
       if(a===aSel)tr.className='sel';
-      tr.innerHTML='<td>a'+a+'</td><td>'+f(S.s3*a*u/1000,d)+'</td><td>'+f(S.s2*a*u/1000,d)+'</td><td>'+f(a*Math.SQRT2,1)+'</td>';
+      tr.innerHTML='<td>a'+a+'</td><td>'+f(S.s3*a*u/1000,d)+'</td><td>'+f(S.s2*a*u/1000,d)+'</td><td>'+f(a*Math.SQRT2,1)+'</td><td class="fi-col">'+f(S.s3*a*u/1000*fi.fw,d)+'</td><td class="fi-col">'+f(S.s2*a*u/1000*fi.fw,d)+'</td>';
       tr.addEventListener('click',function(){$('#c-a').value=a;update();$('#w-calc-h').scrollIntoView({behavior:'smooth',block:'start'});});
       tb.appendChild(tr);
     });
@@ -423,6 +429,13 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       'Hitsiluokka '+cls()+' ≥ C'+c_('(KL 2.2(2))')+chk(clsOk()),
       'Tarvittava a-mitta samalla pituudella: a<sub>req</sub> ≈ F<sub>Ed</sub> / (f<sub>w,d</sub> · L<sub>eff</sub> · n'+(bLw<1?' · β<sub>Lw</sub>':'')+') = '+f(Leff>0?F*1000/(fwd*Leff*n*bLw):Infinity,2)+' mm'+c_('(likiarvo, L_eff ja β_Lw nykyisellä a:lla)')
     ]);
+    var fi=LTPALO.read(root,g()),fiK='';
+    if(fi.on){var FRdF=FRd*fi.fw,Ff=fi.eta*F,uf=FRdF>0?Ff/FRdF:Infinity;
+      s+=step('Palotilanne, suojaamaton hitsi (SFS-EN 1993-1-2, liite D)',fi.lines.concat([
+        'F<sub>w,fi,Rd</sub> = F<sub>w,Rd</sub>·k<sub>w,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub> = '+f(FRd,1)+'·'+f(fi.kw,3)+'·'+f(fi.gM2,2)+'/'+f(fi.gfi,2)+' = <span class="lt-r">'+f(FRdF,1)+' kN</span> (D.4)',
+        'F<sub>fi,Ed</sub> = η<sub>fi</sub>·F<sub>Ed</sub> = '+f(fi.eta,2)+'·'+f(F,1)+' = '+f(Ff,1)+' kN → '+f(uf*100,0)+' %'+chk(uf<=1)]));
+      fiK='<div class="lt-kpi"><span>Palo R'+(fi.own?'':fi.tmin)+' ('+f(fi.theta,0)+' °C): F<sub>fi,Rd</sub></span><b>'+f(FRdF,1)+' kN</b>'+(F>0?'<div class="lt-bar"><i class="'+(uf>1?'over':'')+'" style="width:'+Math.min(uf*100,100)+'%"></i></div><span>Käyttöaste '+f(uf*100,0)+' %</span>':'')+'</div>';}
+    $('#fi-out').innerHTML=fi.on?fi.lines.join('<br>'):'';
     $('#c-steps').innerHTML=s;
 
     var kp='<div class="lt-kpi"><span>f<sub>w,d</sub></span><b>'+f(fwd,1)+' N/mm²</b></div>'+
@@ -430,7 +443,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       '<div class="lt-kpi"><span>Liitoksen F<sub>Rd</sub></span><b>'+f(FRd,1)+' kN</b>';
     if(!clsOk())kp='<div class="lt-kpi"><span>Kansallinen liite</span><b class="lt-bad">Hitsiluokka &lt; C</b></div>'+kp;
     if(F>0)kp+='<div class="lt-bar"><i class="'+(u>1?'over':'')+'" style="width:'+Math.min(u*100,100)+'%"></i></div><span>Käyttöaste '+f(u*100,0)+' %</span>';
-    $('#c-sum').innerHTML=kp+'</div>';
+    $('#c-sum').innerHTML=kp+'</div>'+fiK;
   }
 
   // Vertailu Pocket Bookin taulukkoon (s. 224): S275, fu = 410, βw = 0,85, γM2 = 1,25

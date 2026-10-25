@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
 <script src="../../lt-pdf.js"></script>
+<script src="../palo.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pulttitaulukko – Lastutec</title>
 <meta name="description" content="Ruuvien leikkaus-, veto-, lävistys- ja reunapuristuskestävyydet SFS-EN 1993-1-8 mukaan, valmiit taulukot M12–M36 ja laskenta välivaiheineen.">
@@ -148,6 +149,9 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
           <th>F<sub>v,Rd</sub> varsi<small>kN / leikkaustaso</small></th>
           <th>F<sub>t,Rd</sub><small>kN</small></th>
           <th>F<sub>b,Rd,max</sub><small>kN / 10 mm levy</small></th>
+          <th class="fi-col">Palo F<sub>v,fi,Rd</sub> kierre<small>kN / leikkaustaso</small></th>
+          <th class="fi-col">Palo F<sub>t,fi,Rd</sub><small>kN</small></th>
+          <th class="fi-col">Palo F<sub>b,fi,Rd,max</sub><small>kN / 10 mm levy</small></th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -203,6 +207,9 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 <script>
 (function(){
   var root=document.getElementById('lt-pultit');
+  // palotilanne (SFS-EN 1993-1-2 liite D)
+  (function(){var h=document.createElement('div');h.innerHTML=LTPALO.card({amv:200,R:30});var t=root.querySelector('h2');t.parentNode.insertBefore(h.firstChild,t);})();
+  function FI(){return LTPALO.read(root,g());}
   function $(s){return root.querySelector(s);}
 
   // d0 = reikä, As = jännityspinta-ala, s = avainväli, e = kulmamitta (ISO 4017, luokka B)
@@ -255,7 +262,8 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
   Object.keys(CLS).forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;if(c==='8.8')o.selected=true;$('#c-class').appendChild(o);});
 
   function renderTable(){
-    var c=CLS[tableClass],gm=g(),FU=fu(),tb=$('#p-table tbody');
+    var c=CLS[tableClass],gm=g(),FU=fu(),tb=$('#p-table tbody'),fi=FI();
+    root.querySelectorAll('#p-table .fi-col').forEach(function(e){e.style.display=fi.on?'':'none';});
     $('#p-fu-info').innerHTML='Levyn murtolujuus f<sub>u</sub> = '+FU+' N/mm² · Taulukko: lujuusluokka '+tableClass+' (f<sub>ub</sub> = '+c.fub+' N/mm², α<sub>v</sub> kierre = '+String(c.av).replace('.',',')+')';
     var sel=$('#c-size').value, selCls=$('#c-class').value;
     tb.innerHTML='';
@@ -268,7 +276,8 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       var fb=2.5*ab*FU*b.d*10/gm/1000;
       var tr=document.createElement('tr');
       if(String(i)===sel && selCls===tableClass)tr.className='sel';
-      tr.innerHTML='<td>'+b.n+'</td><td>'+b.d0+'</td><td>'+f(A,0)+'</td><td>'+f(b.As,b.As%1?1:0)+'</td><td>'+f(fvT)+'</td><td>'+f(fvS)+'</td><td>'+f(ft)+'</td><td>'+f(fb)+'</td>';
+      tr.innerHTML='<td>'+b.n+'</td><td>'+b.d0+'</td><td>'+f(A,0)+'</td><td>'+f(b.As,b.As%1?1:0)+'</td><td>'+f(fvT)+'</td><td>'+f(fvS)+'</td><td>'+f(ft)+'</td><td>'+f(fb)+'</td>'+
+        '<td class="fi-col">'+f(fvT*fi.fb)+'</td><td class="fi-col">'+f(ft*fi.fb)+'</td><td class="fi-col">'+f(fb*fi.fb)+'</td>';
       tr.addEventListener('click',function(){
         $('#c-size').value=i;$('#c-class').value=tableClass;calc();renderTable();
         $('#p-calc-h').scrollIntoView({behavior:'smooth',block:'start'});
@@ -365,11 +374,26 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
       'Yhdistetty: F<sub>v,Ed</sub>/F<sub>v,Rd</sub> + F<sub>t,Ed</sub>/(1,4 · F<sub>t,Rd</sub>) = '+f(FvEd,1)+'/'+f(FvRd,1)+' + '+f(FtEd,1)+'/(1,4 · '+f(FtRd,1)+') = <span class="lt-r">'+f(uI,3)+'</span> ≤ 1,0'+chk(uI<=1)
     ]);
 
+    var fi=FI(),fiK='';
+    if(fi.on){
+      var FvFi=FvRd*fi.fb,FbFi=FbRd*fi.fb,FtFi=FtRd*fi.fb,BpFi=BpRd*fi.ky*gm/fi.gfi,Fv_f=fi.eta*FvEd,Ft_f=fi.eta*FtEd;
+      var uVf=Math.min(FvFi,FbFi)>0?Fv_f/Math.min(FvFi,FbFi):Infinity,uTf=Math.min(FtFi,BpFi)>0?Ft_f/Math.min(FtFi,BpFi):Infinity,uIf=Fv_f/FvFi+Ft_f/(1.4*FtFi);
+      S+=step('Palotilanne, suojaamaton liitos (SFS-EN 1993-1-2, liite D)',fi.lines.concat([
+        'F<sub>v,fi,Rd</sub> = F<sub>v,Rd</sub>·k<sub>b,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub> = '+f(FvRd,1)+'·'+f(fi.kb,3)+'·'+f(gm,2)+'/'+f(fi.gfi,2)+' = <span class="lt-r">'+f(FvFi,1)+' kN</span> (D.1)',
+        'F<sub>b,fi,Rd</sub> = F<sub>b,Rd</sub>·k<sub>b,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub> = <span class="lt-r">'+f(FbFi,1)+' kN</span> (D.2)',
+        'F<sub>t,fi,Rd</sub> = F<sub>t,Rd</sub>·k<sub>b,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub> = <span class="lt-r">'+f(FtFi,1)+' kN</span> (D.3); lävistys B<sub>p,fi,Rd</sub> = B<sub>p,Rd</sub>·k<sub>y,θ</sub>·γ<sub>M2</sub>/γ<sub>M,fi</sub> = '+f(BpFi,1)+' kN',
+        'Palotilanteen voimat: F<sub>v,fi,Ed</sub> = η<sub>fi</sub>·F<sub>v,Ed</sub> = '+f(fi.eta,2)+'·'+f(FvEd,1)+' = '+f(Fv_f,1)+' kN, F<sub>t,fi,Ed</sub> = '+f(Ft_f,1)+' kN',
+        'Leikkaus: '+f(Fv_f,1)+' ≤ '+f(Math.min(FvFi,FbFi),1)+' kN → '+f(uVf*100,0)+' %'+chk(uVf<=1),
+        'Veto: '+f(Ft_f,1)+' ≤ '+f(Math.min(FtFi,BpFi),1)+' kN → '+f(uTf*100,0)+' %'+chk(uTf<=1),
+        'Yhdistetty: '+f(uIf,3)+' ≤ 1,0'+chk(uIf<=1)]));
+      fiK=kpi('Palo R'+(fi.own?'':fi.tmin)+' ('+f(fi.theta,0)+' °C): leikkaus',f(Math.min(FvFi,FbFi),1)+' kN',Fv_f>0?uVf:undefined)+kpi('Palo: veto',f(Math.min(FtFi,BpFi),1)+' kN',Ft_f>0?uTf:undefined);
+    }
+    $('#fi-out').innerHTML=fi.on?fi.lines.join('<br>'):'';
     $('#c-steps').innerHTML=S;
     $('#c-sum').innerHTML=
       kpi('Leikkaus min(F<sub>v,Rd</sub>; F<sub>b,Rd</sub>)',f(FvGov,1)+' kN',FvEd>0?uV:undefined)+
       kpi('Veto min(F<sub>t,Rd</sub>; B<sub>p,Rd</sub>)',f(FtGov,1)+' kN',FtEd>0?uT:undefined)+
-      kpi('Yhdistetty leikkaus + veto',f(uI,2),(FvEd>0||FtEd>0)?uI:undefined);
+      kpi('Yhdistetty leikkaus + veto',f(uI,2),(FvEd>0||FtEd>0)?uI:undefined)+fiK;
   }
 
   root.querySelectorAll('input,select').forEach(function(el){el.addEventListener('input',function(){calc();renderTable();});});

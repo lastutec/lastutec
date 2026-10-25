@@ -170,6 +170,19 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     <p class="lt-note" style="margin:8px 0 0">KL taulukko A1.2(A)(FI): 1,1·K<sub>FI</sub>·G<sub>kj,sup</sub> + 0,9·G<sub>kj,inf</sub> + 1,5·K<sub>FI</sub>·Q<sub>k,1</sub>. K<sub>FI</sub> kerrotaan vain epäedullisille kuormille.</p>
   </div>
 
+  <div class="lt-card" id="a-opt">
+    <h3>Pienin 3M-antura annetulla paksuudella</h3>
+    <div class="lt-grid">
+      <label><span>Anturan muoto</span><select id="o-shape"><option value="sq" selected>Neliö (B = L)</option><option value="rect">Suorakaide (L kiinteä, haetaan B)</option><option value="area">Suorakaide (pienin pinta-ala)</option></select></label>
+      <label id="o-Lw" hidden><span>Kiinteä pituus L (mm)</span><input id="o-L" type="number" step="300" min="300" value="1200"></label>
+      <label id="o-Lminw" hidden><span>Mitat vähintään (mm)</span><input id="o-min" type="number" step="300" min="300" value="600"></label>
+      <label><span>Suurin sallittu käyttöaste</span><input id="o-u" type="number" step="0.05" min="0.1" max="1" value="1.0"></label>
+    </div>
+    <div class="lt-f" id="o-out" style="margin-top:10px"></div>
+    <button type="button" class="lt-pill" id="o-use" style="margin-top:8px;background:var(--lt-accent);border-color:var(--lt-accent);color:#111">Käytä ehdotettua anturaa</button>
+    <p class="lt-note" style="margin:8px 0 0">Mitat haetaan 3M-mittajärjestelmän mukaan 300 mm:n kerrannaisina (300 … 9000 mm) anturan paksuudella h. Epäkeskisyydet pysyvät anturan keskeltä mitattuina, ja pystykuormien on oltava anturan sisällä (B/2 ≥ |e|). Jos sokkeli on anturan reunalla, tarkista sen epäkeskisyys ehdotetulle leveydelle.</p>
+  </div>
+
   <div class="lt-sum" id="a-sum"></div>
   <ul class="an-warn" id="a-warn"></ul>
 
@@ -193,8 +206,8 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
   function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
   function step(t,ls){return '<li class="lt-step"><h4>'+t+'</h4>'+ls.filter(Boolean).map(function(l){return '<div class="lt-f">'+l+'</div>';}).join('')+'</li>';}
 
-  function calc(){
-    var B=num('#a-B'),Lf=num('#a-L'),h=num('#a-h'),rc=num('#a-rc'),hs=num('#a-hs'),rs=num('#a-rs');
+  function calc(ovr){
+    var B=ovr?ovr.B:num('#a-B'),Lf=ovr?ovr.L:num('#a-L'),h=num('#a-h'),rc=num('#a-rc'),hs=num('#a-hs'),rs=num('#a-rs');
     var K=num('#a-cc')||1,gGd=num('#a-gGd'),gGs=num('#a-gGs'),gQ=num('#a-gQ');
     var cGd=gGd*K,cQ=gQ*K,cGs=gGs;
     var R={B:B,L:Lf,h:h,K:K,gGd:gGd,gGs:gGs,gQ:gQ,cGd:cGd,cQ:cQ,cGs:cGs,rows:[],warn:[]};
@@ -261,7 +274,26 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:'+W+'px;height:auto;display:block" role="img" aria-label="Antura, kuormat ja kaatumisreuna">'+s+'</svg><p class="lt-note">Periaatekuva (leikkaus kaatumissuunnassa). Epäkeskisyys on positiivinen kohti kaatumisreunaa.</p>';
   }
 
+  // pienin 3M-antura (300 mm:n kerrannaiset)
+  var best=null;
+  function optimize(){
+    var sh=$('#o-shape').value,umax=num('#o-u')||1,M=300,mn=Math.max(M,Math.ceil((num('#o-min')||M)/M)*M),Lfix=Math.max(M,Math.round((num('#o-L')||1200)/M)*M);
+    $('#o-Lw').hidden=sh!=='rect';$('#o-Lminw').hidden=sh!=='area';
+    var res=null,i,j,c,emax=Math.max(num('#a-NG')||num('#a-NQ')?Math.abs(num('#a-eN')):0,num('#a-RG')||num('#a-RQ')?Math.abs(num('#a-eR')):0)*1000,fits=function(Bmm){return Bmm/2>=emax-1e-6;};
+    if(sh==='sq'){for(i=M;i<=9000;i+=M){c=calc({B:i/1000,L:i/1000});if(fits(i)&&c.u<=umax){res={B:i,L:i,u:c.u,R:c};break;}}}
+    else if(sh==='rect'){for(i=M;i<=9000;i+=M){c=calc({B:i/1000,L:Lfix/1000});if(fits(i)&&c.u<=umax){res={B:i,L:Lfix,u:c.u,R:c};break;}}}
+    else{for(i=mn;i<=9000;i+=M)for(j=mn;j<=9000;j+=M){if(res&&i*j>res.B*res.L)break;c=calc({B:i/1000,L:j/1000});if(fits(i)&&c.u<=umax&&(!res||i*j<res.B*res.L||(i*j===res.B*res.L&&i<res.B))){res={B:i,L:j,u:c.u,R:c};}}}
+    best=res;
+    var h=num('#a-h');
+    $('#o-out').innerHTML=res?'Pienin antura: <span class="lt-r">B × L × h = '+res.B+' × '+res.L+' × '+Math.round(h*1000)+' mm</span> (B kaatumissuunnassa), käyttöaste '+f(res.u*100,0)+' %, M<sub>dst,d</sub> = '+f(res.R.Mdst,1)+' kNm ≤ M<sub>stb,d</sub> = '+f(res.R.Mstb,1)+' kNm, betonia '+f(res.B*res.L*h/1e6,2)+' m³.'+
+      (function(){if(sh!=='sq'||res.B<=M)return '';var c2=calc({B:(res.B-M)/1000,L:(res.L-M)/1000});return ' Seuraava pienempi '+(res.B-M)+' × '+(res.L-M)+' mm: käyttöaste '+f(c2.u*100,0)+' %.';})()
+      :'<span class="lt-bad">Annetuilla kuormilla ei löydy anturaa (enintään 9000 mm). Tarkista kuormat ja epäkeskisyydet. Jos kaatava kuorma ei riipu anturan koosta (esim. nostava pystykuorma), kasvata paksuutta.</span>';
+    $('#o-use').disabled=!res;
+  }
+  $('#o-use').addEventListener('click',function(){if(!best)return;$('#a-B').value=(best.B/1000).toFixed(2);$('#a-L').value=(best.L/1000).toFixed(2);
+    ['#a-B','#a-L'].forEach(function(id){$(id).dispatchEvent(new Event('change',{bubbles:true}));});render();});
   function render(){
+    optimize();
     var R=calc(),u=R.u,s='';
     $('#a-sum').innerHTML='<div class="lt-kpi"><span>Käyttöaste M<sub>dst,d</sub> / M<sub>stb,d</sub></span><b class="'+(u>1?'lt-bad':'lt-ok')+'">'+(isFinite(u)?f(u*100,0)+' %':'∞')+'</b><div class="lt-bar"><i class="'+(u>1?'over':'')+'" style="width:'+Math.min((isFinite(u)?u:1)*100,100)+'%"></i></div></div>'+
       '<div class="lt-kpi"><span>Kaatava M<sub>dst,d</sub></span><b>'+f(R.Mdst,1)+' kNm</b></div>'+

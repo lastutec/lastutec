@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Naula- ja ruuviliitokset – Puurakenteet – Lastutec</title>
 <meta name="description" content="Naula- ja ruuviliitosten mitoitus Eurokoodi 5:n lyhennetyn suunnitteluohjeen mukaan: puu–puu, puulevy–puu ja teräslevy–puu, leikkaus, ulosveto, yhteisvaikutus ja liitinvälit.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="../puu.css">
 <script src="../puu.js"></script>
 <script src="liitos.js"></script>
@@ -143,16 +143,16 @@
     o2 += '<rect x="' + x0 + '" y="' + y0 + '" width="' + len * sc + '" height="' + wid * sc + '" fill="#3a2a18" stroke="#c99a62"/>';
     for (var i = 0; i < 6; i++) o2 += '<line x1="' + x0 + '" y1="' + (y0 + (i + 0.5) * wid * sc / 6) + '" x2="' + (x0 + len * sc) + '" y2="' + (y0 + (i + 0.5) * wid * sc / 6) + '" stroke="#5a4226" stroke-width="1"/>';
     var k = 0;
-    for (var rr = 0; rr < rows; rr++) for (var cc = 0; cc < cols && k < o.nf; cc++, k++) { var x = x0 + (s.a3t + cc * s.a1) * sc, y = y0 + (s.a4c + rr * s.a2) * sc + (cc % 2 && !r.pre && o.fast === 'naula' ? 0.0 : 0); o2 += '<circle cx="' + x + '" cy="' + y + '" r="3.5" fill="#f4f4f4"/>'; }
-    var dim = function (xa, ya, xb, yb, t, vert) { return '<path d="M' + xa + ' ' + ya + ' L' + xb + ' ' + yb + '" stroke="#F74902" stroke-width="1.2"/><text x="' + ((xa + xb) / 2 + (vert ? 6 : 0)) + '" y="' + ((ya + yb) / 2 + (vert ? 4 : -4)) + '" fill="#F74902" font-size="11" text-anchor="' + (vert ? 'start' : 'middle') + '">' + t + '</text>'; };
+    for (var rr = 0; rr < rows; rr++) for (var cc = 0; cc < cols && k < o.nf; cc++, k++) { var x = x0 + (s.a3t + cc * s.a1) * sc, y = y0 + (s.a4c + rr * s.a2) * sc + (cc % 2 && !r.pre && o.fast === 'naula' ? 0.0 : 0); o2 += '<circle cx="' + x + '" cy="' + y + '" r="3.5" fill="#e9e6e0"/>'; }
+    var dim = function (xa, ya, xb, yb, t, vert) { return '<path d="M' + xa + ' ' + ya + ' L' + xb + ' ' + yb + '" stroke="#E3824F" stroke-width="1.2"/><text x="' + ((xa + xb) / 2 + (vert ? 6 : 0)) + '" y="' + ((ya + yb) / 2 + (vert ? 4 : -4)) + '" fill="#E3824F" font-size="11" text-anchor="' + (vert ? 'start' : 'middle') + '">' + t + '</text>'; };
     var yb = y0 + wid * sc + 18;
     o2 += dim(x0, yb, x0 + s.a3t * sc, yb, 'a₃ ' + Math.round(s.a3t));
     if (cols > 1) o2 += dim(x0 + s.a3t * sc, yb, x0 + (s.a3t + s.a1) * sc, yb, 'a₁ ' + Math.round(s.a1));
     var xr = x0 + len * sc + 8;
     o2 += dim(xr, y0, xr, y0 + s.a4c * sc, 'a₄ ' + Math.round(s.a4c), true);
     if (rows > 1) o2 += dim(xr, y0 + s.a4c * sc, xr, y0 + (s.a4c + s.a2) * sc, 'a₂ ' + Math.round(s.a2), true);
-    o2 += '<path d="M' + (x0 - 50) + ' ' + (y0 + wid * sc / 2) + ' H' + (x0 - 8) + '" stroke="#f4f4f4" stroke-width="2.5"/><path d="M' + (x0 - 8) + ' ' + (y0 + wid * sc / 2) + ' l-8 -5 v10 z" fill="#f4f4f4"/><text x="' + (x0 - 50) + '" y="' + (y0 + wid * sc / 2 - 8) + '" fill="#f4f4f4" font-size="11">F</text>';
-    o2 += '<text x="12" y="' + (H - 8) + '" fill="#9a9a9a" font-size="10.5">Periaatekuva: ' + o.nf + ' liitintä, syysuunta vaakaan, pienimmät välit ja etäisyydet [mm]</text>';
+    o2 += '<path d="M' + (x0 - 50) + ' ' + (y0 + wid * sc / 2) + ' H' + (x0 - 8) + '" stroke="#e9e6e0" stroke-width="2.5"/><path d="M' + (x0 - 8) + ' ' + (y0 + wid * sc / 2) + ' l-8 -5 v10 z" fill="#e9e6e0"/><text x="' + (x0 - 50) + '" y="' + (y0 + wid * sc / 2 - 8) + '" fill="#e9e6e0" font-size="11">F</text>';
+    o2 += '<text x="12" y="' + (H - 8) + '" fill="#aeaba4" font-size="10.5">Periaatekuva: ' + o.nf + ' liitintä, syysuunta vaakaan, pienimmät välit ja etäisyydet [mm]</text>';
     $('fig').innerHTML = o2 + '</svg>';
   }
   // oletusarvot liittimen vaihtuessa

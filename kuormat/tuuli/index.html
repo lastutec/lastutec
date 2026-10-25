@@ -5,21 +5,21 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tuulikuorma – Lastutec</title>
 <meta name="description" content="Tuulikuorma SFS-EN 1991-1-4:n ja ympäristöministeriön asetuksen 7/16 (kansalliset valinnat) mukaan: puuskanopeuspaine, seinien ja tasakaton painekertoimet, ja nettopaineet tarkempaan tuulikuormien määritykseen.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
 <style>
 :root{
-  --bg:#000000; --panel:#141414; --panel2:#1c1c1c; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e; --line2:#262626;
-  --accent:#F74902; --accent-ink:#111111; --accent-soft:#3b1503; --input:#2a1206;
-  --ok:#5cc58a; --warn:#f5c86b; --bad:#ff6b5a;
+  --bg:#1b1c1f; --panel:#24262a; --panel2:#2b2d32; --ink:#e9e6e0; --muted:#aeaba4; --line:#3d4046; --line2:#33353a;
+  --accent:#E3824F; --accent-ink:#111111; --accent-soft:#3e2c24; --input:#2c2723;
+  --ok:#82c79f; --warn:#e2c47f; --bad:#e8907f;
   --radius:6px; --mono:Arial,Helvetica,sans-serif;
   color-scheme:dark;
-  --snow:#7fb2e6; --snow-ink:#bcd8f5; --press:#ff6b5a; --suct:#7fb2e6;
+  --snow:#92b8dd; --snow-ink:#c4d8ec; --press:#e8907f; --suct:#92b8dd;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
-header.lt{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+header.lt{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:16px}
 header.lt .brand{display:flex;flex-direction:column;gap:2px}
 header.lt .back{font:600 13px Arial,Helvetica,sans-serif;color:var(--accent);text-decoration:none}
 header.lt .back:hover{text-decoration:underline}
@@ -69,7 +69,7 @@ td.expr{text-align:left;white-space:normal;font-family:var(--mono);font-size:12.
 .neg{color:var(--bad)}
 tr.gov td{background:var(--accent-soft)}
 tr.gov td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
-.x-term{color:#666;text-decoration:line-through}
+.x-term{color:#8a8781;text-decoration:line-through}
 table.inp input[type=number]{width:80px;padding:3px 5px;text-align:right}
 table.inp input[type=text]{width:150px;padding:3px 5px}
 table.inp select{max-width:230px;padding:3px 5px}
@@ -81,8 +81,8 @@ table.inp select{max-width:230px;padding:3px 5px}
 .calc .row{display:grid;grid-template-columns:minmax(160px,250px) 1fr;gap:4px 14px;padding:3px 0;border-bottom:1px dashed var(--line2)}
 .calc .row .d{color:var(--muted)} .calc .row .f{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
 .calc h4{margin:14px 0 2px;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
-.note{border-left:3px solid var(--warn);background:#2a1f08;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
-.info{border-left:3px solid var(--accent);background:#1f0d03;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.note{border-left:3px solid var(--warn);background:#2e2a21;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.info{border-left:3px solid var(--accent);background:#2b2420;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
 .flex{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .right{margin-left:auto}
 .diag{width:100%;max-width:640px;height:auto;display:block;margin:6px 0}
@@ -101,11 +101,11 @@ details.step>.calc{padding:0 12px 10px}
 .w3ctl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
 .w3ctl button{font:600 12.5px Arial,Helvetica,sans-serif;padding:4px 11px;border-radius:99px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer}
 .w3ctl button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
-.w3d{width:100%;height:auto;display:block;background:#0b0b0b;border:1px solid var(--line);border-radius:6px;touch-action:none;cursor:grab;user-select:none}
+.w3d{width:100%;height:auto;display:block;background:#18191c;border:1px solid var(--line);border-radius:6px;touch-action:none;cursor:grab;user-select:none}
 .w3d:active{cursor:grabbing}
-.w3d .w3l{font:700 13px Arial,Helvetica,sans-serif;fill:#f4f4f4;paint-order:stroke;stroke:#000;stroke-width:3px}
+.w3d .w3l{font:700 13px Arial,Helvetica,sans-serif;fill:#e9e6e0;paint-order:stroke;stroke:#000;stroke-width:3px}
 .w3d .w3v{font:600 12px Arial,Helvetica,sans-serif;fill:#fff;paint-order:stroke;stroke:#000;stroke-width:3px}
-.w3d .w3a{font:12px Arial,Helvetica,sans-serif;fill:#9a9a9a}
+.w3d .w3a{font:12px Arial,Helvetica,sans-serif;fill:#aeaba4}
 @media print{.w3d{background:#fff}.w3d .w3a{fill:#444}.w3ctl{display:none}}
 </style>
 </head>
@@ -308,10 +308,10 @@ function render3D(){
   const sc=Math.min((W-170)/(maxx-minx||1),(H-110)/(maxy-miny||1)); const ox=W/2-(minx+maxx)/2*sc, oy=H/2+10-(miny+maxy)/2*sc;
   const S=p=>{ const q=pr(p); return [ox+q.x*sc, oy+q.y*sc, q.dep]; };
   const vmax=Math.max(0.01,...faces.filter(f=>f.val!==null).map(f=>Math.abs(f.val)));
-  const fill=v=>{ if(v===null) return '#222'; const t=Math.min(1,Math.abs(v)/vmax); return v>=0?`rgba(255,107,90,${(0.22+0.68*t).toFixed(3)})`:`rgba(110,170,235,${(0.22+0.68*t).toFixed(3)})`; };
+  const fill=v=>{ if(v===null) return '#222'; const t=Math.min(1,Math.abs(v)/vmax); return v>=0?`rgba(232,144,127,${(0.22+0.68*t).toFixed(3)})`:`rgba(110,170,235,${(0.22+0.68*t).toFixed(3)})`; };
   const vis=faces.map(f=>{ const sp2=f.pts.map(S); return {f,sp:sp2,dep:sp2.reduce((a,p)=>a+p[2],0)/sp2.length,show:rn(f.kind)>1e-6}; }).filter(o=>o.show).sort((a,b)=>b.dep-a.dep);
   let g='';
-  vis.forEach(o=>{ g+=`<polygon points="${o.sp.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="${fill(o.f.val)}" stroke="#0b0b0b" stroke-width="1.2" stroke-linejoin="round"/>`; });
+  vis.forEach(o=>{ g+=`<polygon points="${o.sp.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="${fill(o.f.val)}" stroke="#18191c" stroke-width="1.2" stroke-linejoin="round"/>`; });
   // tekstit
   vis.forEach(o=>{ if(!o.f.label) return; const p=o.sp; let A=0; for(let i=0;i<p.length;i++){ const j=(i+1)%p.length; A+=p[i][0]*p[j][1]-p[j][0]*p[i][1]; } A=Math.abs(A)/2;
     if(A<450) return; const mx=p.reduce((a,q)=>a+q[0],0)/p.length, my=p.reduce((a,q)=>a+q[1],0)/p.length;
@@ -325,11 +325,11 @@ function render3D(){
   const lab=S(P(-L*1.05,D.b*0.2,T.h*0.3)); g+=`<text x="${lab[0].toFixed(1)}" y="${(lab[1]+18).toFixed(1)}" text-anchor="middle" class="w3l" style="fill:var(--accent)">tuuli ${V3.dir}</text>`;
   // akselit
   const o0=S([0,0,0]), ax=S([Math.min(T.Lx,6),0,0]), ay=S([0,Math.min(T.Ly,6),0]);
-  g+=`<line x1="${o0[0]}" y1="${o0[1]}" x2="${ax[0]}" y2="${ax[1]}" stroke="#9a9a9a" stroke-width="1.5"/><text x="${ax[0]+4}" y="${ax[1]+4}" class="w3a">x</text><line x1="${o0[0]}" y1="${o0[1]}" x2="${ay[0]}" y2="${ay[1]}" stroke="#9a9a9a" stroke-width="1.5"/><text x="${ay[0]+4}" y="${ay[1]+4}" class="w3a">y</text>`;
+  g+=`<line x1="${o0[0]}" y1="${o0[1]}" x2="${ax[0]}" y2="${ax[1]}" stroke="#aeaba4" stroke-width="1.5"/><text x="${ax[0]+4}" y="${ax[1]+4}" class="w3a">x</text><line x1="${o0[0]}" y1="${o0[1]}" x2="${ay[0]}" y2="${ay[1]}" stroke="#aeaba4" stroke-width="1.5"/><text x="${ay[0]+4}" y="${ay[1]+4}" class="w3a">y</text>`;
   // selite
   const mode={e:'ulkoinen paine w<tspan baseline-shift="sub" font-size="9">e</tspan> = q<tspan baseline-shift="sub" font-size="9">p</tspan>·c<tspan baseline-shift="sub" font-size="9">pe,10</tspan>',p:'nettopaine, c<tspan baseline-shift="sub" font-size="9">pi</tspan> = '+fmt(Math.max(...D.cpi),1),n:'nettopaine, c<tspan baseline-shift="sub" font-size="9">pi</tspan> = '+fmt(Math.min(...D.cpi),1)}[V3.mode];
   g+=`<text x="14" y="${H-34}" class="w3a">${mode} [kN/m²] · + paine, − imu</text>`;
-  g+=`<rect x="14" y="${H-24}" width="14" height="10" fill="rgba(255,107,90,.85)"/><text x="32" y="${H-15}" class="w3a">paine</text><rect x="84" y="${H-24}" width="14" height="10" fill="rgba(110,170,235,.85)"/><text x="102" y="${H-15}" class="w3a">imu</text><text x="${W-14}" y="${H-15}" text-anchor="end" class="w3a">Vedä pyörittääksesi</text>`;
+  g+=`<rect x="14" y="${H-24}" width="14" height="10" fill="rgba(232,144,127,.85)"/><text x="32" y="${H-15}" class="w3a">paine</text><rect x="84" y="${H-24}" width="14" height="10" fill="rgba(110,170,235,.85)"/><text x="102" y="${H-15}" class="w3a">imu</text><text x="${W-14}" y="${H-15}" text-anchor="end" class="w3a">Vedä pyörittääksesi</text>`;
   el.innerHTML=`<defs><marker id="w3ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>${g}`;
   $$('#w3d-ctl [data-dir]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.dir===V3.dir));
   $$('#w3d-ctl [data-mode]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===V3.mode));
@@ -359,7 +359,7 @@ function svgPlan(k,Lx,Ly,e,zones,d,b){
     z+=[0.3,0.5,0.7].map(f=>`<path d="M${x0+w*f},${y0+hh+60} L${x0+w*f},${y0+hh+30}" stroke="var(--ink)" stroke-width="1.5" marker-end="url(#ah${k})"/>`).join('');
   }
   return `<svg class="diag" viewBox="0 0 ${W} ${H+ (k==='Y'?40:0)}" role="img" aria-label="Seinävyöhykkeet pohjassa"><defs><marker id="ah${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink)"/></marker></defs>
-   <rect x="${x0}" y="${y0}" width="${w}" height="${hh}" fill="#1c1c1c" stroke="var(--ink)" stroke-width="1.5"/>${z}
+   <rect x="${x0}" y="${y0}" width="${w}" height="${hh}" fill="#2b2d32" stroke="var(--ink)" stroke-width="1.5"/>${z}
    <text x="${x0+w/2}" y="${y0+hh/2+4}" text-anchor="middle" class="m">${fmt(Lx,1)} × ${fmt(Ly,1)} m, e = ${fmt(e,2)} m</text></svg>`;
 }
 bindPersist(['w-vb0','w-cat','w-cdir','w-cseason','w-co','w-rho','w-Lx','w-Ly','w-h','w-cscd','w-hp','w-A','w-cpi'],windCalc);

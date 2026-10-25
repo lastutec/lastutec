@@ -5,21 +5,21 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kuormayhdistelmät – Lastutec</title>
 <meta name="description" content="Kuormayhdistelmien muodostus SFS-EN 1990:n ja Suomen kansallisen liitteen mukaan: murtorajatilat STR/GEO ja EQU, onnettomuustilanne ja käyttörajatilat. KFI- ja ψ-kertoimet, määräävät yhdistelmät ja CSV-vienti.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
 <style>
 :root{
-  --bg:#000000; --panel:#141414; --panel2:#1c1c1c; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e; --line2:#262626;
-  --accent:#F74902; --accent-ink:#111111; --accent-soft:#3b1503; --input:#2a1206;
-  --ok:#5cc58a; --warn:#f5c86b; --bad:#ff6b5a;
+  --bg:#1b1c1f; --panel:#24262a; --panel2:#2b2d32; --ink:#e9e6e0; --muted:#aeaba4; --line:#3d4046; --line2:#33353a;
+  --accent:#E3824F; --accent-ink:#111111; --accent-soft:#3e2c24; --input:#2c2723;
+  --ok:#82c79f; --warn:#e2c47f; --bad:#e8907f;
   --radius:6px; --mono:Arial,Helvetica,sans-serif;
   color-scheme:dark;
-  --snow:#7fb2e6; --snow-ink:#bcd8f5; --press:#ff6b5a; --suct:#7fb2e6;
+  --snow:#92b8dd; --snow-ink:#c4d8ec; --press:#e8907f; --suct:#92b8dd;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
-header.lt{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+header.lt{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:16px}
 header.lt .brand{display:flex;flex-direction:column;gap:2px}
 header.lt .back{font:600 13px Arial,Helvetica,sans-serif;color:var(--accent);text-decoration:none}
 header.lt .back:hover{text-decoration:underline}
@@ -69,7 +69,7 @@ td.expr{text-align:left;white-space:normal;font-family:var(--mono);font-size:12.
 .neg{color:var(--bad)}
 tr.gov td{background:var(--accent-soft)}
 tr.gov td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
-.x-term{color:#666;text-decoration:line-through}
+.x-term{color:#8a8781;text-decoration:line-through}
 table.inp input[type=number]{width:80px;padding:3px 5px;text-align:right}
 table.inp input[type=text]{width:150px;padding:3px 5px}
 table.inp select{max-width:230px;padding:3px 5px}
@@ -81,8 +81,8 @@ table.inp select{max-width:230px;padding:3px 5px}
 .calc .row{display:grid;grid-template-columns:minmax(160px,250px) 1fr;gap:4px 14px;padding:3px 0;border-bottom:1px dashed var(--line2)}
 .calc .row .d{color:var(--muted)} .calc .row .f{font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
 .calc h4{margin:14px 0 2px;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
-.note{border-left:3px solid var(--warn);background:#2a1f08;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
-.info{border-left:3px solid var(--accent);background:#1f0d03;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.note{border-left:3px solid var(--warn);background:#2e2a21;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.info{border-left:3px solid var(--accent);background:#2b2420;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
 .flex{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .right{margin-left:auto}
 .diag{width:100%;max-width:640px;height:auto;display:block;margin:6px 0}

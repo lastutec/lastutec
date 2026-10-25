@@ -6,17 +6,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Elementtitarkastus – Lastutec</title>
 <meta name="description" content="Betonielementtien tarkastus IFC-mallista: painot nosturin nostokykyyn ja elementtien koot elementtisuunnittelu.fi:n mittasuosituksiin.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <script src="../../kevytrakenteet/tuenta/ifc.js"></script>
 <script src="elementit.js"></script>
 <style>
-:root{--bg:#000;--paper:#141414;--ink:#f4f4f4;--muted:#9a9a9a;--line:#2e2e2e;--accent:#F74902;--accent-soft:#3b1503;--ok:#3fbf6f;--bad:#ff5a5a;--warn:#f2b84b;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
+:root{--bg:#000;--paper:#24262a;--ink:#e9e6e0;--muted:#aeaba4;--line:#3d4046;--accent:#E3824F;--accent-soft:#3e2c24;--ok:#6fbf8e;--bad:#e8907f;--warn:#e2c47f;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
 .wrap{max-width:1400px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
-header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px}
 .brand{display:flex;flex-direction:column;gap:2px}
 .back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
 h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
@@ -34,7 +34,7 @@ label{display:flex;flex-direction:column;justify-content:space-between;font-size
 label.chk{flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;color:var(--ink)}
 label.chk input{width:auto;margin:0;accent-color:var(--accent)}
 select,input,textarea{display:block;margin-top:3px;font-family:var(--body);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
-input[type=number],input[type=text],textarea{background:#2a1206}
+input[type=number],input[type=text],textarea{background:#2c2723}
 textarea{resize:vertical;min-height:150px;font-variant-numeric:tabular-nums;line-height:1.45}
 input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hint{font-size:13px;color:var(--muted);margin:0}
@@ -61,7 +61,7 @@ th{position:sticky;top:0;background:#1b1b1b;color:var(--muted);font-weight:600;f
 th.l,td.l{text-align:left}
 td.nm{max-width:200px;overflow:hidden;text-overflow:ellipsis}
 tbody tr{cursor:pointer}
-tbody tr:hover td{background:#1c1c1c}
+tbody tr:hover td{background:#2b2d32}
 tbody tr.cur td{background:var(--accent-soft)}
 tbody tr.rbad td:first-child{box-shadow:inset 4px 0 0 var(--bad)}
 tbody tr.rwarn td:first-child{box-shadow:inset 4px 0 0 var(--warn)}
@@ -69,7 +69,7 @@ td.vbad{color:var(--bad);font-weight:700} td.vwarn{color:var(--warn);font-weight
 td select{margin:0;padding:3px 4px;font-size:12px;width:auto;max-width:170px}
 .badge{display:inline-block;padding:2px 8px;border-radius:3px;font-weight:700;font-size:12px}
 .badge.ok{background:#173d26;color:var(--ok)} .badge.bad{background:#46171a;color:var(--bad)} .badge.warn{background:#3d2e10;color:var(--warn)}
-.cv{position:relative;width:100%;border:1px solid var(--line);border-radius:4px;background:#0a0a0a;overflow:hidden}
+.cv{position:relative;width:100%;border:1px solid var(--line);border-radius:4px;background:#18191c;overflow:hidden}
 .cv canvas{display:block;width:100%;height:560px;touch-action:none;cursor:grab;outline:none}
 .cv canvas.drag{cursor:grabbing}
 .cv.placing canvas{cursor:crosshair}
@@ -161,7 +161,7 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto;max-width:170px}
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2>3D-malli</h2>
       <label class="chk"><input type="checkbox" id="ctx" checked> Näytä rajauksen ulkopuoliset elementit</label></div>
     <div class="cv" id="cvw"><canvas id="cv"></canvas><canvas id="ov" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas><div class="vbtns"><button type="button" id="v3d">3D</button><button type="button" id="ztop">Pohja</button><button type="button" id="vfront">Edestä</button><button type="button" id="vside">Sivulta</button><button type="button" id="zfit" title="Sovita koko malli" aria-label="Sovita">⤢</button><button type="button" id="zin" aria-label="Lähennä">+</button><button type="button" id="zout" aria-label="Loitonna">−</button></div><div class="placemsg" id="placemsg" hidden>Napauta nosturin paikka pohjakuvaan · Esc peruu</div></div>
-    <div class="legend"><span><i style="background:#ff5a5a"></i>Korjattava</span><span><i style="background:#f2b84b"></i>Huomio</span><span><i style="background:#3fbf6f"></i>OK</span><span><i style="background:#6b6b6b"></i>Rajauksen ulkopuolella</span><span id="lgCrane" hidden><i style="background:#F74902;border-radius:50%"></i>Nosturi ja ulottuma</span><span>Vedä: kierrä · oikea painike, Shift tai kaksi sormea: siirrä · rulla tai nipistys: zoomaa · napauta: valitse · kaksoisnapautus: kohdista</span></div>
+    <div class="legend"><span><i style="background:#e8907f"></i>Korjattava</span><span><i style="background:#e2c47f"></i>Huomio</span><span><i style="background:#6fbf8e"></i>OK</span><span><i style="background:#6b6b6b"></i>Rajauksen ulkopuolella</span><span id="lgCrane" hidden><i style="background:#E3824F;border-radius:50%"></i>Nosturi ja ulottuma</span><span>Vedä: kierrä · oikea painike, Shift tai kaksi sormea: siirrä · rulla tai nipistys: zoomaa · napauta: valitse · kaksoisnapautus: kohdista</span></div>
     <div id="detail"></div>
   </section>
 </div>
@@ -392,21 +392,21 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto;max-width:170px}
     if (O && O.mode === 'chart' && MB) { // nosturi: masto, ulottumaympyrä ja nostokykyrenkaat
       var z0 = MB[2], z1 = MB[5] + Math.max(3, (MB[5] - MB[2]) * 0.4), cp0 = proj([O.crane[0], O.crane[1], z0]), cp1 = proj([O.crane[0], O.crane[1], z1]);
       var ring = function (R, col, w, dash) { c.beginPath(); for (var i = 0; i <= 72; i++) { var a = i / 72 * 2 * Math.PI, p = proj([O.crane[0] + R * Math.cos(a), O.crane[1] + R * Math.sin(a), z0]); if (i) c.lineTo(p[0], p[1]); else c.moveTo(p[0], p[1]); } c.strokeStyle = col; c.lineWidth = w; c.setLineDash(dash || []); c.stroke(); c.setLineDash([]); };
-      O.chart.forEach(function (pt, i) { var last = i === O.chart.length - 1; ring(pt[0], last ? 'rgba(247,73,2,.95)' : 'rgba(247,73,2,.28)', last ? 2 : 1, last ? [8, 6] : [3, 5]);
-        var lp = proj([O.crane[0] + pt[0] * Math.cos(-0.6), O.crane[1] + pt[0] * Math.sin(-0.6), z0]); c.fillStyle = 'rgba(247,73,2,' + (last ? 1 : 0.75) + ')'; c.font = '11px Arial,Helvetica,sans-serif'; c.textAlign = 'center'; c.fillText(fmt(pt[1], 1) + ' t', lp[0], lp[1] - 3); });
-      c.strokeStyle = '#F74902'; c.lineWidth = 3; c.beginPath(); c.moveTo(cp0[0], cp0[1]); c.lineTo(cp1[0], cp1[1]); c.stroke();
-      c.fillStyle = '#F74902'; c.beginPath(); c.arc(cp0[0], cp0[1], 6, 0, 2 * Math.PI); c.fill();
+      O.chart.forEach(function (pt, i) { var last = i === O.chart.length - 1; ring(pt[0], last ? 'rgba(227,130,79,.95)' : 'rgba(227,130,79,.28)', last ? 2 : 1, last ? [8, 6] : [3, 5]);
+        var lp = proj([O.crane[0] + pt[0] * Math.cos(-0.6), O.crane[1] + pt[0] * Math.sin(-0.6), z0]); c.fillStyle = 'rgba(227,130,79,' + (last ? 1 : 0.75) + ')'; c.font = '11px Arial,Helvetica,sans-serif'; c.textAlign = 'center'; c.fillText(fmt(pt[1], 1) + ' t', lp[0], lp[1] - 3); });
+      c.strokeStyle = '#E3824F'; c.lineWidth = 3; c.beginPath(); c.moveTo(cp0[0], cp0[1]); c.lineTo(cp1[0], cp1[1]); c.stroke();
+      c.fillStyle = '#E3824F'; c.beginPath(); c.arc(cp0[0], cp0[1], 6, 0, 2 * Math.PI); c.fill();
       c.fillStyle = '#fff'; c.font = '600 12px Arial,Helvetica,sans-serif'; c.textAlign = 'left'; c.fillText('Nosturi', cp1[0] + 6, cp1[1]);
       if (cur && RES.has(cur)) { var pe = proj([cur.g.cog[0], cur.g.cog[1], cur.g.cog[2]]); c.strokeStyle = '#fff'; c.setLineDash([4, 4]); c.lineWidth = 1.2; c.beginPath(); c.moveTo(cp1[0], cp1[1]); c.lineTo(pe[0], pe[1]); c.stroke(); c.setLineDash([]); }
     }
     if (cur && visible(cur) && RES.has(cur)) { var r = RES.get(cur), p = proj([cur.g.cog[0], cur.g.cog[1], cur.g.box[5] + 0.3]), lbl = cur.name + ' · ' + fmt(r.w.t, 2) + ' t'; c.font = '600 12px Arial,Helvetica,sans-serif'; var tw = c.measureText(lbl).width; c.fillStyle = 'rgba(0,0,0,.8)'; c.fillRect(p[0] - tw / 2 - 6, p[1] - 18, tw + 12, 20); c.fillStyle = '#fff'; c.textAlign = 'center'; c.fillText(lbl, p[0], p[1] - 4); }
     var o0 = [24, Hc - 24]; c.textAlign = 'left'; c.font = '11px Arial,Helvetica,sans-serif';
-    [[1, 0, 0, 'x', '#e5484d'], [0, 1, 0, 'y', '#3fbf6f'], [0, 0, 1, 'z', '#3b82f6']].forEach(function (a) {
+    [[1, 0, 0, 'x', '#e5484d'], [0, 1, 0, 'y', '#6fbf8e'], [0, 0, 1, 'z', '#3b82f6']].forEach(function (a) {
       var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), x1 = a[0] * cy - a[1] * sy, y1 = a[0] * sy + a[1] * cy, Y2 = a[2] * cp - y1 * sp;
       c.strokeStyle = a[4]; c.lineWidth = 2; c.beginPath(); c.moveTo(o0[0], o0[1]); c.lineTo(o0[0] + x1 * 16, o0[1] - Y2 * 16); c.stroke(); c.fillStyle = a[4]; c.fillText(a[3], o0[0] + x1 * 20, o0[1] - Y2 * 20 + 4); });
   }
   function render2d() {
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, Wc, Hc); ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, Wc, Hc);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, Wc, Hc); ctx.fillStyle = '#18191c'; ctx.fillRect(0, 0, Wc, Hc);
     var L = [0.35, -0.45, 0.82], showCtx = $('ctx').checked, F = [];
     EL.forEach(function (e) {
       if (!visible(e)) return; var sel = RES.has(e); if (!sel && !showCtx) return;

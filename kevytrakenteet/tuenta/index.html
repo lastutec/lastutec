@@ -6,16 +6,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Muuratun seinän tuentatarve – Lastutec</title>
 <meta name="description" content="Ei-kantavien muurattujen Kahi-väliseinien tuentatarpeen arviointi IFC-mallista Weberin Kahi-rakenteiden suunnitteluohjeen (4-33) kapasiteettikäyrien mukaan.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <script src="ifc.js"></script>
 <script src="tuenta.js"></script>
 <style>
-:root{--bg:#000;--paper:#141414;--ink:#f4f4f4;--muted:#9a9a9a;--line:#2e2e2e;--accent:#F74902;--accent-soft:#3b1503;--ok:#3fbf6f;--bad:#ff5a5a;--warn:#f2b84b;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
+:root{--bg:#000;--paper:#24262a;--ink:#e9e6e0;--muted:#aeaba4;--line:#3d4046;--accent:#E3824F;--accent-soft:#3e2c24;--ok:#6fbf8e;--bad:#e8907f;--warn:#e2c47f;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
 .wrap{max-width:1400px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
-header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px}
 .brand{display:flex;flex-direction:column;gap:2px}
 .back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
 h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
@@ -33,7 +33,7 @@ label{display:flex;flex-direction:column;justify-content:space-between;font-size
 label.chk{flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;color:var(--ink)}
 label.chk input{width:auto;margin:0;accent-color:var(--accent)}
 select,input{display:block;margin-top:3px;font-family:var(--body);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
-input[type=number],input[type=text]{background:#2a1206}
+input[type=number],input[type=text]{background:#2c2723}
 input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hint{font-size:13px;color:var(--muted);margin:0}
 .sec{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);padding-bottom:4px;border-bottom:1px solid var(--line)}
@@ -56,12 +56,12 @@ th{position:sticky;top:0;background:#1b1b1b;color:var(--muted);font-weight:600;f
 th.l,td.l{text-align:left}
 td.nm{max-width:220px;overflow:hidden;text-overflow:ellipsis}
 tbody tr{cursor:pointer}
-tbody tr:hover td{background:#1c1c1c}
+tbody tr:hover td{background:#2b2d32}
 tbody tr.cur td{background:var(--accent-soft)}
 td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
 .badge{display:inline-block;padding:2px 8px;border-radius:3px;font-weight:700;font-size:12px}
 .badge.ok{background:#173d26;color:var(--ok)} .badge.bad{background:#46171a;color:var(--bad)}
-.cv{position:relative;width:100%;border:1px solid var(--line);border-radius:4px;background:#0a0a0a;overflow:hidden}
+.cv{position:relative;width:100%;border:1px solid var(--line);border-radius:4px;background:#18191c;overflow:hidden}
 .cv canvas{display:block;width:100%;height:560px;touch-action:none;cursor:grab;outline:none}
 .cv canvas.drag{cursor:grabbing}
 @media (max-width:1000px){.cv canvas{height:420px}}
@@ -70,7 +70,7 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:5px;vertical-align:-1px}
 .detail .math{font-size:13.5px;display:flex;flex-direction:column;gap:3px}
-.chart svg{width:100%;height:auto;display:block;background:#0a0a0a;border:1px solid var(--line);border-radius:4px}
+.chart svg{width:100%;height:auto;display:block;background:#18191c;border:1px solid var(--line);border-radius:4px}
 .foot{font-size:12.5px;color:var(--muted);margin:0;max-width:110ch}
 .empty{color:var(--muted);font-size:14px;padding:30px;text-align:center}
 @media print{:root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;color-scheme:light}.btn,.vbtns,.drop{display:none!important}.a-view{position:static}.tablewrap{max-height:none}}
@@ -126,7 +126,7 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2>3D-malli</h2>
       <label class="chk"><input type="checkbox" id="ctx" checked> Näytä muut rakenteet</label></div>
     <div class="cv"><canvas id="cv"></canvas><canvas id="ov" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas><div class="vbtns"><button type="button" id="v3d">3D</button><button type="button" id="ztop">Pohja</button><button type="button" id="vfront">Edestä</button><button type="button" id="vside">Sivulta</button><button type="button" id="zfit" title="Sovita koko malli" aria-label="Sovita">⤢</button><button type="button" id="zin" aria-label="Lähennä">+</button><button type="button" id="zout" aria-label="Loitonna">−</button></div></div>
-    <div class="legend"><span><i style="background:#3fbf6f"></i>OK</span><span><i style="background:#ff5a5a"></i>Tarvitsee tuentaa</span><span><i style="background:#6b6b6b"></i>Muut rakenteet</span><span>Vedä: kierrä · oikea painike, Shift tai kaksi sormea: siirrä · rulla tai nipistys: zoomaa kohdistimen kohtaan · napauta seinää: valitse · kaksoisnapautus: kohdista seinään (tyhjään: koko malli) · nuolinäppäimet, +/−, F</span></div>
+    <div class="legend"><span><i style="background:#6fbf8e"></i>OK</span><span><i style="background:#e8907f"></i>Tarvitsee tuentaa</span><span><i style="background:#6b6b6b"></i>Muut rakenteet</span><span>Vedä: kierrä · oikea painike, Shift tai kaksi sormea: siirrä · rulla tai nipistys: zoomaa kohdistimen kohtaan · napauta seinää: valitse · kaksoisnapautus: kohdista seinään (tyhjään: koko malli) · nuolinäppäimet, +/−, F</span></div>
     <div class="detail" id="detail"></div>
   </section>
 </div>
@@ -249,7 +249,7 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
     items.forEach(function (it, i) {
       var k = it[0], col = T.CASES[k].col, act = k === cs, x = gap + i * (bw + gap), y = 22, op = act ? 1 : 0.4, e = it[2], ins = 5;
       if (act) o += '<rect x="' + (x - 10) + '" y="2" width="' + (bw + 20) + '" height="126" rx="6" fill="' + col + '" fill-opacity=".16" stroke="' + col + '" stroke-width="2"/><text x="' + (x + bw / 2) + '" y="16" fill="' + col + '" font-size="10.5" font-weight="700" text-anchor="middle" letter-spacing=".08em">SEINÄN TAPAUS</text>';
-      o += '<g opacity="' + op + '"><rect x="' + x + '" y="' + y + '" width="' + bw + '" height="' + bh + '" fill="none" stroke="#f4f4f4" stroke-width="' + (act ? 2.5 : 1.8) + '"/>';
+      o += '<g opacity="' + op + '"><rect x="' + x + '" y="' + y + '" width="' + bw + '" height="' + bh + '" fill="none" stroke="#e9e6e0" stroke-width="' + (act ? 2.5 : 1.8) + '"/>';
       var da = ' stroke="' + col + '" stroke-width="' + (act ? 3 : 2.2) + '" stroke-dasharray="6 4" fill="none"';
       if (e[0]) o += '<line x1="' + (x + ins) + '" y1="' + (y + ins) + '" x2="' + (x + ins) + '" y2="' + (y + bh - ins) + '"' + da + '/>';
       if (e[1]) o += '<line x1="' + (x + ins) + '" y1="' + (y + ins) + '" x2="' + (x + bw - ins) + '" y2="' + (y + ins) + '"' + da + '/>';
@@ -257,25 +257,25 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
       if (e[3]) o += '<line x1="' + (x + ins) + '" y1="' + (y + bh - ins) + '" x2="' + (x + bw - ins) + '" y2="' + (y + bh - ins) + '"' + da + '/>';
       o += '<line x1="' + (x + 14) + '" y1="' + (y + bh + 12) + '" x2="' + (x + bw - 14) + '" y2="' + (y + bh + 12) + '" stroke="' + col + '" stroke-width="2.5" stroke-dasharray="7 5"/>';
       o += '<line x1="' + (x + 14) + '" y1="' + (y + bh + 22) + '" x2="' + (x + bw - 14) + '" y2="' + (y + bh + 22) + '" stroke="' + col + '" stroke-width="3.5"/>';
-      o += '<text x="' + (x + bw / 2) + '" y="' + (y + bh + 42) + '" fill="' + (act ? '#ffffff' : '#9a9a9a') + '" font-size="11.5" font-weight="' + (act ? 700 : 400) + '" text-anchor="middle">' + it[1] + '</text></g>';
+      o += '<text x="' + (x + bw / 2) + '" y="' + (y + bh + 42) + '" fill="' + (act ? '#ffffff' : '#aeaba4') + '" font-size="11.5" font-weight="' + (act ? 700 : 400) + '" text-anchor="middle">' + it[1] + '</text></g>';
     });
-    if (cs === 'tb' || cs === 'free') o += '<text x="' + (W / 2) + '" y="' + 126 + '" fill="#f2b84b" font-size="11" text-anchor="middle">Seinän tapaus: ' + T.CASES[cs].name + ' (ei käyrää kuvissa)</text>';
+    if (cs === 'tb' || cs === 'free') o += '<text x="' + (W / 2) + '" y="' + 126 + '" fill="#e2c47f" font-size="11" text-anchor="middle">Seinän tapaus: ' + T.CASES[cs].name + ' (ei käyrää kuvissa)</text>';
     return o;
   }
   function chart(C, r) {
     var W = 560, Hh = 480, ml = 40, mr = 14, mt = 136, mb = 34, Hm = C.Hmax, sx = (W - ml - mr) / 20, sy = (Hh - mt - mb) / Hm;
     var X = function (L) { return ml + Math.min(L, 20) * sx; }, Y = function (H) { return Hh - mb - Math.min(H, Hm) * sy; };
     var o = '<svg viewBox="0 0 ' + W + ' ' + Hh + '" font-family="Arial,Helvetica,sans-serif">';
-    for (var L = 0; L <= 20; L += 1) o += '<line x1="' + X(L) + '" y1="' + Y(0) + '" x2="' + X(L) + '" y2="' + Y(Hm) + '" stroke="' + (L % 2 ? '#1c1c1c' : '#2a2a2a') + '"/>' + (L % 2 ? '' : '<text x="' + X(L) + '" y="' + (Hh - mb + 14) + '" fill="#9a9a9a" font-size="10.5" text-anchor="middle">' + L + '</text>');
-    for (var H = 0; H <= Hm; H += 1) o += '<line x1="' + X(0) + '" y1="' + Y(H) + '" x2="' + X(20) + '" y2="' + Y(H) + '" stroke="#2a2a2a"/><text x="' + (ml - 6) + '" y="' + (Y(H) + 4) + '" fill="#9a9a9a" font-size="10.5" text-anchor="end">' + H + '</text>';
-    o += '<text x="' + (W / 2) + '" y="' + (Hh - 4) + '" fill="#9a9a9a" font-size="11" text-anchor="middle">L (m) – tukiväli</text><text x="8" y="' + (mt - 8) + '" fill="#9a9a9a" font-size="11">H (m)</text>';
+    for (var L = 0; L <= 20; L += 1) o += '<line x1="' + X(L) + '" y1="' + Y(0) + '" x2="' + X(L) + '" y2="' + Y(Hm) + '" stroke="' + (L % 2 ? '#2b2d32' : '#2a2a2a') + '"/>' + (L % 2 ? '' : '<text x="' + X(L) + '" y="' + (Hh - mb + 14) + '" fill="#aeaba4" font-size="10.5" text-anchor="middle">' + L + '</text>');
+    for (var H = 0; H <= Hm; H += 1) o += '<line x1="' + X(0) + '" y1="' + Y(H) + '" x2="' + X(20) + '" y2="' + Y(H) + '" stroke="#2a2a2a"/><text x="' + (ml - 6) + '" y="' + (Y(H) + 4) + '" fill="#aeaba4" font-size="10.5" text-anchor="end">' + H + '</text>';
+    o += '<text x="' + (W / 2) + '" y="' + (Hh - 4) + '" fill="#aeaba4" font-size="11" text-anchor="middle">L (m) – tukiväli</text><text x="8" y="' + (mt - 8) + '" fill="#aeaba4" font-size="11">H (m)</text>';
     o += legendIcons(r.cs, W);
     ['red', 'blue', 'green'].forEach(function (k) {
       var col = T.CASES[k].col, act = k === r.cs, w = act ? 3 : 1.4, op = act ? 1 : 0.45;
       o += '<polyline points="' + C.u[k].map(function (p) { return X(p[0]) + ',' + Y(p[1]); }).join(' ') + '" fill="none" stroke="' + col + '" stroke-width="' + w + '" opacity="' + op + '"/>';
       o += '<polyline points="' + C.r[k].map(function (p) { return X(p[0]) + ',' + Y(p[1]); }).join(' ') + '" fill="none" stroke="' + col + '" stroke-width="' + w + '" stroke-dasharray="7 5" opacity="' + op + '"/>';
     });
-    var pc = r.ok ? '#3fbf6f' : '#ff5a5a';
+    var pc = r.ok ? '#6fbf8e' : '#e8907f';
     o += '<circle cx="' + X(r.L) + '" cy="' + Y(r.H) + '" r="7" fill="' + pc + '" stroke="#fff" stroke-width="2"/><text x="' + (X(r.L) + 10) + '" y="' + (Y(r.H) - 8) + '" fill="#fff" font-size="12" font-weight="700">' + fmt(r.L, 2) + ' × ' + fmt(r.H, 2) + ' m</text>';
     return o + '</svg><p class="hint" style="margin-top:6px">Kuvakkeissa katkoviiva = tuettu reuna. Käyrissä yhtenäinen viiva = raudoittamaton, katkoviiva = raudoitettu. Korostettu kuvake ja paksunnettu käyrä ovat valitun seinän tuentatapa; piste on seinän L × H. Lähde: Weber 4-33, ' + C.fig + ' (q<sub>d</sub> = 0,32 kN/m²).</p>';
   }
@@ -351,12 +351,12 @@ td select{margin:0;padding:3px 4px;font-size:12px;width:auto}
     var c = octx;
     if (cur && visible(cur)) { var p = proj([cur.g.c[0], cur.g.c[1], cur.g.z1 + 0.3]); c.font = '600 12px Arial,Helvetica,sans-serif'; var tw = c.measureText(cur.name).width; c.fillStyle = 'rgba(0,0,0,.78)'; c.fillRect(p[0] - tw / 2 - 6, p[1] - 18, tw + 12, 20); c.fillStyle = '#fff'; c.textAlign = 'center'; c.fillText(cur.name, p[0], p[1] - 4); }
     var o0 = [24, Hc - 24]; c.textAlign = 'left'; c.font = '11px Arial,Helvetica,sans-serif';
-    [[1, 0, 0, 'x', '#e5484d'], [0, 1, 0, 'y', '#3fbf6f'], [0, 0, 1, 'z', '#3b82f6']].forEach(function (a) {
+    [[1, 0, 0, 'x', '#e5484d'], [0, 1, 0, 'y', '#6fbf8e'], [0, 0, 1, 'z', '#3b82f6']].forEach(function (a) {
       var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), x1 = a[0] * cy - a[1] * sy, y1 = a[0] * sy + a[1] * cy, Y2 = a[2] * cp - y1 * sp;
       c.strokeStyle = a[4]; c.lineWidth = 2; c.beginPath(); c.moveTo(o0[0], o0[1]); c.lineTo(o0[0] + x1 * 16, o0[1] - Y2 * 16); c.stroke(); c.fillStyle = a[4]; c.fillText(a[3], o0[0] + x1 * 20, o0[1] - Y2 * 20 + 4); });
   }
   function render2d() {
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, Wc, Hc); ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, Wc, Hc);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, Wc, Hc); ctx.fillStyle = '#18191c'; ctx.fillRect(0, 0, Wc, Hc);
     var L = [0.35, -0.45, 0.82], showCtx = $('ctx').checked, F = [];
     EL.forEach(function (e) {
       if (!visible(e)) return; var sel = RES.has(e); if (!sel && !showCtx) return;

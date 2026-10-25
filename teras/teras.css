@@ -1,7 +1,7 @@
 /* Lastutec – Teräsrakenteet: yhteiset tyylit (sama ilme kuin muissa työkaluissa) */
 :root{
-  --bg:#000000; --paper:#141414; --ink:#f4f4f4; --muted:#9a9a9a; --line:#2e2e2e;
-  --accent:#F74902; --accent-soft:#3b1503; --ok:#5cc58a; --bad:#ff6b5a; --warn:#f2b84b;
+  --bg:#1b1c1f; --paper:#24262a; --ink:#e9e6e0; --muted:#aeaba4; --line:#3d4046;
+  --accent:#E3824F; --accent-soft:#3e2c24; --ok:#82c79f; --bad:#e8907f; --warn:#e2c47f;
   --body:Arial,Helvetica,sans-serif;
   color-scheme:dark;
 }
@@ -9,7 +9,7 @@
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
 .wrap{max-width:1280px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
-header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px}
 .brand{display:flex;flex-direction:column;gap:2px}
 .back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
 .back:hover{text-decoration:underline}
@@ -31,7 +31,7 @@ label.chk{flex-direction:row;align-items:center;justify-content:flex-start;gap:8
 label.chk input{width:auto;margin:0;accent-color:var(--accent)}
 .u{font-size:11px}
 select,input{display:block;margin-top:3px;font-family:var(--body);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
-input[type=number],input[type=text]{background:#2a1206;font-variant-numeric:tabular-nums}
+input[type=number],input[type=text]{background:#2c2723;font-variant-numeric:tabular-nums}
 button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .hint{font-size:13px;color:var(--muted);margin:0}
 .fig svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
@@ -56,7 +56,7 @@ th{font-size:12.5px;color:var(--muted);font-weight:600}
 th:first-child,td:first-child{text-align:left}
 td.l,th.l{text-align:left}
 tr.pick{cursor:pointer}
-tr.pick:hover td{background:#1f1f1f}
+tr.pick:hover td{background:#2e3035}
 tr.cur td{background:var(--accent-soft)}
 .ubar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;min-width:60px}
 .ubar i{display:block;height:100%;background:var(--ok)}

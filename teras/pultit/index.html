@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pulttitaulukko – Lastutec</title>
 <meta name="description" content="Ruuvien leikkaus-, veto-, lävistys- ja reunapuristuskestävyydet SFS-EN 1993-1-8 mukaan, valmiit taulukot M12–M36 ja laskenta välivaiheineen.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <style>
 /* ===== Lastutec-työkalut: kaikki tyylit rajattu .lt-tool-luokan sisään, jotta ne eivät sotke sivuston muita tyylejä ===== */
 .lt-tool{--lt-bg:#ffffff;--lt-fg:#1d2329;--lt-muted:#5b6670;--lt-line:#d9dee3;--lt-soft:#f3f5f7;--lt-accent:#c8501e;--lt-accent-soft:#fbeee8;--lt-ok:#1f7a3f;--lt-bad:#b42318;
@@ -62,12 +62,12 @@
 
 
 /* Sivuston runko (sama kuin muissa Lastutecin työkaluissa) */
-:root{--bg:#000000;--paper:#141414;--ink:#f4f4f4;--muted:#9a9a9a;--line:#2e2e2e;--accent:#F74902;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
+:root{--bg:#1b1c1f;--paper:#24262a;--ink:#e9e6e0;--muted:#aeaba4;--line:#3d4046;--accent:#E3824F;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
 .wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:18px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:18px}
 .brand{display:flex;flex-direction:column;gap:2px}
 .back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
 .back:hover{text-decoration:underline}
@@ -76,11 +76,11 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
 .hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
 .printbtn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
 /* Työkalun tumma teema */
-.lt-tool{--lt-bg:#141414;--lt-fg:#f4f4f4;--lt-muted:#9a9a9a;--lt-line:#2e2e2e;--lt-soft:#1f1f1f;--lt-accent:#F74902;--lt-accent-soft:#3b1503;--lt-ok:#5cc58a;--lt-bad:#ff6b5a;
+.lt-tool{--lt-bg:#24262a;--lt-fg:#e9e6e0;--lt-muted:#aeaba4;--lt-line:#3d4046;--lt-soft:#2e3035;--lt-accent:#E3824F;--lt-accent-soft:#3e2c24;--lt-ok:#82c79f;--lt-bad:#e8907f;
   font-family:Arial,Helvetica,sans-serif!important;background:transparent!important;max-width:none!important;padding:0!important}
 .lt-tool .lt-pill[aria-pressed="true"]{color:#111!important}
-.lt-tool input[type=number]{background:#2a1206!important}
-.lt-tool select{background:#000!important}
+.lt-tool input[type=number]{background:#2c2723!important}
+.lt-tool select{background:var(--bg,#1b1c1f)!important}
 .lt-tool .lt-sub{max-width:85ch}
 @page{size:A4;margin:12mm}
 @media print{

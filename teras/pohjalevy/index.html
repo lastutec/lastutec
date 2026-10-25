@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Pilarin pohjalevyliitos (kesken) – Lastutec</title>
 <meta name="description" content="Pilarin pohjalevyliitoksen mitoitus: komponenttimenetelmä SFS-EN 1993-1-8, pohjalevyn FEM-laskenta (jännitykset, kosketuspaine, ankkurivoimat) sekä liitoksen kiertymisjäykkyys ja luokittelu. Useita liitoksia kerralla.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23F74902'%3EL%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="../teras.css">
 <script src="../teras.js"></script>
 <script src="fem.js"></script>
@@ -29,7 +29,7 @@
   <div class="brand"><a href="../" class="back">← Teräsrakenteet</a><h1>Pilarin pohjalevyliitos</h1></div>
   <div class="hdr-r"><span class="meta">Työkalu 3 · Laatinut: INS Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
 </header>
-<div role="note" style="border:1px solid #f2b84b;background:#2a2208;color:#f2b84b;border-radius:6px;padding:10px 14px;margin:0 0 16px;font:600 14px Arial,Helvetica,sans-serif">⚠ KESKEN – työkalu on vielä kehitysvaiheessa. Tuloksia ei tule käyttää mitoitukseen ennen kuin laskenta on tarkastettu ja hyväksytty.</div>
+<div role="note" style="border:1px solid #e2c47f;background:#2a2208;color:#e2c47f;border-radius:6px;padding:10px 14px;margin:0 0 16px;font:600 14px Arial,Helvetica,sans-serif">⚠ KESKEN – työkalu on vielä kehitysvaiheessa. Tuloksia ei tule käyttää mitoitukseen ennen kuin laskenta on tarkastettu ja hyväksytty.</div>
 <p class="intro">Työkalu mitoittaa I-profiilipilarin pohjalevyliitoksen normaalivoimalle N, momentille M<sub>y</sub> ja leikkausvoimalle V. Mitoitus tehdään kolmella tavalla:</p>
 <ul class="intro">
   <li>komponenttimenetelmällä (SFS-EN 1993-1-8, 6.2.5–6.2.8 ja 6.2.2)</li>
@@ -314,17 +314,17 @@
     var s = Math.min(420 / lp, 250 / bp), cx = Wd / 2, cy = 175;
     var X = function (x) { return cx + x * s; }, Y = function (y) { return cy - y * s; };
     var o = '<svg viewBox="0 0 ' + Wd + ' ' + Ht + '" font-family="Arial,Helvetica,sans-serif">';
-    o += '<rect x="' + X(-lp / 2) + '" y="' + Y(bp / 2) + '" width="' + lp * s + '" height="' + bp * s + '" fill="#2a2a2a" stroke="#9a9a9a"/>';
+    o += '<rect x="' + X(-lp / 2) + '" y="' + Y(bp / 2) + '" width="' + lp * s + '" height="' + bp * s + '" fill="#2a2a2a" stroke="#aeaba4"/>';
     var h = P.h, b = P.b, tf = P.tf, tw = P.tw, xc0 = h / 2 - tf - r.cI, xc1 = h / 2 + r.cO;
-    o += '<rect x="' + X(xc0) + '" y="' + Y(b / 2 + r.cY) + '" width="' + (xc1 - xc0) * s + '" height="' + (b + 2 * r.cY) * s + '" fill="#F74902" fill-opacity=".3" stroke="#F74902" stroke-dasharray="4 3"/>';
+    o += '<rect x="' + X(xc0) + '" y="' + Y(b / 2 + r.cY) + '" width="' + (xc1 - xc0) * s + '" height="' + (b + 2 * r.cY) * s + '" fill="#E3824F" fill-opacity=".3" stroke="#E3824F" stroke-dasharray="4 3"/>';
     o += profile(X, Y, P, s, '#bdbdbd');
     var d0 = L.BOLTS[cs.bs].d0;
-    [-1, 1].forEach(function (sx) { [-1, 1].forEach(function (sy) { o += '<circle cx="' + X(sx * (h / 2 + ex)) + '" cy="' + Y(sy * w / 2) + '" r="' + Math.max(3, d0 / 2 * s) + '" fill="' + (sx < 0 && r.Ft > 0 ? '#F74902' : '#f4f4f4') + '" stroke="#111"/>'; }); });
-    o += '<text x="' + cx + '" y="' + (Y(-bp / 2) + 18) + '" fill="#f4f4f4" font-size="11" text-anchor="middle">l<tspan font-size="8" dy="2">p</tspan><tspan dy="-2"> = ' + lp + ' mm</tspan></text>';
-    o += '<text x="' + (X(lp / 2) + 6) + '" y="' + cy + '" fill="#f4f4f4" font-size="11" transform="rotate(90 ' + (X(lp / 2) + 6) + ' ' + cy + ')" text-anchor="middle">b<tspan font-size="8" dy="2">p</tspan><tspan dy="-2"> = ' + bp + ' mm</tspan></text>';
-    o += '<text x="' + X(-lp / 2) + '" y="' + (Y(bp / 2) - 10) + '" fill="#9a9a9a" font-size="11">' + (r.Ft > 0 ? 'VETO (ankkurit)' : '') + '</text>';
-    o += '<text x="' + X(lp / 2) + '" y="' + (Y(bp / 2) - 10) + '" fill="#F74902" font-size="11" text-anchor="end">PURISTUS, c = ' + n(r.c, 0) + ' mm</text>';
-    o += '<text x="12" y="' + (Ht - 10) + '" fill="#9a9a9a" font-size="10.5">Tasokuva · ' + P.name + ', M kiertää vahvemman akselin ympäri</text>';
+    [-1, 1].forEach(function (sx) { [-1, 1].forEach(function (sy) { o += '<circle cx="' + X(sx * (h / 2 + ex)) + '" cy="' + Y(sy * w / 2) + '" r="' + Math.max(3, d0 / 2 * s) + '" fill="' + (sx < 0 && r.Ft > 0 ? '#E3824F' : '#e9e6e0') + '" stroke="#111"/>'; }); });
+    o += '<text x="' + cx + '" y="' + (Y(-bp / 2) + 18) + '" fill="#e9e6e0" font-size="11" text-anchor="middle">l<tspan font-size="8" dy="2">p</tspan><tspan dy="-2"> = ' + lp + ' mm</tspan></text>';
+    o += '<text x="' + (X(lp / 2) + 6) + '" y="' + cy + '" fill="#e9e6e0" font-size="11" transform="rotate(90 ' + (X(lp / 2) + 6) + ' ' + cy + ')" text-anchor="middle">b<tspan font-size="8" dy="2">p</tspan><tspan dy="-2"> = ' + bp + ' mm</tspan></text>';
+    o += '<text x="' + X(-lp / 2) + '" y="' + (Y(bp / 2) - 10) + '" fill="#aeaba4" font-size="11">' + (r.Ft > 0 ? 'VETO (ankkurit)' : '') + '</text>';
+    o += '<text x="' + X(lp / 2) + '" y="' + (Y(bp / 2) - 10) + '" fill="#E3824F" font-size="11" text-anchor="end">PURISTUS, c = ' + n(r.c, 0) + ' mm</text>';
+    o += '<text x="12" y="' + (Ht - 10) + '" fill="#aeaba4" font-size="10.5">Tasokuva · ' + P.name + ', M kiertää vahvemman akselin ympäri</text>';
     $('fig').innerHTML = o + '</svg>';
   }
   function profile(X, Y, P, s, fill, op) {
@@ -351,17 +351,17 @@
       else if (field === 'w') { var t = v / vmax; col = t >= 0 ? 'rgb(' + Math.round(235 - 5 * t) + ',' + Math.round(235 - 175 * t) + ',' + Math.round(235 - 195 * t) + ')' : 'rgb(' + Math.round(235 + 195 * t) + ',' + Math.round(235 + 125 * t) + ',' + Math.round(235 + 5 * t) + ')'; }
       else col = (field === 'p' && v <= 0) ? '#1a1a1a' : cmap(v / vmax);
       o += '<rect x="' + X(e.x0).toFixed(2) + '" y="' + Y(e.y1).toFixed(2) + '" width="' + ((e.x1 - e.x0) * s + 0.4).toFixed(2) + '" height="' + ((e.y1 - e.y0) * s + 0.4).toFixed(2) + '" fill="' + col + '"/>'; });
-    o += '<rect x="' + X(-lp / 2) + '" y="' + Y(bp / 2) + '" width="' + lp * s + '" height="' + bp * s + '" fill="none" stroke="#9a9a9a"/>';
-    o += profile(X, Y, P, s, '#f4f4f4', 0.18);
+    o += '<rect x="' + X(-lp / 2) + '" y="' + Y(bp / 2) + '" width="' + lp * s + '" height="' + bp * s + '" fill="none" stroke="#aeaba4"/>';
+    o += profile(X, Y, P, s, '#e9e6e0', 0.18);
     var mx = r.F.at; if (field === 'vm' && mx) o += '<rect x="' + X(mx.x0) + '" y="' + Y(mx.y1) + '" width="' + (mx.x1 - mx.x0) * s + '" height="' + (mx.y1 - mx.y0) * s + '" fill="none" stroke="#fff" stroke-width="2"/>';
-    F.bolts.forEach(function (bb) { o += '<circle cx="' + X(bb.x) + '" cy="' + Y(bb.y) + '" r="5" fill="' + (bb.F > 0 ? '#F74902' : '#111') + '" stroke="#f4f4f4" stroke-width="1.5"/><text x="' + (X(bb.x) + 8) + '" y="' + (Y(bb.y) - 7) + '" fill="#f4f4f4" font-size="11" font-weight="700">' + n(bb.F / 1000, 1) + ' kN</text>'; });
+    F.bolts.forEach(function (bb) { o += '<circle cx="' + X(bb.x) + '" cy="' + Y(bb.y) + '" r="5" fill="' + (bb.F > 0 ? '#E3824F' : '#111') + '" stroke="#e9e6e0" stroke-width="1.5"/><text x="' + (X(bb.x) + 8) + '" y="' + (Y(bb.y) - 7) + '" fill="#e9e6e0" font-size="11" font-weight="700">' + n(bb.F / 1000, 1) + ' kN</text>'; });
     // väripalkki
     var gx = Wd - 30, gy = 30, gh = 300;
     for (var i = 0; i <= 60; i++) { var t = 1 - i / 60, cc = field === 'w' ? (function (tt) { tt = 2 * tt - 1; return tt >= 0 ? 'rgb(' + Math.round(235 - 5 * tt) + ',' + Math.round(235 - 175 * tt) + ',' + Math.round(235 - 195 * tt) + ')' : 'rgb(' + Math.round(235 + 195 * tt) + ',' + Math.round(235 + 125 * tt) + ',' + Math.round(235 + 5 * tt) + ')'; })(t) : cmap(t);
       o += '<rect x="' + gx + '" y="' + (gy + i * gh / 60) + '" width="14" height="' + (gh / 60 + 0.5) + '" fill="' + cc + '"/>'; }
     var top = field === 'w' ? '+' + n(vmax, 3) : n(vmax, 1), bot = field === 'w' ? '−' + n(vmax, 3) : '0';
-    o += '<text x="' + (gx - 4) + '" y="' + (gy + 9) + '" fill="#9a9a9a" font-size="10.5" text-anchor="end">' + top + '</text><text x="' + (gx - 4) + '" y="' + (gy + gh) + '" fill="#9a9a9a" font-size="10.5" text-anchor="end">' + bot + '</text><text x="' + (gx + 7) + '" y="' + (gy + gh + 16) + '" fill="#9a9a9a" font-size="10.5" text-anchor="middle">' + unit + '</text>';
-    o += '<text x="12" y="' + (Ht - 12) + '" fill="#9a9a9a" font-size="11">' + title + '</text>';
+    o += '<text x="' + (gx - 4) + '" y="' + (gy + 9) + '" fill="#aeaba4" font-size="10.5" text-anchor="end">' + top + '</text><text x="' + (gx - 4) + '" y="' + (gy + gh) + '" fill="#aeaba4" font-size="10.5" text-anchor="end">' + bot + '</text><text x="' + (gx + 7) + '" y="' + (gy + gh + 16) + '" fill="#aeaba4" font-size="10.5" text-anchor="middle">' + unit + '</text>';
+    o += '<text x="12" y="' + (Ht - 12) + '" fill="#aeaba4" font-size="11">' + title + '</text>';
     $('femfig').innerHTML = o + '</svg>';
     $('femnote').innerHTML = 'Verkko ' + (F.nx - 1) + ' × ' + (F.ny - 1) + ' = ' + F.ne + ' elementtiä (h ≤ ' + n(F.hmax, 1) + ' mm), ' + F.n + ' vapausastetta, ' + F.it + ' kosketusiteraatiota' + (F.conv ? '' : ' (ei konvergoinut!)') + ', ' + n(F.ms, 0) + ' ms. Valkoinen kehys = suurin von Mises -jännitys. Pilarin jalanjälki (harmaa) on jäykkä.';
     var tot = F.bolts.reduce(function (s2, b) { return s2 + b.F; }, 0);

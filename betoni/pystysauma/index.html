@@ -159,7 +159,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
   <div class="lt-card">
     <h3>Jako elementeittäin</h3>
     <div class="lt-scroll"><table class="lt-table" id="p-zones"></table></div>
-    <p class="lt-note" style="margin-top:8px">Jokaisen elementin jako mitoitetaan sen alareunan leikkausvoimalla, joka on elementin suurin. Jakovaihtoehdot ovat 250, 300, 350, 400, 450, 500, 600, 800, 1000 ja 1200 mm, eikä jako alita valitun tyypin vähimmäisjakoa. Saumaan tulee aina vähintään kaksi vaijerilenkkiparia.</p>
+    <p class="lt-note" style="margin-top:8px">Jokaisen elementin jako mitoitetaan sen alareunan leikkausvoimalla, joka on elementin suurin. Jakovaihtoehdot ovat 250–600 mm 50 mm:n välein. Suurin jako on 600 mm, eikä jako alita valitun tyypin vähimmäisjakoa. Saumaan tulee aina vähintään kaksi vaijerilenkkiparia.</p>
   </div>
   <div class="lt-card"><ol class="lt-steps" id="p-steps"></ol></div>
   <details class="lt-card"><summary>Vertailu muihin PVL-tyyppeihin</summary><div class="lt-scroll" style="margin-top:8px"><table class="lt-table" id="p-types"></table></div></details>
@@ -192,7 +192,7 @@ header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing
     if(t<150) return null; if(t>=190) return [17.4,19.4,21.3,24.2,26.2,28.1][c];
     return T[[180,170,160,150].find(function(x){return t>=x;})][c];
   }
-  var SP=[250,300,350,400,450,500,600,800,1000,1200];
+  var SP=[250,300,350,400,450,500,550,600]; // suurin jako 600 mm
 
   function calc(){
     var c=+$('#p-c').value,t=num('#p-t'),joint=$('#p-joint').value,P=PVL[+$('#p-type').value];

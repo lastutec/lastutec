@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<script src="../../lt-pdf.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Murtomekanismit – Lastutec</title>
+<meta name="description" content="Interaktiivinen havainnollistus palkin ja pilarin murtotavoista (teräs ja betoni): plastinen mekanismi, leikkaus, kiepahdus, uuman lommahdus, nurjahdus ja puristusmurto.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+/* ===== Lastutec-työkalut: kaikki tyylit rajattu .lt-tool-luokan sisään ===== */
+.lt-tool{--lt-bg:#ffffff;--lt-fg:#1d2329;--lt-muted:#5b6670;--lt-line:#d9dee3;--lt-soft:#f3f5f7;--lt-accent:#c8501e;--lt-accent-soft:#fbeee8;--lt-ok:#1f7a3f;--lt-bad:#b42318;
+  font-family:Arial,Helvetica,sans-serif;color:var(--lt-fg);background:var(--lt-bg);max-width:1100px;margin:0 auto;padding:16px;line-height:1.45;font-size:15px}
+.lt-tool *{box-sizing:border-box}
+.lt-tool h1{font-size:1.55rem;margin:0 0 4px;line-height:1.2}
+.lt-tool h2{font-size:1.15rem;margin:30px 0 8px}
+.lt-tool h3{font-size:1rem;margin:0 0 10px}
+.lt-tool p{margin:0 0 10px}
+.lt-crumb{font-size:.82rem;color:var(--lt-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.lt-sub{color:var(--lt-muted);margin:0 0 16px}
+.lt-card{border:1px solid var(--lt-line);border-radius:10px;padding:16px;background:var(--lt-bg);margin:12px 0}
+.lt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.lt-tool label{display:flex;flex-direction:column;justify-content:space-between;font-size:.84rem;color:var(--lt-muted);gap:4px}
+.lt-tool label.lt-chk{flex-direction:row;align-items:center;gap:8px;color:var(--lt-fg)}
+.lt-tool label.lt-chk input{width:auto}
+.lt-tool input,.lt-tool select{font:inherit;font-size:.95rem;color:var(--lt-fg);padding:8px 10px;border:1px solid var(--lt-line);border-radius:6px;background:var(--lt-bg);min-width:0;width:100%}
+.lt-tool input:focus,.lt-tool select:focus{outline:2px solid var(--lt-accent);outline-offset:1px}
+.lt-pills{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.lt-pill{border:1px solid var(--lt-line);background:var(--lt-soft);color:var(--lt-fg);padding:6px 14px;border-radius:999px;cursor:pointer;font:inherit;font-size:.9rem}
+.lt-pill[aria-pressed="true"]{background:var(--lt-accent);border-color:var(--lt-accent);color:#fff}
+.lt-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--lt-line);border-radius:8px}
+.lt-table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.9rem}
+.lt-table th,.lt-table td{padding:8px 10px;border-bottom:1px solid var(--lt-line);text-align:right;white-space:nowrap}
+.lt-table th:first-child,.lt-table td:first-child{text-align:left;position:sticky;left:0;background:inherit;font-weight:600}
+.lt-table thead tr{background:var(--lt-soft)}
+.lt-table thead th{font-weight:600;vertical-align:bottom;line-height:1.25}
+.lt-table thead th small{display:block;font-weight:400;color:var(--lt-muted)}
+.lt-table tbody tr{cursor:pointer;background:var(--lt-bg)}
+.lt-table tbody tr:hover,.lt-table tbody tr.sel{background:var(--lt-accent-soft)}
+.lt-table tbody tr:last-child td{border-bottom:0}
+.lt-table tfoot td{background:var(--lt-soft);font-size:.82rem;color:var(--lt-muted)}
+.lt-note{font-size:.84rem;color:var(--lt-muted)}
+.lt-cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:0 0 12px}
+.lt-case{background:var(--lt-soft);border-radius:8px;padding:12px}
+.lt-case b{font-size:1.05rem}
+.lt-case svg{display:block;margin:8px 0;width:100%;max-width:300px;height:auto}
+.lt-case p{font-size:.85rem;margin:0;color:var(--lt-muted)}
+.lt-steps{counter-reset:lts;list-style:none;padding:0;margin:0}
+.lt-step{border-left:3px solid var(--lt-line);padding:6px 0 8px 14px;margin:0 0 10px}
+.lt-step h4{margin:0 0 6px;font-size:.98rem}
+.lt-step h4::before{counter-increment:lts;content:counter(lts) ". ";color:var(--lt-accent)}
+.lt-f{font-family:Arial,Helvetica,sans-serif;font-size:.95rem;margin:3px 0;overflow-x:auto}
+.lt-f .lt-c{color:var(--lt-muted);font-family:Arial,Helvetica,sans-serif;font-size:.84rem}
+.lt-r{font-weight:700}
+.lt-ok{color:var(--lt-ok);font-weight:600}
+.lt-bad{color:var(--lt-bad);font-weight:600}
+.lt-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:0 0 16px}
+.lt-kpi{background:var(--lt-soft);border-radius:8px;padding:10px 12px}
+.lt-kpi span{display:block;font-size:.8rem;color:var(--lt-muted)}
+.lt-kpi b{font-size:1.25rem;font-variant-numeric:tabular-nums}
+.lt-bar{height:6px;background:var(--lt-line);border-radius:3px;margin-top:6px;overflow:hidden}
+.lt-bar i{display:block;height:100%;background:var(--lt-ok)}
+.lt-bar i.over{background:var(--lt-bad)}
+.lt-tool details{margin-top:8px}
+.lt-tool summary{cursor:pointer;font-weight:600}
+.lt-tool ul{margin:6px 0 0;padding-left:20px}
+.lt-disc{margin-top:24px;font-size:.8rem;color:var(--lt-muted);border-top:1px solid var(--lt-line);padding-top:10px}
+@media (max-width:520px){.lt-tool{padding:12px}.lt-grid{grid-template-columns:1fr 1fr}}
+
+
+
+/* Sivuston runko (sama kuin muissa Lastutecin työkaluissa) */
+:root{--bg:#1b1c1f;--paper:#24262a;--ink:#e9e6e0;--muted:#aeaba4;--line:#3d4046;--accent:#E3824F;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:18px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+/* Työkalun tumma teema */
+.lt-tool{--lt-bg:#24262a;--lt-fg:#e9e6e0;--lt-muted:#aeaba4;--lt-line:#3d4046;--lt-soft:#2e3035;--lt-accent:#E3824F;--lt-accent-soft:#3e2c24;--lt-ok:#82c79f;--lt-bad:#e8907f;
+  font-family:Arial,Helvetica,sans-serif!important;background:transparent!important;max-width:none!important;padding:0!important}
+.lt-tool .lt-pill[aria-pressed="true"]{color:#111!important}
+.lt-tool input[type=number]{background:#2c2723!important}
+.lt-tool select{background:var(--bg,#1b1c1f)!important}
+.lt-tool .lt-sub{max-width:85ch}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#c63a00;color-scheme:light}
+  .lt-tool{--lt-bg:#fff;--lt-fg:#000;--lt-muted:#444;--lt-line:#bbb;--lt-soft:#f1f1f1;--lt-accent:#c63a00;--lt-accent-soft:#fde2d5;--lt-ok:#1d6b3a;--lt-bad:#b3261e}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back,.lt-pills{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  .lt-tool input,.lt-tool select{background:#fff!important;color:#000!important}
+  .lt-card,tr{break-inside:avoid}
+  details.lt-card{display:block}
+}
+</style>
+<style>
+.mm-top{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center}
+.mm-top .lt-pills{margin:0;align-items:center}
+.mm-lbl{font-size:.8rem;color:var(--lt-muted);margin-right:2px}
+.mm-pre{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center}
+.mm-pre button{border:1px dashed var(--lt-line);background:transparent;color:var(--lt-fg);padding:5px 11px;border-radius:999px;cursor:pointer;font:inherit;font-size:.84rem}
+.mm-pre button:hover{border-color:var(--lt-accent);color:var(--lt-accent)}
+.mm-main{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:12px;align-items:start}
+@media (max-width:880px){.mm-main{grid-template-columns:1fr}}
+.mm-stage{padding:8px!important;margin:0!important}
+.mm-side{margin:0!important}
+#mm-cv{display:block;width:100%;height:400px;touch-action:none;cursor:crosshair;border-radius:8px;background:#1e2023;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.mm-tb{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center}
+.mm-btn{border:1px solid var(--lt-line);background:var(--lt-soft);color:var(--lt-fg);padding:7px 13px;border-radius:6px;cursor:pointer;font:inherit;font-size:.88rem}
+.mm-btn:hover{border-color:var(--lt-accent)}
+.mm-btn.pri{background:var(--lt-accent);border-color:var(--lt-accent);color:#111;font-weight:600}
+.mm-tb .lt-note{margin-left:auto}
+.mm-u{margin:0 0 11px}
+.mm-u .t{display:flex;justify-content:space-between;gap:8px;font-size:.86rem;color:var(--lt-muted)}
+.mm-u .t b{font-variant-numeric:tabular-nums;color:var(--lt-fg)}
+.mm-u.gov .t{color:var(--lt-fg);font-weight:700}
+.mm-u .lt-bar{height:8px}
+.mm-u .lt-bar i{transition:width .08s linear}
+.mm-u .lt-bar i.mid{background:#e3c34f}
+#mm-nm{display:block;width:100%;height:210px;margin-top:6px}
+.mm-fail{border:2px solid var(--lt-bad)!important;background:linear-gradient(180deg,rgba(232,144,127,.10),transparent 60%)!important}
+.mm-fail h3{color:var(--lt-bad);font-size:1.15rem}
+.mm-fail .mm-how{background:var(--lt-soft);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:.9rem}
+.mm-lt{width:100%;border-collapse:collapse;font-size:.9rem}
+.mm-lt td{padding:5px 6px;border-bottom:1px solid var(--lt-line);vertical-align:middle}
+.mm-lt td:last-child{text-align:right;width:40px}
+.mm-lt input{width:110px!important;padding:5px 8px!important}
+.mm-lt .x{background:none;border:0;color:var(--lt-muted);cursor:pointer;font-size:1.05rem}
+.mm-lt .x:hover{color:var(--lt-bad)}
+.mm-modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.mm-modes div{background:var(--lt-soft);border-radius:8px;padding:10px 12px;font-size:.87rem;color:var(--lt-muted)}
+.mm-modes b{display:block;color:var(--lt-fg);margin-bottom:3px}
+.lt-tool [hidden]{display:none!important}
+@media print{#mm-cv{background:#fff}.mm-tb,.mm-pre{display:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Statiikka ja mekaniikka</a><h1>Murtomekanismit</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 5 · Laatinut: INS (YAMK) Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<div class="lt-tool" id="lt-mm">
+
+  <p class="lt-sub">Havainnollistus palkin ja pilarin yleisimmistä murtotavoista teräs- ja betonirakenteissa. <b>Napauta</b> rakennetta, niin saat pistekuorman. <b>Vedä sormella</b> pitkin rakennetta, niin saat viivakuorman. Kuorma kasvaa niin kauan kuin pidät painettuna. Kun jokin kestävyys ylittyy, rakenne murtuu ja murtomekanismi animoidaan. Pilarissa yläpään napautus antaa pystykuorman ja kyljen napautus vaakakuorman.</p>
+
+  <div class="lt-card">
+    <div class="mm-top">
+      <div class="lt-pills"><span class="mm-lbl">Rakenne</span><button type="button" class="lt-pill" data-g="type" data-v="beam" aria-pressed="true">Palkki</button><button type="button" class="lt-pill" data-g="type" data-v="col" aria-pressed="false">Pilari</button></div>
+      <div class="lt-pills"><span class="mm-lbl">Materiaali</span><button type="button" class="lt-pill" data-g="mat" data-v="steel" aria-pressed="true">Teräs</button><button type="button" class="lt-pill" data-g="mat" data-v="conc" aria-pressed="false">Betoni</button></div>
+      <label style="flex-direction:row;align-items:center;gap:8px"><span>Tuenta</span><select id="mm-sup" style="width:auto"><option value="ss">Vapaasti tuettu</option><option value="cant">Uloke</option><option value="fp">Jäykkä–nivel</option><option value="ff">Molemmat päät jäykät</option></select></label>
+      <label style="flex-direction:row;align-items:center;gap:8px"><span id="mm-Llbl">Jänne L (m)</span><input id="mm-L" type="number" min="1" max="20" step="0.5" value="6" style="width:80px"></label>
+    </div>
+    <div class="mm-pre" id="mm-pre"><span class="mm-lbl">Kokeile:</span></div>
+  </div>
+
+  <div class="mm-main">
+    <div class="lt-card mm-stage">
+      <canvas id="mm-cv" aria-label="Rakennemalli: napauta tai vedä lisätäksesi kuorman"></canvas>
+      <div class="mm-tb">
+        <button type="button" class="mm-btn" id="mm-clear">Nollaa kuormat</button>
+        <button type="button" class="mm-btn" id="mm-undo">Poista viimeisin</button>
+        <button type="button" class="mm-btn pri" id="mm-ramp">Kasvata kuormia ▶</button>
+        <span class="lt-note" id="mm-status"></span>
+      </div>
+    </div>
+    <div class="lt-card mm-side">
+      <h3>Käyttöasteet</h3>
+      <div id="mm-ut"></div>
+      <canvas id="mm-nm" hidden></canvas>
+      <p class="lt-note" id="mm-utn" style="margin-top:8px"></p>
+    </div>
+  </div>
+
+  <div class="lt-card mm-fail" id="mm-fail" hidden></div>
+
+  <div class="lt-card">
+    <h3>Kuormat</h3>
+    <div id="mm-loads"></div>
+  </div>
+
+  <div class="lt-card">
+    <h3>Poikkileikkaus ja materiaali</h3>
+    <div class="lt-grid mm-st">
+      <label><span>Profiili</span><select id="mm-prof"></select></label>
+      <label><span>Teräslaji</span><select id="mm-fy"><option value="235">S235</option><option value="355" selected>S355</option></select></label>
+      <label class="lt-chk mm-bonly"><input type="checkbox" id="mm-lat"> Sivutuettu (kiepahdus estetty)</label>
+    </div>
+    <div class="lt-grid mm-co">
+      <label><span>Leveys b (mm)</span><input id="mm-b" type="number" min="100" step="10" value="300"></label>
+      <label><span>Korkeus h (mm)</span><input id="mm-h" type="number" min="100" step="10" value="500"></label>
+      <label><span>Betoni</span><select id="mm-cc"><option value="25">C25/30</option><option value="30" selected>C30/37</option><option value="35">C35/45</option><option value="40">C40/50</option><option value="45">C45/55</option><option value="50">C50/60</option></select></label>
+      <label class="mm-bonly"><span>Alapinta: tankoja (kpl)</span><input id="mm-nb" type="number" min="0" max="12" step="1" value="3"></label>
+      <label class="mm-bonly"><span>Alapinta: ⌀ (mm)</span><select id="mm-fb"><option>12</option><option>16</option><option selected>20</option><option>25</option><option>32</option></select></label>
+      <label class="mm-bonly"><span>Yläpinta: tankoja (kpl)</span><input id="mm-nt" type="number" min="0" max="12" step="1" value="2"></label>
+      <label class="mm-bonly"><span>Yläpinta: ⌀ (mm)</span><select id="mm-ft"><option>12</option><option selected>16</option><option>20</option><option>25</option><option>32</option></select></label>
+      <label class="mm-bonly"><span>Haka ⌀ (mm)</span><select id="mm-sw"><option value="0">ei hakoja</option><option value="6">6</option><option value="8" selected>8</option><option value="10">10</option><option value="12">12</option></select></label>
+      <label class="mm-bonly"><span>Hakajako s (mm)</span><input id="mm-ss" type="number" min="50" step="25" value="200"></label>
+      <label class="mm-conly"><span>Tankoja / sivu (kpl)</span><input id="mm-nc" type="number" min="2" max="8" step="1" value="2"></label>
+      <label class="mm-conly"><span>Tangon ⌀ (mm)</span><select id="mm-fc"><option>12</option><option selected>16</option><option>20</option><option>25</option><option>32</option></select></label>
+    </div>
+    <p class="lt-note" style="margin:10px 0 0">Suojabetoni 30 mm. Betonissa käytetään mitoitusarvoja (γ<sub>c</sub> = 1,5, γ<sub>s</sub> = 1,15, α<sub>cc</sub> = 0,85) ja teräksessä γ<sub>M0</sub> = γ<sub>M1</sub> = 1,0. Omapainoa ei huomioida.</p>
+  </div>
+
+  <div class="lt-card">
+    <h3>Kestävyydet</h3>
+    <div class="lt-sum" id="mm-kpi" style="margin:0"></div>
+  </div>
+
+  <details class="lt-card">
+    <summary>Murtotavat lyhyesti</summary>
+    <div class="mm-modes" style="margin-top:12px">
+      <div><b>Plastinen mekanismi (teräs)</b>Kun momentti saavuttaa arvon M<sub>pl</sub> = W<sub>pl</sub>·f<sub>y</sub>, syntyy plastinen nivel. Staattisesti määräämätön palkki kantaa vielä, kunnes niveliä on riittävästi mekanismiin. Murto on sitkeä ja varoittaa suurilla taipumilla.</div>
+      <div><b>Leikkausmurto</b>Teräksessä uuma myötää leikkauksessa: V<sub>pl,Rd</sub> = A<sub>v</sub>·f<sub>y</sub>/√3. Betonissa ilman riittäviä hakoja vino halkeama katkaisee palkin äkillisesti ja varoittamatta.</div>
+      <div><b>Kiepahdus</b>Pitkän ja sivutukemattoman palkin puristettu laippa nurjahtaa sivulle ja poikkileikkaus kiertyy. Kestävyys M<sub>b,Rd</sub> = χ<sub>LT</sub>·W<sub>pl</sub>·f<sub>y</sub> on pienempi kuin M<sub>pl</sub>.</div>
+      <div><b>Uuman paikallinen murtuminen</b>Keskitetty kuorma painaa ohuen uuman kasaan, ja se myötää tai lommahtaa (SFS-EN 1993-1-5, kohta 6). Murto estetään jäykisteillä.</div>
+      <div><b>Taivutusmurto (betoni)</b>Normaalisti raudoitetussa palkissa veteräkset myötävät ensin, halkeamat avautuvat ja palkki taipuu. Yliraudoitetussa palkissa betoni murskautuu ennen terästen myötöä, jolloin murto on hauras.</div>
+      <div><b>Nurjahdus</b>Hoikka puristettu sauva taipuu äkillisesti sivulle. Teräksessä N<sub>b,Rd</sub> = χ·A·f<sub>y</sub> ja nurjahduspituus on L<sub>cr</sub> = β·L. Betonissa toisen kertaluvun momentti N·e kasvaa, kunnes poikkileikkaus ei enää kestä.</div>
+      <div><b>Puristusmurto</b>Tanakka pilari murtuu, kun betoni murskautuu tai teräs myötää koko poikkileikkaukseltaan. Betonipilarissa suojabetoni lohkeilee ja pääteräkset nurjahtavat hakojen välissä.</div>
+      <div><b>Puristus + taivutus</b>Vaakakuorma aiheuttaa momentin, jota pystykuorma kasvattaa siirtymän kautta (P–δ). Kestävyys tarkistetaan yhteisvaikutuksena, betonissa N–M-yhteisvaikutuskäyrällä.</div>
+    </div>
+  </details>
+
+  <p class="lt-disc">Havainnollistava opetustyökalu. Kestävyydet on laskettu yksinkertaistetuilla Eurokoodien kaavoilla: SFS-EN 1993-1-1, 1993-1-5 ja 1992-1-1. Taivutusmekanismit lasketaan plastisuusteorialla, ja sauva on jaettu 48 elementtiin. Työkalu ei korvaa rakennesuunnittelua.</p>
+</div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const KEY='lastutec-murto-v1', N=48;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fmt=(v,d=1)=>isFinite(v)?v.toFixed(d).replace('.',',').replace('-','−'):'∞';
+const ease=p=>1-Math.pow(1-p,3);
+// h b tw tf r A[cm2] Iy[cm4] Iz[cm4] Wpl,y[cm3] It[cm4] Iw[cm6]
+const PROF={
+'IPE 200':[200,100,5.6,8.5,12,28.5,1943,142.4,220.6,6.98,12990],
+'IPE 240':[240,120,6.2,9.8,15,39.1,3892,283.6,366.6,12.88,37390],
+'IPE 300':[300,150,7.1,10.7,15,53.8,8356,603.8,628.4,20.12,125900],
+'IPE 360':[360,170,8,12.7,18,72.7,16270,1043,1019,37.32,313600],
+'IPE 400':[400,180,8.6,13.5,21,84.5,23130,1318,1307,51.08,490000],
+'IPE 500':[500,200,10.2,16,21,116,48200,2142,2194,89.29,1249000],
+'HEA 160':[152,160,6,9,15,38.8,1673,615.6,245.1,12.19,31410],
+'HEA 200':[190,200,6.5,10,18,53.8,3692,1336,429.5,20.98,108000],
+'HEA 240':[230,240,7.5,12,21,76.8,7763,2769,744.6,41.55,328500],
+'HEA 300':[290,300,8.5,14,27,112.5,18260,6310,1383,85.17,1200000],
+'HEB 200':[200,200,9,15,18,78.1,5696,2003,642.5,59.28,171100],
+'HEB 300':[300,300,11,19,27,149.1,25170,8563,1869,185,1688000]};
+$('mm-prof').innerHTML=Object.keys(PROF).map(k=>`<option${k==='IPE 300'?' selected':''}>${k}</option>`).join('');
+
+const SUPL={beam:{ss:'Vapaasti tuettu',cant:'Uloke (jäykkä–vapaa)',fp:'Jäykkä–nivel',ff:'Molemmat päät jäykät'},
+            col:{ss:'Nivel–nivel (β = 1,0)',cant:'Jäykkä–vapaa (β = 2,0)',fp:'Jäykkä–nivel (β = 0,7)',ff:'Jäykkä–jäykkä (β = 0,5)'}};
+
+/* ---------- tila ---------- */
+const S={};
+let loads=[], cur=null, ramp=false, fail=null, E=null, M=null;
+function pill(g){const b=document.querySelector(`[data-g="${g}"][aria-pressed="true"]`);return b?b.dataset.v:null;}
+function setPill(g,v){document.querySelectorAll(`[data-g="${g}"]`).forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v?'true':'false'));}
+function num(id,d){const v=parseFloat(String($(id).value).replace(',','.'));return isFinite(v)?v:d;}
+function read(){
+  S.type=pill('type')||'beam'; S.mat=pill('mat')||'steel';
+  S.sup=$('mm-sup').value; S.L=clamp(num('mm-L',6),1,20);
+  S.prof=$('mm-prof').value; S.fy=+$('mm-fy').value; S.lat=$('mm-lat').checked;
+  S.b=clamp(num('mm-b',300),100,3000); S.h=clamp(num('mm-h',500),100,3000); S.fck=+$('mm-cc').value;
+  S.nb=clamp(Math.round(num('mm-nb',3)),0,12); S.fb=+$('mm-fb').value;
+  S.nt=clamp(Math.round(num('mm-nt',2)),0,12); S.ft=+$('mm-ft').value;
+  S.sw=+$('mm-sw').value; S.ss=clamp(num('mm-ss',200),50,600);
+  S.nc=clamp(Math.round(num('mm-nc',2)),2,8); S.fc=+$('mm-fc').value;
+}
+const FIELDS=['mm-sup','mm-L','mm-prof','mm-fy','mm-lat','mm-b','mm-h','mm-cc','mm-nb','mm-fb','mm-nt','mm-ft','mm-sw','mm-ss','mm-nc','mm-fc'];
+function save(){try{const o={type:S.type,mat:S.mat};FIELDS.forEach(id=>{const e=$(id);o[id]=e.type==='checkbox'?e.checked:e.value;});localStorage.setItem(KEY,JSON.stringify(o));}catch(e){}}
+function restore(){try{const o=JSON.parse(localStorage.getItem(KEY)||'null');if(!o)return;setPill('type',o.type||'beam');setPill('mat',o.mat||'steel');FIELDS.forEach(id=>{if(o[id]===undefined)return;const e=$(id);if(e.type==='checkbox')e.checked=!!o[id];else e.value=o[id];});}catch(e){}}
+
+/* ---------- materiaalit ja kestävyydet ---------- */
+function chi(l,a){if(l<=0.2)return 1;const P=0.5*(1+a*(l-0.2)+l*l);return Math.min(1,1/(P+Math.sqrt(Math.max(0,P*P-l*l))));}
+function mrd(As,d,b,fcd,fyd){
+  if(As<=0)return null;const Es=200000,ecu=0.0035,eyd=fyd/Es;
+  let x=As*fyd/(0.8*b*fcd),es=ecu*(d-x)/x,br=false;
+  if(es<eyd){const a=0.8*b*fcd,bb=As*Es*ecu,c=-As*Es*ecu*d;x=(-bb+Math.sqrt(bb*bb-4*a*c))/(2*a);es=ecu*(d-x)/x;br=true;}
+  return {M:0.8*b*fcd*x*(d-0.4*x)/1e6,x,xd:x/d,es,br};
+}
+function vrdc(b,d,As,fck,scp){const k=Math.min(2,1+Math.sqrt(200/d)),rho=Math.min(0.02,As/(b*d));
+  const v1=0.18/1.5*k*Math.cbrt(100*rho*fck),vmin=0.035*Math.pow(k,1.5)*Math.sqrt(fck);
+  return (Math.max(v1,vmin)+0.15*(scp||0))*b*d/1000;}
+function nmDiagram(b,h,As1,dp,fcd,fyd){
+  const Es=200000,ecu=0.0035,d=h-dp,pts=[{N:-2*As1*fyd/1000,M:0}];
+  for(let i=1;i<=160;i++){
+    const x=h*(0.004+2.6*Math.pow(i/160,2));
+    const a=Math.min(0.8*x,h),Fc=a*b*fcd;
+    const s2=clamp(Es*ecu*(x-dp)/x,-fyd,fyd),s1=clamp(Es*ecu*(x-d)/x,-fyd,fyd);
+    const Nn=Fc+As1*s2+As1*s1, Mm=Fc*(h/2-a/2)+As1*s2*(h/2-dp)-As1*s1*(d-h/2);
+    pts.push({N:Nn/1000,M:Math.max(0,Mm/1e6)});
+  }
+  pts.push({N:(b*h*fcd+2*As1*fyd)/1000,M:0});
+  return pts;
+}
+function rayUtil(pts,Nv,Mv){
+  if(Nv<=1e-9&&Mv<=1e-9)return 0;let best=Infinity;
+  for(let i=0;i<pts.length-1;i++){const A=pts[i],B=pts[i+1];
+    const ex=B.M-A.M,ey=B.N-A.N,den=Mv*ey-Nv*ex; if(Math.abs(den)<1e-12)continue;
+    const t=(A.M*ey-A.N*ex)/den, s=(Mv*A.N-Nv*A.M)/den*(-1);
+    const s2=Math.abs(ex)>Math.abs(ey)?(t*Mv-A.M)/ex:(t*Nv-A.N)/ey;
+    if(t>0&&s2>=-1e-9&&s2<=1+1e-9&&t<best)best=t;}
+  return best===Infinity?0:1/best;
+}
+function mAtN(pts,Nv){let m=0;for(let i=0;i<pts.length-1;i++){const A=pts[i],B=pts[i+1];if((A.N-Nv)*(B.N-Nv)<=0&&A.N!==B.N){const s=(Nv-A.N)/(B.N-A.N);m=Math.max(m,A.M+s*(B.M-A.M));}}return m;}
+
+function model(){
+  const m={type:S.type,mat:S.mat,L:S.L,sup:S.sup};
+  const beta={ss:1,cant:2,fp:0.7,ff:0.5}[S.sup]; m.beta=beta; m.Lcr=beta*S.L;
+  if(S.mat==='steel'){
+    const [h,b,tw,tf,r,A,Iy,Iz,Wpl,It,Iw]=PROF[S.prof]||PROF['IPE 300'],fy=S.fy;
+    Object.assign(m,{h,b,tw,tf,r,A,Iy,Iz,Wpl,It,Iw,fy,depth:h/1000});
+    m.EI=210e6*Iy*1e-8; m.Mp=Wpl*fy/1000; m.My=Iy/(h/20)*fy/1000;
+    m.Av=Math.max(A*100-2*b*tf+(tw+2*r)*tf,(h-2*tf)*tw); m.Vpl=m.Av*fy/Math.sqrt(3)/1000;
+    m.capP=m.capN=m.Mp; m.brP=m.brN=false;
+    const hw=h-2*tf,ly=50+2*tf*(1+Math.sqrt(b/tw)),Fy=fy*ly*tw,Fcr=0.9*6*210000*tw**3/hw;
+    m.ly=ly; m.lamF=Math.sqrt(Fy/Fcr); m.chiF=Math.min(1,0.5/m.lamF); m.FRd=m.chiF*Fy/1000;
+    m.aLT=h/b<=2?0.21:0.34;
+    m.Npl=A*100*fy/1000;
+    m.Ncry=Math.PI**2*210e6*Iy*1e-8/m.Lcr**2; m.Ncrz=Math.PI**2*210e6*Iz*1e-8/m.Lcr**2;
+    const st=h/b<=1.2; m.ay=st?0.34:0.21; m.az=st?0.49:0.34;
+    m.lamy=Math.sqrt(m.Npl/m.Ncry); m.lamz=Math.sqrt(m.Npl/m.Ncrz);
+    m.chiy=chi(m.lamy,m.ay); m.chiz=chi(m.lamz,m.az); m.Nb=Math.min(m.chiy,m.chiz)*m.Npl;
+  } else {
+    const fck=S.fck,fcd=0.85*fck/1.5,fyd=500/1.15,b=S.b,h=S.h;
+    Object.assign(m,{fck,fcd,fyd,b,h,depth:h/1000});
+    m.fctm=0.3*Math.pow(fck,2/3); m.Ecm=22*Math.pow((fck+8)/10,0.3)*1e6;
+    m.Mcr=m.fctm*b*h*h/6/1e6;
+    if(S.type==='beam'){
+      const c=30,sw=S.sw||0; m.dB=h-c-sw-S.fb/2; m.dT=h-c-sw-S.ft/2;
+      m.AsB=S.nb*Math.PI*S.fb**2/4; m.AsT=S.nt*Math.PI*S.ft**2/4;
+      m.rB=mrd(m.AsB,m.dB,b,fcd,fyd); m.rT=mrd(m.AsT,m.dT,b,fcd,fyd);
+      m.capP=m.rB?m.rB.M:m.Mcr; m.brP=!m.rB||m.rB.br;
+      m.capN=m.rT?m.rT.M:m.Mcr; m.brN=!m.rT||m.rT.br;
+      m.EI=0.5*m.Ecm*(b/1000)*(h/1000)**3/12;
+      m.VRdc=vrdc(b,m.dB,m.AsB,fck,0); m.VRds=0;
+      if(sw>0){const Asw=2*Math.PI*sw*sw/4,z=0.9*m.dB;m.VRdsS=Asw/S.ss*z*fyd*2.5/1000;m.VRdmax=b*z*0.6*(1-fck/250)*fcd/2.9/1000;m.VRds=Math.min(m.VRdsS,m.VRdmax);}
+      m.VRd=Math.max(m.VRdc,m.VRds);
+    } else {
+      m.As1=S.nc*Math.PI*S.fc**2/4; m.dp=30+8+S.fc/2; m.d=h-m.dp;
+      m.pts=nmDiagram(b,h,m.As1,m.dp,fcd,fyd);
+      m.N0=(b*h*fcd+2*m.As1*fyd)/1000;
+      const ecu=0.0035,eyd=fyd/200000,xb=ecu*m.d/(ecu+eyd),ab=0.8*xb;
+      m.Nbal=(ab*b*fcd+m.As1*clamp(200000*ecu*(xb-m.dp)/xb,-fyd,fyd)-m.As1*fyd)/1000;
+      m.M0=mAtN(m.pts,0);
+      m.e0=Math.max(m.Lcr/400,h/30000,0.02);
+      m.EIb=0.3*m.Ecm/1.2*(b/1000)*(h/1000)**3/12; m.NB=Math.PI**2*m.EIb/m.Lcr**2;
+      m.EI=m.EIb; m.Mp=m.M0;
+    }
+  }
+  return m;
+}
+
+/* ---------- FEM (EI = 1, pituus 1, tulokset skaalataan) ---------- */
+function kel(h,r){const a=1/(h*h*h);
+  if(!r[0]&&!r[1])return [12*a,6*h*a,-12*a,6*h*a,6*h*a,4*h*h*a,-6*h*a,2*h*h*a,-12*a,-6*h*a,12*a,-6*h*a,6*h*a,2*h*h*a,-6*h*a,4*h*h*a];
+  const c=3*a;
+  if(r[1]&&!r[0])return [c,c*h,-c,0,c*h,c*h*h,-c*h,0,-c,-c*h,c,0,0,0,0,0];
+  if(r[0]&&!r[1])return [c,0,-c,c*h,0,0,0,0,-c,0,c,-c*h,c*h,0,-c*h,c*h*h];
+  return new Array(16).fill(0);}
+function fixedDofs(sp){const c=new Set([0]);if(sp!=='ss')c.add(1);if(sp!=='cant')c.add(2*N);if(sp==='ff')c.add(2*N+1);return c;}
+function gauss(A,b,n,chk){
+  let md=0;for(let i=0;i<n;i++)md=Math.max(md,Math.abs(A[i*n+i]));
+  const tol=md*1e-10;
+  for(let i=0;i<n;i++){
+    let p=i,mx=Math.abs(A[i*n+i]);for(let r=i+1;r<n;r++){const v=Math.abs(A[r*n+i]);if(v>mx){mx=v;p=r;}}
+    if(chk&&mx<tol)return null;
+    if(p!==i){for(let c=0;c<n;c++){const t=A[i*n+c];A[i*n+c]=A[p*n+c];A[p*n+c]=t;}const t=b[i];b[i]=b[p];b[p]=t;}
+    const d=A[i*n+i]||1e-300;
+    for(let r=i+1;r<n;r++){const f=A[r*n+i]/d;if(!f)continue;for(let c=i;c<n;c++)A[r*n+c]-=f*A[i*n+c];b[r]-=f*b[i];}
+  }
+  const x=new Float64Array(n);for(let i=n-1;i>=0;i--){let s=b[i];for(let c=i+1;c<n;c++)s-=A[i*n+c]*x[c];x[i]=s/(A[i*n+i]||1e-300);}
+  return x;
+}
+function solveFE(F,H,sp){
+  const h=1/N,nd=2*(N+1),rel=[];for(let e=0;e<N;e++)rel.push([false,false]);
+  H.forEach(k=>{if(k===0)rel[0][0]=true;else rel[k-1][1]=true;});
+  const K=new Float64Array(nd*nd),kes=[];
+  for(let e=0;e<N;e++){const ke=kel(h,rel[e]);kes.push(ke);const d=[2*e,2*e+1,2*e+2,2*e+3];
+    for(let i=0;i<4;i++)for(let j=0;j<4;j++)K[d[i]*nd+d[j]]+=ke[i*4+j];}
+  const fx=fixedDofs(sp),fr=[];for(let i=0;i<nd;i++)if(!fx.has(i))fr.push(i);
+  const n=fr.length,A=new Float64Array(n*n),b=new Float64Array(n);
+  for(let i=0;i<n;i++){b[i]=fr[i]%2===0?F[fr[i]/2]:0;for(let j=0;j<n;j++)A[i*n+j]=K[fr[i]*nd+fr[j]];}
+  const A0=A.slice(),x=gauss(A,b.slice(),n,true),u=new Float64Array(nd);
+  if(!x){ // mekanismi: nolla-avaruus käänteisiteraatiolla
+    let md=0;for(let i=0;i<n;i++)md=Math.max(md,A0[i*n+i]);
+    let v=new Float64Array(n);for(let i=0;i<n;i++)v[i]=1+0.3*Math.sin(i*1.7);
+    for(let it=0;it<4;it++){const B=A0.slice();for(let i=0;i<n;i++)B[i*n+i]+=md*1e-9;v=gauss(B,v,n,false);let nn=0;for(let i=0;i<n;i++)nn=Math.max(nn,Math.abs(v[i]));for(let i=0;i<n;i++)v[i]/=nn||1;}
+    for(let i=0;i<n;i++)u[fr[i]]=v[i];
+    const mech=new Float64Array(N+1);let w=0,mx=0;for(let k=0;k<=N;k++){mech[k]=u[2*k];w+=F[k]*mech[k];mx=Math.max(mx,Math.abs(mech[k]));}
+    const sg=(w<0?-1:1)/(mx||1);for(let k=0;k<=N;k++)mech[k]*=sg;
+    return {sing:true,mech};
+  }
+  for(let i=0;i<n;i++)u[fr[i]]=x[i];
+  const Mn=new Float64Array(N+1),V=new Float64Array(N),v=new Float64Array(N+1);
+  for(let k=0;k<=N;k++)v[k]=u[2*k];
+  for(let e=0;e<N;e++){const ke=kes[e],ue=[u[2*e],u[2*e+1],u[2*e+2],u[2*e+3]],f=[0,0,0,0];
+    for(let i=0;i<4;i++)for(let j=0;j<4;j++)f[i]+=ke[i*4+j]*ue[j];
+    V[e]=f[0]; if(e===0)Mn[0]=-f[1]; else Mn[e]=(Mn[e]-f[1])/2; Mn[e+1]=f[3];}
+  return {sing:false,M:Mn,V,v};
+}
+/* tapahtumapohjainen plastinen analyysi: kuormakerroin λ, nivelet järjestyksessä */
+function plastic(F,m){
+  const L=m.L,sp=m.sup,H=new Set(),order=[],segs=[],nn=N+1,EI=m.EI;
+  let lam=0,Mc=new Float64Array(nn),Vc=new Float64Array(N),Wc=new Float64Array(nn);
+  let any=false;for(let k=0;k<nn;k++)if(F[k])any=true;
+  const res={order,segs,lamC:Infinity,mech:null,brittle:false};
+  if(!any){segs.push({l0:0,l1:Infinity,M0:Mc,dM:Mc,V0:Vc,dV:Vc,W0:Wc,dW:Wc});return res;}
+  for(let it=0;it<nn+2;it++){
+    const r=solveFE(F,H,sp);
+    if(r.sing){res.lamC=lam;res.mech=r.mech;return res;}
+    const dM=r.M.map(x=>x*L),dV=r.V,dW=r.v.map(x=>x*L*L*L/EI);
+    let mx=0;for(let k=0;k<nn;k++)mx=Math.max(mx,Math.abs(dM[k]));
+    let best=Infinity,bk=-1,bs=0;
+    for(let k=0;k<nn;k++){if(H.has(k))continue;const d=dM[k];if(Math.abs(d)<mx*1e-6)continue;
+      const cap=d>0?m.capP:-m.capN;let dl=(cap-Mc[k])/d;if(dl<0)dl=0;if(dl<best-1e-12){best=dl;bk=k;bs=d>0?1:-1;}}
+    if(bk<0){segs.push({l0:lam,l1:Infinity,M0:Mc,dM,V0:Vc,dV,W0:Wc,dW});return res;}
+    segs.push({l0:lam,l1:lam+best,M0:Mc,dM,V0:Vc,dV,W0:Wc,dW});
+    lam+=best;
+    Mc=Mc.map((x,k)=>x+best*dM[k]);Vc=Vc.map((x,k)=>x+best*dV[k]);Wc=Wc.map((x,k)=>x+best*dW[k]);
+    order.push({k:bk,s:bs,lam});
+    if((bs>0&&m.brP)||(bs<0&&m.brN)){res.lamC=lam;res.brittle=true;res.bk=bk;return res;}
+    H.add(bk);
+  }
+  res.lamC=lam;return res;
+}
+function stateAt(pa,l){
+  let s=pa.segs[pa.segs.length-1];for(const g of pa.segs){if(l<=g.l1){s=g;break;}}
+  const t=Math.min(l,s.l1)-s.l0;
+  return {M:s.M0.map((x,k)=>x+t*s.dM[k]),V:s.V0.map((x,k)=>x+t*s.dV[k]),W:s.W0.map((x,k)=>x+t*s.dW[k])};
+}
+function nodal(ls,L,col){
+  const F=new Float64Array(N+1),h=L/N;
+  for(const ld of ls){if(ld.ax)continue;const sg=col?ld.dir:-1;
+    if(ld.kind==='P'){F[Math.round(ld.t*N)]+=sg*ld.mag;}
+    else{const a=Math.min(ld.t1,ld.t2)*L,b=Math.max(ld.t1,ld.t2)*L;
+      for(let e=0;e<N;e++){const xa=e*h,lo=Math.max(a,xa),hi=Math.min(b,xa+h);if(hi<=lo)continue;
+        const f=ld.mag*(hi-lo),w=((lo+hi)/2-xa)/h;F[e]+=sg*f*(1-w);F[e+1]+=sg*f*w;}}}
+  return F;
+}
+
+/* ---------- arviointi ---------- */
+function evaluate(ls){
+  const m=M,col=m.type==='col',F=nodal(ls,m.L,col),pa=plastic(F,m);
+  const lc=pa.lamC,st=stateAt(pa,Math.min(1,lc)),ev={pa,st,modes:[],m};
+  const amax=a=>a.reduce((s,x)=>Math.max(s,Math.abs(x)),0);
+  ev.Vmax=amax(st.V); ev.Mmax=amax(st.M);
+  ev.wC=amax(stateAt(pa,isFinite(lc)?lc:1).W)||1e-9;
+  ev.hinges=pa.order.filter(o=>o.lam<=1+1e-9&&!pa.brittle);
+  if(!col){
+    const ub=isFinite(lc)?1/lc:0;
+    if(m.mat==='steel'){
+      ev.modes.push({k:'mek',n:'Taivutus (plastinen mekanismi)',u:ub});
+      ev.modes.push({k:'shear',n:'Leikkaus (uuma)',u:ev.Vmax/m.Vpl});
+      if(!S.lat){
+        let C1=1;
+        if(m.sup!=='cant'&&ev.Mmax>0){const at=t=>Math.abs(st.M[Math.round(t*N)]);C1=clamp(12.5*ev.Mmax/(2.5*ev.Mmax+3*at(.25)+4*at(.5)+3*at(.75)),1,2.5);}
+        const E=210e6,G=81e6,Iz=m.Iz*1e-8,It=m.It*1e-8,Iw=m.Iw*1e-12,Lc=m.L;
+        const Mcr=C1*Math.PI**2*E*Iz/Lc**2*Math.sqrt(Iw/Iz+Lc**2*G*It/(Math.PI**2*E*Iz));
+        const lLT=Math.sqrt(m.Mp/Mcr),cLT=chi(lLT,m.aLT);
+        ev.ltb={C1,Mcr,lLT,cLT,Mb:cLT*m.Mp};
+        if(cLT<0.999)ev.modes.push({k:'ltb',n:'Kiepahdus',u:ev.Mmax/ev.ltb.Mb});
+      }
+      let Pm=0,tp=-1;ls.forEach(l=>{if(l.kind==='P'&&l.t>0.01&&l.t<0.99&&l.mag>Pm){Pm=l.mag;tp=l.t;}});
+      ev.patchT=tp; ev.modes.push({k:'patch',n:'Uuman paikallinen kestävyys',u:Pm/m.FRd});
+    } else {
+      ev.modes.push({k:'mek',n:pa.brittle?'Taivutus – hauras':'Taivutus',u:ub});
+      ev.modes.push({k:'shear',n:S.sw>0?'Leikkaus':'Leikkaus (ei hakoja)',u:ev.Vmax/m.VRd});
+    }
+  } else {
+    let Nv=0;ls.forEach(l=>{if(l.ax)Nv+=l.mag;});ev.N=Nv;
+    const el=stateAt(pa,0),pe=pa.segs[0],M1=pe.dM.map(x=>x),V1=pe.dV;
+    ev.M1=M1; ev.V1=V1; const M1max=amax(M1);
+    if(m.mat==='steel'){
+      const nT=Nv/m.Nb,Ay=Nv<m.Ncry?1/(1-Nv/m.Ncry):Infinity,mT=isFinite(lc)?(1/lc)*Ay:0;
+      ev.nT=nT;ev.mT=mT;ev.Ay=Ay;ev.Az=Nv<m.Ncrz?1/(1-Nv/m.Ncrz):Infinity;
+      ev.Med=M1max*Ay;
+      ev.modes.push({k:'nb',n:'Puristus / nurjahdus N/N<sub>b,Rd</sub>',u:nT});
+      ev.modes.push({k:'nm',n:'Puristus + taivutus',u:nT+mT});
+      ev.modes.push({k:'shear',n:'Leikkaus',u:amax(V1)/m.Vpl});
+    } else {
+      const A=Nv<m.NB?1/(1-Nv/m.NB):Infinity,Med=(M1max+Nv*m.e0)*A;
+      ev.A=A;ev.Ay=A;ev.Az=A;ev.Med=Med;ev.M1max=M1max;
+      const sc=Math.min(Nv*1000/(m.b*m.h),0.2*m.fcd);ev.VRd=vrdc(m.b,m.d,m.As1,m.fck,sc);
+      ev.nT=Nv/m.N0;
+      ev.modes.push({k:'nrd',n:'Puristus N/N<sub>Rd</sub>',u:ev.nT});
+      ev.modes.push({k:'nbk',n:'Nurjahdus N/N<sub>B</sub>',u:Nv/m.NB});
+      ev.modes.push({k:'nm',n:'N + M yhteisvaikutus',u:isFinite(Med)?rayUtil(m.pts,Nv,Med):9});
+      ev.modes.push({k:'shear',n:'Leikkaus',u:amax(V1)/ev.VRd});
+    }
+  }
+  ev.maxU=ev.modes.reduce((s,x)=>Math.max(s,x.u),0);
+  ev.gov=ev.modes.reduce((a,b)=>b.u>a.u?b:a,ev.modes[0]);
+  return ev;
+}
+function failKey(ev){
+  const g=ev.gov.k,m=ev.m;
+  if(m.type==='beam'){
+    if(g==='mek')return ev.pa.brittle?'brittle':'mech';
+    return g;
+  }
+  if(g==='shear')return 'shear';
+  if(m.mat==='steel'){ if(ev.mT>ev.nT&&ev.pa.mech)return 'mech'; return m.lamz<0.2?'squash':'buck'; }
+  if(g==='nbk')return 'buck';
+  const r=ev.N/m.NB;
+  if(r>=0.5)return 'buck';
+  if(ev.N>=m.Nbal||!ev.pa.mech)return ev.pa.mech||ev.N>=m.Nbal?'crush':'buck';
+  return 'mech';
+}
+
+/* ---------- selitykset ---------- */
+function explain(key,ev){
+  const m=ev.m,st=m.mat==='steel',beam=m.type==='beam';
+  const T={
+    mech: beam?(st?['Plastinen mekanismi','Taivutusmomentti saavutti plastisen momenttikestävyyden M<sub>pl,Rd</sub> = W<sub>pl</sub>·f<sub>y</sub> = '+fmt(m.Mp)+' kNm, ja palkkiin muodostui plastisia niveliä (punaiset pallot, numerot kertovat syntyjärjestyksen). Staattisesti määräämättömässä palkissa momentti jakautuu uudelleen. Murto tapahtuu vasta, kun niveliä on riittävästi mekanismiin: yksiaukkoisessa palkissa ja ulokkeessa 1, jäykkä–nivel-palkissa 2 ja molemmista päistä jäykässä 3. Murto on sitkeä ja varoittaa suurilla taipumilla.','Suurempi profiili (W<sub>pl</sub>), lujempi teräslaji, lyhyempi jänne tai jäykät tuet.']
+                       :['Sitkeä taivutusmurto','Vetoraudoitus myötää ennen betonin murskautumista: halkeamat avautuvat, palkki taipuu suuresti ja lopulta puristusvyöhyke murskautuu. M<sub>Rd</sub> = '+fmt(m.capP)+' kNm (kenttä) ja '+fmt(m.capN)+' kNm (tuki). Tukien raudoitus mahdollistaa momentin uudelleenjakautumisen ja useamman nivelen mekanismin.','Lisää vetoraudoitusta (pysy kuitenkin sitkeällä alueella), kasvata palkin korkeutta tai lyhennä jännettä.'])
+               :['Taivutus + puristus: plastinen nivel','Vaakakuorma aiheuttaa pilariin momentin, jota pystykuorma kasvattaa siirtymän kautta (toisen kertaluvun vaikutus, kerroin 1/(1 − N/N<sub>cr</sub>) = '+fmt(ev.Ay,2)+'). Momenttikestävyys ylittyy ja pilariin muodostuu plastinen nivel tai mekanismi.','Jäykempi profiili tai poikkileikkaus, tuenta yläpäästä tai pienempi vaakakuorma.'],
+    brittle:['Hauras taivutusmurto','Poikkileikkaus on '+((ev.pa.order.length&&ev.pa.order[ev.pa.order.length-1].s<0)?(m.rT?'tuen kohdalla yliraudoitettu':'tuen kohdalla raudoittamaton'):(m.rB?'yliraudoitettu':'raudoittamaton'))+': betoni murskautuu puristusvyöhykkeellä ennen kuin raudoitus myötää (ε<sub>s</sub> < ε<sub>yd</sub>). Murto tapahtuu äkillisesti ja ilman taipumasta näkyvää varoitusta.','Vähennä raudoitusta tai kasvata poikkileikkausta. Tavoite on x/d ≲ 0,45, jolloin teräs myötää ennen betonin murskautumista. Raudoittamattomaan kohtaan lisää raudoitus.'],
+    shear: st?['Leikkausmurto','Uuma myötää leikkauksessa, kun V ≥ V<sub>pl,Rd</sub> = A<sub>v</sub>·f<sub>y</sub>/√3 = '+fmt(m.Vpl,0)+' kN. Tyypillistä lyhyillä ja raskaasti kuormitetuilla palkeilla sekä pistekuormilla tuen lähellä.','Paksumpi uuma tai korkeampi profiili, uuman vahvikelevy tai kuorman siirto kauemmas tuelta.']
+            :['Leikkausmurto (vinohalkeama)',(m.VRds?'Hakojen kestävyys V<sub>Rd,s</sub> = '+fmt(m.VRds,0)+' kN ylittyi. ':'Palkissa ei ole hakoja, joten leikkauskestävyys on vain betonin V<sub>Rd,c</sub> = '+fmt(beam?m.VRdc:ev.VRd,0)+' kN. ')+'Vino halkeama etenee tuelta kohti kuormaa ja palkki katkeaa äkillisesti. Hauras murtotapa, joka ei varoita.','Lisää hakoja tai tihennä hakajakoa, tai kasvata palkin korkeutta.'],
+    ltb:['Kiepahdus','Palkin puristettu yläreuna nurjahti sivusuunnassa ja poikkileikkaus kiertyi (alakuvassa näkymä ylhäältä). Kriittinen momentti M<sub>cr</sub> = '+(ev.ltb?fmt(ev.ltb.Mcr):'–')+' kNm, λ̄<sub>LT</sub> = '+(ev.ltb?fmt(ev.ltb.lLT,2):'–')+', χ<sub>LT</sub> = '+(ev.ltb?fmt(ev.ltb.cLT,2):'–')+', joten M<sub>b,Rd</sub> = '+(ev.ltb?fmt(ev.ltb.Mb):'–')+' kNm < M<sub>pl,Rd</sub> = '+fmt(m.Mp)+' kNm.','Sivutue puristettu laippa (orret, laatta, sidepuut), lyhennä tukiväliä tai käytä kiertojäykempää profiilia (HEA/HEB). Kokeile valintaa ”Sivutuettu”.'],
+    patch:['Uuman paikallinen murtuminen','Keskitetty kuorma painoi uuman kasaan kuorman alla (SFS-EN 1993-1-5, kohta 6). Kuormituspituus on l<sub>y</sub> = '+fmt(m.ly,0)+' mm, kun kuormalevy s<sub>s</sub> = 50 mm. Kestävyys F<sub>Rd</sub> = '+fmt(m.FRd,0)+' kN.','Lisää uuman jäykisteet kuorman kohdalle, käytä pidempää kuormalevyä tai paksumpiuumaista profiilia.'],
+    buck: st?['Nurjahdus','Hoikka pilari nurjahti. Nurjahduspituus L<sub>cr</sub> = β·L = '+fmt(m.Lcr,2)+' m ja muunnettu hoikkuus λ̄<sub>z</sub> = '+fmt(m.lamz,2)+', joten χ = '+fmt(Math.min(m.chiy,m.chiz),2)+' ja N<sub>b,Rd</sub> = '+fmt(m.Nb,0)+' kN, kun N<sub>pl</sub> = '+fmt(m.Npl,0)+' kN. Nurjahdus tapahtuu heikomman akselin suuntaan; kuva on havainnollistava.','Lyhennä nurjahduspituutta tuennalla tai jäykillä liitoksilla, tai valitse jäykempi profiili (suurempi I<sub>z</sub>, esim. HEB).']
+               :['Hoikan pilarin nurjahdus','Taipuma kasvattaa momenttia M = N·e, ja kerroin 1/(1 − N/N<sub>B</sub>) = '+fmt(ev.A,2)+' kasvaa rajatta, kun N lähestyy nurjahduskuormaa N<sub>B</sub> = '+fmt(m.NB,0)+' kN. Mukana on alkuepäkeskisyys e<sub>0</sub> = '+fmt(m.e0*1000,0)+' mm. Pilari murtuu toisen kertaluvun vaikutuksesta.','Kasvata poikkileikkausta (I ∝ h⁴), lyhennä nurjahduspituutta tai jäykistä pilarin pää.'],
+    squash:['Puristusmyötö','Tanakka pilari myötää koko poikkileikkaukseltaan: N = N<sub>pl</sub> = A·f<sub>y</sub> = '+fmt(m.Npl,0)+' kN. Laipat lommahtavat paikallisesti.','Suurempi poikkipinta-ala tai lujempi teräslaji.'],
+    crush:['Puristusmurto','Betoni murskautuu, suojabetoni lohkeilee ja pääteräkset nurjahtavat hakojen välissä. Kestävyys keskisessä puristuksessa N<sub>Rd</sub> = A<sub>c</sub>·f<sub>cd</sub> + A<sub>s</sub>·f<sub>yd</sub> = '+fmt(m.N0,0)+' kN.','Suurempi poikkileikkaus, lujempi betoni, lisää pääraudoitusta ja tiheä hakaraudoitus (sidottu puristusalue).']
+  };
+  return T[key]||['Murtuma','',''];
+}
+
+/* ---------- canvas ---------- */
+const cv=$('mm-cv'),ctx=cv.getContext('2d');
+let W=600,Hc=400,G={};
+function resize(){
+  const r=cv.parentElement.getBoundingClientRect();W=Math.max(280,Math.round(r.width-16));
+  Hc=S.type==='beam'?Math.round(clamp(W*0.62,360,450)):Math.round(clamp(W*0.8,440,540));
+  const d=window.devicePixelRatio||1;cv.width=Math.round(W*d);cv.height=Math.round(Hc*d);cv.style.height=Hc+'px';
+  ctx.setTransform(d,0,0,d,0,0);geom();kick();
+}
+function geom(){
+  const hh=clamp((M?M.depth:0.3)*30,6,15);
+  if(S.type==='beam'){const mg=W<420?40:58;G={X0:mg,X1:W-mg,Yb:Math.round(Hc*0.40),hh,yM:Math.round(Hc*0.69),aM:Hc*0.11,yV:Math.round(Hc*0.905),aV:Hc*0.055};G.len=G.X1-G.X0;}
+  else{const xc=Math.round(W<560?W*0.40:W*0.36);G={xc,Ytop:84,Ybase:Hc-56,hh};G.len=G.Ybase-G.Ytop;G.xd=Math.round(xc+Math.max(80,(W-xc)*0.55));G.aD=Math.max(30,Math.min(80,W-G.xd-18));}
+}
+const C={ink:'#e9e6e0',mut:'#8f8c86',acc:'#E3824F',bad:'#ef6a5a',ok:'#82c79f',steel:'#7d8994',steelD:'#56616c',conc:'#a9a59d',concD:'#7f7b74',bar:'#3b3028',grid:'#26292d',v:'#7aa6c9'};
+function interp(arr,t){const x=clamp(t,0,1)*N,k=Math.min(N-1,Math.floor(x)),f=x-k;return arr[k]*(1-f)+arr[k+1]*f;}
+function elemAt(arr,t){return arr[Math.min(N-1,Math.floor(clamp(t,0,0.99999)*N))];}
+
+/* jäsen paikallisessa koordinaatistossa: x pitkin akselia, y poikittain (+ = paikallinen "alas") */
+function drawMember(o){
+  const ns=140,hh=o.hh,top=[],bot=[];
+  for(let i=0;i<=ns;i++){const t=i/ns,p=o.pt(t),ex=o.ex?o.ex(t):[0,0];top.push([p[0],p[1]-hh+ex[0]]);bot.push([p[0],p[1]+hh+ex[1]]);}
+  ctx.beginPath();top.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));for(let i=bot.length-1;i>=0;i--)ctx.lineTo(bot[i][0],bot[i][1]);ctx.closePath();
+  ctx.fillStyle=o.steel?C.steel:C.conc;ctx.fill();
+  if(o.yieldF){for(let i=0;i<ns;i++){const a=o.yieldF((i+0.5)/ns);if(a<=0.01)continue;ctx.fillStyle=`rgba(255,140,60,${(0.25+0.6*a).toFixed(3)})`;ctx.beginPath();ctx.moveTo(top[i][0],top[i][1]);ctx.lineTo(top[i+1][0],top[i+1][1]);ctx.lineTo(bot[i+1][0],bot[i+1][1]);ctx.lineTo(bot[i][0],bot[i][1]);ctx.fill();}}
+  const line=(pts,dy,col,w,dash)=>{ctx.beginPath();pts.forEach((p,i)=>{const y=p[1]+dy;i?ctx.lineTo(p[0],y):ctx.moveTo(p[0],y);});ctx.strokeStyle=col;ctx.lineWidth=w;ctx.setLineDash(dash||[]);ctx.stroke();ctx.setLineDash([]);};
+  if(o.steel){line(top,1.6,C.steelD,3.2);line(bot,-1.6,C.steelD,3.2);}
+  else{ if(o.barsB)line(bot,-Math.min(5,hh*0.38),C.bar,2,[7,3]); if(o.barsT)line(top,Math.min(5,hh*0.38),C.bar,2,[7,3]);}
+  ctx.beginPath();top.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));for(let i=bot.length-1;i>=0;i--)ctx.lineTo(bot[i][0],bot[i][1]);ctx.closePath();
+  ctx.strokeStyle='rgba(0,0,0,.55)';ctx.lineWidth=1;ctx.stroke();
+  if(o.cracks){ctx.strokeStyle='#26221e';ctx.lineCap='round';
+    for(const c of o.cracks){const p=o.pt(c.t),ex=o.ex?o.ex(c.t):[0,0],y0=p[1]+(c.side>0?hh+ex[1]:-hh+ex[0]),len=2*hh*c.f;
+      ctx.lineWidth=c.w||1.3;ctx.beginPath();ctx.moveTo(p[0],y0);ctx.quadraticCurveTo(p[0]+c.dx*len*0.35,y0-c.side*len*0.55,p[0]+c.dx*len,y0-c.side*len);ctx.stroke();}
+    ctx.lineCap='butt';}
+}
+function crackList(Mf,Vf,m,fl,lenPx,hh,extra){
+  const out=[],sp=Math.max(hh*1.45,11)/lenPx;let i=0;
+  for(let t=sp*0.5;t<1;t+=sp,i++){
+    const Mv=Mf(t),Vv=Vf(t),aM=Math.abs(Mv);let f=0;
+    if(m.type==='beam'){if(aM>m.Mcr){const cap=Mv>0?m.capP:m.capN;f=clamp(0.22+0.62*(aM-m.Mcr)/Math.max(1e-9,cap-m.Mcr),0.18,0.9);}}
+    else{const s=aM*1e6/(m.b*m.h*m.h/6)-(extra.N||0)*1000/(m.b*m.h);if(s>m.fctm)f=clamp(0.2+0.25*(s-m.fctm)/m.fctm,0.18,0.8);}
+    if(extra.boost){const b=extra.boost(t);if(b>f){f=b;}}
+    if(f<=0)continue;
+    const sg=Mv>=0?1:-1,r=clamp(Math.abs(Vv)*m.depth*0.7/(aM+1e-9),0,1)*0.85;
+    out.push({t:t+(((i*37)%7)-3)*sp*0.04,side:sg*fl*(extra.flip||1),f,dx:sg*(Vv>=0?1:-1)*r});
+  }
+  return out;
+}
+function hingeDot(x,y,n){ctx.beginPath();ctx.arc(x,y,6.5,0,7);ctx.fillStyle=C.bad;ctx.fill();ctx.strokeStyle='#1e2023';ctx.lineWidth=1.5;ctx.stroke();
+  if(n){ctx.fillStyle='#1e2023';ctx.font='bold 9px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(n,x,y+0.5);}}
+function arrow(x1,y1,x2,y2,col,w){const a=Math.atan2(y2-y1,x2-x1),hl=8;ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=w||2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2-Math.cos(a)*hl*0.8,y2-Math.sin(a)*hl*0.8);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-hl*Math.cos(a-0.4),y2-hl*Math.sin(a-0.4));ctx.lineTo(x2-hl*Math.cos(a+0.4),y2-hl*Math.sin(a+0.4));ctx.closePath();ctx.fill();}
+function hatch(x1,y1,x2,y2,dir){ // viiva + vinoviivoitus
+  ctx.strokeStyle=C.ink;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  const L=Math.hypot(x2-x1,y2-y1),ux=(x2-x1)/L,uy=(y2-y1)/L,nx=-uy*dir,ny=ux*dir;ctx.lineWidth=1;ctx.strokeStyle=C.mut;
+  for(let s=4;s<L;s+=7){const px=x1+ux*s,py=y1+uy*s;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px+nx*7-ux*5,py+ny*7-uy*5);ctx.stroke();}}
+function pinSym(x,y,roller){ctx.strokeStyle=C.ink;ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-9,y+14);ctx.lineTo(x+9,y+14);ctx.closePath();ctx.stroke();
+  if(roller){ctx.beginPath();ctx.arc(x-5,y+18,3,0,7);ctx.arc(x+5,y+18,3,0,7);ctx.stroke();hatch(x-14,y+22,x+14,y+22,1);}else hatch(x-14,y+15,x+14,y+15,1);}
+function txt(s,x,y,col,al,font){ctx.fillStyle=col||C.ink;ctx.font=font||'12px Arial';ctx.textAlign=al||'center';ctx.textBaseline='middle';ctx.fillText(s,x,y);}
+function txtBg(s,x,y,col,al){ctx.font='bold 12px Arial';const w=ctx.measureText(s).width;const x0=al==='left'?x:al==='right'?x-w:x-w/2;ctx.fillStyle='rgba(30,32,35,.82)';ctx.fillRect(x0-3,y-8,w+6,16);txt(s,x,y,col,al,'bold 12px Arial');}
+
+/* ---------- kohtauksen piirto ---------- */
+let rafId=0,lastTs=0;
+function kick(){if(!rafId)rafId=requestAnimationFrame(frame);}
+function frame(ts){
+  rafId=0;const dt=lastTs?Math.min(0.05,(ts-lastTs)/1000):0.016;lastTs=ts;let more=false;
+  if(!fail&&((cur&&cur.held)||ramp)){grow(dt);more=true;}
+  if(fail&&performance.now()-fail.t0<2000)more=true;
+  render();
+  if(more)kick();else lastTs=0;
+}
+function render(){
+  ctx.clearRect(0,0,W,Hc);
+  ctx.strokeStyle=C.grid;ctx.lineWidth=1;for(let x=0;x<W;x+=24){ctx.beginPath();ctx.moveTo(x+0.5,0);ctx.lineTo(x+0.5,Hc);ctx.stroke();}for(let y=0;y<Hc;y+=24){ctx.beginPath();ctx.moveTo(0,y+0.5);ctx.lineTo(W,y+0.5);ctx.stroke();}
+  if(!M||!E)return;
+  const p=fail?ease(clamp((performance.now()-fail.t0)/1700,0,1)):0;
+  if(S.type==='beam')beamScene(p);else colScene(p);
+  if(!loads.length&&!fail){txtBg(S.type==='beam'?'Napauta palkkia = pistekuorma · vedä = viivakuorma · pidä painettuna':'Napauta yläpäätä = pystykuorma · kylkeä = vaakakuorma · pidä painettuna',W/2,S.type==='beam'?18:Hc-14,C.acc);}
+  if(fail&&p>=1){txtBg('MURTUI: '+explain(fail.key,fail.ev)[0],W/2,S.type==='beam'?18:Hc-14,C.bad);}
+}
+function memberOpts(m,ev,offFn,extra){
+  const steel=m.mat==='steel',st=ev.st;
+  const o={hh:G.hh,steel,pt:offFn.pt,ex:offFn.ex};
+  if(steel){const My=m.My||m.Mp*0.88;o.yieldF=t=>{const a=Math.abs(interp(st.M,t))*(m.type==='col'?(ev.Ay||1):1)+(m.type==='col'?(ev.N||0)/m.Npl*m.Mp:0);return a>My?clamp((a-My)/(m.Mp-My),0,1):0;};}
+  else{ if(m.type==='beam'){o.barsB=S.nb>0;o.barsT=S.nt>0;}else{o.barsB=o.barsT=true;} }
+  if(!steel)o.cracks=crackList(t=>interp(st.M,t)*(m.type==='col'?(ev.A||1):1),t=>elemAt(st.V,t),m,m.type==='beam'?1:-1,G.len,G.hh,extra||{});
+  return o;
+}
+function beamScene(p){
+  const m=M,ev=fail?fail.ev:E,st=ev.st,key=fail?fail.key:null;
+  const sw=26/ev.wC;
+  const X=t=>G.X0+t*G.len;
+  let offC=t=>-interp(st.W,t)*sw;
+  if(key==='mech'&&ev.pa.mech){const mc=ev.pa.mech,b=offC;offC=t=>b(t)-p*55*interp(mc,t);}
+  if(key==='brittle'){const b=offC,mx=Math.max(1e-9,...st.W.map(Math.abs));const bk=ev.pa.bk/N;offC=t=>{const base=b(t);const kink=-interp(st.W,t)/mx;return base+p*30*kink+p*14*Math.max(0,1-Math.abs(t-bk)*6)*(ev.pa.order.length&&ev.pa.order[ev.pa.order.length-1].s<0?-1:1)*0;};}
+  const ex=key==='patch'?(t=>{const g=Math.exp(-Math.pow((t-ev.patchT)*G.len/(G.hh*1.3),2));return [p*G.hh*1.25*g,p*G.hh*0.25*g];}):null;
+  const pt=t=>[X(t),offC(t)];
+  ctx.save();ctx.translate(0,G.Yb);
+  // tuet
+  const sp=m.sup;
+  const fixedAt=(x,dir)=>{hatch(x,-G.hh-16,x,G.hh+16,dir);};
+  if(sp==='ss'){pinSym(G.X0,G.hh,false);pinSym(G.X1,G.hh,true);}
+  if(sp==='cant'||sp==='fp'||sp==='ff')fixedAt(G.X0,1);
+  if(sp==='fp')pinSym(G.X1,G.hh,true);
+  if(sp==='ff')fixedAt(G.X1,-1);
+  const extra={};
+  const o=memberOpts(m,ev,{pt,ex},extra);
+  if(key==='shear'){drawSplit(o,ev,p,1,pt);} else drawMember(o);
+  // nivelet
+  const hs=key==='mech'?ev.pa.order:ev.hinges;
+  hs.forEach((h,i)=>{const P=pt(h.k/N);hingeDot(P[0],P[1],i+1);});
+  if(key==='brittle'){const P=pt(ev.pa.bk/N),s=ev.pa.order[ev.pa.order.length-1].s;debris(P[0],P[1]+(s>0?-G.hh:G.hh),p,s>0?-1:1,1);
+    ctx.strokeStyle='#1d1a17';ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(P[0],P[1]+(s>0?G.hh:-G.hh));ctx.lineTo(P[0]+3,P[1]);ctx.lineTo(P[0]-2,P[1]+(s>0?-G.hh:G.hh)*0.8);ctx.stroke();}
+  if(key==='mech'&&m.mat==='conc'&&p>0.55){ev.pa.order.forEach(h=>{const P=pt(h.k/N);debris(P[0],P[1]+(h.s>0?-G.hh:G.hh),(p-0.55)/0.45*0.6,h.s>0?-1:1,0.5);});}
+  if(key==='patch'){const P=pt(ev.patchT);ctx.strokeStyle='#2a2f35';ctx.lineWidth=1.6;ctx.beginPath();for(let i=0;i<=10;i++){const y=P[1]-G.hh+3+i*(2*G.hh-6)/10+(ex?ex(ev.patchT)[0]*(1-i/10):0);const x=P[0]+(i%2?1:-1)*p*5;i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();}
+  ctx.restore();
+  // kuormat
+  drawBeamLoads(t=>G.Yb+offC(t)-G.hh+(ex?ex(t)[0]:0));
+  // kaaviot tai kiepahdusnäkymä
+  if(key==='ltb')ltbView(p,ev);else beamDiagrams(ev);
+}
+function debris(x,y,p,dirY,sc){
+  for(let i=0;i<12;i++){const a=((i*53)%100)/100,b=((i*29)%100)/100;const vx=(a-0.5)*60*sc,vy=dirY*(18+40*b)*sc;
+    const px=x+vx*p,py=y+vy*p+dirY*0+ (dirY<0?60*p*p*sc:0)*0+ 70*p*p*sc*(dirY<0?0.4:1);
+    ctx.fillStyle=i%3?'#bdb8ae':'#8e8a82';ctx.beginPath();const s=2+3*a;ctx.moveTo(px,py-s);ctx.lineTo(px+s,py+s*0.6);ctx.lineTo(px-s*0.8,py+s*0.5);ctx.closePath();ctx.globalAlpha=Math.max(0,1-p*0.6);ctx.fill();ctx.globalAlpha=1;}
+}
+function shearCrack(o,ev,local){
+  const m=ev.m,st=ev.st,V=m.type==='col'?ev.V1:st.V;let vm=0;V.forEach(v=>{vm=Math.max(vm,Math.abs(v));});
+  const sups=m.type==='beam'?(m.sup==='cant'?[0]:[0,1]):(m.sup==='cant'?[0]:[0,1]);
+  let best=null;for(let e=0;e<N;e++){if(Math.abs(V[e])<0.97*vm)continue;const t=(e+0.5)/N;const d=Math.min(...sups.map(s=>Math.abs(s-t)));if(!best||d<best.d)best={t,d,e};}
+  const s0=sups.reduce((a,s)=>Math.abs(s-best.t)<Math.abs(a-best.t)?s:a,sups[0]);
+  const dir=best.t>=s0?1:-1, hp=o.hh;
+  let tc=s0+dir*Math.min(Math.abs(best.t-s0)+0.5/N,Math.max(hp*2.4/G.len,0.06));tc=clamp(tc,0.03,0.97);
+  const Mv=interp(m.type==='col'?ev.M1:st.M,tc),Vv=V[best.e],sg=(Mv>=0?1:-1),fl=m.type==='beam'?1:-1;
+  const side=sg*fl,dx=sg*(Vv>=0?1:-1)*2.3*hp;
+  const P=o.pt(tc);
+  return {A:[P[0]-dx/2,P[1]+side*hp],B:[P[0]+dx/2,P[1]-side*hp],s0,tc,dir};
+}
+function drawSplit(o,ev,p,dropSign,pt){
+  const cr=shearCrack(o,ev);const A=cr.A,B=cr.B;
+  const ux=B[0]-A[0],uy=B[1]-A[1],L=Math.hypot(ux,uy),dx=ux/L,dy=uy/L,big=4000;
+  const half=(sg)=>{const nx=-dy*sg,ny=dx*sg;ctx.beginPath();ctx.moveTo(A[0]-dx*big,A[1]-dy*big);ctx.lineTo(B[0]+dx*big,B[1]+dy*big);ctx.lineTo(B[0]+dx*big+nx*big,B[1]+dy*big+ny*big);ctx.lineTo(A[0]-dx*big+nx*big,A[1]-dy*big+ny*big);ctx.closePath();};
+  const S0=pt(cr.s0),sideOf=(q)=>Math.sign((B[0]-A[0])*(q[1]-A[1])-(B[1]-A[1])*(q[0]-A[0]));
+  const stay=sideOf(S0)||1;
+  const far=ev.m.sup==='cant'?null:pt(cr.s0===0?1:0);
+  ctx.save();half(stay);ctx.clip();drawMember(o);ctx.restore();
+  ctx.save();half(-stay);ctx.clip();
+  const pv=far||[(A[0]+B[0])/2,(A[1]+B[1])/2],cx=pt(cr.tc+cr.dir*0.1)[0];
+  const ang=-dropSign*Math.sign(cx-pv[0]||1)*p*(far?0.05:0.22);
+  ctx.translate(0,dropSign*p*o.hh*0.9);ctx.translate(pv[0],pv[1]);ctx.rotate(ang);ctx.translate(-pv[0],-pv[1]);drawMember(o);ctx.restore();
+  ctx.strokeStyle='#120f0d';ctx.lineWidth=1.5+p*2.5;ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo((A[0]+B[0])/2+3,(A[1]+B[1])/2);ctx.lineTo(B[0],B[1]);ctx.stroke();
+}
+function loadCol(l){return (cur===l&&cur.held)||ramp?C.acc:C.ink;}
+function lenFor(l){return 26+48*clamp(l.mag/(l.ref||1),0,1);}
+function drawBeamLoads(yTop){
+  loads.forEach(l=>{
+    const col=loadCol(l);
+    if(l.kind==='P'){const x=G.X0+l.t*G.len,y=yTop(l.t)-3,len=lenFor(l);arrow(x,y-len,x,y,col,2.4);txtBg(fmt(l.mag,l.mag<100?1:0)+' kN',x,y-len-11,col);}
+    else{const a=Math.min(l.t1,l.t2),b=Math.max(l.t1,l.t2),x1=G.X0+a*G.len,x2=G.X0+b*G.len,len=lenFor(l)*0.7;
+      const n=Math.max(2,Math.round((x2-x1)/16));ctx.beginPath();for(let i=0;i<=n;i++){const t=a+(b-a)*i/n,x=G.X0+t*G.len,y=yTop(t)-3;i?ctx.lineTo(x,y-len):ctx.moveTo(x,y-len);}ctx.strokeStyle=col;ctx.lineWidth=2;ctx.stroke();
+      for(let i=0;i<=n;i++){const t=a+(b-a)*i/n,x=G.X0+t*G.len,y=yTop(t)-3;arrow(x,y-len,x,y,col,1.4);}
+      txtBg(fmt(l.mag,l.mag<100?1:0)+' kN/m',(x1+x2)/2,yTop((a+b)/2)-len-14,col);}
+  });
+}
+function beamDiagrams(ev){
+  const m=M,st=ev.st;const X=t=>G.X0+t*G.len;
+  const plot=(arr,isM,y0,amp,cap,capN,col,lab,unit)=>{
+    const mx=Math.max(cap,capN,...Array.from(arr,Math.abs))||1,sc=amp/mx;
+    ctx.strokeStyle='#4a4e55';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(G.X0,y0);ctx.lineTo(G.X1,y0);ctx.stroke();
+    ctx.setLineDash([4,4]);ctx.strokeStyle=C.bad;ctx.globalAlpha=0.7;
+    [[cap,1],[capN,-1]].forEach(([c,s])=>{if(!c)return;ctx.beginPath();ctx.moveTo(G.X0,y0+s*c*sc);ctx.lineTo(G.X1,y0+s*c*sc);ctx.stroke();});
+    ctx.setLineDash([]);ctx.globalAlpha=1;
+    ctx.beginPath();ctx.moveTo(G.X0,y0);
+    if(isM){for(let k=0;k<=N;k++)ctx.lineTo(X(k/N),y0+arr[k]*sc);}
+    else{for(let e=0;e<N;e++){ctx.lineTo(X(e/N),y0+arr[e]*sc);ctx.lineTo(X((e+1)/N),y0+arr[e]*sc);}}
+    ctx.lineTo(G.X1,y0);ctx.closePath();ctx.fillStyle=col+'40';ctx.fill();ctx.strokeStyle=col;ctx.lineWidth=1.6;ctx.stroke();
+    txt(lab,G.X0-8,y0,C.mut,'right','bold 12px Arial');
+    let am=0,ai=0;for(let i=0;i<arr.length;i++)if(Math.abs(arr[i])>am){am=Math.abs(arr[i]);ai=i;}
+    if(am>1e-6){const xx=isM?X(ai/N):X((ai+0.5)/N);txtBg(fmt(isM?arr[ai]:Math.abs(arr[ai]),1)+' '+unit,clamp(xx,G.X0+30,G.X1-30),y0+arr[ai]*sc+(arr[ai]>0?11:-11),col);}
+    txt((isM?(m.mat==='steel'?'M':'M'):'V')+'Rd',G.X1+4,y0+cap*sc,C.bad,'left','10px Arial');
+  };
+  plot(st.M,true,G.yM,G.aM,m.capP,m.capN,C.acc,'M','kNm');
+  plot(st.V,false,G.yV,G.aV,m.mat==='steel'?m.Vpl:m.VRd,m.mat==='steel'?m.Vpl:m.VRd,C.v,'V','kN');
+}
+function ltbView(p,ev){
+  const y0=G.yM-G.aM*0.3,amp=p*Math.min(40,G.aM*1.2);
+  txt('Ylhäältä katsottuna: puristettu laippa nurjahtaa sivulle',G.X0+(G.len)/2,G.yM-G.aM-6,C.mut,'center','12px Arial');
+  const shape=t=>M.sup==='cant'?(1-Math.cos(Math.PI*t/2)):Math.sin(Math.PI*t)*(M.sup==='ff'?Math.sin(Math.PI*t):1);
+  ctx.strokeStyle='#5a5f66';ctx.setLineDash([5,4]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(G.X0,y0);ctx.lineTo(G.X1,y0);ctx.stroke();ctx.setLineDash([]);
+  ctx.lineWidth=7;ctx.strokeStyle=C.steelD;ctx.beginPath();for(let i=0;i<=60;i++){const t=i/60;const x=G.X0+t*G.len,y=y0+amp*shape(t)*0.45;i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();
+  ctx.lineWidth=4;ctx.strokeStyle=C.acc;ctx.beginPath();for(let i=0;i<=60;i++){const t=i/60;const x=G.X0+t*G.len,y=y0+amp*shape(t);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.stroke();
+  // poikkileikkaus kiertyy
+  const cx=G.X0+G.len*(M.sup==='cant'?0.92:0.5),cy=G.yV-4,s=Math.min(1.1,G.aM/40);
+  ctx.save();ctx.translate(cx+amp*0.6,cy);ctx.rotate(p*0.45);ctx.fillStyle=C.steel;ctx.strokeStyle='#111';
+  ctx.fillRect(-14*s,-18*s,28*s,4*s);ctx.fillRect(-2*s,-14*s,4*s,28*s);ctx.fillRect(-14*s,14*s,28*s,4*s);ctx.restore();
+  txt('poikkileikkaus kiertyy',cx+amp*0.6+30,cy,C.mut,'left','11px Arial');
+}
+
+/* ---------- pilari ---------- */
+function colScene(p){
+  const m=M,ev=fail?fail.ev:E,st=ev.st,key=fail?fail.key:null;
+  const Lp=G.len,sw=22/ev.wC;
+  const phi=modeShape();
+  const A=Math.min(ev.Ay||1,8);
+  let bow=0;{const Ab=isFinite(ev.Az)?ev.Az:12;bow=clamp((Ab-1)*3,0,26);}
+  let shrink=1;
+  let offC=t=>(interp(st.W,t)*sw*Math.min(A,4)+bow*phi.v(t)*phi.sg);
+  if(key==='buck'){const b=offC;offC=t=>b(t)+p*0.2*Lp*phi.v(t)*phi.sg;}
+  if(key==='mech'&&ev.pa.mech){const b=offC,mc=ev.pa.mech;offC=t=>b(t)+p*50*interp(mc,t);}
+  if(key==='squash'||key==='crush')shrink=1-p*0.05;
+  let ex=null;
+  if(key==='squash')ex=t=>{const w=Math.exp(-Math.pow((t-0.5)/0.12,2));const z=Math.sin(t*90)*p*3.5*w;return [-z-p*2*w,z+p*2*w];};
+  if(key==='crush')ex=t=>{const b=p*G.hh*0.55*Math.sin(Math.PI*t);return [-b,b];};
+  const pt=t=>[t*Lp*shrink,offC(t)];
+  // tuet näytön koordinaateissa
+  const sp=m.sup,xb=G.xc,yb=G.Ybase;
+  if(sp==='ss')pinSym(xb,yb,false);else hatch(xb-30,yb,xb+30,yb,1);
+  const topY=G.Ybase-Lp*shrink,topX=G.xc+offC(1);
+  if(sp==='ss'||sp==='fp'){ctx.strokeStyle=C.ink;ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(topX+G.hh,topY+10);ctx.lineTo(topX+G.hh+34,topY+10);ctx.stroke();ctx.beginPath();ctx.arc(topX+G.hh+3,topY+10,3,0,7);ctx.arc(topX+G.hh+34,topY+10,3,0,7);ctx.fillStyle='#1e2023';ctx.fill();ctx.stroke();hatch(topX+G.hh+38,topY-4,topX+G.hh+38,topY+24,-1);}
+  if(sp==='ff'){hatch(topX-G.hh-6,topY-2,topX-G.hh-6,topY+30,1);hatch(topX+G.hh+6,topY-2,topX+G.hh+6,topY+30,-1);}
+  ctx.save();ctx.translate(G.xc,G.Ybase);ctx.rotate(-Math.PI/2);
+  const extra={N:ev.N||0};
+  if(key==='buck'&&m.mat==='conc'){extra.boost=t=>p*0.8*phi.m(t);extra.flip=1;}
+  const o=memberOpts(m,ev,{pt,ex},extra);
+  if(key==='buck'&&m.mat==='conc'){o.cracks=o.cracks.concat(crackList(t=>-phi.m(t),t=>0,{type:'beam',Mcr:0.15,capP:1,capN:1,depth:m.depth},-1,Lp,G.hh,{}).map(c=>({...c,f:c.f*p})));}
+  if(key==='shear')drawSplit(o,ev,p,dominantDir(),pt);else drawMember(o);
+  const hs=key==='mech'?ev.pa.order:[];
+  hs.forEach((h,i)=>{const P=pt(h.k/N);hingeDot(P[0],P[1],i+1);});
+  if(key==='buck'){const tm=phi.tm;const P=pt(tm);if(p>0.5){hingeDot(P[0],P[1],'');} if(m.mat==='conc'&&p>0.4)debris(P[0],P[1]-phi.sg*G.hh,(p-0.4)/0.6*0.7,-phi.sg,0.6);}
+  if(key==='crush'){const P=pt(0.5);debris(P[0],P[1]-G.hh,p*0.8,-1,0.7);debris(P[0],P[1]+G.hh,p*0.8,1,0.7);
+    ctx.strokeStyle='#221e1a';ctx.lineWidth=1.6;for(let i=-2;i<=2;i++){const c=pt(0.5+i*0.07);ctx.beginPath();ctx.moveTo(c[0]-G.hh*1.1*p,c[1]-G.hh*0.9);ctx.lineTo(c[0]+G.hh*1.1*p,c[1]+G.hh*0.9);ctx.stroke();}}
+  ctx.restore();
+  // kuormat
+  const sx=t=>G.xc+offC(t),sy=t=>G.Ybase-t*Lp*shrink;
+  let Nv=0;loads.forEach(l=>{if(l.ax)Nv+=l.mag;});
+  const axl=loads.filter(l=>l.ax);
+  if(axl.length){const col=axl.some(l=>cur===l&&cur.held)||ramp?C.acc:C.ink,len=26+48*clamp(Nv/(axl[0].ref||1),0,1);arrow(sx(1),sy(1)-len-4,sx(1),sy(1)-3,col,3);txtBg('N = '+fmt(Nv,Nv<100?1:0)+' kN',sx(1)+12,sy(1)-len-6,col,'left');}
+  loads.forEach(l=>{if(l.ax)return;const col=loadCol(l),d=l.dir;
+    if(l.kind==='P'){const y=sy(l.t),x=sx(l.t)-d*(G.hh+3),len=lenFor(l);arrow(x-d*len,y,x,y,col,2.4);txtBg(fmt(l.mag,1)+' kN',x-d*len-d*4,y-12,col,d>0?'right':'left');}
+    else{const a=Math.min(l.t1,l.t2),b=Math.max(l.t1,l.t2),len=lenFor(l)*0.7,n=Math.max(2,Math.round((b-a)*Lp/16));
+      ctx.beginPath();for(let i=0;i<=n;i++){const t=a+(b-a)*i/n,x=sx(t)-d*(G.hh+3)-d*len,y=sy(t);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.strokeStyle=col;ctx.lineWidth=2;ctx.stroke();
+      for(let i=0;i<=n;i++){const t=a+(b-a)*i/n,x=sx(t)-d*(G.hh+3);arrow(x-d*len,sy(t),x,sy(t),col,1.4);}
+      txtBg(fmt(l.mag,1)+' kN/m',sx((a+b)/2)-d*(G.hh+len+8),sy(b)-12,col,d>0?'right':'left');}
+  });
+  // M-kuvio
+  colDiagram(ev);
+}
+function dominantDir(){let s=0;loads.forEach(l=>{if(!l.ax)s+=l.dir*l.mag;});return s>=0?1:-1;}
+let shapeCache=null;
+function modeShape(){
+  const k=M.sup+'|'+M.L;if(shapeCache&&shapeCache.k===k)return shapeCache;
+  const F=new Float64Array(N+1).fill(1/N);const r=solveFE(F,new Set(),M.sup);let mx=0;r.v.forEach(x=>{mx=Math.max(mx,Math.abs(x));});
+  const v=r.v.map(x=>x/(mx||1));let mm=0;r.M.forEach(x=>{mm=Math.max(mm,Math.abs(x));});const ms=r.M.map(x=>Math.abs(x)/(mm||1));
+  let tm=0,bm=-1;ms.forEach((x,i)=>{if(x>bm+1e-9){bm=x;tm=i/N;}});
+  shapeCache={k,v:t=>interp(v,t),m:t=>interp(ms,t),tm,sg:1};return shapeCache;
+}
+function colDiagram(ev){
+  const m=M,x0=G.xd,amp=G.aD,Lp=G.len;
+  const M1=ev.M1||new Float64Array(N+1),A=isFinite(ev.Ay)?ev.Ay:1,phi=modeShape();
+  const conc=m.mat==='conc',Nv=ev.N||0;
+  const Mii=Array.from({length:N+1},(_,k)=>(Math.abs(M1[k])+(conc?Nv*m.e0*phi.m(k/N):0))*A);
+  const cap=conc?mAtN(m.pts,Nv):m.Mp*Math.max(0,1-Nv/m.Nb);
+  const mx=Math.max(cap,...Mii.map(Math.abs))||1,sc=amp/mx,Y=t=>G.Ybase-t*Lp;
+  ctx.strokeStyle='#4a4e55';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x0,G.Ybase);ctx.lineTo(x0,G.Ytop);ctx.stroke();
+  ctx.setLineDash([4,4]);ctx.strokeStyle=C.bad;ctx.globalAlpha=0.7;[-1,1].forEach(s=>{ctx.beginPath();ctx.moveTo(x0+s*cap*sc,G.Ybase);ctx.lineTo(x0+s*cap*sc,G.Ytop);ctx.stroke();});ctx.setLineDash([]);ctx.globalAlpha=1;
+  ctx.beginPath();ctx.moveTo(x0,G.Ybase);for(let k=0;k<=N;k++)ctx.lineTo(x0+Mii[k]*sc,Y(k/N));ctx.lineTo(x0,G.Ytop);ctx.closePath();ctx.fillStyle=C.acc+'40';ctx.fill();ctx.strokeStyle=C.acc;ctx.lineWidth=1.6;ctx.stroke();
+  txt('M (II kl.)',x0,G.Ytop-30,C.mut,'center','bold 12px Arial');
+  let am=0,ai=0;Mii.forEach((v,i)=>{if(Math.abs(v)>am){am=Math.abs(v);ai=i;}});
+  if(am>1e-6)txtBg(fmt(am,1)+' kNm',clamp(x0+Mii[ai]*sc,x0-amp+10,W-40),Y(ai/N)-12,C.acc);
+  txt('M_Rd(N)',x0+cap*sc,G.Ytop-14,C.bad,'center','10px Arial');
+}
+
+/* ---------- N–M-kuvaaja ---------- */
+const nmc=$('mm-nm'),nctx=nmc.getContext('2d');
+function drawNM(){
+  if(S.type!=='col'){nmc.hidden=true;return;}nmc.hidden=false;
+  const r=nmc.getBoundingClientRect(),w=Math.max(200,r.width),h=210,d=window.devicePixelRatio||1;nmc.width=w*d;nmc.height=h*d;nctx.setTransform(d,0,0,d,0,0);nctx.clearRect(0,0,w,h);
+  const m=M,ev=fail?fail.ev:E;if(!m||!ev)return;
+  const pl=38,pr=10,pt=12,pb=28,Nv=ev.N||0,Med=isFinite(ev.Med)?ev.Med:0;
+  let curve;if(m.mat==='conc')curve=m.pts.filter(q=>q.N>=0);else curve=[{N:m.Nb,M:0},{N:0,M:m.Mp}];
+  const Nmax=Math.max(...curve.map(q=>q.N),Nv)*1.08,Mmax=Math.max(...curve.map(q=>q.M),Med)*1.12;
+  const X=v=>pl+v/Mmax*(w-pl-pr),Yn=v=>h-pb-v/Nmax*(h-pt-pb);
+  nctx.strokeStyle='#4a4e55';nctx.lineWidth=1;nctx.beginPath();nctx.moveTo(pl,pt);nctx.lineTo(pl,h-pb);nctx.lineTo(w-pr,h-pb);nctx.stroke();
+  nctx.fillStyle='#aeaba4';nctx.font='11px Arial';nctx.textAlign='center';nctx.fillText('M_Ed [kNm]',(pl+w)/2,h-8);nctx.save();nctx.translate(11,(pt+h-pb)/2);nctx.rotate(-Math.PI/2);nctx.fillText('N [kN]',0,0);nctx.restore();
+  nctx.textAlign='right';nctx.fillText(fmt(Nmax/1.08,0),pl-3,Yn(Nmax/1.08)+4);nctx.textAlign='center';nctx.fillText(fmt(Mmax/1.12,0),X(Mmax/1.12),h-pb+13);
+  nctx.beginPath();curve.forEach((q,i)=>{const x=X(q.M),y=Yn(q.N);i?nctx.lineTo(x,y):nctx.moveTo(x,y);});
+  if(m.mat==='conc'){nctx.lineTo(X(0),Yn(0));}
+  nctx.strokeStyle=C.ok;nctx.lineWidth=2;nctx.stroke();
+  nctx.beginPath();nctx.arc(X(Med),Yn(Nv),5,0,7);nctx.fillStyle=ev.maxU>=1?C.bad:C.acc;nctx.fill();
+  nctx.fillStyle='#aeaba4';nctx.textAlign='left';nctx.fillText(m.mat==='conc'?'N–M-käyrä (mitoitusarvot)':'N/N_b,Rd + M/M_pl ≤ 1',pl+6,pt+8);
+}
+
+/* ---------- kuormien lisäys ---------- */
+function refFor(l){const t={...l,mag:1};const save=loads;const ev=evaluate([t]);return ev.maxU>0?1/ev.maxU:100;}
+function toLocal(e){const r=cv.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];}
+let drag=null;
+cv.addEventListener('pointerdown',e=>{
+  if(fail||!M)return;const [x,y]=toLocal(e);let l=null;
+  if(S.type==='beam'){if(x<G.X0-16||x>G.X1+16||y>G.Yb+G.hh+40)return;const t=clamp((x-G.X0)/G.len,0,1);l={kind:'P',t,mag:0,dir:1};drag={x0:x,y0:y,t0:t};}
+  else{const t=clamp((G.Ybase-y)/G.len,0,1);
+    if(y<G.Ytop+16&&Math.abs(x-G.xc)<70){l={kind:'P',t:1,ax:true,mag:0};drag=null;}
+    else if(Math.abs(x-G.xc)<140&&y<G.Ybase-4){l={kind:'P',t:Math.max(t,0.02),dir:x<G.xc?1:-1,mag:0};drag={x0:x,y0:y,t0:Math.max(t,0.02)};}
+    else return;}
+  e.preventDefault();cv.setPointerCapture(e.pointerId);
+  l.ref=refFor(l);l.held=true;loads.push(l);cur=l;ramp=false;lastTs=0;renderLoads();kick();
+});
+cv.addEventListener('pointermove',e=>{
+  if(!cur||!cur.held||!drag)return;const [x,y]=toLocal(e);
+  let t,d;if(S.type==='beam'){t=clamp((x-G.X0)/G.len,0,1);d=Math.abs(x-drag.x0);}else{t=clamp((G.Ybase-y)/G.len,0,1);d=Math.abs(y-drag.y0);}
+  if(d>14){const oldRef=cur.ref,wasP=cur.kind==='P';cur.kind='q';cur.t1=drag.t0;cur.t2=t;delete cur.t;const nr=refFor(cur);cur.mag=wasP?cur.mag/oldRef*nr:cur.mag;cur.ref=nr;renderLoads();}
+});
+const up=()=>{if(cur){cur.held=false;if(cur.mag<=1e-6){loads=loads.filter(l=>l!==cur);}cur=null;drag=null;renderLoads();refresh(false);}};
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.addEventListener('lostpointercapture',up);
+
+function grow(dt){
+  const snap=loads.map(l=>l.mag);
+  if(cur&&cur.held)cur.mag+=cur.ref*0.36*dt;
+  if(ramp){const u=Math.max(E?E.maxU:0,0.02),f=(u+0.3*dt)/u;loads.forEach(l=>{l.mag*=f;});}
+  let ev=evaluate(loads);
+  if(ev.maxU>=1){
+    const now=loads.map(l=>l.mag);let lo=0,hi=1;
+    for(let i=0;i<18;i++){const mid=(lo+hi)/2;loads.forEach((l,j)=>{l.mag=snap[j]+(now[j]-snap[j])*mid;});if(evaluate(loads).maxU>=1)hi=mid;else lo=mid;}
+    loads.forEach((l,j)=>{l.mag=snap[j]+(now[j]-snap[j])*hi;});ev=evaluate(loads);triggerFail(ev);
+  } else E=ev;
+  updateUI();
+}
+function triggerFail(ev){
+  E=ev;ramp=false;if(cur)cur.held=false;
+  fail={ev,key:failKey(ev),t0:performance.now()};
+  if(fail.key==='mech'&&!ev.pa.mech)fail.key=ev.m.type==='col'?'buck':'brittle';
+  showFail();renderLoads();updateUI();kick();
+}
+function showFail(){
+  const box=$('mm-fail');if(!fail){box.hidden=true;return;}
+  const [t,d,h]=explain(fail.key,fail.ev);
+  const ls=loads.map(l=>l.ax?'N = '+fmt(l.mag,1)+' kN':(l.kind==='P'?'P = '+fmt(l.mag,1)+' kN':'q = '+fmt(l.mag,2)+' kN/m')).join(', ');
+  box.innerHTML=`<h3>Murtui: ${t}</h3><p>${d}</p><p class="lt-note">Murtokuorma: ${ls}. Määräävä tarkistus: ${fail.ev.gov.n}, käyttöaste ${fmt(fail.ev.gov.u*100,0)} %.</p><div class="mm-how"><b>Miten estetään:</b> ${h}</div><div class="mm-tb"><button type="button" class="mm-btn pri" id="mm-again">Uusi koe</button><button type="button" class="mm-btn" id="mm-back">Palauta kuormat 90 %:iin</button></div>`;
+  box.hidden=false;
+  $('mm-again').onclick=()=>{loads=[];fail=null;showFail();refresh(true);};
+  $('mm-back').onclick=()=>{loads.forEach(l=>{l.mag*=0.9;});fail=null;showFail();refresh(true);};
+}
+
+/* ---------- UI ---------- */
+function updateUI(){
+  const ev=fail?fail.ev:E;if(!ev)return;
+  $('mm-ut').innerHTML=ev.modes.map(md=>{const u=md.u,w=clamp(u*100,0,100),cls=u>=1?'over':u>0.75?'mid':'';const gov=md===ev.gov&&u>0;
+    return `<div class="mm-u${gov?' gov':''}"><div class="t"><span>${md.n}</span><b>${isFinite(u)?fmt(u*100,0):'∞'} %</b></div><div class="lt-bar"><i class="${cls}" style="width:${w}%"></i></div></div>`;}).join('');
+  let note='';
+  if(M.type==='beam'){const hn=ev.hinges.length;note=(M.mat==='steel'?'Plastisia niveliä: ':'Myötäneitä kohtia: ')+hn+(isFinite(ev.pa.lamC)&&ev.pa.lamC>0?` · mekanismi kuormakertoimella ${fmt(ev.pa.lamC,2)}`:'');}
+  else note='N = '+fmt(ev.N||0,1)+' kN · M<sub>Ed</sub> = '+fmt(ev.Med||0,1)+' kNm'+(isFinite(ev.Ay)?' · suurennus '+fmt(ev.Ay,2):'');
+  $('mm-utn').innerHTML=note;
+  $('mm-status').textContent=fail?'Murtui – katso selitys alta':(cur&&cur.held)?'Kuorma kasvaa…':ramp?'Kuormat kasvavat…':'';
+  $('mm-ramp').textContent=ramp?'Pysäytä ❚❚':'Kasvata kuormia ▶';
+  document.querySelectorAll('#mm-loads input').forEach(inp=>{if(document.activeElement===inp)return;const l=loads[+inp.dataset.i];if(l)inp.value=(+l.mag.toFixed(2)).toString().replace('.',',');});
+  drawNM();
+}
+function renderLoads(){
+  const el=$('mm-loads');
+  if(!loads.length){el.innerHTML='<p class="lt-note" style="margin:0">Ei kuormia. Napauta tai vedä rakennemallissa, tai valitse valmis kokeilu ylhäältä.</p>';return;}
+  let np=0,nq=0,nh=0;
+  el.innerHTML='<table class="mm-lt">'+loads.map((l,i)=>{
+    let name,pos,unit='kN';const L=M.L;
+    if(l.ax){name='N';pos='pystykuorma pilarin yläpäässä';}
+    else if(l.kind==='P'){name=(S.type==='beam'?'P':'H')+(++np);pos=(S.type==='beam'?'pistekuorma, x = ':'vaakakuorma, z = ')+fmt(l.t*L,2)+' m';}
+    else{name='q'+(++nq);unit='kN/m';const a=Math.min(l.t1,l.t2)*L,b=Math.max(l.t1,l.t2)*L;pos=(S.type==='beam'?'viivakuorma, x = ':'vaakaviivakuorma, z = ')+fmt(a,2)+' … '+fmt(b,2)+' m';}
+    return `<tr><td><b>${name}</b> <span class="lt-note">${pos}</span></td><td style="text-align:right;white-space:nowrap"><input type="number" step="any" min="0" data-i="${i}" value="${(+l.mag.toFixed(2))}"> ${unit}</td><td><button type="button" class="x" data-del="${i}" aria-label="Poista">✕</button></td></tr>`;}).join('')+'</table>';
+  el.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>{const v=parseFloat(inp.value.replace(',','.'));const l=loads[+inp.dataset.i];if(!l||!isFinite(v)||v<0)return;l.mag=v;fail=null;showFail();refresh(false,true);}));
+  el.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{loads.splice(+b.dataset.del,1);fail=null;showFail();refresh(true);}));
+}
+function kpis(){
+  const m=M,k=[];const add=(n,v)=>k.push(`<div class="lt-kpi"><span>${n}</span><b>${v}</b></div>`);
+  if(m.mat==='steel'){
+    if(m.type==='beam'){add('M<sub>pl,Rd</sub>',fmt(m.Mp)+' kNm');add('V<sub>pl,Rd</sub>',fmt(m.Vpl,0)+' kN');add('F<sub>Rd</sub> (uuma, s<sub>s</sub> = 50 mm)',fmt(m.FRd,0)+' kN');
+      const ev=E;if(!S.lat&&ev&&ev.ltb)add('M<sub>b,Rd</sub> (χ<sub>LT</sub> = '+fmt(ev.ltb.cLT,2)+', C<sub>1</sub> ≈ '+fmt(ev.ltb.C1,2)+')',fmt(ev.ltb.Mb)+' kNm');else add('Kiepahdus',S.lat?'estetty':'—');}
+    else{add('N<sub>pl,Rd</sub>',fmt(m.Npl,0)+' kN');add('N<sub>b,Rd</sub> (λ̄<sub>z</sub> = '+fmt(m.lamz,2)+')',fmt(m.Nb,0)+' kN');add('N<sub>cr,z</sub> (L<sub>cr</sub> = '+fmt(m.Lcr,2)+' m)',fmt(m.Ncrz,0)+' kN');add('M<sub>pl,y,Rd</sub>',fmt(m.Mp)+' kNm');}
+  } else {
+    if(m.type==='beam'){add('M<sub>Rd</sub> kenttä'+(m.rB?' (x/d = '+fmt(m.rB.xd,2)+')':''),fmt(m.capP)+' kNm'+(m.brP?' ⚠ hauras':''));add('M<sub>Rd</sub> tuki'+(m.rT?' (x/d = '+fmt(m.rT.xd,2)+')':''),fmt(m.capN)+' kNm'+(m.brN?' ⚠ hauras':''));
+      add('V<sub>Rd,c</sub> (betoni)',fmt(m.VRdc,0)+' kN');add('V<sub>Rd</sub> (hakojen kanssa)',S.sw>0?fmt(m.VRd,0)+' kN':'ei hakoja');}
+    else{add('N<sub>Rd</sub> (keskeinen)',fmt(m.N0,0)+' kN');add('N<sub>B</sub> (L<sub>0</sub> = '+fmt(m.Lcr,2)+' m)',fmt(m.NB,0)+' kN');add('M<sub>Rd</sub> (N = 0)',fmt(m.M0)+' kNm');add('e<sub>0</sub>',fmt(m.e0*1000,0)+' mm');}
+  }
+  $('mm-kpi').innerHTML=k.join('');
+}
+function visibility(){
+  const beam=S.type==='beam',st=S.mat==='steel';
+  document.querySelectorAll('.mm-st').forEach(e=>e.hidden=!st);document.querySelectorAll('.mm-co').forEach(e=>e.hidden=st);
+  document.querySelectorAll('.mm-bonly').forEach(e=>e.hidden=!beam);document.querySelectorAll('.mm-conly').forEach(e=>e.hidden=beam);
+  $('mm-Llbl').textContent=beam?'Jänne L (m)':'Korkeus L (m)';
+  const sel=$('mm-sup');[...sel.options].forEach(o=>{o.textContent=SUPL[beam?'beam':'col'][o.value];});
+}
+let lastType=null,lastMat=null;
+function refresh(clearFail,noRender){
+  read();
+  if(lastType!==null&&(lastType!==S.type||lastMat!==S.mat)){loads=[];fail=null;showFail();}
+  const typeChanged=lastType!==S.type;lastType=S.type;lastMat=S.mat;
+  visibility();M=model();shapeCache=null;
+  if(clearFail){fail=null;showFail();}
+  loads.forEach(l=>{if(!l.held)l.ref=refFor(l);});
+  const ev=evaluate(loads);
+  if(!fail&&ev.maxU>=1&&loads.length){triggerFail(ev);}else if(!fail)E=ev;
+  if(typeChanged)resize();else geom();
+  kpis();save();if(!noRender)renderLoads();updateUI();kick();
+}
+/* ---------- kokeilut ---------- */
+const PRE=[
+  ['Plastinen mekanismi',{type:'beam',mat:'steel','mm-sup':'ff','mm-L':6,'mm-prof':'IPE 300','mm-fy':'355','mm-lat':true},[{kind:'q',t1:0,t2:1}]],
+  ['Kiepahdus',{type:'beam',mat:'steel','mm-sup':'ss','mm-L':10,'mm-prof':'IPE 400','mm-fy':'355','mm-lat':false},[{kind:'q',t1:0,t2:1}]],
+  ['Uuman lommahdus',{type:'beam',mat:'steel','mm-sup':'ss','mm-L':1,'mm-prof':'IPE 200','mm-fy':'355','mm-lat':true},[{kind:'P',t:0.5}]],
+  ['Leikkausmurto (betoni)',{type:'beam',mat:'conc','mm-sup':'ss','mm-L':3,'mm-b':200,'mm-h':400,'mm-cc':'30','mm-nb':3,'mm-fb':'20','mm-nt':2,'mm-ft':'12','mm-sw':'0','mm-ss':200},[{kind:'P',t:0.2}]],
+  ['Sitkeä taivutus (betoni)',{type:'beam',mat:'conc','mm-sup':'ss','mm-L':6,'mm-b':300,'mm-h':500,'mm-cc':'30','mm-nb':3,'mm-fb':'20','mm-nt':2,'mm-ft':'16','mm-sw':'8','mm-ss':200},[{kind:'q',t1:0,t2:1}]],
+  ['Hauras taivutus',{type:'beam',mat:'conc','mm-sup':'ss','mm-L':5,'mm-b':200,'mm-h':400,'mm-cc':'30','mm-nb':6,'mm-fb':'25','mm-nt':2,'mm-ft':'12','mm-sw':'8','mm-ss':150},[{kind:'q',t1:0,t2:1}]],
+  ['Teräspilarin nurjahdus',{type:'col',mat:'steel','mm-sup':'ss','mm-L':6,'mm-prof':'HEA 160','mm-fy':'355'},[{kind:'P',t:1,ax:true}]],
+  ['Puristusmurto (betoni)',{type:'col',mat:'conc','mm-sup':'ss','mm-L':3,'mm-b':300,'mm-h':300,'mm-cc':'30','mm-nc':2,'mm-fc':'16'},[{kind:'P',t:1,ax:true}]],
+  ['Hoikka betonipilari',{type:'col',mat:'conc','mm-sup':'cant','mm-L':5,'mm-b':250,'mm-h':250,'mm-cc':'30','mm-nc':2,'mm-fc':'16'},[{kind:'P',t:1,ax:true}]],
+  ['Pilari + vaakakuorma',{type:'col',mat:'steel','mm-sup':'cant','mm-L':4,'mm-prof':'HEA 200','mm-fy':'355'},[{kind:'P',t:1,ax:true,f:0.12},{kind:'q',t1:0,t2:1,dir:1,f:0.3}]]
+];
+PRE.forEach((pr,i)=>{const b=document.createElement('button');b.type='button';b.textContent=pr[0];b.onclick=()=>runPreset(i);$('mm-pre').appendChild(b);});
+function runPreset(i){
+  const [,cfg,ls]=PRE[i];setPill('type',cfg.type);setPill('mat',cfg.mat);
+  Object.keys(cfg).forEach(k=>{if(!k.startsWith('mm-'))return;const e=$(k);if(e.type==='checkbox')e.checked=!!cfg[k];else e.value=cfg[k];});
+  loads=[];fail=null;showFail();cur=null;refresh(true);
+  ls.forEach(d=>{const l={kind:d.kind,t:d.t,t1:d.t1,t2:d.t2,ax:!!d.ax,dir:d.dir||1,mag:1};l.ref=refFor(l);l.mag=l.ref*(d.f||0.05);loads.push(l);});
+  if(ls.some(d=>d.f)){ // pidä suhteet: vaakakuorma pienenä osuutena
+    const ev=evaluate(loads);const s=0.06/Math.max(ev.maxU,1e-6);loads.forEach(l=>{l.mag*=s;});}
+  E=evaluate(loads);renderLoads();ramp=true;lastTs=0;updateUI();kick();
+  $('mm-cv').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ---------- tapahtumat ---------- */
+document.querySelectorAll('.lt-pill[data-g]').forEach(b=>b.addEventListener('click',()=>{setPill(b.dataset.g,b.dataset.v);refresh(true);}));
+FIELDS.forEach(id=>{$(id).addEventListener('change',()=>refresh(true));if($(id).type==='number')$(id).addEventListener('input',()=>refresh(true));});
+new MutationObserver(()=>{if(pill('type')!==S.type||pill('mat')!==S.mat)refresh(true);}).observe($('lt-mm'),{attributes:true,subtree:true,attributeFilter:['aria-pressed']});
+$('mm-clear').onclick=()=>{loads=[];ramp=false;fail=null;showFail();refresh(true);};
+$('mm-undo').onclick=()=>{loads.pop();ramp=false;fail=null;showFail();refresh(true);};
+$('mm-ramp').onclick=()=>{if(fail)return;if(!loads.length){const l=S.type==='beam'?{kind:'q',t1:0,t2:1,mag:1,dir:1}:{kind:'P',t:1,ax:true,mag:1};l.ref=refFor(l);l.mag=l.ref*0.05;loads.push(l);renderLoads();E=evaluate(loads);}ramp=!ramp;lastTs=0;updateUI();kick();};
+window.addEventListener('resize',()=>{resize();drawNM();});
+restore();refresh(true);resize();
+window.__mm={evaluate:()=>evaluate(loads),loads:()=>loads,model:()=>M,fail:()=>fail,setLoads:a=>{loads=a;refresh(true);},runPreset,PRE};
+})();
+</script>
+</body>
+</html>

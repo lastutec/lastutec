@@ -150,8 +150,11 @@ table.spans tbody tr{cursor:default}
       <div class="field"><label>Pultteja liitoksessa</label><span><input type="number" id="nBolt" step="1" min="1"></span></div>
     </div><div>
       <h3 style="margin-top:0">Peikko PCs -konsolit</h3>
-      <div class="tbl-wrap"><table class="inp pcs" id="pcsTbl"><thead><tr><th class="l">Konsoli</th><th>V<sub>Rd</sub> [kN]</th></tr></thead><tbody></tbody></table></div>
-      <p class="small" style="margin:6px 0 0">Kapasiteetit vaakavoimalla H<sub>Ed</sub> = 0,2·V<sub>Ed</sub> (Peikko: PCs 2 = 210 kN, kun H<sub>Ed</sub> = 42 kN). Täydennä PCs 10 ja PCs 15 Peikon teknisestä käyttöohjeesta. Tyhjä rivi ohitetaan.</p>
+      <div class="field"><label>Vaakaveto konsolilla</label><select id="pcsH"><option value="h" selected>H<sub>Ed</sub> = 0,2·V<sub>Ed</sub></option><option value="0">Ei vaakavetoa (H<sub>Ed</sub> = 0)</option></select></div>
+      <div class="field"><label>Pilarin / seinän betoni</label><select id="pcsC"><option value="30" selected>≥ C30/37</option><option value="25">C25/30 (kerroin 0,90)</option><option value="20">C20/25 (kerroin 0,79; PCs 15: 0,67)</option></select></div>
+      <div class="tbl-wrap"><table class="inp pcs" id="pcsTbl"><thead><tr><th class="l">Konsoli</th><th>V<sub>Rd</sub> [kN]<br>H<sub>Ed</sub> = 0,2·V<sub>Ed</sub></th><th>V<sub>Rd</sub> [kN]<br>H<sub>Ed</sub> = 0</th></tr></thead><tbody></tbody></table></div>
+      <p class="small" style="margin:6px 0 0">Mitoituskestävyydet: Peikko, <a href="https://images.tuotetieto.fi/PCs_konsoli_fi-002%20tekninen%20k%C3%A4ytt%C3%B6ohje.pdf" target="_blank" rel="noopener">PCs®-konsoli, tekninen käyttöohje FI 04/2019</a> (taulukot 13 ja 14, betoni ≥ C30/37; pienennyskertoimet taulukko 4). Tarkista konsolin, pilarin ja palkin pään vaatimukset ohjeesta. <a href="https://www.peikko.com/products/product/pcs-corbel/" target="_blank" rel="noopener">Peikon tuotesivu</a>.</p>
+      <button class="btn ghost no-print" id="pcsReset" style="margin-top:6px">Palauta Peikon arvot</button>
     </div></div>
   </div></details>
 </div>
@@ -167,7 +170,7 @@ table.spans tbody tr{cursor:default}
   <div class="calc" id="calc"></div>
 </div>
 
-<p class="small">Työkalu on suunnittelun apuväline – katso etusivun vastuuvapautuslauseke. Konsolin valinta on alustava: tarkista konsolin, palkin pään ja leukojen mitoitus sekä vääntö Peikon teknisestä käyttöohjeesta ja elementtisuunnitelmista.</p>
+<p class="small">Työkalu on suunnittelun apuväline – katso etusivun vastuuvapautuslauseke. Konsolin valinta on alustava: tarkista konsolin, palkin pään ja leukojen mitoitus sekä vääntö <a href="https://images.tuotetieto.fi/PCs_konsoli_fi-002%20tekninen%20k%C3%A4ytt%C3%B6ohje.pdf" target="_blank" rel="noopener">Peikon PCs®-konsolin teknisestä käyttöohjeesta</a> ja elementtisuunnitelmista.</p>
 </div>
 
 <script>
@@ -186,13 +189,20 @@ const KEY='lastutec-jk-palkki-v2';
 const PDIMS=['h','b','l1b','l1h','l2b','l2h'];
 const BK=['L','g1','q1','s1','w1','g2','q2','s2','w2'];
 function newBeam(id,o){ return Object.assign({id,prof:st?st.profs[st.edit]?.name||st.profs[0]?.name:'',L:6,g1:0,q1:0,s1:0,w1:0,g2:0,q2:0,s2:0,w2:0},o||{}); }
+// Peikko PCs®-konsoli, tekninen käyttöohje FI 04/2019, taulukot 13–14: [tyyppi, V_Rd (H_Ed = 0,2·V_Rd), V_Rd (H_Ed = 0)], betoni ≥ C30/37
+const PCSMAN='https://images.tuotetieto.fi/PCs_konsoli_fi-002%20tekninen%20k%C3%A4ytt%C3%B6ohje.pdf';
+const PCS0=[['PCs 2',210,230],['PCs 3',355,355],['PCs 5',520,575],['PCs 7',710,785],['PCs 10',960,1010],['PCs 15',1500,1500]];
+const kConc=(name,c)=>c>=30?1:c>=25?0.90:(/15\s*$/.test(name)?0.67:0.79);
 function defaults(){ return {
-  set:{cc:1.0,psiQ:0.7,psiS:0.7,rhoC:25,padEdge:15,padW:20,fck:30,dBolt:25,nBolt:2},
-  pcs:[['PCs 2',210],['PCs 3',355],['PCs 5',520],['PCs 7',710],['PCs 10',''],['PCs 15','']],
+  set:{cc:1.0,psiQ:0.7,psiS:0.7,rhoC:25,padEdge:15,padW:20,fck:30,dBolt:25,nBolt:2,pcsH:'h',pcsC:30},
+  pcs:PCS0.map(r=>r.slice()),
   profs:[{name:'JK 380/700',h:700,b:380,l1b:200,l1h:380,l2b:200,l2h:380}], edit:0,
   beams:[{id:'JK1',prof:'JK 380/700',L:5.3,g1:6.6,q1:8.6,s1:0,w1:2.8,g2:5.6,q2:3.6,s2:0,w2:5}], sel:0}; }
 let st=null; try{ st=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
 if(!st||!Array.isArray(st.beams)||!Array.isArray(st.profs)||!st.profs.length) st=defaults();
+// vanha konsolitaulukko (yksi kapasiteettisarake, PCs 10/15 tyhjinä) → Peikon arvot
+if(!Array.isArray(st.pcs)||st.pcs.some(r=>r.length<3)) st.pcs=PCS0.map(r=>r.slice());
+if(st.set.pcsH===undefined) st.set.pcsH='h'; if(st.set.pcsC===undefined) st.set.pcsC=30;
 let saveT=0; function save(){ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem(KEY,JSON.stringify(st)); }catch(e){} },250); }
 const profOf=B=>st.profs.find(p=>p.name===B.prof)||st.profs[0];
 
@@ -236,12 +246,12 @@ $('btnAdd').onclick=()=>{ let n=1; const ids=new Set(st.beams.map(b=>b.id)); whi
 $('btnReset').onclick=()=>{ if(!confirm('Palautetaanko esimerkki? Nykyiset palkit ja profiilit poistetaan.')) return; st=defaults(); renderProfs(); syncInputs(); renderBeams(); compute(); save(); };
 
 /* ---------- asetukset ---------- */
-const SETS=['cc','psiQ','psiS','rhoC','padEdge','padW','fck','dBolt','nBolt'];
-SETS.forEach(k=>{ const el=$(k),fn=()=>{ st.set[k]=num(el.value); compute(); save(); }; el.addEventListener('input',fn); el.addEventListener('change',fn); });
+const SETS=['cc','psiQ','psiS','rhoC','padEdge','padW','fck','dBolt','nBolt','pcsH','pcsC'];
+SETS.forEach(k=>{ const el=$(k),fn=()=>{ st.set[k]=k==='pcsH'?el.value:num(el.value); compute(); save(); }; el.addEventListener('input',fn); el.addEventListener('change',fn); });
 function syncInputs(){
-  SETS.forEach(k=>{ const el=$(k),v=st.set[k]; if(el.tagName==='SELECT'){ const o=[...el.options].find(o=>Math.abs(num(o.value)-num(v))<1e-9); if(o) el.value=o.value; } else el.value=String(v); });
-  $('pcsTbl').querySelector('tbody').innerHTML=st.pcs.map((r,i)=>`<tr><td class="l"><input type="text" id="pcs${i}n" value="${esc(r[0])}"></td><td><input type="number" id="pcs${i}v" step="1" value="${esc(r[1])}"></td></tr>`).join('');
-  st.pcs.forEach((r,i)=>{ $('pcs'+i+'n').oninput=e=>{ st.pcs[i][0]=e.target.value; compute(); save(); }; $('pcs'+i+'v').oninput=e=>{ st.pcs[i][1]=e.target.value; compute(); save(); }; });
+  SETS.forEach(k=>{ const el=$(k),v=st.set[k]; if(el.tagName==='SELECT'){ const o=[...el.options].find(o=>o.value===String(v)||Math.abs(num(o.value)-num(v))<1e-9); if(o) el.value=o.value; } else el.value=String(v); });
+  $('pcsTbl').querySelector('tbody').innerHTML=st.pcs.map((r,i)=>`<tr><td class="l"><input type="text" id="pcs${i}n" value="${esc(r[0])}"></td><td><input type="number" id="pcs${i}v" step="1" value="${esc(r[1])}"></td><td><input type="number" id="pcs${i}w" step="1" value="${esc(r[2])}"></td></tr>`).join('');
+  st.pcs.forEach((r,i)=>{ $('pcs'+i+'n').oninput=e=>{ st.pcs[i][0]=e.target.value; compute(); save(); }; $('pcs'+i+'v').oninput=e=>{ st.pcs[i][1]=e.target.value; compute(); save(); }; $('pcs'+i+'w').oninput=e=>{ st.pcs[i][2]=e.target.value; compute(); save(); }; });
 }
 
 /* ---------- laskenta ---------- */
@@ -263,7 +273,7 @@ function calc(B){
   const vv=(sd,c)=>c.cq*sd.q+c.cs*sd.s; let Tmax=0,Tcase='';
   combos.slice(1).forEach(c=>{ [[1,0],[0,1],[1,1]].forEach(([a,bb])=>{ const T=((c.cg*s1.g+a*vv(s1,c))*(l1b>0?e1:0)-(c.cg*s2.g+bb*vv(s2,c))*(l2b>0?e2:0))*L/2;
     if(Math.abs(T)>Math.abs(Tmax)){ Tmax=T; Tcase=c.n+(a&&!bb?', muuttuva kuorma vain leualla 1':!a&&bb?', muuttuva kuorma vain leualla 2':', muuttuva kuorma molemmilla'); } }); });
-  const list=st.pcs.map(r=>({n:r[0],v:num(r[1])})).filter(r=>r.n&&r.v>0).sort((a,b)=>a.v-b.v);
+  const kc=c=>kConc(c,+S.pcsC||30), list=st.pcs.map(r=>{ const v0=num(S.pcsH==='0'?r[2]:r[1]); return {n:r[0],v0,k:kc(r[0]),v:v0*kc(r[0])}; }).filter(r=>r.n&&r.v>0).sort((a,b)=>a.v-b.v);
   const pc=list.find(r=>r.v>=gov.V-1e-9)||null;
   // suurin palkkipituus konsoleittain: V = q·L/2 ≤ V_Rd → L_max = 2·V_Rd/q_Ed (q_Ed ei riipu pituudesta)
   const qd=gov.q, spans=list.map(r=>({n:r.n,v:r.v,Lmax:qd>0?2*r.v/qd:Infinity}));
@@ -277,7 +287,7 @@ function calc(B){
   if((num(B.g2)||num(B.q2)||num(B.s2))&&!(s2.w>0)) warns.push(id+'leuan 2 kuormitusleveys puuttuu.');
   if(s2.w>0&&!(l2b>0)) warns.push(id+'leualle 2 on annettu kuorma, mutta profiilissa ei ole leukaa 2.');
   if(s1.w>0&&!(l1b>0)) warns.push(id+'leualle 1 on annettu kuorma, mutta profiilissa ei ole leukaa 1.');
-  if(!pc&&gov.V>0) warns.push(id+`tukireaktio ${fmt(gov.V,0)} kN ylittää taulukon konsolit. Täydennä PCs 10 / PCs 15 tai tarkista liitos.`);
+  if(!pc&&gov.V>0) warns.push(id+`tukireaktio ${fmt(gov.V,0)} kN ylittää suurimman konsolin kestävyyden. Tarkista liitos (esim. kaksi konsolia tai muu tuentatapa).`);
   if(uB>1) warns.push(id+`peruspulttien käyttöaste ${fmt(uB*100,0)} % > 100 %.`);
   return {K,L,h,b,l1b,l1h,l2b,l2h,ow,s1,s2,Gk,Qk,Sk,combos,gov,c1,c2,e1,e2,pe,Tmax,Tcase,pc,spans,qd,Rk,Hk,d,fck,nb,FvRd,uB,warns};
 }
@@ -335,7 +345,8 @@ function compute(){
     row('Tukireaktio','V<sub>Ed</sub> = q<sub>Ed</sub>·L/2 = '+fmt(c.q,2)+'·'+fmt(r.L,2)+'/2 = <b>'+fmt(c.V,1)+' kN</b>')+
     row('Vaakavoima','H<sub>Ed</sub> = 0,2·V<sub>Ed</sub> = '+fmt(0.2*c.V,1)+' kN')+
     row('Vääntö palkin päässä','T<sub>Ed</sub> = (q₁·e₁ − q₂·e₂)·L/2 = <b>'+fmt(Math.abs(r.Tmax),1)+' kNm</b> ('+esc(r.Tcase)+')')+
-    row('Konsoli',r.pc?'pienin konsoli, jolla V<sub>Rd</sub> ≥ V<sub>Ed</sub>: <b>'+esc(r.pc.n)+'</b>, V<sub>Rd</sub> = '+fmt(r.pc.v,0)+' kN → käyttöaste <b class="'+(u>1?'bad':'ok')+'">'+fmt(u*100,0)+' %</b>':'<span class="bad">ei sopivaa konsolia taulukossa</span>')+
+    row('Konsolin kestävyys','Peikko PCs, tekninen käyttöohje FI 04/2019: '+(st.set.pcsH==='0'?'ei vaakavetoa (H<sub>Ed</sub> = 0)':'vaakaveto H<sub>Ed</sub> = 0,2·V<sub>Ed</sub>')+', pilarin betoni '+(+st.set.pcsC>=30?'≥ C30/37':+st.set.pcsC>=25?'C25/30 → kerroin 0,90':'C20/25 → kerroin 0,79 (PCs 15: 0,67)')+'. <a href="'+PCSMAN+'" target="_blank" rel="noopener">Avaa tekninen käyttöohje</a>')+
+    row('Konsoli',r.pc?'pienin konsoli, jolla V<sub>Rd</sub> ≥ V<sub>Ed</sub>: <b>'+esc(r.pc.n)+'</b>, V<sub>Rd</sub> = '+(r.pc.k<1?fmt(r.pc.k,2)+'·'+fmt(r.pc.v0,0)+' = ':'')+fmt(r.pc.v,0)+' kN → käyttöaste <b class="'+(u>1?'bad':'ok')+'">'+fmt(u*100,0)+' %</b>':'<span class="bad">ei sopivaa konsolia taulukossa</span>')+
     row('Vääntö ja konsoli','Peikon mukaan PCs-konsolin vääntökestävyys on taattu vain teräs- ja liittopalkeille. Betonipalkin pään vääntö on hoidettava muilla keinoin.')+
     '<h4>Suurin palkkipituus konsoleittain</h4>'+
     row('Periaate','V<sub>Ed</sub> = q<sub>Ed</sub>·L/2 ≤ V<sub>Rd</sub> → L<sub>max</sub> = 2·V<sub>Rd</sub>/q<sub>Ed</sub>, q<sub>Ed</sub> = '+fmt(r.qd,2)+' kN/m ('+c.n+'). Profiili ja kuormat pysyvät samoina.')+
@@ -347,6 +358,7 @@ function compute(){
     row('Käyttöaste','H/(n·F<sub>v,Rd</sub>) = '+fmt(r.Hk,1)+'/('+r.nb+'·'+fmt(r.FvRd,1)+') = <b class="'+(r.uB>1?'bad':'ok')+'">'+fmt(r.uB*100,0)+' %</b>');
 }
 
+$('pcsReset').onclick=()=>{ st.pcs=PCS0.map(r=>r.slice()); syncInputs(); compute(); save(); };
 renderProfs(); syncInputs(); renderBeams(); compute();
 })();
 </script>

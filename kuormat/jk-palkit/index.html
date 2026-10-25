@@ -95,6 +95,8 @@ details.step>div{padding:0 12px 10px}
 .grid2>.card{margin-bottom:0}
 .grid2+.card{margin-top:14px}
 tr.tot td{font-size:12.5px;color:var(--muted);cursor:default}
+table.spans{width:auto;min-width:340px}
+table.spans tbody tr{cursor:default}
 #beamTbl select{max-width:150px;padding:3px 5px}
 </style>
 </head>
@@ -263,6 +265,8 @@ function calc(B){
     if(Math.abs(T)>Math.abs(Tmax)){ Tmax=T; Tcase=c.n+(a&&!bb?', muuttuva kuorma vain leualla 1':!a&&bb?', muuttuva kuorma vain leualla 2':', muuttuva kuorma molemmilla'); } }); });
   const list=st.pcs.map(r=>({n:r[0],v:num(r[1])})).filter(r=>r.n&&r.v>0).sort((a,b)=>a.v-b.v);
   const pc=list.find(r=>r.v>=gov.V-1e-9)||null;
+  // suurin palkkipituus konsoleittain: V = q·L/2 ≤ V_Rd → L_max = 2·V_Rd/q_Ed (q_Ed ei riipu pituudesta)
+  const qd=gov.q, spans=list.map(r=>({n:r.n,v:r.v,Lmax:qd>0?2*r.v/qd:Infinity}));
   const Rk=(Gk+Qk+Sk)*L/2,Hk=0.2*Rk,d=+S.dBolt||25,fck=+S.fck||30,nb=Math.max(1,Math.round(+S.nBolt||2));
   const FvRd=1.2*d*d*Math.sqrt(500*fck)/1000,uB=Hk/(nb*FvRd);
   const warns=[];
@@ -275,7 +279,7 @@ function calc(B){
   if(s1.w>0&&!(l1b>0)) warns.push(id+'leualle 1 on annettu kuorma, mutta profiilissa ei ole leukaa 1.');
   if(!pc&&gov.V>0) warns.push(id+`tukireaktio ${fmt(gov.V,0)} kN ylittää taulukon konsolit. Täydennä PCs 10 / PCs 15 tai tarkista liitos.`);
   if(uB>1) warns.push(id+`peruspulttien käyttöaste ${fmt(uB*100,0)} % > 100 %.`);
-  return {K,L,h,b,l1b,l1h,l2b,l2h,ow,s1,s2,Gk,Qk,Sk,combos,gov,c1,c2,e1,e2,pe,Tmax,Tcase,pc,Rk,Hk,d,fck,nb,FvRd,uB,warns};
+  return {K,L,h,b,l1b,l1h,l2b,l2h,ow,s1,s2,Gk,Qk,Sk,combos,gov,c1,c2,e1,e2,pe,Tmax,Tcase,pc,spans,qd,Rk,Hk,d,fck,nb,FvRd,uB,warns};
 }
 
 function secSvg(r){
@@ -298,9 +302,9 @@ function secSvg(r){
 
 function compute(){
   const R=st.beams.map(calc);
-  $('resTbl').innerHTML=`<thead><tr><th class="l">Tunnus</th><th class="l">Profiili</th><th>L<br>[m]</th><th>Leuka 1<br>q<sub>Ed</sub> [kN/m]</th><th>Leuka 2<br>q<sub>Ed</sub> [kN/m]</th><th>Konsolille<br>V<sub>Ed</sub> [kN]</th><th>H<sub>Ed</sub><br>[kN]</th><th>T<sub>Ed</sub><br>[kNm]</th><th class="l">Konsoli</th><th>Käyttöaste</th><th>Pultit</th></tr></thead><tbody>`+
-    R.map((r,i)=>{ const B=st.beams[i],u=r.pc?r.gov.V/r.pc.v:null; return `<tr data-i="${i}" class="${st.sel===i?'sel':''}"><td class="l"><b>${esc(B.id)}</b></td><td class="l">${esc(B.prof)}</td><td>${fmt(r.L,2)}</td><td>${fmt(r.c1.l1,1)}</td><td>${fmt(r.c2.l2,1)}</td><td><b>${fmt(r.gov.V,0)}</b></td><td>${fmt(0.2*r.gov.V,0)}</td><td>${fmt(Math.abs(r.Tmax),1)}</td><td class="l"><b>${r.pc?esc(r.pc.n):'<span class="bad">ei sopivaa</span>'}</b></td><td class="${u>1?'bad':'ok'}">${u!==null?fmt(u*100,0)+' %':'–'}</td><td class="${r.uB>1?'bad':'ok'}">${fmt(r.uB*100,0)} %</td></tr>`; }).join('')+
-    (R.length>1?`<tr class="tot"><td class="l" colspan="8">Konsolit yhteensä (2 / palkki)</td><td class="l" colspan="3">${(()=>{ const c={}; R.forEach(r=>{ const n=r.pc?r.pc.n:'ei sopivaa'; c[n]=(c[n]||0)+2; }); return Object.entries(c).map(([n,k])=>k+' × '+esc(n)).join(', '); })()}</td></tr>`:'')+'</tbody>';
+  $('resTbl').innerHTML=`<thead><tr><th class="l">Tunnus</th><th class="l">Profiili</th><th>L<br>[m]</th><th>Leuka 1<br>q<sub>Ed</sub> [kN/m]</th><th>Leuka 2<br>q<sub>Ed</sub> [kN/m]</th><th>Konsolille<br>V<sub>Ed</sub> [kN]</th><th>H<sub>Ed</sub><br>[kN]</th><th>T<sub>Ed</sub><br>[kNm]</th><th class="l">Konsoli</th><th>Käyttöaste</th><th>L<sub>max</sub><br>konsolilla [m]</th><th>Pultit</th></tr></thead><tbody>`+
+    R.map((r,i)=>{ const B=st.beams[i],u=r.pc?r.gov.V/r.pc.v:null; return `<tr data-i="${i}" class="${st.sel===i?'sel':''}"><td class="l"><b>${esc(B.id)}</b></td><td class="l">${esc(B.prof)}</td><td>${fmt(r.L,2)}</td><td>${fmt(r.c1.l1,1)}</td><td>${fmt(r.c2.l2,1)}</td><td><b>${fmt(r.gov.V,0)}</b></td><td>${fmt(0.2*r.gov.V,0)}</td><td>${fmt(Math.abs(r.Tmax),1)}</td><td class="l"><b>${r.pc?esc(r.pc.n):'<span class="bad">ei sopivaa</span>'}</b></td><td class="${u>1?'bad':'ok'}">${u!==null?fmt(u*100,0)+' %':'–'}</td><td>${r.pc?fmt(2*r.pc.v/r.qd,2):'–'}</td><td class="${r.uB>1?'bad':'ok'}">${fmt(r.uB*100,0)} %</td></tr>`; }).join('')+
+    (R.length>1?`<tr class="tot"><td class="l" colspan="8">Konsolit yhteensä (2 / palkki)</td><td class="l" colspan="4">${(()=>{ const c={}; R.forEach(r=>{ const n=r.pc?r.pc.n:'ei sopivaa'; c[n]=(c[n]||0)+2; }); return Object.entries(c).map(([n,k])=>k+' × '+esc(n)).join(', '); })()}</td></tr>`:'')+'</tbody>';
   $('resTbl').querySelectorAll('tbody tr[data-i]').forEach(tr=>tr.onclick=()=>{ st.sel=+tr.dataset.i; markSel(); compute(); });
   $('warns').innerHTML=R.flatMap(r=>r.warns).map(w=>`<li>${esc(w)}</li>`).join('');
   const i=st.sel,B=st.beams[i],r=R[i];
@@ -314,7 +318,7 @@ function compute(){
     `<div class="kpi"><div class="k">Kuorma leualle 1</div><div class="v">${fmt(r.c1.l1,1)} kN/m</div><div class="small">ominais ${fmt(r.s1.g+r.s1.q+r.s1.s,1)} kN/m</div></div>`+
     `<div class="kpi"><div class="k">Kuorma leualle 2</div><div class="v">${fmt(r.c2.l2,1)} kN/m</div><div class="small">ominais ${fmt(r.s2.g+r.s2.q+r.s2.s,1)} kN/m</div></div>`+
     `<div class="kpi hl"><div class="k">Kuorma konsolille V<sub>Ed</sub></div><div class="v">${fmt(c.V,0)} kN</div><div class="small">H<sub>Ed</sub> = ${fmt(0.2*c.V,0)} kN · ominais R<sub>k</sub> = ${fmt(r.Rk,0)} kN</div></div>`+
-    `<div class="kpi hl"><div class="k">Konsoli</div><div class="v">${r.pc?esc(r.pc.n):'<span class="bad">ei sopivaa</span>'}</div><div class="small ${u>1?'bad':''}">${u!==null?'käyttöaste '+fmt(u*100,0)+' %':''}</div></div>`;
+    `<div class="kpi hl"><div class="k">Konsoli</div><div class="v">${r.pc?esc(r.pc.n):'<span class="bad">ei sopivaa</span>'}</div><div class="small ${u>1?'bad':''}">${u!==null?'käyttöaste '+fmt(u*100,0)+' % · riittää L ≤ '+fmt(2*r.pc.v/r.qd,2)+' m':''}</div></div>`;
   $('warns').innerHTML=r.warns.map(w=>`<li>${esc(w)}</li>`).join('');
   $('calc').innerHTML=
     '<h4>Viivakuormat</h4>'+
@@ -333,6 +337,10 @@ function compute(){
     row('Vääntö palkin päässä','T<sub>Ed</sub> = (q₁·e₁ − q₂·e₂)·L/2 = <b>'+fmt(Math.abs(r.Tmax),1)+' kNm</b> ('+esc(r.Tcase)+')')+
     row('Konsoli',r.pc?'pienin konsoli, jolla V<sub>Rd</sub> ≥ V<sub>Ed</sub>: <b>'+esc(r.pc.n)+'</b>, V<sub>Rd</sub> = '+fmt(r.pc.v,0)+' kN → käyttöaste <b class="'+(u>1?'bad':'ok')+'">'+fmt(u*100,0)+' %</b>':'<span class="bad">ei sopivaa konsolia taulukossa</span>')+
     row('Vääntö ja konsoli','Peikon mukaan PCs-konsolin vääntökestävyys on taattu vain teräs- ja liittopalkeille. Betonipalkin pään vääntö on hoidettava muilla keinoin.')+
+    '<h4>Suurin palkkipituus konsoleittain</h4>'+
+    row('Periaate','V<sub>Ed</sub> = q<sub>Ed</sub>·L/2 ≤ V<sub>Rd</sub> → L<sub>max</sub> = 2·V<sub>Rd</sub>/q<sub>Ed</sub>, q<sub>Ed</sub> = '+fmt(r.qd,2)+' kN/m ('+c.n+'). Profiili ja kuormat pysyvät samoina.')+
+    (r.spans.length?'<div class="tbl-wrap" style="margin:6px 0 4px"><table class="spans"><thead><tr><th class="l">Konsoli</th><th>V<sub>Rd</sub> [kN]</th><th>L<sub>max</sub> [m]</th><th class="l">L = '+fmt(r.L,2)+' m</th></tr></thead><tbody>'+
+      r.spans.map(x=>'<tr'+(r.pc&&x.n===r.pc.n?' class="sel"':'')+'><td class="l">'+esc(x.n)+'</td><td>'+fmt(x.v,0)+'</td><td><b>'+fmt(x.Lmax,2)+'</b></td><td class="l '+(r.L<=x.Lmax+1e-9?'ok':'bad')+'">'+(r.L<=x.Lmax+1e-9?'✓ riittää':'✗ ei riitä')+'</td></tr>').join('')+'</tbody></table></div>':row('Konsolit','Konsolitaulukossa ei ole kapasiteetteja.'))+
     '<h4>Peruspultit (onnettomuustilanteen putoaminen)</h4>'+
     row('Ominaistukireaktio','R<sub>k</sub> = (G<sub>k</sub> + Q<sub>k</sub> + S<sub>k</sub>)·L/2 = <b>'+fmt(r.Rk,1)+' kN</b>, H = 0,2·R<sub>k</sub> = '+fmt(r.Hk,1)+' kN')+
     row('Vaarnatappikestävyys','F<sub>v,Rd</sub> = 1,2·d²·√(500·f<sub>ck</sub>) = 1,2·'+r.d+'²·√(500·'+fmt(r.fck,0)+')/1000 = '+fmt(r.FvRd,1)+' kN / pultti')+

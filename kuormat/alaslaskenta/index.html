@@ -1062,14 +1062,14 @@ function detectRak(V,o){
     if(dy<=L*0.012) Hs.push({c:(s.y1+s.y2)/2,a:Math.min(s.x1,s.x2),b:Math.max(s.x1,s.x2),dash:s.dash});
     else if(dx<=L*0.012) Vs.push({c:(s.x1+s.x2)/2,a:Math.min(s.y1,s.y2),b:Math.max(s.y1,s.y2),dash:s.dash}); }
   // ontelolaattojen saumat: ≥ 3 rinnakkaista viivaa (tai saumaviivaparia) noin 1200 mm välein → ei tukilinjoja
-  const joints=(arr)=>{ const W=o.hcW||1.2,tol=0.05,cl=[]; arr.slice().sort((p,q)=>p.c-q.c).forEach(l=>{ const g=cl.find(g=>Math.abs(g.c-l.c)<=0.12&&l.a<=g.b&&l.b>=g.a); if(g){ g.ls.push(l); g.a=Math.min(g.a,l.a); g.b=Math.max(g.b,l.b); } else cl.push({c:l.c,a:l.a,b:l.b,ls:[l]}); });
+  const joints=(arr)=>{ const W=o.hcW||1.2,tol=0.05,cl=[]; arr.filter(l=>!l.dash).sort((p,q)=>p.c-q.c).forEach(l=>{ const g=cl.find(g=>Math.abs(g.c-l.c)<=0.12&&l.a<=g.b&&l.b>=g.a); if(g){ g.ls.push(l); g.a=Math.min(g.a,l.a); g.b=Math.max(g.b,l.b); } else cl.push({c:l.c,a:l.a,b:l.b,ls:[l]}); });
     const nb=(g,d)=>cl.find(h=>h!==g&&Math.abs(h.c-g.c-d)<=tol&&Math.min(h.b,g.b)-Math.max(h.a,g.a)>0.6*Math.min(h.b-h.a,g.b-g.a));
     const J=new Set(); cl.forEach(g=>{ const L=nb(g,-W),Rr=nb(g,W); if((L&&Rr)||(L&&nb(L,-W))||(Rr&&nb(Rr,W))) g.ls.forEach(l=>J.add(l)); }); return J; };
   const JH=o.hcJoints?joints(Hs):new Set(),JV=o.hcJoints?joints(Vs):new Set();
   out.joints=JH.size+JV.size;
-  const pairs=(arr,ori)=>{ const Js=ori==='h'?JH:JV; arr=arr.filter(l=>!Js.has(l)); arr.sort((p,q)=>p.c-q.c); const r=[];
+  const pairs=(arr,ori)=>{ const Js=ori==='h'?JH:JV; arr.sort((p,q)=>p.c-q.c); const r=[];
     for(let i=0;i<arr.length;i++){ const p=arr[i]; for(let j=i+1;j<arr.length;j++){ const q=arr[j],d=q.c-p.c; if(d<o.tMin) continue; if(d>o.tMax) break;
-      const a=Math.max(p.a,q.a),b=Math.min(p.b,q.b); if(b-a<0.6) continue; r.push({o:ori,c:(p.c+q.c)/2,t:d,a,b,dash:p.dash&&q.dash,half:p.dash!==q.dash}); } } return r; };
+      if(Js.has(p)&&Js.has(q)) continue; const a=Math.max(p.a,q.a),b=Math.min(p.b,q.b); if(b-a<0.6) continue; r.push({o:ori,c:(p.c+q.c)/2,t:d,a,b,dash:p.dash&&q.dash,half:p.dash!==q.dash}); } } return r; };
   let cand=[...pairs(Hs,'h'),...pairs(Vs,'v')];
   // samat kaistat yhdeksi (katkenneet viivat, aukot)
   cand.sort((p,q)=>p.o<q.o?-1:p.o>q.o?1:(p.dash-q.dash)||(p.c-q.c)||(p.a-q.a));
@@ -1111,7 +1111,24 @@ function detectRak(V,o){
         if(curR&&curR.dir===g.dir&&cov('v',g.x0,g.y0,g.y1)<0.5) curR.x1=g.x1; else { curR={...g}; rows.push(curR); } } }
       rows.sort((p,q)=>(p.x0-q.x0)||(p.y0-q.y0)); const fin=[];
       for(const r of rows){ const m=fin.find(f=>Math.abs(f.x0-r.x0)<1e-6&&Math.abs(f.x1-r.x1)<1e-6&&Math.abs(f.y1-r.y0)<1e-6&&f.dir===r.dir&&cov('h',r.y0,r.x0,r.x1)<0.5); if(m) m.y1=r.y1; else fin.push({...r}); }
-      out.slabs=fin; }
+      // ontelolaattakentät suoraan saumaperheistä (≥ 3 saumaa ~1200 mm välein)
+      const W=o.hcW||1.2,F=[];
+      const fam=(Js,ori)=>{ const cl=[]; [...Js].sort((p,q)=>p.c-q.c).forEach(l=>{ const g=cl.find(g=>Math.abs(g.c-l.c)<=0.12&&l.a<=g.b+0.3&&l.b>=g.a-0.3); if(g){ g.a=Math.min(g.a,l.a); g.b=Math.max(g.b,l.b); } else cl.push({c:l.c,a:l.a,b:l.b}); });
+        cl.sort((p,q)=>p.c-q.c); const used=new Set();
+        for(let i=0;i<cl.length;i++){ const g=cl[i]; if(used.has(g)) continue; used.add(g); let last=g,a=g.a,b=g.b,n=1;
+          for(let j=i+1;j<cl.length;j++){ const h=cl[j]; if(used.has(h)) continue; const d=h.c-last.c; if(d<W*0.85) continue; if(d>W*2.6) break;
+            if(Math.min(h.b,b)-Math.max(h.a,a)>0.6*Math.min(h.b-h.a,b-a)){ used.add(h); last=h; a=Math.min(a,h.a); b=Math.max(b,h.b); n++; } }
+          if(n>=3) F.push({ori,c0:g.c,c1:last.c,a,b}); } };
+      fam(JV,'v'); fam(JH,'h');
+      const ext=(ori,c,dirn,lim)=>{ let best=null; sup.forEach(s=>{ if(s.o!==ori) return; const d=(s.c-c)*dirn; if(d>=-0.15&&d<=lim&&(best===null||d<best.d)) best={d,c:s.c}; }); return best?best.c:null; };
+      const hc=F.map(f=>{ const po=f.ori==='v'?'v':'h',pe=f.ori==='v'?'h':'v';
+        let c0=ext(po,f.c0,-1,1.4),c1=ext(po,f.c1,1,1.4),a=ext(pe,f.a,-1,0.8),b=ext(pe,f.b,1,0.8);
+        c0=c0===null?f.c0:c0; c1=c1===null?f.c1:c1; a=a===null?f.a:a; b=b===null?f.b:b;
+        return f.ori==='v'?{x0:c0,x1:c1,y0:a,y1:b,dir:90,hc:1}:{x0:a,x1:b,y0:c0,y1:c1,dir:0,hc:1}; }).filter(r=>r.x1-r.x0>0.6&&r.y1-r.y0>0.6);
+      hc.sort((p,q)=>(q.x1-q.x0)*(q.y1-q.y0)-(p.x1-p.x0)*(p.y1-p.y0));
+      const ov=(p,q)=>Math.max(0,Math.min(p.x1,q.x1)-Math.max(p.x0,q.x0))*Math.max(0,Math.min(p.y1,q.y1)-Math.max(p.y0,q.y0));
+      const hcK=[]; hc.forEach(r=>{ if(!hcK.some(q=>ov(r,q)>0.5*(r.x1-r.x0)*(r.y1-r.y0))) hcK.push(r); });
+      out.slabs=[...hcK,...fin.filter(c=>!hcK.some(q=>ov(c,q)>0.3*(c.x1-c.x0)*(c.y1-c.y0)))]; }
     else if(out.cols.length>=2){ let X0=1e9,Y0=1e9,X1=-1e9,Y1=-1e9; out.cols.forEach(c=>{ X0=Math.min(X0,c.x); X1=Math.max(X1,c.x); Y0=Math.min(Y0,c.y); Y1=Math.max(Y1,c.y); }); if(X1-X0>0.5&&Y1-Y0>0.5) out.slabs=[{x0:X0,y0:Y0,x1:X1,y1:Y1,dir:null}]; } }
   return out;
 }
@@ -1171,7 +1188,7 @@ $('rakGo').onclick=async()=>{ if(!lastPdf) return; const btn=$('rakGo'); btn.dis
   try{ const n=+$('rakPage').value||1,N=+$('rakScale').value||100; rakVec=rakVec&&rakVec.n===n?rakVec:{n,...(await pdfVectors(n))};
     const k=N*0.0254/72,o={k,crop,cMin:(+$('rakCmin').value||150)/1000,cMax:(+$('rakCmax').value||1200)/1000,tMin:(+$('rakTmin').value||60)/1000,tMax:(+$('rakTmax').value||500)/1000,wMinLen:0.8,
       minLw:(+$('rakLw').value||0)/0.3528,hcJoints:$('rakHc').checked,hcW:(+$('rakHcW').value||1200)/1000,cFill:$('rakCfill').checked,dashBeams:$('rakDash').checked,doCols:$('rakCols').checked,doWalls:$('rakWalls').checked,doBeams:$('rakBeams').checked,doSlabs:$('rakSlabs').checked};
-    rakRes=detectRak(rakVec,o); rakRes.k=k; drawPrev();
+    rakRes=detectRak(rakVec,o); rakRes.k=k; window.__rakRes=rakRes; drawPrev();
     rakCount();
   }catch(e){ console.error(e); $('rakInfo').textContent='Tunnistus epäonnistui: '+(e&&e.message||e); }
   btn.disabled=false; };

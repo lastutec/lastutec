@@ -127,6 +127,8 @@ details.step>.calc{padding:0 12px 10px}
           <div class="field"><label>Maastoluokka</label><select id="w-cat"><option value="0">0 – meri, rannikko</option><option value="I">I – järvet, tasainen esteetön</option><option value="II" selected>II – matala kasvillisuus, yksittäiset esteet</option><option value="III">III – kylät, esikaupungit, metsä</option><option value="IV">IV – kaupunkialue (≥15 % rakennettu, h &gt; 15 m)</option></select></div>
           <div class="field"><label>Suuntakerroin c<sub>dir</sub></label><span><input type="number" id="w-cdir" step="0.05" value="1"><span class="u"></span></span></div>
           <div class="field"><label>Vuodenaikakerroin c<sub>season</sub></label><span><input type="number" id="w-cseason" step="0.05" value="1"><span class="u"></span></span></div>
+          <div class="field"><label>Suunniteltu käyttöikä</label><select id="w-life"><option value="50" selected>50 v</option><option value="100">100 v</option></select></div>
+          <div class="small" id="w-lifenote"></div>
           <div class="field"><label>Pinnanmuotokerroin c<sub>o</sub></label><span><input type="number" id="w-co" step="0.05" value="1"><span class="u"></span></span></div>
           <div class="field"><label>Ilman tiheys ρ</label><span><input type="number" id="w-rho" step="0.01" value="1.25"><span class="u">kg/m³</span></span></div>
         </fieldset>
@@ -190,10 +192,15 @@ function bindPersist(ids,fn){ ids.forEach(id=>{ const el=$('#'+id); if(!el) retu
    TUULIKUORMA
    ===================================================================== */
 const TC={'0':{z0:0.003,zmin:1},'I':{z0:0.01,zmin:1},'II':{z0:0.05,zmin:2},'III':{z0:0.3,zmin:5},'IV':{z0:1.0,zmin:10}};
+// suunniteltu käyttöikä → todennäköisyyskerroin c_prob (SFS-EN 1991-1-4, 4.2(2)P huom. 4, kaava 4.2; K = 0,2, n = 0,5)
+function lifeWind(){ const is100=$('#w-life').value==='100', K=0.2, n=0.5, p=is100?0.01:0.02;
+  const c=Math.pow((1-K*Math.log(-Math.log(1-p)))/(1-K*Math.log(-Math.log(0.98))),n);
+  $('#w-lifenote').innerHTML=is100?'Käyttöikä 100 v → toistumisaika 100 v (p = 0,01): c<sub>prob</sub> = <b>'+fmt(c,4)+'</b>, nopeuspaine × c<sub>prob</sub>² = '+fmt(c*c,3)+'.':'Toistumisaika 50 v (p = 0,02) → c<sub>prob</sub> = 1,0.';
+  return {is100,c,p,K,n}; }
 function windBase(){ const cat=$('#w-cat').value, t=TC[cat]; const vb0=num('#w-vb0'), cdir=num('#w-cdir'), cs=num('#w-cseason'), co=num('#w-co')||1, rho=num('#w-rho')||1.25;
-  const vb=cdir*cs*vb0; const kr=cat==='0'?0.18:0.19*Math.pow(t.z0/0.05,0.07);
+  const LW=lifeWind(), cprob=LW.c; const vb=cprob*cdir*cs*vb0; const kr=cat==='0'?0.18:0.19*Math.pow(t.z0/0.05,0.07);
   const qp=z=>{ const zz=Math.max(z,t.zmin); const lnz=Math.log(zz/t.z0); const cr=kr*lnz, vm=cr*co*vb, Iv=1/(co*lnz); return {z,zz,lnz,cr,vm,Iv,q:(1+7*Iv)*0.5*rho*vm*vm/1000}; };
-  return {cat,t,vb0,cdir,cs,co,rho,vb,kr,qp}; }
+  return {cat,t,vb0,cdir,cs,co,rho,vb,kr,qp,LW,cprob}; }
 // seinien cpe (taulukko 7.1)
 const WALL={0.25:{A:[-1.2,-1.4],B:[-0.8,-1.1],C:[-0.5,-0.5],D:[0.7,1.0],E:[-0.3,-0.5]},1:{A:[-1.2,-1.4],B:[-0.8,-1.1],C:[-0.5,-0.5],D:[0.8,1.0],E:[-0.5,-0.5]},5:{A:[-1.2,-1.4],B:[-0.8,-1.1],C:[-0.5,-0.5],D:[0.8,1.0],E:[-0.7,-0.7]}};
 function cpeWall(hd){ const r=Math.min(5,Math.max(0.25,hd)); const [a,b]=r<=1?[0.25,1]:[1,5]; const o={};
@@ -210,7 +217,8 @@ function windCalc(){
   $('#w-kpis').innerHTML=[['v<sub>b</sub>',fmt(W.vb,2)+' m/s'],['k<sub>r</sub>',fmt(W.kr,4)],['v<sub>m</sub>(h)',fmt(Q.vm,2)+' m/s'],['I<sub>v</sub>(h)',fmt(Q.Iv,4)],['q<sub>p</sub>(h)',fmt(Q.q,3)+' kN/m²']]
    .map((k,i)=>`<div class="kpi ${i===4?'hl':''}"><div class="k">${k[0]}</div><div class="v">${k[1]}</div></div>`).join('');
   let st='';
-  st+=row('Tuulen nopeuden perusarvo','v<sub>b</sub> = c<sub>dir</sub>·c<sub>season</sub>·v<sub>b,0</sub> = '+fmt(W.cdir,2)+'·'+fmt(W.cs,2)+'·'+fmt(W.vb0,1)+' = <b>'+fmt(W.vb,2)+' m/s</b>');
+  if(W.LW.is100) st+=row('Suunniteltu käyttöikä 100 v','toistumisaika 100 v, p = 0,01 (sama ylittymistodennäköisyys käyttöiän aikana kuin 50 v / p = 0,02);<br>c<sub>prob</sub> = [(1 − K·ln(−ln(1−p)))/(1 − K·ln(−ln(0,98)))]<sup>n</sup> = [(1 − 0,2·('+fmt(Math.log(-Math.log(0.99)),4)+'))/(1 − 0,2·('+fmt(Math.log(-Math.log(0.98)),4)+'))]<sup>0,5</sup> = <b>'+fmt(W.cprob,4)+'</b> (kaava 4.2, K = 0,2, n = 0,5)');
+  st+=row('Tuulen nopeuden perusarvo',W.LW.is100?'v<sub>b</sub> = c<sub>prob</sub>·c<sub>dir</sub>·c<sub>season</sub>·v<sub>b,0</sub> = '+fmt(W.cprob,4)+'·'+fmt(W.cdir,2)+'·'+fmt(W.cs,2)+'·'+fmt(W.vb0,1)+' = <b>'+fmt(W.vb,2)+' m/s</b>':'v<sub>b</sub> = c<sub>dir</sub>·c<sub>season</sub>·v<sub>b,0</sub> = '+fmt(W.cdir,2)+'·'+fmt(W.cs,2)+'·'+fmt(W.vb0,1)+' = <b>'+fmt(W.vb,2)+' m/s</b>');
   st+=row('Maastoluokka '+W.cat,'z<sub>0</sub> = '+fmt(W.t.z0,3)+' m, z<sub>min</sub> = '+fmt(W.t.zmin,0)+' m');
   st+=row('Maastokerroin k<sub>r</sub>',W.cat==='0'?'maastoluokka 0 → kansallinen liite: <b>k<sub>r</sub> = 0,18</b>':'0,19·(z<sub>0</sub>/z<sub>0,II</sub>)<sup>0,07</sup> = 0,19·('+fmt(W.t.z0,3)+'/0,05)<sup>0,07</sup> = <b>'+fmt(W.kr,4)+'</b>');
   st+=row('Korkeus z','z = h = '+fmt(h,2)+' m'+(h<W.t.zmin?' &lt; z<sub>min</sub> → z = '+fmt(W.t.zmin,1)+' m':''));
@@ -363,7 +371,7 @@ function svgPlan(k,Lx,Ly,e,zones,d,b){
    <rect x="${x0}" y="${y0}" width="${w}" height="${hh}" fill="#2b2d32" stroke="var(--ink)" stroke-width="1.5"/>${z}
    <text x="${x0+w/2}" y="${y0+hh/2+4}" text-anchor="middle" class="m">${fmt(Lx,1)} × ${fmt(Ly,1)} m, e = ${fmt(e,2)} m</text></svg>`;
 }
-bindPersist(['w-vb0','w-cat','w-cdir','w-cseason','w-co','w-rho','w-Lx','w-Ly','w-h','w-cscd','w-hp','w-A','w-cpi'],windCalc);
+bindPersist(['w-vb0','w-cat','w-cdir','w-cseason','w-life','w-co','w-rho','w-Lx','w-Ly','w-h','w-cscd','w-hp','w-A','w-cpi'],windCalc);
 windCalc();
 })();
 </script>

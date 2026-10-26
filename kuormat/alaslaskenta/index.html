@@ -174,7 +174,7 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
         <label class="small" id="rakPageWrap" hidden>Sivu <input type="number" id="rakPage" min="1" step="1" value="1" style="width:60px"></label>
         <button class="btn ghost" id="rakAll">Koko sivu</button></div>
       <canvas id="rakCv" aria-label="RAK-piirustuksen esikatselu ja tunnistusalueen rajaus"></canvas>
-      <div class="legend"><span><span class="chip" style="background:#e0a800"></span>pilari</span><span><span class="chip" style="background:#e3824f"></span>seinä</span><span><span class="chip" style="background:#9b59d0"></span>palkki</span><span><span class="chip" style="background:#4a90d9"></span>laatta-alue</span><span>vedä esikatselussa = rajaa tunnistusalue</span></div>
+      <div class="legend"><span><span class="chip" style="background:#e0a800"></span>pilari</span><span><span class="chip" style="background:#e3824f"></span>seinä</span><span><span class="chip" style="background:#9b59d0"></span>palkki</span><span><span class="chip" style="background:#4a90d9"></span>laatta-alue</span><span>napauta objektia = poista / palauta · vedä = rajaa tunnistusalue</span></div>
     </div>
     <div class="card">
       <h2>Automaattinen tunnistus</h2>
@@ -194,8 +194,9 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
       <label class="chk"><input type="checkbox" id="rakBeams" checked> Palkit</label>
       <label class="chk"><input type="checkbox" id="rakDash" checked> Katkoviivaparit palkkeina</label>
       <label class="chk"><input type="checkbox" id="rakSlabs" checked> Laatat ja kantosuunnat</label>
+      <label class="chk"><input type="checkbox" id="rakHc" checked> Ontelolaatat yhtenä kenttänä (saumat <input type="number" id="rakHcW" value="1200" step="50" style="width:74px;padding:2px 6px"> mm välein eivät ole tukia)</label>
       <label class="chk"><input type="checkbox" id="rakRepl" checked> Korvaa nykyiset piirretyt osat</label>
-      <div class="flex" style="margin-top:8px"><button class="btn primary" id="rakGo" disabled>Tunnista</button><button class="btn" id="rakUse" disabled>Siirrä laskentaan →</button></div>
+      <div class="flex" style="margin-top:8px"><button class="btn primary" id="rakGo" disabled>Tunnista</button><button class="btn" id="rakUse" disabled>Siirrä laskentaan →</button><button class="btn ghost" id="rakReset" hidden>Palauta poistetut</button></div>
       <p class="small" id="rakInfo" style="margin:8px 0 0">Valitse PDF-muotoinen RAK-mittapiirustus (taso- tai mittapiirustus, vektorimuotoinen).</p>
     </div>
   </div>
@@ -1049,7 +1050,13 @@ function detectRak(V,o){
   for(const s of segs){ const dx=Math.abs(s.x2-s.x1),dy=Math.abs(s.y2-s.y1),L=Math.hypot(dx,dy); if(L<0.5) continue;
     if(dy<=L*0.012) Hs.push({c:(s.y1+s.y2)/2,a:Math.min(s.x1,s.x2),b:Math.max(s.x1,s.x2),dash:s.dash});
     else if(dx<=L*0.012) Vs.push({c:(s.x1+s.x2)/2,a:Math.min(s.y1,s.y2),b:Math.max(s.y1,s.y2),dash:s.dash}); }
-  const pairs=(arr,ori)=>{ arr.sort((p,q)=>p.c-q.c); const r=[];
+  // ontelolaattojen saumat: ≥ 3 rinnakkaista viivaa (tai saumaviivaparia) noin 1200 mm välein → ei tukilinjoja
+  const joints=(arr)=>{ const W=o.hcW||1.2,tol=0.05,cl=[]; arr.slice().sort((p,q)=>p.c-q.c).forEach(l=>{ const g=cl.find(g=>Math.abs(g.c-l.c)<=0.12&&l.a<=g.b&&l.b>=g.a); if(g){ g.ls.push(l); g.a=Math.min(g.a,l.a); g.b=Math.max(g.b,l.b); } else cl.push({c:l.c,a:l.a,b:l.b,ls:[l]}); });
+    const nb=(g,d)=>cl.find(h=>h!==g&&Math.abs(h.c-g.c-d)<=tol&&Math.min(h.b,g.b)-Math.max(h.a,g.a)>0.6*Math.min(h.b-h.a,g.b-g.a));
+    const J=new Set(); cl.forEach(g=>{ const L=nb(g,-W),Rr=nb(g,W); if((L&&Rr)||(L&&nb(L,-W))||(Rr&&nb(Rr,W))) g.ls.forEach(l=>J.add(l)); }); return J; };
+  const JH=o.hcJoints?joints(Hs):new Set(),JV=o.hcJoints?joints(Vs):new Set();
+  out.joints=JH.size+JV.size;
+  const pairs=(arr,ori)=>{ const Js=ori==='h'?JH:JV; arr=arr.filter(l=>!Js.has(l)); arr.sort((p,q)=>p.c-q.c); const r=[];
     for(let i=0;i<arr.length;i++){ const p=arr[i]; for(let j=i+1;j<arr.length;j++){ const q=arr[j],d=q.c-p.c; if(d<o.tMin) continue; if(d>o.tMax) break;
       const a=Math.max(p.a,q.a),b=Math.min(p.b,q.b); if(b-a<0.6) continue; r.push({o:ori,c:(p.c+q.c)/2,t:d,a,b,dash:p.dash&&q.dash,half:p.dash!==q.dash}); } } return r; };
   let cand=[...pairs(Hs,'h'),...pairs(Vs,'v')];
@@ -1068,6 +1075,7 @@ function detectRak(V,o){
     if(cA){ if(l.o==='h') l.a=Math.min(l.a,cA.x); else l.a=Math.min(l.a,cA.y); } if(cB){ if(l.o==='h') l.b=Math.max(l.b,cB.x); else l.b=Math.max(l.b,cB.y); }
     (kind==='beam'?out.beams:out.walls).push(l); }
   // seinässä olevat "pilarit" pois
+  out.jH=[...JH]; out.jV=[...JV];
   out.cols=out.cols.filter(c=>!out.walls.some(w=>w.o==='h'?Math.abs(c.y-w.c)<w.t/2+0.02&&c.x>w.a+0.05&&c.x<w.b-0.05:Math.abs(c.x-w.c)<w.t/2+0.02&&c.y>w.a+0.05&&c.y<w.b-0.05));
   // --- laatat tukilinjojen välisistä kentistä
   if(o.doSlabs){ const sup=[...out.walls,...out.beams];
@@ -1077,13 +1085,15 @@ function detectRak(V,o){
       const X=clu([X0,X1,...sup.filter(s=>s.o==='v').map(s=>s.c)]),Y=clu([Y0,Y1,...sup.filter(s=>s.o==='h').map(s=>s.c)]);
       const cov=(ori,c,a,b)=>{ const iv=[]; sup.forEach(s=>{ if(s.o!==ori||Math.abs(s.c-c)>0.35) return; const lo=Math.max(a,s.a-0.4),hi=Math.min(b,s.b+0.4); if(hi>lo) iv.push([lo,hi]); });
         iv.sort((p,q)=>p[0]-q[0]); let e=a,cv=0; iv.forEach(([lo,hi])=>{ if(hi<=e) return; cv+=hi-Math.max(lo,e); e=hi; }); return cv/(b-a); };
-      const joints=(x0,y0,x1,y1)=>{ let sv=0,sh=0; const m=0.25; segs.forEach(s=>{ if(s.dash) return; const xa=Math.min(s.x1,s.x2),xb=Math.max(s.x1,s.x2),ya=Math.min(s.y1,s.y2),yb=Math.max(s.y1,s.y2);
+      const jdir=(x0,y0,x1,y1)=>{ let sv=0,sh=0; const m=0.25;
+        out.jV.forEach(l=>{ if(l.c>x0+m&&l.c<x1-m) sv+=Math.max(0,Math.min(l.b,y1)-Math.max(l.a,y0)); }); out.jH.forEach(l=>{ if(l.c>y0+m&&l.c<y1-m) sh+=Math.max(0,Math.min(l.b,x1)-Math.max(l.a,x0)); });
+        segs.forEach(s=>{ if(s.dash) return; const xa=Math.min(s.x1,s.x2),xb=Math.max(s.x1,s.x2),ya=Math.min(s.y1,s.y2),yb=Math.max(s.y1,s.y2);
         if(xa<x0+m||xb>x1-m||ya<y0+m||yb>y1-m) return; if(xb-xa<0.02&&yb-ya>=0.4*(y1-y0)) sv+=yb-ya; else if(yb-ya<0.02&&xb-xa>=0.4*(x1-x0)) sh+=xb-xa; });
         return sv>1.8*sh&&sv>0?90:sh>1.8*sv&&sh>0?0:null; };
       const G=[]; for(let i=0;i<X.length-1;i++){ G[i]=[]; for(let j=0;j<Y.length-1;j++){ const x0=X[i],x1=X[i+1],y0=Y[j],y1=Y[j+1]; G[i][j]=null; if(x1-x0<0.6||y1-y0<0.6) continue;
         const Lf=cov('v',x0,y0,y1)>=0.5,Rt=cov('v',x1,y0,y1)>=0.5,Tp=cov('h',y0,x0,x1)>=0.5,Bt=cov('h',y1,x0,x1)>=0.5,sx=Lf&&Rt,sy=Tp&&Bt,n=Lf+Rt+Tp+Bt;
         if(!(sx||sy||n>=3)) continue;
-        let dir=sx&&!sy?0:sy&&!sx?90:null; if(dir===null){ const jd=joints(x0,y0,x1,y1); dir=jd!==null?jd:((x1-x0)<=(y1-y0)?0:90); }
+        let dir=sx&&!sy?0:sy&&!sx?90:null; if(dir===null){ const jd=jdir(x0,y0,x1,y1); dir=jd!==null?jd:((x1-x0)<=(y1-y0)?0:90); }
         G[i][j]={x0,x1,y0,y1,dir}; } }
       // yhdistä vierekkäiset kentät, joiden välissä ei ole tukea
       const rows=[]; for(let j=0;j<Y.length-1;j++){ let curR=null; for(let i=0;i<X.length-1;i++){ const g=G[i][j]; if(!g){ curR=null; continue; }
@@ -1109,18 +1119,38 @@ function drawPrev(){ const r=pv.getBoundingClientRect(); if(r.width<10) return; 
   pvS=Math.min((r.width-20)/prev.w,(r.height-20)/prev.h); pvO=[(r.width-prev.w*pvS)/2,(r.height-prev.h*pvS)/2];
   pctx.drawImage(prev.img,pvO[0],pvO[1],prev.w*pvS,prev.h*pvS);
   if(rakRes){ const s=pvS/rakRes.k,X=x=>pvO[0]+x*s,Y=y=>pvO[1]+y*s;
-    pctx.globalAlpha=.25; rakRes.slabs.forEach(sl=>{ pctx.fillStyle='#4a90d9'; pctx.fillRect(X(sl.x0),Y(sl.y0),(sl.x1-sl.x0)*s,(sl.y1-sl.y0)*s); }); pctx.globalAlpha=1;
-    const ln=(l,col,w,dsh)=>{ pctx.strokeStyle=col; pctx.lineWidth=w; pctx.setLineDash(dsh||[]); pctx.beginPath(); if(l.o==='h'){ pctx.moveTo(X(l.a),Y(l.c)); pctx.lineTo(X(l.b),Y(l.c)); } else { pctx.moveTo(X(l.c),Y(l.a)); pctx.lineTo(X(l.c),Y(l.b)); } pctx.stroke(); pctx.setLineDash([]); };
+    const xmark=(x,y)=>{ pctx.strokeStyle='#d0342c'; pctx.lineWidth=2.4; pctx.beginPath(); pctx.moveTo(x-6,y-6); pctx.lineTo(x+6,y+6); pctx.moveTo(x+6,y-6); pctx.lineTo(x-6,y+6); pctx.stroke(); };
+    rakRes.slabs.forEach(sl=>{ pctx.globalAlpha=sl.off?.07:.25; pctx.fillStyle=sl===rakHover?'#7fb6ef':'#4a90d9'; pctx.fillRect(X(sl.x0),Y(sl.y0),(sl.x1-sl.x0)*s,(sl.y1-sl.y0)*s); pctx.globalAlpha=1;
+      const cx=X((sl.x0+sl.x1)/2),cy=Y((sl.y0+sl.y1)/2);
+      if(sl.off) xmark(cx,cy); else if(sl.dir!==null&&$('rakType').value==='ontelo'){ const v=sl.dir===90,L=Math.min(28,(v?(sl.y1-sl.y0):(sl.x1-sl.x0))*s*0.3); pctx.strokeStyle='#1d4f8a'; pctx.lineWidth=2; pctx.beginPath(); pctx.moveTo(cx-(v?0:L),cy-(v?L:0)); pctx.lineTo(cx+(v?0:L),cy+(v?L:0)); pctx.stroke(); } });
+    const ln=(l,col,w,dsh)=>{ pctx.globalAlpha=l.off?.25:1; pctx.strokeStyle=l===rakHover?'#2bd17e':col; pctx.lineWidth=l===rakHover?w+2:w; pctx.setLineDash(dsh||[]); pctx.beginPath(); if(l.o==='h'){ pctx.moveTo(X(l.a),Y(l.c)); pctx.lineTo(X(l.b),Y(l.c)); } else { pctx.moveTo(X(l.c),Y(l.a)); pctx.lineTo(X(l.c),Y(l.b)); } pctx.stroke(); pctx.setLineDash([]); pctx.globalAlpha=1;
+      if(l.off) xmark(l.o==='h'?X((l.a+l.b)/2):X(l.c),l.o==='h'?Y(l.c):Y((l.a+l.b)/2)); };
     rakRes.walls.forEach(l=>ln(l,'#e3824f',3)); rakRes.beams.forEach(l=>ln(l,'#9b59d0',3,[7,4]));
-    rakRes.cols.forEach(c=>{ pctx.fillStyle='#e0a800'; pctx.fillRect(X(c.x)-4,Y(c.y)-4,8,8); }); }
+    rakRes.cols.forEach(c=>{ pctx.globalAlpha=c.off?.3:1; pctx.fillStyle=c===rakHover?'#2bd17e':'#e0a800'; const r=c===rakHover?6:4; pctx.fillRect(X(c.x)-r,Y(c.y)-r,2*r,2*r); pctx.globalAlpha=1; if(c.off) xmark(X(c.x),Y(c.y)); }); }
   if(crop){ const a=[pvO[0]+crop[0]*pvS,pvO[1]+crop[1]*pvS],b=[pvO[0]+crop[2]*pvS,pvO[1]+crop[3]*pvS]; pctx.fillStyle='rgba(0,0,0,.45)';
     pctx.fillRect(0,0,r.width,a[1]); pctx.fillRect(0,b[1],r.width,r.height-b[1]); pctx.fillRect(0,a[1],a[0],b[1]-a[1]); pctx.fillRect(b[0],a[1],r.width-b[0],b[1]-a[1]);
     pctx.strokeStyle='#82c79f'; pctx.lineWidth=2; pctx.setLineDash([6,4]); pctx.strokeRect(a[0],a[1],b[0]-a[0],b[1]-a[1]); pctx.setLineDash([]); } }
 let rakRes=null;
 const pvPt=ev=>{ const r=pv.getBoundingClientRect(); return [Math.max(0,Math.min(prev.w,(ev.clientX-r.left-pvO[0])/pvS)),Math.max(0,Math.min(prev.h,(ev.clientY-r.top-pvO[1])/pvS))]; };
-pv.addEventListener('pointerdown',ev=>{ if(!prev) return; pv.setPointerCapture(ev.pointerId); cropDrag=pvPt(ev); });
-pv.addEventListener('pointermove',ev=>{ if(!cropDrag) return; const p=pvPt(ev); crop=[Math.min(cropDrag[0],p[0]),Math.min(cropDrag[1],p[1]),Math.max(cropDrag[0],p[0]),Math.max(cropDrag[1],p[1])]; drawPrev(); });
-pv.addEventListener('pointerup',()=>{ cropDrag=null; if(crop&&(crop[2]-crop[0]<5||crop[3]-crop[1]<5)) crop=null; drawPrev(); });
+let rakHover=null,pvDown=null;
+function rakHit(ev){ if(!rakRes) return null; const r=pv.getBoundingClientRect(),px=ev.clientX-r.left,py=ev.clientY-r.top,s=pvS/rakRes.k,X=x=>pvO[0]+x*s,Y=y=>pvO[1]+y*s;
+  let best=null,bd=9; rakRes.cols.forEach(c=>{ const d=Math.max(Math.abs(X(c.x)-px),Math.abs(Y(c.y)-py)); if(d<bd){ bd=d; best=c; } }); if(best) return best;
+  bd=7; [...rakRes.walls,...rakRes.beams].forEach(l=>{ let d; if(l.o==='h'){ const x=Math.max(X(l.a),Math.min(X(l.b),px)); d=Math.hypot(x-px,Y(l.c)-py); } else { const y=Math.max(Y(l.a),Math.min(Y(l.b),py)); d=Math.hypot(X(l.c)-px,y-py); } if(d<bd){ bd=d; best=l; } }); if(best) return best;
+  return rakRes.slabs.find(sl=>px>=X(sl.x0)&&px<=X(sl.x1)&&py>=Y(sl.y0)&&py<=Y(sl.y1))||null; }
+function rakCount(){ if(!rakRes) return; const n=a=>a.filter(x=>!x.off).length,jn=rakRes.joints||0,off=[rakRes.cols,rakRes.walls,rakRes.beams,rakRes.slabs].reduce((t,a)=>t+a.filter(x=>x.off).length,0);
+  $('rakInfo').innerHTML=(jn?`Ontelolaattojen saumaviivoja tunnistettu ${jn} (ei tukia). `:'')+`Mukana: <b>${n(rakRes.cols)}</b> pilaria, <b>${n(rakRes.walls)}</b> seinää, <b>${n(rakRes.beams)}</b> palkkia ja <b>${n(rakRes.slabs)}</b> laatta-aluetta${off?` · <b>${off}</b> poistettu (punainen rasti)`:''}. Napauta väärin tunnistettua objektia poistaaksesi sen – uusi napautus palauttaa. Vedä = rajaa alue uudelleen.`;
+  $('rakUse').disabled=!(n(rakRes.cols)+n(rakRes.walls)+n(rakRes.beams)+n(rakRes.slabs)); $('rakReset').hidden=!off; }
+pv.addEventListener('pointerdown',ev=>{ if(!prev) return; pv.setPointerCapture(ev.pointerId); pvDown={x:ev.clientX,y:ev.clientY,p:pvPt(ev),moved:false}; });
+pv.addEventListener('pointermove',ev=>{
+  if(!pvDown){ if(ev.pointerType==='mouse'&&rakRes){ const h=rakHit(ev); if(h!==rakHover){ rakHover=h; pv.style.cursor=h?'pointer':'crosshair'; drawPrev(); } } return; }
+  if(!pvDown.moved&&Math.hypot(ev.clientX-pvDown.x,ev.clientY-pvDown.y)<6) return; pvDown.moved=true; cropDrag=pvDown.p;
+  const p=pvPt(ev); crop=[Math.min(cropDrag[0],p[0]),Math.min(cropDrag[1],p[1]),Math.max(cropDrag[0],p[0]),Math.max(cropDrag[1],p[1])]; drawPrev(); });
+pv.addEventListener('pointerup',ev=>{ const d=pvDown; pvDown=null; cropDrag=null;
+  if(d&&!d.moved){ const h=rakHit(ev); if(h){ h.off=!h.off; rakCount(); } drawPrev(); return; }
+  if(crop&&(crop[2]-crop[0]<5||crop[3]-crop[1]<5)) crop=null; drawPrev(); });
+pv.addEventListener('pointerleave',()=>{ if(rakHover){ rakHover=null; drawPrev(); } });
+$('rakReset').onclick=()=>{ if(!rakRes) return; [rakRes.cols,rakRes.walls,rakRes.beams,rakRes.slabs].forEach(a=>a.forEach(x=>delete x.off)); rakCount(); drawPrev(); };
+$('rakType').onchange=()=>drawPrev();
 $('rakAll').onclick=()=>{ crop=null; drawPrev(); };
 $('rakFile').onchange=async ev=>{ const f=ev.target.files[0]; if(!f) return; ev.target.value=''; $('rakInfo').textContent='Ladataan…';
   try{ lastPdf=new Uint8Array(await f.arrayBuffer()); pdfDoc=null; rakRes=null; $('rakPage').value=1; await loadPrev(); }catch(e){ $('rakInfo').textContent='PDF:n avaus epäonnistui. Tarkista tiedosto ja verkkoyhteys (PDF-lukija ladataan verkosta).'; } };
@@ -1129,18 +1159,17 @@ new ResizeObserver(()=>{ if(!$('tabRak').hidden) drawPrev(); }).observe(pv);
 $('rakGo').onclick=async()=>{ if(!lastPdf) return; const btn=$('rakGo'); btn.disabled=true; $('rakInfo').textContent='Tunnistetaan…';
   try{ const n=+$('rakPage').value||1,N=+$('rakScale').value||100; rakVec=rakVec&&rakVec.n===n?rakVec:{n,...(await pdfVectors(n))};
     const k=N*0.0254/72,o={k,crop,cMin:(+$('rakCmin').value||150)/1000,cMax:(+$('rakCmax').value||1200)/1000,tMin:(+$('rakTmin').value||60)/1000,tMax:(+$('rakTmax').value||500)/1000,wMinLen:0.8,
-      minLw:(+$('rakLw').value||0)/0.3528,cFill:$('rakCfill').checked,dashBeams:$('rakDash').checked,doCols:$('rakCols').checked,doWalls:$('rakWalls').checked,doBeams:$('rakBeams').checked,doSlabs:$('rakSlabs').checked};
+      minLw:(+$('rakLw').value||0)/0.3528,hcJoints:$('rakHc').checked,hcW:(+$('rakHcW').value||1200)/1000,cFill:$('rakCfill').checked,dashBeams:$('rakDash').checked,doCols:$('rakCols').checked,doWalls:$('rakWalls').checked,doBeams:$('rakBeams').checked,doSlabs:$('rakSlabs').checked};
     rakRes=detectRak(rakVec,o); rakRes.k=k; drawPrev();
-    $('rakInfo').innerHTML=`Tunnistettu: <b>${rakRes.cols.length}</b> pilaria, <b>${rakRes.walls.length}</b> seinää, <b>${rakRes.beams.length}</b> palkkia ja <b>${rakRes.slabs.length}</b> laatta-aluetta (${rakVec.segs.length} viivaa luettu). Tarkista esikatselu ja siirrä laskentaan.`;
-    $('rakUse').disabled=!(rakRes.cols.length+rakRes.walls.length+rakRes.beams.length+rakRes.slabs.length);
+    rakCount();
   }catch(e){ console.error(e); $('rakInfo').textContent='Tunnistus epäonnistui: '+(e&&e.message||e); }
   btn.disabled=false; };
 $('rakUse').onclick=async()=>{ if(!rakRes) return; const N=+$('rakScale').value||100,q=v=>Math.round(v/0.005)*0.005,type=$('rakType').value,els=[];
   const add=(pre,e)=>{ e.id=nextId2(pre,els); els.push(e); };
-  rakRes.slabs.forEach(s=>{ const e={t:'slab',x0:q(s.x0),y0:q(s.y0),x1:q(s.x1),y1:q(s.y1)}; if(type==='ontelo'){ e.kind='ontelo'; if(s.dir!==null){ e.span='1'; e.dir=s.dir; } } else if(type==='massiivi'){ e.span='4'; e.dir=0; } add('L',e); });
-  rakRes.walls.forEach(l=>add('S',{t:'wall',a:l.o==='h'?[q(l.a),q(l.c)]:[q(l.c),q(l.a)],b:l.o==='h'?[q(l.b),q(l.c)]:[q(l.c),q(l.b)],th:Math.round(l.t*100)*10}));
-  rakRes.beams.forEach(l=>add('PA',{t:'beam',a:l.o==='h'?[q(l.a),q(l.c)]:[q(l.c),q(l.a)],b:l.o==='h'?[q(l.b),q(l.c)]:[q(l.c),q(l.b)]}));
-  rakRes.cols.forEach(c=>add('P',{t:'col',p:[q(c.x),q(c.y)]}));
+  rakRes.slabs.filter(x=>!x.off).forEach(s=>{ const e={t:'slab',x0:q(s.x0),y0:q(s.y0),x1:q(s.x1),y1:q(s.y1)}; if(type==='ontelo'){ e.kind='ontelo'; if(s.dir!==null){ e.span='1'; e.dir=s.dir; } } else if(type==='massiivi'){ e.span='4'; e.dir=0; } add('L',e); });
+  rakRes.walls.filter(x=>!x.off).forEach(l=>add('S',{t:'wall',a:l.o==='h'?[q(l.a),q(l.c)]:[q(l.c),q(l.a)],b:l.o==='h'?[q(l.b),q(l.c)]:[q(l.c),q(l.b)],th:Math.round(l.t*100)*10}));
+  rakRes.beams.filter(x=>!x.off).forEach(l=>add('PA',{t:'beam',a:l.o==='h'?[q(l.a),q(l.c)]:[q(l.c),q(l.a)],b:l.o==='h'?[q(l.b),q(l.c)]:[q(l.c),q(l.b)]}));
+  rakRes.cols.filter(x=>!x.off).forEach(c=>add('P',{t:'col',p:[q(c.x),q(c.y)]}));
   if($('rakRepl').checked) st.els=els; else { els.forEach(e=>{ e.id=nextId2(e.id.replace(/\d+$/,''),st.els); st.els.push(e); }); }
   st.ax=null; $('pdfScale').value=N; st.fl.pdfScale=N; sel=null;
   try{ const r=await renderPdf(+$('rakPage').value||1); await setBg(r.src,r.ptpx,'pdf'); }catch(e){}

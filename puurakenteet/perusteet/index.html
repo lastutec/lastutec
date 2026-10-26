@@ -142,7 +142,7 @@ td.hl{color:var(--accent);font-weight:700}
       ['Onnettomuus / palo (2.5)', 'max(G<sub>k</sub> + 0,5Q<sub>k,l</sub> + 0,3Q<sub>k,h</sub>; G<sub>k</sub> + 0,2Q<sub>k,t</sub> + 0,3Q<sub>k,h</sub> + 0,2Q<sub>k,l</sub>)'],
       ['Käyttörajatila (2.6–2.7)', 'G<sub>k</sub> + Q<sub>k,1</sub> + 0,7Q<sub>k,2</sub> (lumi/hyöty määräävä), G<sub>k</sub> + Q<sub>k,t</sub> + 0,7Q<sub>k,1</sub> + 0,7Q<sub>k,2</sub> (tuuli määräävä)']]);
     P.saveBasis({ cc: cc, sit: sit, kl: kl, ai: ai, aiSel: $('ai').value, lG: $('lG').checked, lQ: $('lQ').checked, lW: $('lW').checked, lA: $('lA').checked, mat: $('mat').value, pl: $('pl').value, pt: +$('pt').value, hh: +$('hh').value, acc: acc });
-    $('saved').textContent = '✓ Tallennettu: käyttöluokka ' + kl + ', ' + AIN[ai] + ', ' + cc + '. Naula- ja ruuviliitokset käyttävät näitä oletuksina.';
+    $('saved').innerHTML = '✓ Tallennettu: käyttöluokka ' + kl + ', ' + AIN[ai] + ' aikaluokka, ' + cc + ', ' + (acc ? 'onnettomuusyhdistelmä' : 'perusyhdistelmä') + '. <a href="../liitokset/?tila=leikkaus" style="color:var(--accent)">Leikkausliitokset</a> ja <a href="../liitokset/?tila=veto" style="color:var(--accent)">vetoliitokset</a> käyttävät näitä oletuksina.';
   }
   document.querySelectorAll('input,select').forEach(function (el) { el.addEventListener('input', calc); el.addEventListener('change', calc); });
   calc();

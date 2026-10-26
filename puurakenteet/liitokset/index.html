@@ -18,6 +18,12 @@
 .kpi b{font-size:24px;color:var(--accent);font-variant-numeric:tabular-nums}
 .basis{font-size:13px;color:var(--muted);border:1px dashed var(--line);border-radius:6px;padding:8px 10px}
 .basis a{color:var(--accent)}
+.basis.ok{border-style:solid;border-color:var(--ok);color:var(--ink)}
+.basis.chg{border-style:solid;border-color:var(--warn);color:var(--ink)}
+.basis .row-btns{margin-top:8px}
+.basis .btn{font-size:12.5px;padding:4px 10px}
+.inputs.wide{grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+.hint b{color:var(--ink);font-weight:700}
 [hidden]{display:none!important}
 .modes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}.modes a{font:600 13px var(--body,Arial);color:var(--muted,#aeaba4);text-decoration:none;border:1px solid var(--line,#3d4046);border-radius:999px;padding:6px 12px}.modes a:hover{color:var(--ink,#e9e6e0)}.modes a.on{color:#1b1c1f;background:var(--accent,#E3824F);border-color:var(--accent,#E3824F)}@media print{.modes{display:none}}
 </style>
@@ -34,12 +40,14 @@
 <div class="grid">
 <section class="panel" aria-labelledby="h-in">
   <h2 id="h-in">Lähtötiedot</h2>
-  <div class="basis" id="basis"></div>
-  <div class="inputs">
-    <label>Käyttöluokka<select id="kl"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></label>
-    <label>Aikaluokka<select id="ai"><option value="P">Pysyvä</option><option value="K">Keskipitkä</option><option value="H">Hetkellinen</option></select></label>
-    <label>Mitoitustilanne<select id="acc"><option value="0">Perusyhdistelmä</option><option value="1">Onnettomuus</option></select></label>
+  <div class="sec">Suunnitteluperusteet</div>
+  <div class="basis" id="basis" aria-live="polite"></div>
+  <div class="inputs wide">
+    <label>Käyttöluokka<select id="kl"><option value="1">KL 1 – lämmitetty sisätila</option><option value="2">KL 2 – katettu ulkotila</option><option value="3">KL 3 – ulkona, kostea tila</option></select></label>
+    <label>Kuorman aikaluokka<select id="ai"><option value="P">Pysyvä – omapaino</option><option value="K">Keskipitkä – lumi, hyötykuorma</option><option value="H">Hetkellinen – tuuli, onnettomuus</option></select></label>
+    <label>Mitoitustilanne<select id="acc"><option value="0">Perusyhdistelmä (γM = 1,3)</option><option value="1">Onnettomuus (γM = 1,0)</option></select></label>
   </div>
+  <p class="hint" id="basisHint"></p>
   <div class="sec">Liitos</div>
   <div class="inputs">
     <label>Liitostyyppi<select id="conn"><option value="pp1">Puu–puu, yksileikkeinen</option><option value="pp2">Puu–puu, kaksileikkeinen</option><option value="lp">Puulevy–puu</option><option value="tp">Teräslevy–puu</option></select></label>
@@ -116,8 +124,47 @@
   P.fill($('mA'), mats, 'C24'); P.fill($('mB'), mats, 'C24');
   P.fill($('plate'), Object.keys(P.PLATE).map(function (k) { return [k, P.PLATE[k].name]; }), 'ohut');
   var B = P.loadBasis();
-  if (B) { $('kl').value = B.kl; $('ai').value = B.ai; $('acc').value = B.acc ? '1' : '0'; if (B.mat && P.MAT[B.mat]) { $('mA').value = B.mat; $('mB').value = B.mat; } $('heated').checked = String(B.kl) === '1'; }
-  $('basis').innerHTML = B ? '✓ Suunnitteluperusteet haettu: käyttöluokka ' + B.kl + ', ' + { P: 'pysyvä', K: 'keskipitkä', H: 'hetkellinen' }[B.ai] + ' aikaluokka, ' + B.cc + '. <a href="../perusteet/">Muuta perusteita →</a>' : 'Suunnitteluperusteita ei ole vielä valittu. <a href="../perusteet/">Määritä ne ensin →</a> tai valitse alta.';
+  var AIN = { P: 'pysyvä', K: 'keskipitkä', H: 'hetkellinen' }, KLN = { 1: 'lämmitetty sisätila', 2: 'katettu ulkotila', 3: 'ulkona / kostea' };
+  function applyBasis() { $('kl').value = String(B.kl); $('ai').value = B.ai; $('acc').value = B.acc ? '1' : '0'; }
+  if (B) { applyBasis(); if (B.mat && P.MAT[B.mat]) { $('mA').value = B.mat; $('mB').value = B.mat; } }
+  // lämmitetty sisätila seuraa käyttöluokkaa, kunnes käyttäjä muuttaa sen itse
+  var heatedTouched = false;
+  function syncHeated() { if (!heatedTouched) $('heated').checked = $('kl').value === '1'; }
+  syncHeated();
+  $('heated').addEventListener('change', function () { heatedTouched = true; });
+  $('kl').addEventListener('change', syncHeated);
+  // suunnitteluperusteiden tila: haettu / muutettu tällä sivulla / ei tallennettu
+  function basisTxt(kl, ai, acc) { return 'KL ' + kl + ' (' + KLN[kl] + '), ' + AIN[ai] + ' aikaluokka, ' + (acc ? 'onnettomuusyhdistelmä' : 'perusyhdistelmä'); }
+  function showBasis(r) {
+    var kl = $('kl').value, ai = $('ai').value, acc = $('acc').value === '1', el = $('basis'), h = '';
+    if (!B) {
+      el.className = 'basis';
+      h = 'Suunnitteluperusteita ei ole tallennettu, joten laskenta käyttää alla valittuja arvoja. <a href="../perusteet/">Määritä perusteet työkalussa 1 →</a> (aikaluokka valitaan siellä kuormien perusteella ja valinta siirtyy kaikkiin puutyökaluihin).';
+    } else {
+      var diff = [];
+      if (String(B.kl) !== kl) diff.push('käyttöluokka ' + B.kl + ' → <b>' + kl + '</b>');
+      if (B.ai !== ai) diff.push('aikaluokka ' + AIN[B.ai] + ' → <b>' + AIN[ai] + '</b>');
+      if (!!B.acc !== acc) diff.push('mitoitustilanne ' + (B.acc ? 'onnettomuus' : 'perus') + ' → <b>' + (acc ? 'onnettomuus' : 'perus') + '</b>');
+      if (!diff.length) {
+        el.className = 'basis ok';
+        h = '<b class="ok">✓</b> Haettu suunnitteluperusteista: ' + basisTxt(B.kl, B.ai, B.acc) + ', ' + B.cc + '. <a href="../perusteet/">Muuta →</a>';
+      } else {
+        el.className = 'basis chg';
+        h = '<b class="warn">!</b> Muutettu tällä sivulla: ' + diff.join(', ') + '. Muutos koskee vain tätä laskelmaa. Tallennetut perusteet: ' + basisTxt(B.kl, B.ai, B.acc) + ', ' + B.cc + '.' +
+          '<div class="row-btns noprint"><button type="button" class="btn ghost" data-act="reset">Palauta tallennetut</button><button type="button" class="btn ghost" data-act="save">Tallenna perusteiksi</button></div>';
+      }
+      if (B.cc === 'CC3') h += '<br><b class="warn">!</b> Seuraamusluokka CC3: lyhennetty ohje koskee vain luokkia CC1 ja CC2, käytä RIL 205-1-2017 / EN 1995-1-1.';
+    }
+    el.innerHTML = h;
+    $('basisHint').innerHTML = 'Perusteista seuraa <b>k<sub>mod</sub> = ' + n(r.kmod, 2) + '</b> (liitettävien materiaalien pienempi arvo, taulukko 3.1) ja <b>γ<sub>M</sub> = ' + n(r.gm, 2) + '</b> (liitokset, taulukko 2.7). ' +
+      'Aikaluokaksi valitaan liitosta kuormittavan yhdistelmän lyhytkestoisin kuorma: esim. omapaino + lumi → keskipitkä, mukana tuuli → hetkellinen.';
+  }
+  $('basis').addEventListener('click', function (e) {
+    var a = e.target.getAttribute && e.target.getAttribute('data-act'); if (!a) return;
+    if (a === 'reset') { applyBasis(); syncHeated(); }
+    if (a === 'save') { var kl = +$('kl').value, ai = $('ai').value, acc = $('acc').value === '1'; B.kl = kl; B.ai = ai; B.aiSel = ai; B.acc = acc; B.sit = acc ? 'onn' : 'perus'; P.saveBasis(B); }
+    calc();
+  });
   var lastD = null;
   function vis() {
     var c = $('conn').value, nail = $('fast').value === 'naula';
@@ -135,6 +182,7 @@
       conn: $('conn').value, mA: $('mA').value, tA: val('tA'), mB: $('mB').value, tB: val('tB'), plate: $('plate').value, tP: val('tP'), tS: val('tS'), pre: $('pre').checked, heated: $('heated').checked,
       kl: +$('kl').value, ai: $('ai').value, acc: $('acc').value === '1', Fv: val('Fv'), Fax: val('Fax'), nf: val('nf'), alpha: val('alpha'), ang: val('ang'), bonus: $('bonus').checked, mode: MODE };
     var r = LIITOS.calc(o), good = r.umax <= 1 && !r.W.length;
+    showBasis(r);
     var K = MODE === 'veto' ? [['R<sub>ax,d</sub> / liitin', r.Rax === null ? '–' : n(r.Rax / 1000, 3) + ' kN'], ['Liitoksen R<sub>ax,d</sub>', r.Rax === null ? '–' : n(r.Rax * Math.max(1, Math.round(o.nf)) / 1000, 2) + ' kN'], ['Tarvitaan', (isFinite(r.nreqAx) ? r.nreqAx : '–') + ' kpl'], ['Käyttöaste', isFinite(r.umax) ? n(r.umax * 100, 0) + ' %' : '–']]
       : MODE === 'leikkaus' ? [['R<sub>v,d</sub> / liitin', n(r.Rv / 1000, 3) + ' kN'], ['Liitoksen R<sub>v,d</sub>', n(r.Rvt / 1000, 2) + ' kN'], ['Tarvitaan', (isFinite(r.nreq) ? r.nreq : '–') + ' kpl'], ['Käyttöaste', isFinite(r.umax) ? n(r.umax * 100, 0) + ' %' : '–']]
       : [['R<sub>v,d</sub> / liitin', n(r.Rv / 1000, 3) + ' kN'], ['Liitoksen R<sub>v,d</sub>', n(r.Rvt / 1000, 2) + ' kN'], ['Tarvitaan', (isFinite(r.nreq) ? r.nreq : '–') + ' kpl'], ['R<sub>ax,d</sub> / liitin', r.Rax === null ? '–' : n(r.Rax / 1000, 3) + ' kN'], ['Käyttöaste', isFinite(r.umax) ? n(r.umax * 100, 0) + ' %' : '–']];

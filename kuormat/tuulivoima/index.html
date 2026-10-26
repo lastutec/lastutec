@@ -108,6 +108,11 @@ details.step>.calc{padding:0 12px 10px}
 .dirgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:14px}
 .res td.k{font-weight:700}
 .field input[type=text]{width:120px}
+#v-3d{display:block;width:100%;height:360px;border-radius:8px;background:#1e2023;touch-action:none;cursor:grab}
+.v3tb{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+.v3tb button{border:1px solid var(--line);background:var(--panel2,#2b2d32);color:var(--ink);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer}
+.v3tb button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#111}
+@media print{#v-3d{background:#fff}.v3tb{display:none}}
 </style>
 </head>
 <body>
@@ -148,6 +153,11 @@ details.step>.calc{padding:0 12px 10px}
     </fieldset>
   </div>
   <div>
+    <div class="card">
+      <div class="v3tb"><h2 style="margin:0 8px 0 0">3D-malli ja mitat</h2><button type="button" data-w="x" aria-pressed="true">Tuuli x-suuntaan</button><button type="button" data-w="y" aria-pressed="false">Tuuli y-suuntaan</button><button type="button" id="v3reset">Palauta näkymä</button></div>
+      <canvas id="v-3d" aria-label="Rakennuksen 3D-malli, mitat ja tuulikuormat"></canvas>
+      <div class="small" style="margin-top:6px">Vedä kuvaa kääntääksesi. Nuolet ovat tasojen tuulivoimat F<sub>i</sub> (pituus suhteessa voimaan), keltainen nuoli on resultantti korkeudella z<sub>R</sub>.</div>
+    </div>
     <div class="card">
       <h2>Yhteenveto</h2>
       <div class="kpis" id="v-kpis"></div>
@@ -286,6 +296,7 @@ function calc(){
     t+=`<tr><td class="l">${i+1}</td><td class="num">${fmt(z,2)}</td><td class="num"><b>${fmt(a.F,1)}</b></td><td class="num">${fmt(Ly/2,2)} ± ${fmt(X.e,2)}</td><td class="num"><b>${fmt(c.F,1)}</b></td><td class="num">${fmt(Lx/2,2)} ± ${fmt(Y.e,2)}</td><td class="num">${fmt(mt,0)}</td><td class="l no-print"><a href="../../statiikka/vaakakuormat/?Fx=${a.F.toFixed(2)}&Fy=${c.F.toFixed(2)}&xF=${(Lx/2).toFixed(3)}&yF=${(Ly/2).toFixed(3)}&taso=${i+1}">Avaa jäykistystyökalussa →</a></td></tr>`; }
   t+=`</tbody><tfoot><tr><th class="l">Σ tasot</th><th></th><th class="num">${fmt(X.fl.reduce((s,o)=>s+o.F,0),1)}</th><th></th><th class="num">${fmt(Y.fl.reduce((s,o)=>s+o.F,0),1)}</th><th></th><th></th><th class="no-print"></th></tr></tfoot>`;
   $('#v-levels').innerHTML=t;
+  V3.data={R,H,h,hp,Lx,Ly,levels:uniq}; draw3d();
 }
 function elevSVG(r,H,h){
   // pystysuunta mittakaavassa, leveys rajattu kuvaan
@@ -306,6 +317,85 @@ function elevSVG(r,H,h){
   g+=`<line x1="${x0}" y1="${Y(0)+16}" x2="${x1}" y2="${Y(0)+16}" stroke="var(--muted)"/><line x1="${x0}" y1="${Y(0)+11}" x2="${x0}" y2="${Y(0)+21}" stroke="var(--muted)"/><line x1="${x1}" y1="${Y(0)+11}" x2="${x1}" y2="${Y(0)+21}" stroke="var(--muted)"/><text x="${(x0+x1)/2}" y="${Y(0)+34}" text-anchor="middle" class="m">julkisivu b = ${fmt(r.b,2)} m${bwid<r.b*sv-0.5?' (lyhennetty)':''}</text>`;
   return `<svg class="elev" viewBox="0 0 ${Wd} ${Hh}" role="img" aria-label="Kerroskuormat julkisivulla"><defs><marker id="ar${r.k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>${g}</svg>`;
 }
+/* ---------- 3D-malli ---------- */
+const V3DEF={x:0.62,y:-0.95},V3={yaw:V3DEF.x,pitch:0.5,w:'x',data:null};
+const cv3=document.getElementById('v-3d'),c3=cv3.getContext('2d');
+function draw3d(){ const D=V3.data,r=cv3.getBoundingClientRect(); if(!D||r.width<10) return; const dpr=window.devicePixelRatio||1; cv3.width=r.width*dpr; cv3.height=r.height*dpr; c3.setTransform(dpr,0,0,dpr,0,0);
+  const W=r.width,Hc=r.height; c3.fillStyle='#1e2023'; c3.fillRect(0,0,W,Hc);
+  const {Lx,Ly,H,h,hp,levels}=D,cx=Lx/2,cy=Ly/2,cz=H/2,cs=Math.cos(V3.yaw),sn=Math.sin(V3.yaw),cp=Math.cos(V3.pitch),sp=Math.sin(V3.pitch);
+  const rot=(x,y,z)=>{ const X=(x-cx)*cs-(y-cy)*sn,Y=(x-cx)*sn+(y-cy)*cs,Z=z-cz; return [X,Z*cp+Y*sp,Y*cp-Z*sp]; };
+  const ext=Math.max(Lx,Ly,H),pad=0.34*ext; let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;
+  for(const x of [-pad,Lx+pad]) for(const y of [-pad,Ly+pad]) for(const z of [0,H*1.12]){ const q=rot(x,y,z); mnx=Math.min(mnx,q[0]); mxx=Math.max(mxx,q[0]); mny=Math.min(mny,q[1]); mxy=Math.max(mxy,q[1]); }
+  const sc=Math.min((W-24)/(mxx-mnx),(Hc-24)/(mxy-mny)),ox=W/2-(mnx+mxx)/2*sc,oy=Hc/2+(mny+mxy)/2*sc;
+  const P=(x,y,z)=>{ const q=rot(x,y,z); return [ox+q[0]*sc,oy-q[1]*sc,q[2]]; };
+  const f2=v=>fmt(v,2);
+  const lab=(t,x,y,col,al,bold)=>{ c3.font=`${bold?700:400} 12px Arial,Helvetica,sans-serif`; c3.textAlign=al||'center'; c3.textBaseline='middle'; c3.lineWidth=4; c3.lineJoin='round'; c3.strokeStyle='#1e2023'; c3.strokeText(t,x,y); c3.fillStyle=col||'#e9e6e0'; c3.fillText(t,x,y); };
+  const arrow=(a,b,col,w)=>{ const ang=Math.atan2(b[1]-a[1],b[0]-a[0]),hl=Math.min(11,Math.hypot(b[0]-a[0],b[1]-a[1])*0.4); c3.strokeStyle=col; c3.fillStyle=col; c3.lineWidth=w; c3.beginPath(); c3.moveTo(a[0],a[1]); c3.lineTo(b[0]-Math.cos(ang)*hl*0.7,b[1]-Math.sin(ang)*hl*0.7); c3.stroke();
+    c3.beginPath(); c3.moveTo(b[0],b[1]); c3.lineTo(b[0]-hl*Math.cos(ang-0.4),b[1]-hl*Math.sin(ang-0.4)); c3.lineTo(b[0]-hl*Math.cos(ang+0.4),b[1]-hl*Math.sin(ang+0.4)); c3.closePath(); c3.fill(); };
+  // maataso
+  c3.strokeStyle='#2a2d32'; c3.lineWidth=1; const gs=Math.pow(10,Math.floor(Math.log10(ext/3)));
+  for(let g=Math.ceil(-pad/gs)*gs;g<=Lx+pad;g+=gs){ const a=P(g,-pad,0),b=P(g,Ly+pad,0); c3.beginPath(); c3.moveTo(a[0],a[1]); c3.lineTo(b[0],b[1]); c3.stroke(); }
+  for(let g=Math.ceil(-pad/gs)*gs;g<=Ly+pad;g+=gs){ const a=P(-pad,g,0),b=P(Lx+pad,g,0); c3.beginPath(); c3.moveTo(a[0],a[1]); c3.lineTo(b[0],b[1]); c3.stroke(); }
+  const wk=V3.w,Rr=D.R[wk];
+  // tuulinuolet (piirretään ennen rakennusta, jos tuulen puoli on takana)
+  const Fm=Rr?Math.max(...Rr.fl.map(o=>o.F),1e-9):1,L0=0.07*ext,L1=0.26*ext;
+  const drawWind=()=>{ if(!Rr) return; const col='#E3824F';
+    Rr.fl.forEach(o=>{ const L=L0+(L1-L0)*o.F/Fm,z=o.z,tip=wk==='x'?[0,cy,z]:[cx,0,z],tail=wk==='x'?[-L,cy,z]:[cx,-L,z],a=P(...tail),b=P(...tip); arrow(a,b,col,2.2); lab(fmt(o.F,1)+' kN',a[0]-6,a[1],col,'right'); });
+    const zr=Rr.zR,Lr=L1*1.25,tip=wk==='x'?[-0.015*ext,cy,zr]:[cx,-0.015*ext,zr],tail=wk==='x'?[-Lr,cy,zr]:[cx,-Lr,zr],a=P(...tail),b=P(...tip);
+    arrow(a,b,'#e3c34f',3.4); };
+  const windBehind=wk==='x'?P(0,cy,0)[2]>P(Lx,cy,0)[2]:P(cx,0,0)[2]>P(cx,Ly,0)[2];
+  if(windBehind) drawWind();
+  // tahkot
+  const Fc=[{n:[-1,0,0],p:[[0,0,0],[0,Ly,0],[0,Ly,H],[0,0,H]]},{n:[1,0,0],p:[[Lx,0,0],[Lx,Ly,0],[Lx,Ly,H],[Lx,0,H]]},{n:[0,-1,0],p:[[0,0,0],[Lx,0,0],[Lx,0,H],[0,0,H]]},{n:[0,1,0],p:[[0,Ly,0],[Lx,Ly,0],[Lx,Ly,H],[0,Ly,H]]},{n:[0,0,1],p:[[0,0,H],[Lx,0,H],[Lx,Ly,H],[0,Ly,H]]}];
+  const vis=n=>{ const Y=n[0]*sn+n[1]*cs; return Y*cp-n[2]*sp<-1e-9; };
+  const wn=wk==='x'?[-1,0,0]:[0,-1,0];
+  Fc.forEach(f=>{ if(!vis(f.n)) return; const ww=f.n[0]===wn[0]&&f.n[1]===wn[1]&&!f.n[2]; const sh=f.n[2]?0.55:(0.3+0.3*Math.abs(f.n[0]*cs-f.n[1]*sn));
+    c3.fillStyle=ww?`rgba(227,130,79,${0.28+0.2*sh})`:`rgba(150,162,176,${0.22+0.3*sh})`; c3.beginPath(); f.p.forEach((q,i)=>{ const a=P(...q); i?c3.lineTo(a[0],a[1]):c3.moveTo(a[0],a[1]); }); c3.closePath(); c3.fill();
+    if(!f.n[2]){ const A=f.p[0],B=f.p[1];
+      levels.forEach(z=>{ if(z>=H-1e-6) return; const a=P(A[0],A[1],z),b=P(B[0],B[1],z); c3.strokeStyle='rgba(233,230,224,.4)'; c3.lineWidth=1; c3.setLineDash([4,3]); c3.beginPath(); c3.moveTo(a[0],a[1]); c3.lineTo(b[0],b[1]); c3.stroke(); c3.setLineDash([]); });
+      if(hp>0){ const a=P(A[0],A[1],h),b=P(B[0],B[1],h); c3.strokeStyle='rgba(233,230,224,.75)'; c3.lineWidth=1.2; c3.beginPath(); c3.moveTo(a[0],a[1]); c3.lineTo(b[0],b[1]); c3.stroke(); } } });
+  // reunat
+  const fv=Fc.map(f=>vis(f.n)),E=[[[0,0,0],[Lx,0,0],[2]],[[0,Ly,0],[Lx,Ly,0],[3]],[[0,0,H],[Lx,0,H],[2,4]],[[0,Ly,H],[Lx,Ly,H],[3,4]],[[0,0,0],[0,Ly,0],[0]],[[Lx,0,0],[Lx,Ly,0],[1]],[[0,0,H],[0,Ly,H],[0,4]],[[Lx,0,H],[Lx,Ly,H],[1,4]],[[0,0,0],[0,0,H],[0,2]],[[Lx,0,0],[Lx,0,H],[1,2]],[[0,Ly,0],[0,Ly,H],[0,3]],[[Lx,Ly,0],[Lx,Ly,H],[1,3]]];
+  E.forEach(([a,b,fs])=>{ const v=fs.some(i=>fv[i]),A=P(...a),B=P(...b); c3.strokeStyle=v?'#e9e6e0':'rgba(233,230,224,.25)'; c3.lineWidth=v?1.6:1; c3.setLineDash(v?[]:[5,4]); c3.beginPath(); c3.moveTo(A[0],A[1]); c3.lineTo(B[0],B[1]); c3.stroke(); c3.setLineDash([]); });
+  if(!windBehind) drawWind();
+  // mittaviivat lähimpiin pohjareunoihin
+  const off=0.1*ext,dim=(p0,p1,dv,t)=>{ const a0=P(...p0),b0=P(...p1),a=P(p0[0]+dv[0],p0[1]+dv[1],p0[2]+dv[2]),b=P(p1[0]+dv[0],p1[1]+dv[1],p1[2]+dv[2]);
+    c3.strokeStyle='#8f8c86'; c3.lineWidth=1; c3.beginPath(); c3.moveTo(a0[0],a0[1]); c3.lineTo(a[0],a[1]); c3.moveTo(b0[0],b0[1]); c3.lineTo(b[0],b[1]); c3.stroke();
+    c3.strokeStyle='#e9e6e0'; c3.lineWidth=1.3; c3.beginPath(); c3.moveTo(a[0],a[1]); c3.lineTo(b[0],b[1]); c3.stroke();
+    const ang=Math.atan2(b[1]-a[1],b[0]-a[0]); [a,b].forEach(q=>{ c3.beginPath(); c3.moveTo(q[0]-5*Math.cos(ang+0.8),q[1]-5*Math.sin(ang+0.8)); c3.lineTo(q[0]+5*Math.cos(ang+0.8),q[1]+5*Math.sin(ang+0.8)); c3.stroke(); });
+    lab(t,(a[0]+b[0])/2,(a[1]+b[1])/2,'#e9e6e0','center',true); };
+  const yF=P(cx,0,0)[2]<P(cx,Ly,0)[2]?0:Ly,xF=P(0,cy,0)[2]<P(Lx,cy,0)[2]?0:Lx;
+  const up=[0,0,0.12*ext];
+  if(wk==='y') dim([0,0,H],[Lx,0,H],up,'Lx = '+f2(Lx)+' m'); else dim([0,yF,0],[Lx,yF,0],[0,yF?off:-off,0],'Lx = '+f2(Lx)+' m');
+  if(wk==='x') dim([0,0,H],[0,Ly,H],up,'Ly = '+f2(Ly)+' m'); else dim([xF,0,0],[xF,Ly,0],[xF?off:-off,0,0],'Ly = '+f2(Ly)+' m');
+  // korkeusmitat lähimmässä pystyreunassa, kerroskorkeusketju
+  const cn=[[0,0],[Lx,0],[0,Ly],[Lx,Ly]].map(q=>{ const t=P(q[0],q[1],0); return {q,d:t[2],x:t[0]}; }).sort((a,b)=>a.d-b.d);
+  const mid=P(cx,cy,0)[0],far=c=>wk==='x'?c.q[0]:c.q[1],ed=cn.slice(0,3).sort((a,b)=>far(b)-far(a)||a.d-b.d)[0],sx=ed.x<mid?-1:1;
+  const vp=(z,k)=>{ const a=P(ed.q[0],ed.q[1],z); return [a[0]+sx*k,a[1]]; }, al=sx<0?'right':'left';
+  const chain=[...new Set([0,...levels.filter(z=>z<H-1e-6),...(hp>0?[h]:[]),H].map(v=>+v.toFixed(4)))].sort((a,b)=>a-b);
+  c3.lineWidth=1;
+  chain.forEach(z=>{ const a=vp(z,6),b=vp(z,34); c3.strokeStyle='#8f8c86'; c3.beginPath(); c3.moveTo(a[0],a[1]); c3.lineTo(b[0],b[1]); c3.stroke(); });
+  for(let i=0;i<chain.length-1;i++){ const a=vp(chain[i],28),b=vp(chain[i+1],28); c3.strokeStyle='#e9e6e0'; c3.beginPath(); c3.moveTo(a[0],a[1]); c3.lineTo(b[0],b[1]); c3.stroke();
+    [a,b].forEach(q=>{ c3.beginPath(); c3.moveTo(q[0]-4,q[1]+4); c3.lineTo(q[0]+4,q[1]-4); c3.stroke(); });
+    if(Math.abs(b[1]-a[1])>15) lab(f2(chain[i+1]-chain[i]),a[0]+sx*5,(a[1]+b[1])/2,'#aeaba4',al); }
+  const t0=vp(0,66),t1=vp(H,66); c3.strokeStyle='#e9e6e0'; c3.lineWidth=1.3; c3.beginPath(); c3.moveTo(t0[0],t0[1]); c3.lineTo(t1[0],t1[1]); c3.stroke();
+  [t0,t1].forEach(q=>{ c3.beginPath(); c3.moveTo(q[0]-5,q[1]+5); c3.lineTo(q[0]+5,q[1]-5); c3.stroke(); }); [0,H].forEach(z=>{ const a=vp(z,36),b=vp(z,70); c3.strokeStyle='#8f8c86'; c3.lineWidth=1; c3.beginPath(); c3.moveTo(a[0],a[1]); c3.lineTo(b[0],b[1]); c3.stroke(); });
+  c3.save(); c3.translate(t0[0]+sx*10,(t0[1]+t1[1])/2); c3.rotate(-Math.PI/2); lab((hp>0?'h + hp = ':'h = ')+f2(H)+' m',0,0,'#e9e6e0','center',true); c3.restore();
+  if(hp>0){ const q=vp((h+H)/2,0); lab('hp = '+f2(hp)+' m',q[0]-sx*8,q[1],'#aeaba4',sx<0?'left':'right'); }
+  if(Rr){ lab('Tuuli '+(wk==='x'?'+x':'+y')+':  b = '+f2(Rr.b)+' m,  d = '+f2(Rr.d)+' m,  cf = '+fmt(Rr.cf,2),12,16,'#E3824F','left',true);
+    lab((wk==='x'?'Fx':'Fy')+' = '+fmt(Rr.Ftot,1)+' kN  ·  zR = '+f2(Rr.zR)+' m  (keltainen nuoli)',12,34,'#e3c34f','left',true); }
+  // koordinaattisuunnat kuvan nurkassa (origo rakennuksen nurkassa x = 0, y = 0)
+  const tri=(dx,dy,dz)=>{ const X=dx*cs-dy*sn,Y=dx*sn+dy*cs; return [X,dz*cp+Y*sp]; },o=[34,Hc-30],ax=[['x',tri(1,0,0)],['y',tri(0,1,0)],['z',tri(0,0,1)]];
+  ax.forEach(([t,v])=>{ const b=[o[0]+v[0]*22,o[1]-v[1]*22]; arrow(o,b,'#82c79f',1.6); lab(t,o[0]+v[0]*32,o[1]-v[1]*32,'#82c79f','center',true); });
+  const o0=P(0,0,0); c3.fillStyle='#82c79f'; c3.beginPath(); c3.arc(o0[0],o0[1],3,0,7); c3.fill();
+}
+document.querySelectorAll('.v3tb [data-w]').forEach(b=>b.onclick=()=>{ V3.w=b.dataset.w; V3.yaw=V3DEF[V3.w]; V3.pitch=0.5; document.querySelectorAll('.v3tb [data-w]').forEach(o=>o.setAttribute('aria-pressed',String(o===b))); draw3d(); });
+document.getElementById('v3reset').onclick=()=>{ V3.yaw=V3DEF[V3.w]; V3.pitch=0.5; draw3d(); };
+let d3=null; cv3.addEventListener('pointerdown',e=>{ cv3.setPointerCapture(e.pointerId); d3={x:e.clientX,y:e.clientY,yaw:V3.yaw,pitch:V3.pitch}; cv3.style.cursor='grabbing'; });
+cv3.addEventListener('pointermove',e=>{ if(!d3) return; V3.yaw=d3.yaw+(e.clientX-d3.x)*0.01; V3.pitch=Math.max(0.08,Math.min(1.35,d3.pitch+(e.clientY-d3.y)*0.006)); draw3d(); });
+const e3=()=>{ d3=null; cv3.style.cursor='grab'; }; cv3.addEventListener('pointerup',e3); cv3.addEventListener('pointercancel',e3);
+new ResizeObserver(()=>draw3d()).observe(cv3);
+
 $('#v-csv').addEventListener('click',()=>{ if(!lastLv) return; const c=v=>String(v.toFixed(3)).replace('.',',');
   const lines=['Taso;z [m];Fx [kN];yF [m];ex [m];Fy [kN];xF [m];ey [m];Mt max [kNm]'].concat(lastLv.map(o=>[o.i,c(o.z),c(o.Fx),c(o.yF),c(o.ex),c(o.Fy),c(o.xF),c(o.ey),c(o.mt)].join(';')));
   const blob=new Blob(['﻿'+lines.join('\n')],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='tuuli-kerroskuormat.csv'; a.click(); });

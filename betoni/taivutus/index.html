@@ -159,8 +159,10 @@ input:disabled{opacity:.75}
     <label for="sw">Hakojen Ø <span class="u">[mm]</span><select id="sw"><option>6</option><option>8</option><option selected>10</option><option>12</option></select></label>
     <label for="sl">Leikkeisyys <span class="u">[kpl]</span><input type="number" id="sl" value="2" step="1" min="1"></label>
     <label for="ss">Jako s <span class="u">[mm]</span><input type="number" id="ss" value="150" step="10" min="1"></label>
-    <label for="cot">cot θ (1,0–2,5)<input type="number" id="cot" value="2.5" step="0.1" min="1" max="2.5"></label>
+    <label for="cotm">Puristussauvan kaltevuus<select id="cotm"><option value="auto" selected>cot θ automaattisesti</option><option value="k">cot θ käsin</option></select></label>
+    <label for="cot">cot θ <span class="u">[1,0–2,5]</span><input type="number" id="cot" value="2.5" step="0.1" min="1" max="2.5"></label>
   </div>
+  <p class="hint" id="cotHint"></p>
   <div class="sec">Ankkurointi tuella</div>
   <div class="inputs">
     <label for="at">Tukipinnan pituus a <span class="u">[mm]</span><input type="number" id="at" value="200" step="10" min="1"></label>
@@ -192,7 +194,7 @@ input:disabled{opacity:.75}
   <div class="sketch" id="sketch"></div>
 </section>
 
-<p class="foot">EC2:n mukainen prosessi: betonin reunapuristuma ≤ 3,5 ‰, teräksen muodonmuutoksia ei rajoiteta; μ = M<sub>Ed</sub> / (b d² f<sub>cd</sub>), β = 1 − √(1 − 2μ), A<sub>s</sub> = β b d f<sub>cd</sub> / f<sub>yd</sub>, sitkeä murtotapa kun β &lt; β<sub>bd</sub> (γ<sub>s</sub> 1,15 → 0,493, 1,10 → 0,485). Likimääräismenetelmä: sisäinen momenttivarsi 0,9d (laatat) tai 0,8d (palkit); p<sub>d</sub> on tasaisen kuorman kantokyky nivelellisesti tuetulla yksiaukkoisella rakenteella (M = pL²/8). Ankkurointi tuella: F<sub>E</sub> = V<sub>Ed</sub> a<sub>l</sub>/z (9.2.1.3–9.2.1.4), l<sub>b,rqd</sub> = (Ø/4)(σ<sub>sd</sub>/f<sub>bd</sub>), f<sub>bd</sub> = 2,25 η<sub>1</sub> η<sub>2</sub> f<sub>ctd</sub>, l<sub>bd</sub> = α<sub>1</sub>α<sub>5</sub> l<sub>b,rqd</sub> ≥ l<sub>b,min</sub> (8.4); α<sub>2</sub>, α<sub>3</sub> ja α<sub>4</sub> = 1,0 (varmalla puolella). Leikkaus: V<sub>Rd,c</sub> = [C<sub>Rd,c</sub> k (100 ρ<sub>l</sub> f<sub>ck</sub>)<sup>1/3</sup> + k<sub>1</sub> σ<sub>cp</sub>] b<sub>w</sub> d ≥ (v<sub>min</sub> + k<sub>1</sub> σ<sub>cp</sub>) b<sub>w</sub> d, C<sub>Rd,c</sub> = 0,18/γ<sub>c</sub>, k = 1 + √(200/d) ≤ 2, ρ<sub>l</sub> ≤ 0,02, k<sub>1</sub> = 0,15, v<sub>min</sub> = 0,035 k<sup>3/2</sup> f<sub>ck</sub><sup>1/2</sup>; V<sub>Rd,s</sub> = f<sub>ywd</sub> (A<sub>sw</sub>/s) z cot θ (pystyhaat), V<sub>Rd,max</sub> = ν f<sub>cd</sub> b z / (tan θ + cot θ), z = 0,9d, ν = 0,6 (1 − f<sub>ck</sub>/250). Tulokset tarkastaa laatija.</p>
+<p class="foot">EC2:n mukainen prosessi: betonin reunapuristuma ≤ 3,5 ‰, teräksen muodonmuutoksia ei rajoiteta; μ = M<sub>Ed</sub> / (b d² f<sub>cd</sub>), β = 1 − √(1 − 2μ), A<sub>s</sub> = β b d f<sub>cd</sub> / f<sub>yd</sub>, sitkeä murtotapa kun β &lt; β<sub>bd</sub> (γ<sub>s</sub> 1,15 → 0,493, 1,10 → 0,485). Likimääräismenetelmä: sisäinen momenttivarsi 0,9d (laatat) tai 0,8d (palkit); p<sub>d</sub> on tasaisen kuorman kantokyky nivelellisesti tuetulla yksiaukkoisella rakenteella (M = pL²/8). Ankkurointi tuella: F<sub>E</sub> = V<sub>Ed</sub> a<sub>l</sub>/z (9.2.1.3–9.2.1.4), l<sub>b,rqd</sub> = (Ø/4)(σ<sub>sd</sub>/f<sub>bd</sub>), f<sub>bd</sub> = 2,25 η<sub>1</sub> η<sub>2</sub> f<sub>ctd</sub>, l<sub>bd</sub> = α<sub>1</sub>α<sub>5</sub> l<sub>b,rqd</sub> ≥ l<sub>b,min</sub> (8.4); α<sub>2</sub>, α<sub>3</sub> ja α<sub>4</sub> = 1,0 (varmalla puolella). Leikkaus: V<sub>Rd,c</sub> = [C<sub>Rd,c</sub> k (100 ρ<sub>l</sub> f<sub>ck</sub>)<sup>1/3</sup> + k<sub>1</sub> σ<sub>cp</sub>] b<sub>w</sub> d ≥ (v<sub>min</sub> + k<sub>1</sub> σ<sub>cp</sub>) b<sub>w</sub> d, C<sub>Rd,c</sub> = 0,18/γ<sub>c</sub>, k = 1 + √(200/d) ≤ 2, ρ<sub>l</sub> ≤ 0,02, k<sub>1</sub> = 0,15, v<sub>min</sub> = 0,035 k<sup>3/2</sup> f<sub>ck</sub><sup>1/2</sup>; V<sub>Rd,s</sub> = f<sub>ywd</sub> (A<sub>sw</sub>/s) z cot θ (pystyhaat), V<sub>Rd,max</sub> = ν f<sub>cd</sub> b z / (tan θ + cot θ), z = 0,9d, ν = 0,6 (1 − f<sub>ck</sub>/250). Puristussauvan kaltevuus 1 ≤ cot θ ≤ 2,5; automaattinen valinta käyttää suurinta arvoa, jolla V<sub>Ed</sub> ≤ V<sub>Rd,max</sub>, eli cot θ = (R + √(R² − 4))/2, R = ν f<sub>cd</sub> b z / V<sub>Ed</sub> (≤ 2,5). Sama cot θ on käytössä ankkuroinnin siirtymässä a<sub>l</sub> = z cot θ / 2. Kun V<sub>Ed</sub> ≤ V<sub>Rd,c</sub>, laskennallista leikkausraudoitusta ei tarvita. Hakojen rajat: A<sub>sw</sub> f<sub>ywd</sub>/(b s) ≤ 0,5 ν f<sub>cd</sub> (6.12) sekä palkeille ρ<sub>w,min</sub> = 0,08 √f<sub>ck</sub>/f<sub>yk</sub> (9.5N) ja s<sub>l,max</sub> = 0,75d (9.6N); α<sub>cw</sub> = 1 (normaalivoiman edullista vaikutusta ei huomioida). Tulokset tarkastaa laatija.</p>
 </div>
 
 <script>
@@ -318,7 +320,7 @@ function calc() {
   const tn = mode === 'p' ? Math.max(0, +$('tn').value || 0) : 0, tD = +$('tD').value;
   const b = +$('b').value, h = +$('h').value, d = +$('d').value, fck = +$('c').value, fyk = +$('fyk').value, gc = +$('gc').value, gs = +$('gs').value, acc = +$('acc').value;
   const D = +$('md').value, mn = +$('mn').value, MEd = Math.max(0, +$('med').value || 0), VEd = Math.max(0, +$('ved').value || 0), L = +$('L').value, NEd = +$('ned').value || 0;
-  const swD = +$('sw').value, sl = Math.max(0, +$('sl').value || 0), ss = +$('ss').value, cot = Math.min(2.5, Math.max(1, +$('cot').value || 2.5));
+  const swD = +$('sw').value, sl = Math.max(0, +$('sl').value || 0), ss = +$('ss').value, cotIn = +$('cot').value || 2.5, cotAutoSel = $('cotm').value === 'auto';
   if (!(b > 0 && h > 0 && d > 0 && d < h + 1e-9 && mn > 0 && ss > 0 && L > 0)) { $('tiles').innerHTML = '<div class="verdict nok"><b class="nok">Tarkista mitat: b, h, d (d ≤ h), jako/määrä, s ja L ovat positiivisia.</b></div>'; ['s1', 's2', 's3'].forEach(i => $(i).innerHTML = ''); return; }
   const fcd = acc * fck / gc, fyd = fyk / gs, Ab = Math.PI * D * D / 4;
   const As = mode === 'l' ? Ab * 1000 / mn * b / 1000 : Ab * mn, nb = mode === 'l' ? Math.max(1, Math.round(b / mn)) : mn;
@@ -342,19 +344,45 @@ function calc() {
   // leikkaus
   const k = Math.min(2, 1 + Math.sqrt(200 / d)), rho = Math.min(0.02, As / (b * d)), CRd = 0.18 / gc, scp = Math.min(NEd * 1e3 / (b * h), 0.2 * fcd);
   const vc = CRd * k * Math.cbrt(100 * rho * fck) + 0.15 * scp, vmin = 0.035 * k ** 1.5 * Math.sqrt(fck) + 0.15 * scp, VRdc = Math.max(vc, vmin) * b * d / 1e3;
-  const z = 0.9 * d, Asw = sl * Math.PI * swD * swD / 4, fywd = fyd, VRds = fywd * Asw / ss * z * cot / 1e3, nu = 0.6 * (1 - fck / 250), VRdmax = nu * fcd * b * z / (1 / cot + cot) / 1e3, VRd = Math.min(VRds, VRdmax);
+  // Puristussauvan kaltevuus (6.2.3 (2), 6.9): 1 ≤ cot θ ≤ 2,5. Automaattisesti valitaan suurin cot θ, jolla V_Ed ≤ V_Rd,max:
+  // V_Rd,max = ν f_cd b z / (cot θ + tan θ) ≥ V_Ed  ⇔  cot θ + 1/cot θ ≤ R = ν f_cd b z / V_Ed
+  const z = 0.9 * d, Asw = sl * Math.PI * swD * swD / 4, fywd = fyd, nu = 0.6 * (1 - fck / 250), V0 = nu * fcd * b * z / 1e3;
+  const R = VEd > 0 ? V0 / VEd : Infinity, crush = R < 2;
+  const cotAuto = R >= 2.9 ? 2.5 : crush ? 1 : Math.max(1, Math.floor((R + Math.sqrt(R * R - 4)) / 2 * 100) / 100);
+  const cotClamped = cotIn < 1 || cotIn > 2.5, cot = cotAutoSel ? cotAuto : Math.min(2.5, Math.max(1, cotIn));
+  if (cotAutoSel) $('cot').value = cotAuto;
+  $('cot').disabled = cotAutoSel;
+  const th = Math.atan(1 / cot) * 180 / Math.PI;
+  const VRds = fywd * Asw / ss * z * cot / 1e3, VRdmax = V0 / (1 / cot + cot), VRdsm = Math.min(VRds, VRdmax);
   const needSw = VEd > VRdc, reinf = $('shm').value === '1';
-  $('swin').hidden = !reinf;
+  // Kun V_Ed ≤ V_Rd,c, laskennallista leikkausraudoitusta ei tarvita (6.2.1 (4)); muuten V_Rd = min(V_Rd,s; V_Rd,max) (6.2.1 (3))
+  const VRd = needSw ? VRdsm : Math.max(VRdc, VRdsm);
+  // Hakojen rajat: (6.12) tehokas enimmäismäärä, palkeille (9.5N) vähimmäismäärä ja (9.6N) suurin jako
+  const rw = Asw / (ss * b), rwmin = 0.08 * Math.sqrt(fck) / fyk, swMaxEff = Asw * fywd / (b * ss) <= 0.5 * nu * fcd, smax = 0.75 * d;
+  const beam = mode === 'p', minOk = !beam || (rw >= rwmin && ss <= smax);
+  $('swin').hidden = !reinf; $('cotHint').hidden = !reinf;
+  $('cotHint').innerHTML = cotAutoSel
+    ? `Automaattinen valinta: suurin cot θ, jolla V<sub>Ed</sub> ≤ V<sub>Rd,max</sub> → <b>cot θ = ${n(cot, 2)}</b> (θ = ${n(th, 1)}°).${crush ? ' <b class="nok">V<sub>Ed</sub> ylittää V<sub>Rd,max</sub>:n myös arvolla cot θ = 1 – kasvata poikkileikkausta tai betonilujuutta.</b>' : ''} Suuri cot θ vähentää hakoja, mutta pienentää V<sub>Rd,max</sub>:ia ja kasvattaa tuelle ankkuroitavaa voimaa (a<sub>l</sub> = z cot θ / 2).`
+    : `Käsin valittu <b>cot θ = ${n(cot, 2)}</b> (θ = ${n(th, 1)}°)${cotClamped ? ', syöttö rajattu välille 1,0–2,5' : ''}. Automaattinen valinta antaisi cot θ = ${n(cotAuto, 2)}. Suuri cot θ vähentää hakoja, mutta pienentää V<sub>Rd,max</sub>:ia ja kasvattaa tuelle ankkuroitavaa voimaa.`;
   const s3c = 
     step('Leikkausraudoittamaton kestävyys (6.2.2)', 'V<sub>Rd,c</sub> = [C<sub>Rd,c</sub> k (100 ρ<sub>l</sub> f<sub>ck</sub>)<sup>1/3</sup> + k<sub>1</sub> σ<sub>cp</sub>] b d ≥ (v<sub>min</sub> + k<sub>1</sub> σ<sub>cp</sub>) b d',
       `C<sub>Rd,c</sub> = 0,18 / ${n(gc, 2)} = ${n(CRd, 3)} · k = 1 + √(200 / ${d}) = ${n(k, 3)} · ρ<sub>l</sub> = ${n(As, 0)} / (${b} · ${d}) = ${n(rho * 100, 2)} % · σ<sub>cp</sub> = ${n(scp, 2)} · v<sub>min</sub> = ${n(vmin, 3)} N/mm²`,
       `V<sub>Rd,c</sub> = ${n(Math.max(vc, vmin), 3)} · ${b} · ${d} · 10⁻³ = ${n(VRdc)} kN → ${needSw ? (reinf ? `V<sub>Ed</sub> = ${n(VEd)} kN > V<sub>Rd,c</sub> → leikkausraudoitus tarvitaan (mitoitus alla)` : vd(VEd / VRdc) + ' · lisää leikkausraudoitus tai kasvata poikkileikkausta') : `${vd(VEd / VRdc)} · leikkausraudoitusta ei tarvita laskennallisesti`}`);
   const s3s =
+    step('Puristussauvan kaltevuus θ (6.2.3 (2))', '1 ≤ cot θ ≤ 2,5 (45° ≥ θ ≥ 21,8°); V<sub>Rd,max</sub> ≥ V<sub>Ed</sub> ⇔ cot θ + tan θ ≤ R = ν f<sub>cd</sub> b z / V<sub>Ed</sub>',
+      `ν = 0,6 · (1 − ${fck}/250) = ${n(nu, 3)} · R = ${n(nu, 3)} · ${n(fcd, 2)} · ${b} · ${n(z, 1)} · 10⁻³ / ${n(VEd)} = ${isFinite(R) ? n(R, 3) : '∞'} → ` +
+        (crush ? 'R &lt; 2: puristusmurto jo arvolla cot θ = 1' : R >= 2.9 ? 'R ≥ 2,9: yläraja 2,5 kelpaa' : `suurin sallittu cot θ = (R + √(R² − 4)) / 2 = ${n(cotAuto, 2)}`) +
+        (cotAutoSel ? '' : ` · käsin valittu cot θ = ${n(cot, 2)}${cot > cotAuto + 1e-9 && !crush ? ' (suurempi kuin sallittu → V<sub>Rd,max</sub> määrää)' : ''}`),
+      `${cotAutoSel ? 'Valittu automaattisesti' : 'Käytetään'}: cot θ = ${n(cot, 2)}, θ = ${n(th, 1)}°${crush ? ' → <b class="nok">TARKASTA, EI OK!</b>' : ''}`) +
     step('Leikkausraudoitettu kestävyys (6.2.3)', 'V<sub>Rd,s</sub> = f<sub>ywd</sub> (A<sub>sw</sub> / s) z cot θ, z = 0,9d',
       `A<sub>sw</sub> = ${sl} · π · ${swD}² / 4 = ${n(Asw, 1)} mm² · V<sub>Rd,s</sub> = ${n(fywd, 1)} · (${n(Asw, 1)} / ${ss}) · ${n(z, 1)} · ${n(cot, 2)} · 10⁻³`, `V<sub>Rd,s</sub> = ${n(VRds)} kN`) +
     step('Leikkauskestävyyden yläraja', 'V<sub>Rd,max</sub> = ν f<sub>cd</sub> b z / (tan θ + cot θ), ν = 0,6 (1 − f<sub>ck</sub>/250)',
       `ν = ${n(nu, 3)} · V<sub>Rd,max</sub> = ${n(nu, 3)} · ${n(fcd, 2)} · ${b} · ${n(z, 1)} / (${n(1 / cot, 3)} + ${n(cot, 2)}) · 10⁻³`, `V<sub>Rd,max</sub> = ${n(VRdmax)} kN`) +
-    step('Leikkausraudoitettu, mitoittava', 'V<sub>Rd</sub> = min(V<sub>Rd,s</sub> ; V<sub>Rd,max</sub>)', `V<sub>Rd</sub> = min(${n(VRds)} ; ${n(VRdmax)})`, `V<sub>Rd</sub> = ${n(VRd)} kN → ${vd(VEd / VRd)}`);
+    step('Hakaraudoituksen rajat (6.12' + (beam ? ', 9.2.2' : '') + ')', 'A<sub>sw</sub> f<sub>ywd</sub> / (b s) ≤ 0,5 ν f<sub>cd</sub>' + (beam ? ' · ρ<sub>w</sub> = A<sub>sw</sub> / (s b) ≥ ρ<sub>w,min</sub> = 0,08 √f<sub>ck</sub> / f<sub>yk</sub> · s ≤ s<sub>l,max</sub> = 0,75d' : ''),
+      `${n(Asw * fywd / (b * ss), 2)} ${swMaxEff ? '≤' : '&gt;'} ${n(0.5 * nu * fcd, 2)} N/mm²` + (beam ? ` · ρ<sub>w</sub> = ${n(rw * 1000, 2)} ‰ ${rw >= rwmin ? '≥' : '&lt;'} ${n(rwmin * 1000, 2)} ‰ · s = ${ss} ${ss <= smax ? '≤' : '&gt;'} ${n(smax, 0)} mm` : ''),
+      (swMaxEff ? '' : 'hakoja enemmän kuin tehollisesti voidaan hyödyntää (V<sub>Rd,max</sub> rajoittaa) · ') + (minOk ? '<b class="ok">OK!</b>' : '<b class="nok">vähimmäisraudoitus tai suurin jako ei täyty, TARKASTA, EI OK!</b>')) +
+    step('Leikkausraudoitettu, mitoittava', needSw ? 'V<sub>Ed</sub> &gt; V<sub>Rd,c</sub> → V<sub>Rd</sub> = min(V<sub>Rd,s</sub> ; V<sub>Rd,max</sub>) (6.2.1 (3))' : 'V<sub>Ed</sub> ≤ V<sub>Rd,c</sub> → laskennallista leikkausraudoitusta ei tarvita, V<sub>Rd</sub> = max(V<sub>Rd,c</sub> ; min(V<sub>Rd,s</sub> ; V<sub>Rd,max</sub>))',
+      needSw ? `V<sub>Rd</sub> = min(${n(VRds)} ; ${n(VRdmax)})` : `V<sub>Rd</sub> = max(${n(VRdc)} ; min(${n(VRds)} ; ${n(VRdmax)}))`, `V<sub>Rd</sub> = ${n(VRd)} kN → ${vd(VEd / VRd)}${minOk ? '' : ' · <b class="nok">hakojen rajat eivät täyty</b>'}`);
   $('s3').innerHTML = s3c + (reinf ? s3s : '');
   // Ankkurointi tuella: SFS-EN 1992-1-1 9.2.1.4 (palkit), 9.3.1.2 (laatat), 8.4
   const at = +$('at').value || 0, ac = Math.max(0, +$('ac').value || 0), eta1 = +$('ab').value, a1 = +$('ae').value, pSup = at > 0 ? VEd * 1e3 / (at * b) : 0, a5 = $('a5').value === 'auto' ? Math.min(1, Math.max(0.7, 1 - 0.04 * pSup)) : 1;
@@ -375,7 +403,7 @@ function calc() {
   const uM = MEd / MRd1, uV = reinf ? VEd / VRd : VEd / VRdc;
   const tile = (k, v, s, u) => `<div class="tile"><span class="k">${k}</span><span class="v">${v}</span><span class="s">${s}</span>${u != null ? `<span class="s">${vd(u)}</span>` : ''}</div>`;
   $('tiles').innerHTML = tile('M<sub>Rd</sub> (EC2)', `${n(MRd1)} kNm`, `A<sub>s</sub> = ${n(As, 0)} mm²`, uM) + tile('A<sub>s,req</sub>', `${n(AsReq, 0)} mm²`, `likimäär. ${n(AsL, 0)} mm²`, null) +
-    tile(reinf ? 'V<sub>Rd</sub> (haoilla)' : 'V<sub>Rd,c</sub>', `${n(reinf ? VRd : VRdc)} kN`, reinf ? `V<sub>Rd,c</sub> = ${n(VRdc)} kN` : 'leikkausraudoittamaton', uV) + tile('Ankkurointi l<sub>bd</sub>', `${n(lbd, 0)} mm`, `tukipinnalla käytössä ${n(lav, 0)} mm`, lav > 0 ? uA : 9) + tile('p<sub>d,max</sub>', `${n(pd)} ${mode === 'l' ? 'kN/m²' : 'kN/m'}`, `L = ${L} mm`, null);
+    tile(reinf ? 'V<sub>Rd</sub> (haoilla)' : 'V<sub>Rd,c</sub>', `${n(reinf ? VRd : VRdc)} kN`, reinf ? `V<sub>Rd,c</sub> = ${n(VRdc)} kN · cot θ = ${n(cot, 2)}${cotAutoSel ? ' (auto)' : ''}${minOk ? '' : ' · <b class="nok">hakojen rajat!</b>'}` : 'leikkausraudoittamaton', uV) + tile('Ankkurointi l<sub>bd</sub>', `${n(lbd, 0)} mm`, `tukipinnalla käytössä ${n(lav, 0)} mm`, lav > 0 ? uA : 9) + tile('p<sub>d,max</sub>', `${n(pd)} ${mode === 'l' ? 'kN/m²' : 'kN/m'}`, `L = ${L} mm`, null);
   document.querySelectorAll('.step .no').forEach((e, i) => e.textContent = String(i + 1).padStart(2, '0'));
   const ctop = h - d - D / 2 + tD / 2;
   $('fig').innerHTML = fig(b, h, d, D, nb, muOk ? betaP : 0.5, reinf && sl > 0, tn, tD, ctop);

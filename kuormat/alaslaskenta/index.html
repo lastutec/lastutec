@@ -991,7 +991,7 @@ async function getDoc(){ const L=await pdfLib(); if(!pdfDoc) pdfDoc=await L.getD
 async function pdfVectors(pageNo){
   const L=await pdfLib(),doc=await getDoc(),page=await doc.getPage(Math.min(Math.max(1,pageNo),doc.numPages)),vp=page.getViewport({scale:1}),O=L.OPS;
   const ol=await page.getOperatorList();
-  const segs=[],shapes=[]; let ctm=[1,0,0,1,0,0],stack=[],dash=false,lw=1,path=[],sub=null,start=null;
+  const segs=[],shapes=[]; let ctm=[1,0,0,1,0,0],stack=[],dash=false,lw=1,path=[],sub=null,start=null,inText=0;
   const mul=(m,n)=>[m[0]*n[0]+m[1]*n[2],m[0]*n[1]+m[1]*n[3],m[2]*n[0]+m[3]*n[2],m[2]*n[1]+m[3]*n[3],m[4]*n[0]+m[5]*n[2]+n[4],m[4]*n[1]+m[5]*n[3]+n[5]];
   const T=(x,y)=>vp.convertToViewportPoint(x*ctm[0]+y*ctm[2]+ctm[4],x*ctm[1]+y*ctm[3]+ctm[5]);
   const mv=(x,y)=>{ start=[x,y]; sub={pts:[T(x,y)],closed:false,curve:false}; path.push(sub); };
@@ -999,19 +999,22 @@ async function pdfVectors(pageNo){
   const cu=(x,y)=>{ ln(x,y); sub.curve=true; };
   const cl=()=>{ if(sub){ sub.closed=true; sub=null; } };
   const rect=(x,y,w,h)=>{ mv(x,y); ln(x+w,y); ln(x+w,y+h); ln(x,y+h); sub.closed=true; sub.rect=true; sub=null; };
-  const emit=(fill,stroke)=>{ const lwp=lw*Math.sqrt(Math.abs(ctm[0]*ctm[3]-ctm[1]*ctm[2]))||lw;
+  const emit=(fill,stroke)=>{ if(inText){ path=[]; sub=null; return; } const np=path.length; const lwp=lw*Math.sqrt(Math.abs(ctm[0]*ctm[3]-ctm[1]*ctm[2]))||lw;
     for(const s of path){ const P=s.pts,n=P.length; if(n<2) continue;
       const closed=s.closed||(n>3&&Math.hypot(P[0][0]-P[n-1][0],P[0][1]-P[n-1][1])<0.01);
       let axis=true; const m=n-1+(closed?1:0);
       for(let i=0;i<m;i++){ const a=P[i],b=P[(i+1)%n],dx=b[0]-a[0],dy=b[1]-a[1],Ls=Math.hypot(dx,dy); if(Ls<1e-6) continue;
         if(Math.abs(dx)>0.02*Ls&&Math.abs(dy)>0.02*Ls) axis=false; segs.push({a,b,dash,lw:lwp,fill:!!fill&&!stroke,sid:shapes.length}); }
       if(closed&&n>=3){ let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9; P.forEach(p=>{ x0=Math.min(x0,p[0]); y0=Math.min(y0,p[1]); x1=Math.max(x1,p[0]); y1=Math.max(y1,p[1]); });
-        shapes.push({x0,y0,x1,y1,curve:s.curve,axis:axis&&!s.curve&&n<=6,fill:!!fill,stroke:!!stroke}); } }
+        let circ=false; if(s.curve){ const cx=(x0+x1)/2,cy=(y0+y1)/2,rs=P.map(p=>Math.hypot(p[0]-cx,p[1]-cy)),mr=rs.reduce((t,v)=>t+v,0)/rs.length,sd=Math.sqrt(rs.reduce((t,v)=>t+(v-mr)*(v-mr),0)/rs.length);
+          circ=mr>0&&sd/mr<0.08&&Math.max(x1-x0,y1-y0)/Math.max(1e-9,Math.min(x1-x0,y1-y0))<=1.12; }
+        shapes.push({x0,y0,x1,y1,curve:s.curve,circ,axis:axis&&!s.curve&&n<=6,np,fill:!!fill,stroke:!!stroke}); } }
     path=[]; sub=null; };
   const STROKE=[O.stroke,O.closeStroke],FILL=[O.fill,O.eoFill],FS=[O.fillStroke,O.eoFillStroke,O.closeFillStroke,O.closeEOFillStroke];
   const paint=op=>{ if(STROKE.includes(op)) emit(false,true); else if(FILL.includes(op)) emit(true,false); else if(FS.includes(op)) emit(true,true); else if(op===O.endPath){ path=[]; sub=null; } };
   for(let i=0;i<ol.fnArray.length;i++){ const fn=ol.fnArray[i],a=ol.argsArray[i];
-    if(fn===O.save) stack.push([ctm,dash,lw]);
+    if(fn===O.beginText) inText++; else if(fn===O.endText) inText=Math.max(0,inText-1);
+    else if(fn===O.save) stack.push([ctm,dash,lw]);
     else if(fn===O.restore){ const s=stack.pop(); if(s){ ctm=s[0]; dash=s[1]; lw=s[2]; } }
     else if(fn===O.transform) ctm=mul(a,ctm);
     else if(fn===O.paintFormXObjectBegin){ stack.push([ctm,dash,lw]); if(a&&a[0]&&a[0].length===6) ctm=mul(a[0],ctm); }
@@ -1038,8 +1041,16 @@ function detectRak(V,o){
   const shapes=V.shapes.map((s,i)=>({...s,sid:i})).filter(s=>inC([s.x0,s.y0])&&inC([s.x1,s.y1])).map(s=>({...s,x0:s.x0*k,y0:s.y0*k,x1:s.x1*k,y1:s.y1*k}));
   const out={cols:[],walls:[],beams:[],slabs:[]};
   // --- pilarit
+  // tekstiksi muutetut merkit: samalla rivillä vierekkäin muita pieniä kuvioita (kirjaimet, numerot)
+  const isText=(sh,w,h)=>{ const cy=(sh.y0+sh.y1)/2,cx=(sh.x0+sh.x1)/2,hh=Math.max(w,h); let n=0;
+    for(const o2 of shapes){ if(o2===sh) continue; const w2=o2.x1-o2.x0,h2=o2.y1-o2.y0; if(Math.max(w2,h2)>2*hh||Math.max(w2,h2)<0.1*hh) continue;
+      const cx2=(o2.x0+o2.x1)/2,cy2=(o2.y0+o2.y1)/2; if(Math.abs(cx2-cx)<0.15*hh&&Math.abs(cy2-cy)<0.15*hh) continue; // sama kuvio (täyttö + ääriviiva)
+      const rowH=Math.abs(cy2-cy)<0.6*hh&&Math.abs(cx2-cx)<2.2*hh, rowV=Math.abs(cx2-cx)<0.6*hh&&Math.abs(cy2-cy)<2.2*hh;
+      if(rowH||rowV){ if(++n>=2) return true; } }
+    return false; };
   if(o.doCols){ let C=[];
-    for(const sh of shapes){ const w=sh.x1-sh.x0,h=sh.y1-sh.y0; if(w<o.cMin||h<o.cMin||w>o.cMax||h>o.cMax||Math.max(w,h)/Math.min(w,h)>2.2) continue; if(!(sh.axis||sh.curve)) continue;
+    for(const sh of shapes){ const w=sh.x1-sh.x0,h=sh.y1-sh.y0; if(w<o.cMin||h<o.cMin||w>o.cMax||h>o.cMax||Math.max(w,h)/Math.min(w,h)>2.2) continue; if(!((sh.axis)||(sh.curve&&sh.circ))||sh.np>3) continue;
+      if(isText(sh,w,h)) continue;
       let ok=sh.fill||!o.cFill;
       if(!ok){ const m=Math.min(w,h)*0.08; ok=segs.some(s=>{ if(s.sid===sh.sid) return false; const dx=Math.abs(s.x2-s.x1),dy=Math.abs(s.y2-s.y1); return dx>0.2*w&&dy>0.2*h&&Math.min(s.x1,s.x2)>=sh.x0-m&&Math.max(s.x1,s.x2)<=sh.x1+m&&Math.min(s.y1,s.y2)>=sh.y0-m&&Math.max(s.y1,s.y2)<=sh.y1+m; }); }
       if(ok) C.push({x:(sh.x0+sh.x1)/2,y:(sh.y0+sh.y1)/2,w,h}); }

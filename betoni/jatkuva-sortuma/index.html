@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<script src="../../lt-pdf.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jatkuvan sortuman sidejärjestelmä – Lastutec</title>
+<meta name="description" content="Betonielementtirungon sidejärjestelmän mitoitus jatkuvan sortuman estämiseksi: seuraamusluokka CC1–CC3b, rengas- ja sisäpuoliset siteet, seinien ja pilareiden sidonta välipohjaan, pystysiteet ja elementin putoamisen estäminen (Elementtisuunnittelu.fi, ohjekortti 22.12.2021).">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#1b1c1f; --paper:#24262a; --ink:#e9e6e0; --muted:#aeaba4; --line:#3d4046;
+  --accent:#E3824F; --accent-soft:#3e2c24; --ok:#82c79f; --bad:#e8907f; --warn:#e2c47f;
+  --body:Arial,Helvetica,sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1280px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:800;margin:0}
+h3{font-size:14px;margin:0;font-weight:700}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn,.btn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn.sm{font-size:12px;padding:3px 9px}
+.intro{margin:0;max-width:90ch;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel.off{opacity:.55}
+.inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px 12px}
+label{display:block;font-size:13px;color:var(--muted);min-width:0}
+.u{font-size:11px}
+select,input{display:block;margin-top:3px;font-family:var(--body);font-size:14px;padding:7px 8px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+input[type=number]{background:#2c2723;font-variant-numeric:tabular-nums}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.hint b{color:var(--ink)}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.kpi span{display:block;font-size:12px;color:var(--muted)}
+.kpi b{font-size:22px;color:var(--accent);font-variant-numeric:tabular-nums}
+.verdict{border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:14px}
+.verdict.ok{border-color:var(--ok)} .verdict.nok{border-color:var(--bad)} .verdict.warn{border-color:var(--warn)}
+.verdict ul{margin:6px 0 0;padding-left:20px}
+b.ok{color:var(--ok)} b.nok{color:var(--bad)} b.warn{color:var(--warn)}
+.steps{display:flex;flex-direction:column}
+.step{display:grid;grid-template-columns:28px minmax(0,1fr);gap:0 10px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:0}
+.step .no{font-size:12px;color:var(--muted);padding-top:2px}
+.math{font-size:13.5px;overflow-x:auto;display:flex;flex-direction:column;gap:1px;margin-top:2px}
+.math .f{color:var(--accent)} .math .s{color:var(--muted)} .math .r{font-weight:700}
+.sec{font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);padding-bottom:4px;border-bottom:1px solid var(--line)}
+.sug{border:1px dashed var(--line);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--muted)}
+.sug b{color:var(--ink)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:6px 8px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12.5px;color:var(--muted);font-weight:600}
+th.l,td.l{text-align:left}
+td input,td select{margin:0;padding:5px 6px;font-size:13.5px}
+td input[type=number]{width:88px;margin-left:auto;text-align:right}
+td input.nm{width:min(220px,40vw)}
+td select{width:auto;min-width:150px}
+td.res{color:var(--accent);font-weight:700}
+td.calc{font-size:12px;color:var(--muted);text-align:left;white-space:normal;min-width:240px}
+td.bar{font-weight:700}
+td .na{color:var(--muted)}
+.x{background:none;border:1px solid var(--line);color:var(--muted);border-radius:4px;cursor:pointer;font-size:13px;padding:2px 8px}
+.x:hover{color:var(--bad);border-color:var(--bad)}
+.tag{display:inline-block;padding:1px 7px;border-radius:3px;background:#2a2a2a;font-size:12px;color:var(--muted);margin-left:6px;letter-spacing:0;text-transform:none;font-weight:600}
+.foot{font-size:12.5px;color:var(--muted);margin:0;max-width:100ch}
+ul.foot{padding-left:20px}
+@page{size:A4 landscape;margin:10mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#c63a00;--accent-soft:#fde2d5;--ok:#1d6b3a;--bad:#b3261e;--warn:#8a6100;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back,.btn,.x,.noprint{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  input,select{background:#fff!important;color:#000!important;border-color:#bbb!important}
+  .panel,tr,.step{break-inside:avoid}
+  .grid{grid-template-columns:minmax(0,1fr)!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Betonirakenteet</a><h1>Jatkuvan sortuman sidejärjestelmä</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 7 · Laatinut: INS (YAMK) Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="intro">Työkalu mitoittaa betonielementtirungon onnettomuustilanteen sidejärjestelmän Elementtisuunnittelu.fi:n jatkuvan sortuman estämisen ohjekortin (22.12.2021) mukaan. Valitse seuraamusluokka ja kuormat ja syötä siteet riveittäin. Työkalu laskee rengas- ja sisäpuoliset siteet, seinien ja pilareiden sidonnan välipohjaan, pystysiteet ja elementin putoamisen estämisen. Tuloksena saat jokaiselle siteelle sidevoiman ja tarvittavan teräsalan. Onnettomuustilanteen siteet eivät korvaa normaalitilanteen sidevoimia, joten käytetään määräävää.</p>
+
+<div class="grid">
+<section class="panel" aria-labelledby="h-in">
+  <h2 id="h-in">Lähtötiedot</h2>
+  <div class="row-btns noprint"><span class="hint">Ohjekortin esimerkit:</span><button type="button" class="btn ghost sm" id="exW">Kantavat seinät–laatta</button><button type="button" class="btn ghost sm" id="exC">Pilari–palkki</button><button type="button" class="btn ghost sm" id="clr">Tyhjennä siteet</button></div>
+  <div class="sec">Seuraamusluokka</div>
+  <div class="inputs">
+    <label for="ns">Kerroksia n<sub>s</sub> (kellarit mukaan) <span class="u">[kpl]</span><input type="number" id="ns" value="9" step="1" min="1"></label>
+    <label for="na">Maanpäällisiä kerroksia <span class="u">[kpl]</span><input type="number" id="na" value="9" step="1" min="0"></label>
+    <label for="hb">Korkeus maanpinnasta <span class="u">[m]</span><input type="number" id="hb" value="28" step="1" min="0"></label>
+    <label for="use">Käyttötarkoitus<select id="use"><option value="as" selected>Asuin-, konttori- tai liikerakennus</option><option value="mu">Muu rakennus</option><option value="ko">Kokoontumistila (sali, teatteri, halli, katsomo) tai raskaasti kuormitettu / suuret jännevälit</option><option value="ti">Tilapäinen oleskelu (esim. varasto)</option></select></label>
+  </div>
+  <div class="sug" id="sug"></div>
+  <div class="inputs">
+    <label for="cc">Mitoituksessa käytettävä seuraamusluokka<select id="cc"><option value="CC1">CC1</option><option value="CC2a">CC2a</option><option value="CC2b">CC2b</option><option value="CC3a" selected>CC3a</option><option value="CC3b">CC3b</option></select></label>
+  </div>
+  <div class="sec">Välipohjan kuormat ja materiaali</div>
+  <div class="inputs">
+    <label for="gk">Pysyvä kuorma g<sub>k</sub> <span class="u">[kN/m²]</span><input type="number" id="gk" value="5.5" step="0.1" min="0"></label>
+    <label for="q1">Hyötykuorma q<sub>k,1</sub> <span class="u">[kN/m²]</span><input type="number" id="q1" value="2.5" step="0.1" min="0"></label>
+    <label for="p1">ψ hyötykuormalle<input type="number" id="p1" value="0.3" step="0.1" min="0" max="1"></label>
+    <label for="q2">Muu muuttuva q<sub>k,2</sub> <span class="u">[kN/m²]</span><input type="number" id="q2" value="0.5" step="0.1" min="0"></label>
+    <label for="p2">ψ muulle kuormalle<input type="number" id="p2" value="0.3" step="0.1" min="0" max="1"></label>
+    <label for="h">Kerroskorkeus h <span class="u">[mm]</span><input type="number" id="h" value="3000" step="100" min="1"></label>
+    <label for="fyk">Sideteräs f<sub>yk</sub> <span class="u">[N/mm²]</span><input type="number" id="fyk" value="500" step="10" min="1"></label>
+  </div>
+  <p class="hint">ψ on onnettomuusrajatilan yhdistelykerroin: hyötykuormille ψ<sub>2</sub> (esim. luokka B 0,3), luonnonkuormista pääasialliselle ψ<sub>1</sub> ja muille ψ<sub>2</sub>. Kevyet väliseinät voi syöttää kohtaan q<sub>k,2</sub>. Raudoituksen mitoituslujuutena käytetään ominaislujuutta f<sub>yk</sub> (B500B tai B500C), ja kuormien osavarmuusluku on 1,0.</p>
+  <div class="sec">Kantavan seinälohkon nimellispituus (kohta 3)</div>
+  <div class="inputs">
+    <label for="lw">Seinälohkon pituus tukien välillä L <span class="u">[mm]</span><input type="number" id="lw" value="12000" step="100" min="0"></label>
+  </div>
+  <p class="hint" id="lnim"></p>
+</section>
+
+<section class="panel" aria-labelledby="h-res">
+  <h2 id="h-res">Tulos</h2>
+  <div class="kpis" id="kpis"></div>
+  <div class="verdict" id="verdict"></div>
+  <div class="sec">Laskenta</div>
+  <div class="steps" id="steps"></div>
+</section>
+</div>
+
+<section class="panel" id="pH" aria-labelledby="h-h">
+  <h2 id="h-h">Vaakasiteet: rengas- ja sisäpuoliset siteet <span class="tag">6.1.1</span></h2>
+  <p class="hint" id="hH"></p>
+  <div class="tablewrap"><table id="tH"></table></div>
+  <div class="row-btns noprint"><button type="button" class="btn ghost sm" data-add="H">+ Lisää vaakaside</button></div>
+</section>
+
+<section class="panel" id="pT" aria-labelledby="h-t">
+  <h2 id="h-t">Seinien ja pilareiden sidonta välipohjaan <span class="tag">6.1.2</span></h2>
+  <p class="hint" id="hT"></p>
+  <div class="tablewrap"><table id="tT"></table></div>
+  <div class="row-btns noprint"><button type="button" class="btn ghost sm" data-add="T">+ Lisää sidonta</button></div>
+</section>
+
+<section class="panel" id="pV" aria-labelledby="h-v">
+  <h2 id="h-v">Pystysiteet <span class="tag">2</span></h2>
+  <p class="hint" id="hV"></p>
+  <div class="tablewrap"><table id="tV"></table></div>
+  <div class="row-btns noprint"><button type="button" class="btn ghost sm" data-add="V">+ Lisää pystyside</button></div>
+</section>
+
+<section class="panel" id="pD" aria-labelledby="h-d">
+  <h2 id="h-d">Elementin putoamisen estäminen <span class="tag">BNK 23</span></h2>
+  <p class="hint">F<sub>d</sub> = k · V<sub>k</sub>, missä V<sub>k</sub> on elementin tukireaktion ominaisarvo. Ohjekortin esimerkeissä ontelolaatalle k = 0,5 ja palkille, jonka tuella on kuminen tasauslevy, k = 0,2. Tarkista kerroin Betoninormikortista 23 tapauskohtaisesti.</p>
+  <div class="tablewrap"><table id="tD"></table></div>
+  <div class="row-btns noprint"><button type="button" class="btn ghost sm" data-add="D">+ Lisää elementti</button></div>
+</section>
+
+<p class="foot">Lähde: Elementtisuunnittelu.fi, Jatkuvan sortuman estämisen ohjekortti 22.12.2021. Ohjekortti kokoaa ympäristöministeriön asetuksen 10/16 (rakenteiden kuormat) ohjeet ja kansallisen liitteen SFS-EN 1991-1-7. Kaavat: CC2a/CC2b T = 20 kN/m · s (g<sub>k</sub> ≥ 3,0) tai 3 kN/m · s (g<sub>k</sub> ≤ 2,0), välillä interpoloiden, vähimmäisarvo 70 kN (10 kN) rengassiteille ja tukilinjalle keskitetyille siteille (6.1, 6.2). CC3a/CC3b T = F<sub>t</sub> · 0,8(g<sub>k</sub> + Σψq<sub>k</sub>)/(6 kN/m²) · z/5 m · s ≥ F<sub>t</sub> · s, F<sub>t</sub> = min(48; 16 + 2,1n<sub>s</sub>) kN/m (6.3). Sidonta välipohjaan: CC2 T<sub>tie</sub> = 20 kN/m · s ≤ 150 kN (6.4, 6.5), CC3 F<sub>tie</sub> = F<sub>t</sub> · h/2,5 m · s ≤ 2F<sub>t</sub> · s (6.6). Pystysiteet: yhden kerroksen pystykuormien reaktio, ohjekortin esimerkin mukaisesti G<sub>s</sub> + G<sub>k</sub> + Q<sub>k</sub>. A<sub>s,req</sub> = T / f<sub>yk</sub>.</p>
+<p class="foot">Huomioita ohjekortista:</p>
+<ul class="foot">
+  <li>Siteet tehdään jatkuviksi ja sijoitetaan lähelle välipohjan reunoja sekä pilari- ja seinälinjoja. Vähintään 30 % siteistä sijoitetaan pilari- ja seinälinjojen välittömään läheisyyteen (osuus-sarake, esim. 0,3).</li>
+  <li>Ontelolaattojen pituussaumoissa suositeltava suurin teräs on Ø16, eikä alle Ø10 saumateräksiä lähtökohtaisesti käytetä. Saumaterästen ankkurointipituus lasketaan huonon tartuntaolosuhteen mukaan, ja jos saumassa on paljon terästä, tartuntalujuus on f<sub>bk</sub> = 0,15 MPa.</li>
+  <li>Jännepunosta voi käyttää rengas- tai saumateräksenä ohjekortin ehdoin. Normaalitilanteessa punoksen mitoitusvoimana käytetään T12-harjatangon arvoja.</li>
+  <li>Nurkkapilarit sidotaan kummassakin suunnassa. Pystysiteet ulotetaan perustuksista yläpohjaan, ja seinien reunimmaiset pystysiteet sijoitetaan enintään 3 m päähän seinän vapaasta päästä.</li>
+  <li>CC3-kaavat edellyttävät g<sub>k</sub> ≥ 3,0 kN/m². Pienemmillä kuormilla sidevoimat määritetään hankekohtaisesti. Ohjekortti ei anna ohjeita parvekkeille.</li>
+</ul>
+<p class="foot">Työkalu on apuväline. Lopullinen mitoitus, liitosten ankkurointi ja detaljit ovat rakennesuunnittelijan vastuulla.</p>
+</div>
+
+<script>
+(function () {
+'use strict';
+const $ = id => document.getElementById(id);
+const n = (x, d = 1) => x == null || !isFinite(x) ? '–' : (+x).toLocaleString('fi-FI', { minimumFractionDigits: d, maximumFractionDigits: d });
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const step = (t, f, s, r) => `<div class="step"><span class="no"></span><div><h3>${t}</h3><div class="math">${f ? `<span class="f">${f}</span>` : ''}${s ? `<span class="s">${s}</span>` : ''}${r ? `<span class="r">${r}</span>` : ''}</div></div></div>`;
+
+// Esimerkit: ohjekortin laskentaesimerkit (kantavat seinät–laatta ja pilari–palkki), lähtötiedot sellaisenaan
+const EX = {
+  W: { ns: 9, na: 9, hb: 28, use: 'as', cc: 'CC3a', gk: 5.5, q1: 2.5, p1: 0.3, q2: 0.5, p2: 0.3, h: 3000, fyk: 500, lw: 12000,
+    H: [
+      { nm: 'T1,1 sisäinen side seinän päällä, MOD B', t: 'k', s: 7000, z: 3375, o: 1 },
+      { nm: 'T1,2 sisäinen side seinän päällä, MOD C', t: 'k', s: 6000, z: 3375, o: 1 },
+      { nm: 'T1,3 sisäinen side seinän päällä, MOD D', t: 'k', s: 4500, z: 3375, o: 1 },
+      { nm: 'T3,1 ontelolaattojen pituussauma', t: 'j', s: 1200, z: 7000, o: 1 },
+      { nm: 'T2,1 rengasside, MOD A', t: 'r', s: 3700, z: 3375, o: 1 },
+      { nm: 'T2,2 rengasside, MOD E', t: 'r', s: 2200, z: 3375, o: 1 },
+      { nm: 'T4 rengasside, MOD 1 ja 3', t: 'r', s: 800, z: 7000, o: 1 }],
+    T: [{ nm: 'Ftie,1 seinä MOD A ja E', s: 1200 }, { nm: 'Ftie,2 seinä MOD 1 ja 3 (7 m)', s: 7000 }],
+    V: [{ nm: 'Seinä MOD B, L5 = 12 m', t: 'w', gs: 18, g: 38.5, q: 21, L: 12 }],
+    D: [{ nm: 'Ontelolaatta', k: 0.5, v: 34 }] },
+  C: { ns: 9, na: 9, hb: 28, use: 'as', cc: 'CC3a', gk: 5.5, q1: 2.5, p1: 0.3, q2: 0.5, p2: 0.3, h: 3000, fyk: 500, lw: 6750,
+    H: [
+      { nm: 'T1 rengasside, MOD 1', t: 'r', s: 820, z: 7200, o: 1 },
+      { nm: 'T2 rengasside, MOD A', t: 'r', s: 3600, z: 6000, o: 1 },
+      { nm: 'T3 sisäinen side keskipalkille', t: 'k', s: 7200, z: 6000, o: 1 },
+      { nm: 'T4 sisäinen side seinän päällä', t: 'k', s: 7200, z: 3375, o: 1 },
+      { nm: 'T5 laattaelementtien väliset siteet', t: 'j', s: 1200, z: 7200, o: 1 },
+      { nm: 'T6 pilarilinjalle keskitetty 30 %', t: 'k', s: 6000, z: 7200, o: 0.3 }],
+    T: [{ nm: 'Ftie,1 reunapilarit', s: 6000 }, { nm: 'Ftie,2x nurkkapilarit', s: 3600 }, { nm: 'Ftie,2y nurkkapilarit', s: 3000 }, { nm: 'Ftie,3 reunapilarit', s: 7200 }],
+    V: [{ nm: 'Nurkkapilari MOD A/1', t: 'p', gs: 18, g: 116, q: 37.3, L: 0 }, { nm: 'Reunapilari MOD A/2', t: 'p', gs: 18, g: 170, q: 69, L: 0 }, { nm: 'Keskipilari MOD B/2', t: 'p', gs: 18, g: 281, q: 130, L: 0 }, { nm: 'Kantava seinä MOD C', t: 'w', gs: 15, g: 39.6, q: 21.6, L: 7.2 }],
+    D: [{ nm: 'Palkki, kuminen tasauslevy', k: 0.2, v: 215 }] } };
+const BASE = ['ns', 'na', 'hb', 'use', 'cc', 'gk', 'q1', 'p1', 'q2', 'p2', 'h', 'fyk', 'lw'];
+const NEW = { H: { nm: 'Uusi side', t: 'r', s: 3000, z: 6000, o: 1 }, T: { nm: 'Uusi sidonta', s: 3000 }, V: { nm: 'Uusi pilari', t: 'p', gs: 15, g: 100, q: 40, L: 0 }, D: { nm: 'Uusi elementti', k: 0.5, v: 30 } };
+let R = { H: [], T: [], V: [], D: [] };
+const KEY = 'lastutec.sortuma';
+
+function load(o) { BASE.forEach(k => { if (o[k] !== undefined) $(k).value = o[k]; }); R = { H: (o.H || []).map(x => ({ ...x })), T: (o.T || []).map(x => ({ ...x })), V: (o.V || []).map(x => ({ ...x })), D: (o.D || []).map(x => ({ ...x })) }; build(); }
+function save() { try { const o = { H: R.H, T: R.T, V: R.V, D: R.D }; BASE.forEach(k => o[k] = $(k).value); localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
+
+// Rivitaulukot: syötteet rakennetaan kerran, tulokset päivitetään laskennassa
+const COLS = {
+  H: [['nm', 'Side', 'text'], ['t', 'Tyyppi', 'sel', [['r', 'Rengasside'], ['k', 'Sisäinen, keskitetty tukilinjalle'], ['j', 'Sisäinen, jaettu (saumateräs)']]], ['s', 's [mm]', 'num'], ['z', 'z [mm]', 'num'], ['o', 'Osuus', 'num']],
+  T: [['nm', 'Seinä tai pilari', 'text'], ['s', 's [mm]', 'num']],
+  V: [['nm', 'Pilari tai seinä', 'text'], ['t', 'Tyyppi', 'sel', [['p', 'Pilari [kN]'], ['w', 'Seinä [kN/m]']]], ['gs', 'Omapaino G<sub>s</sub>', 'num'], ['g', 'Pysyvä G<sub>k</sub>', 'num'], ['q', 'Muuttuva Q<sub>k</sub>', 'num'], ['L', 'Seinän pituus [m]', 'num']],
+  D: [['nm', 'Elementti', 'text'], ['k', 'k', 'num'], ['v', 'V<sub>k</sub> [kN]', 'num']] };
+const RES = { H: ['T [kN]', 'A<sub>s,req</sub> [mm²]', 'Ehdotus', 'Laskenta'], T: ['F<sub>tie</sub> [kN]', 'A<sub>s,req</sub> [mm²]', 'Ehdotus', 'Laskenta'], V: ['F<sub>v</sub> [kN]', 'A<sub>s,req</sub> [mm²]', 'Ehdotus', 'Laskenta'], D: ['F<sub>d</sub> [kN]', 'A<sub>s,req</sub> [mm²]', 'Ehdotus', 'Laskenta'] };
+function build() {
+  Object.keys(COLS).forEach(g => {
+    const cols = COLS[g];
+    let o = '<thead><tr>' + cols.map(c => `<th class="${c[2] === 'num' ? '' : 'l'}">${c[1]}</th>`).join('') + RES[g].map((h, i) => `<th class="${i >= 2 ? 'l' : ''}">${h}</th>`).join('') + '<th class="noprint"></th></tr></thead><tbody>';
+    R[g].forEach((r, i) => {
+      o += `<tr data-g="${g}" data-i="${i}">` + cols.map(c => {
+        if (c[2] === 'text') return `<td class="l"><input class="nm" data-k="${c[0]}" value="${esc(r[c[0]])}" aria-label="${c[1]}"></td>`;
+        if (c[2] === 'sel') return `<td class="l"><select data-k="${c[0]}" aria-label="${c[1]}">${c[3].map(op => `<option value="${op[0]}"${op[0] === r[c[0]] ? ' selected' : ''}>${op[1]}</option>`).join('')}</select></td>`;
+        return `<td><input type="number" data-k="${c[0]}" value="${r[c[0]]}" step="any" aria-label="${c[1].replace(/<[^>]+>/g, '')}"></td>`;
+      }).join('') + '<td class="res"></td><td></td><td class="l bar"></td><td class="calc"></td>' + `<td class="noprint"><button type="button" class="x" data-del="${g}" data-i="${i}" aria-label="Poista rivi">✕</button></td></tr>`;
+    });
+    if (!R[g].length) o += `<tr><td class="l" colspan="${cols.length + 5}"><span class="na">Ei rivejä.</span></td></tr>`;
+    $('t' + g).innerHTML = o + '</tbody>';
+  });
+  calc();
+}
+document.addEventListener('input', e => { const tr = e.target.closest && e.target.closest('tr[data-g]'); if (tr && e.target.dataset.k) { const r = R[tr.dataset.g][+tr.dataset.i], k = e.target.dataset.k; r[k] = e.target.type === 'number' ? parseFloat(e.target.value) : e.target.value; } calc(); });
+document.addEventListener('change', e => { if (e.target.closest && e.target.closest('tr[data-g]')) calc(); });
+document.addEventListener('click', e => {
+  const a = e.target.dataset && e.target.dataset.add, d = e.target.dataset && e.target.dataset.del;
+  if (a) { R[a].push({ ...NEW[a] }); build(); }
+  if (d) { R[d].splice(+e.target.dataset.i, 1); build(); }
+});
+$('exW').onclick = () => load(EX.W); $('exC').onclick = () => load(EX.C);
+$('clr').onclick = () => { R = { H: [], T: [], V: [], D: [] }; build(); };
+
+// Tankoehdotus: pienin kokonaisala vaihtoehdoista, enintään nmax tankoa
+function bars(As, ds, nmax) {
+  if (!(As > 0)) return '–';
+  const c = ds.map(d => { const a = Math.PI * d * d / 4, k = Math.max(1, Math.ceil(As / a - 1e-9)); return { d, k, A: k * a }; }).filter(x => x.k <= nmax).sort((x, y) => x.A - y.A).slice(0, 2);
+  return c.length ? c.map(x => `${x.k > 1 ? x.k : ''}T${x.d} (${Math.round(x.A)})`).join(' tai ') : null;
+}
+const IN = id => { const v = parseFloat($(id).value); return isFinite(v) ? v : 0; };
+
+// Seuraamusluokan ehdotus: taulukot 1 ja 2 (BNK 23_EC, s. 6)
+function suggest(ns, na, hb, use) {
+  if (use === 'ti' && ns <= 2) return ['CC1', '1–2-kerroksinen rakennus, jossa oleskellaan vain tilapäisesti.'];
+  if (use === 'ko') return ['CC3b', 'Kokoontumistilat, raskaasti kuormitetut tai suurten jännevälien rakennukset, joissa on usein suuri joukko ihmisiä.'];
+  if (ns > 8) return use === 'as' && ns <= 15 ? ['CC3a', '9–15-kerroksinen asuin-, konttori- tai liikerakennus (kellarikerrokset mukaan).'] : ['CC3b', 'Yli 8-kerroksinen rakennus, joka ei kuulu luokkaan CC3a.'];
+  if (na <= 4 || hb <= 16) return ['CC2a', 'Enintään neljä maanpäällistä kerrosta tai korkeus enintään 16 m.' + (use === 'as' && na <= 2 ? ' Asuinrakennuksen, jossa on enintään kaksi maanpäällistä kerrosta, saa suunnitella onnettomuusrajatilassa luokan CC1 mukaan.' : '')];
+  return ['CC2b', 'Muut rakennukset, jotka eivät kuulu luokkiin CC1, CC2a tai CC3.'];
+}
+
+function calc() {
+  const ns = Math.max(1, Math.round(IN('ns'))), na = IN('na'), hb = IN('hb'), use = $('use').value, cc = $('cc').value;
+  const gk = IN('gk'), q1 = IN('q1'), p1 = IN('p1'), q2 = IN('q2'), p2 = IN('p2'), h = IN('h'), fyk = IN('fyk') || 500, lw = IN('lw');
+  const cc3 = cc === 'CC3a' || cc === 'CC3b', cc2 = cc === 'CC2a' || cc === 'CC2b', needV = cc === 'CC2b' || cc3, needH = cc !== 'CC1';
+  const sg = suggest(ns, na, hb, use);
+  $('sug').innerHTML = `Ehdotus: <b>${sg[0]}</b> · ${sg[1]}${sg[0] !== cc ? ` <button type="button" class="btn ghost sm" id="useSug" style="margin-left:6px">Käytä ${sg[0]}</button>` : ' <b class="ok">✓ valittu</b>'}`;
+  if ($('useSug')) $('useSug').onclick = () => { $('cc').value = sg[0]; calc(); };
+  const sq = p1 * q1 + p2 * q2, pacc = gk + sq, Ft0 = 16 + 2.1 * ns, Ft = Math.min(48, Ft0);
+  const t = gk >= 3 ? 1 : gk <= 2 ? 0 : gk - 2, rate = 3 + 17 * t, Tmin = 10 + 60 * t;
+  const Lnim = Math.min(lw, 2.25 * h);
+  $('lnim').innerHTML = `L<sub>nim</sub> = min(L; 2,25H) = min(${n(lw, 0)}; 2,25 · ${n(h, 0)}) = <b>${n(Lnim, 0)} mm</b> → seinän suuntaisille siteille kantavat seinät–laatta-rungossa <b>z = L<sub>nim</sub>/2 = ${n(Lnim / 2, 0)} mm</b>.`;
+  const W = [], S = [];
+  if (cc3 && gk < 3) W.push('CC3-kaavat (6.3) ja (6.6) koskevat tilannetta g<sub>k</sub> ≥ 3,0 kN/m². Pienemmällä pysyvällä kuormalla sidevoimat määritetään hankekohtaisesti.');
+  if (fyk > 500) W.push('Ohjekortin mukaan riittävän sitkeitä ovat SFS 1300:n B500B ja B500C tai sitkeämmät teräkset. Tarkista teräksen sitkeys.');
+  const tieAs = T => T * 1e3 / fyk;
+  // vaakasiteet
+  let maxT = 0;
+  const rows = g => [...$('t' + g).querySelectorAll('tr[data-g]')];
+  rows('H').forEach(tr => {
+    const r = R.H[+tr.dataset.i], s = (+r.s || 0) / 1000, z = (+r.z || 0) / 1000, o = isFinite(+r.o) && +r.o > 0 ? +r.o : 1, tp = r.t, mn = tp !== 'j';
+    const zIn = tr.querySelector('[data-k=z]'); if (zIn) zIn.disabled = !cc3;
+    let T = 0, txt = '';
+    if (!needH) { txt = 'Ei vaadita (CC1).'; }
+    else if (cc2) {
+      const a = rate * s, mnv = mn ? Tmin : 0; T = o * Math.max(a, mnv);
+      txt = `${o !== 1 ? n(o, 2) + ' · ' : ''}max(${n(rate, 1)} kN/m · ${n(s, 2)} m${mn ? `; ${n(Tmin, 0)}` : ''}) = ${o !== 1 ? n(o, 2) + ' · ' : ''}max(${n(a, 1)}${mn ? `; ${n(mnv, 0)}` : ''})${mn ? '' : ' (jaettu side, 70 kN koskee vain keskitettyjä)'}`;
+    } else {
+      const a = Ft * 0.8 * pacc / 6 * z / 5 * s, b = Ft * s, mnv = mn ? 70 : 0; T = o * Math.max(a, b, mnv);
+      txt = `${o !== 1 ? n(o, 2) + ' · ' : ''}max(F<sub>t</sub>·0,8·${n(pacc, 2)}/6 · ${n(z, 3)}/5 · ${n(s, 2)}; F<sub>t</sub>·${n(s, 2)}${mn ? '; 70' : ''}) = ${o !== 1 ? n(o, 2) + ' · ' : ''}max(${n(a, 1)}; ${n(b, 1)}${mn ? '; 70' : ''})`;
+    }
+    const As = tieAs(T), bb = tp === 'j' ? bars(As, [10, 12, 16], 2) : bars(As, [10, 12, 16, 20, 25], 4);
+    maxT = Math.max(maxT, T);
+    tr.querySelector('td.res').textContent = needH ? n(T, 1) : '–';
+    tr.children[COLS.H.length + 1].textContent = needH ? n(As, 0) : '–';
+    tr.querySelector('td.bar').innerHTML = !needH ? '–' : bb === null ? '<b class="nok">Ø &gt; 16 saumassa – tihennä sidejakoa</b>' : bb;
+    tr.querySelector('td.calc').innerHTML = txt;
+  });
+  // sidonta välipohjaan
+  rows('T').forEach(tr => {
+    const r = R.T[+tr.dataset.i], s = (+r.s || 0) / 1000;
+    let T = 0, txt = '';
+    if (!needH) txt = 'Ei vaadita (CC1).';
+    else if (cc2) { const a = rate * s; T = Math.min(a, 150); txt = `min(${n(rate, 1)} kN/m · ${n(s, 2)} m; 150) = min(${n(a, 1)}; 150)`; }
+    else { const a = Ft * h / 2500 * s, b = 2 * Ft * s; T = Math.min(a, b); txt = `min(F<sub>t</sub> · ${n(h / 1000, 2)}/2,5 · ${n(s, 2)}; 2F<sub>t</sub> · ${n(s, 2)}) = min(${n(a, 1)}; ${n(b, 1)})`; }
+    const As = tieAs(T);
+    tr.querySelector('td.res').textContent = needH ? n(T, 1) : '–';
+    tr.children[COLS.T.length + 1].textContent = needH ? n(As, 0) : '–';
+    tr.querySelector('td.bar').innerHTML = needH ? (bars(As, [8, 10, 12, 16, 20, 25], 4) || '–') + (s > 0 ? `<br><span class="na">${n(As / s, 0)} mm²/m</span>` : '') : '–';
+    tr.querySelector('td.calc').innerHTML = txt;
+  });
+  // pystysiteet
+  rows('V').forEach(tr => {
+    const r = R.V[+tr.dataset.i], wall = r.t === 'w', F = (+r.gs || 0) + (+r.g || 0) + (+r.q || 0), L = +r.L || 0, Ftot = wall ? F * L : F;
+    const Lin = tr.querySelector('[data-k=L]'); if (Lin) Lin.disabled = !wall;
+    const As = tieAs(Ftot);
+    tr.querySelector('td.res').innerHTML = needV ? n(Ftot, 1) + (wall ? `<br><span class="na">${n(F, 1)} kN/m</span>` : '') : '–';
+    tr.children[COLS.V.length + 1].textContent = needV ? n(As, 0) : '–';
+    tr.querySelector('td.bar').innerHTML = needV ? (wall ? `${n(As / Math.max(L, 1e-9), 0)} mm²/m seinää` : (bars(As, [16, 20, 25, 32], 4) || '–')) : '–';
+    tr.querySelector('td.calc').innerHTML = needV ? `F<sub>v</sub> = G<sub>s</sub> + G<sub>k</sub> + Q<sub>k</sub> = ${n(+r.gs || 0, 1)} + ${n(+r.g || 0, 1)} + ${n(+r.q || 0, 1)} = ${n(F, 1)}${wall ? ` kN/m · ${n(L, 2)} m` : ' kN'}` : `Ei vaadita (${cc}).`;
+  });
+  // putoamisen estäminen
+  rows('D').forEach(tr => {
+    const r = R.D[+tr.dataset.i], F = (+r.k || 0) * (+r.v || 0), As = tieAs(F);
+    tr.querySelector('td.res').textContent = n(F, 1);
+    tr.children[COLS.D.length + 1].textContent = n(As, 0);
+    tr.querySelector('td.bar').innerHTML = bars(As, [8, 10, 12, 16, 20, 25], 2) || '–';
+    tr.querySelector('td.calc').innerHTML = `F<sub>d</sub> = ${n(+r.k || 0, 2)} · ${n(+r.v || 0, 1)}`;
+  });
+  // osioiden tila
+  $('pH').classList.toggle('off', !needH); $('pT').classList.toggle('off', !needH); $('pV').classList.toggle('off', !needV);
+  $('hH').innerHTML = !needH ? 'Ei vaadita luokassa CC1.' : cc2
+    ? `${cc}: T = ${n(rate, 1)} kN/m · s${t > 0 && t < 1 ? ' (interpoloitu)' : ''}, vähintään ${n(Tmin, 0)} kN rengassiteille ja tukilinjalle keskitetyille siteille. s = siteiden k/k-väli, rengassiteellä puolet etäisyydestä lähimpään sisäpuoliseen siteeseen lisättynä etäisyydellä reunaan. z ei vaikuta CC2:ssa.`
+    : `${cc}: T = F<sub>t</sub> · 0,8(g<sub>k</sub> + Σψq<sub>k</sub>)/6 · z/5 · s, vähintään F<sub>t</sub> · s, ja ohjekortin esimerkkien mukaisesti vähintään 70 kN rengassiteille ja keskitetyille siteille. z = pilarien tai seinien keskiviivojen etäisyys siteen suunnassa. Seinän suuntaisella siteellä z = L<sub>nim</sub>/2 (seinät–laatta-runko).`;
+  $('hT').innerHTML = !needH ? 'Ei vaadita luokassa CC1.' : (cc2 ? `${cc}: T<sub>tie</sub> = ${n(rate, 1)} kN/m · s, enintään 150 kN.` : `${cc}: F<sub>tie</sub> = F<sub>t</sub> · h/2,5 m · s, enintään 2F<sub>t</sub> · s.`) + ' s = kertymisleveys pystyrakenteiden vapaiden välien puolivälistä puoliväliin, ulkonurkassa ulkoreunaan saakka. Reunapilarit ja -seinät sidotaan jokaiseen väli- ja yläpohjaan, nurkkapilarit molempiin suuntiin.';
+  $('hV').innerHTML = needV ? `${cc}: jokainen pilari ja kantava seinä sidotaan jatkuvasti perustuksista yläpohjaan. Mitoittava vetovoima on suurin yhdestä kerroksesta kertyvä pystykuormien reaktio, ja se ankkuroidaan yläpuoliseen kerrokseen. Seinälle syötetään kuormat kN/m ja pituus. Siteet voi sijoittaa elementtisaumoihin tai jakaa seinän pituudelle.` : `Pystysiteitä ei vaadita luokassa ${cc}. Ne vaaditaan luokissa CC2b, CC3a ja CC3b.`;
+  // KPI + tulos
+  $('kpis').innerHTML = [['Seuraamusluokka', cc], ['p<sub>d,acc</sub>', n(pacc, 2) + ' kN/m²'], [cc3 ? 'F<sub>t</sub>' : 'Sidevoima / m', cc3 ? n(Ft, 1) + ' kN/m' : cc2 ? n(rate, 1) + ' kN/m' : '–'], ['Suurin vaakaside', needH && R.H.length ? n(maxT, 0) + ' kN' : '–']].map(a => `<div class="kpi"><span>${a[0]}</span><b>${a[1]}</b></div>`).join('');
+  const REQ = { CC1: ['Erillistä onnettomuustilanteen sidejärjestelmää ei tarvita, kun rakennus on mitoitettu normaalien mitoitustilanteiden mukaan.'],
+    CC2a: ['Vaakasiteet: rengas- ja sisäpuoliset siteet (6.1.1)', 'Vaakarakenteiden ankkurointi seiniin ja pilareihin (6.1.2)'],
+    CC2b: ['Vaakasiteet: rengas- ja sisäpuoliset siteet (6.1.1)', 'Pystyrakenteiden sidonta vaakarakenteeseen (6.1.2)', 'Pystysiteet kaikissa kantavissa pilareissa ja seinissä (2)'],
+    CC3a: ['Vaakasiteet CC3-kaavalla (6.3)', 'Pystyrakenteiden sidonta vaakarakenteeseen (6.6)', 'Pystysiteet kaikissa kantavissa pilareissa ja seinissä (2)'],
+    CC3b: ['Vähintään CC3a:n vaatimukset: vaakasiteet (6.3), sidonta (6.6) ja pystysiteet (2)', 'Järjestelmällinen riskinarviointi ennakoitavista ja ennakoimattomista vaaratilanteista. Riskiarvion perusteella voi tulla suurempia sidevoimia.'] };
+  const vd = $('verdict'); vd.className = 'verdict ' + (W.length ? 'warn' : 'ok');
+  vd.innerHTML = `<b>${cc}: vaaditut toimenpiteet</b><ul>${REQ[cc].map(x => '<li>' + x + '</li>').join('')}</ul>` + (cc !== 'CC1' ? '<span class="hint">Mitoita siteet myös normaalitilanteen sidevoimille ja käytä määräävää. Tarkista lisäksi kohdat, joissa pilarin tai seinälohkon ajateltu poisto tekee vaakarakenteesta ulokkeen.</span>' : '') + (W.length ? '<br>' + W.map(w => '<b class="warn">!</b> ' + w).join('<br>') : '');
+  S.push(step('Seuraamusluokka (taulukot 1 ja 2)', '', `n<sub>s</sub> = ${ns} kerrosta (kellarit mukaan), ${n(na, 0)} maanpäällistä, korkeus ${n(hb, 0)} m → ehdotus ${sg[0]}`, `Käytetään ${cc}`));
+  S.push(step('Välipohjan kuorma onnettomuustilanteessa', 'p<sub>d,acc</sub> = g<sub>k</sub> + Σψ<sub>i</sub> q<sub>k,i</sub>', `p<sub>d,acc</sub> = ${n(gk, 2)} + ${n(p1, 2)} · ${n(q1, 2)} + ${n(p2, 2)} · ${n(q2, 2)}`, `p<sub>d,acc</sub> = ${n(pacc, 2)} kN/m²`));
+  if (cc2) S.push(step('Sidevoima metriä kohden (6.1, 6.2, 6.4, 6.5)', '20 kN/m (g<sub>k</sub> ≥ 3,0), 3 kN/m (g<sub>k</sub> ≤ 2,0), välillä interpoloiden; minimi 70 kN / 10 kN', `g<sub>k</sub> = ${n(gk, 2)} kN/m²`, `${n(rate, 1)} kN/m · s, minimi ${n(Tmin, 0)} kN · sidonta välipohjaan ≤ 150 kN`));
+  if (cc3) S.push(step('Perussidevoima F<sub>t</sub> (6.3, 6.6)', 'F<sub>t</sub> = min(48; 16 + 2,1 n<sub>s</sub>) kN/m', `16 + 2,1 · ${ns} = ${n(Ft0, 1)} kN/m`, `F<sub>t</sub> = ${n(Ft, 1)} kN/m`),
+    step('Vaakasiteen kuormakerroin (6.3)', '0,8 (g<sub>k</sub> + Σψq<sub>k</sub>) / 6 kN/m²', `0,8 · ${n(pacc, 2)} / 6`, `= ${n(0.8 * pacc / 6, 3)} → T = ${n(Ft * 0.8 * pacc / 6, 2)} · z/5 · s ≥ ${n(Ft, 1)} · s`),
+    step('Sidonta välipohjaan (6.6)', 'F<sub>tie</sub> = F<sub>t</sub> · h/2,5 m · s ≤ 2F<sub>t</sub> · s', `h = ${n(h / 1000, 2)} m`, `F<sub>tie</sub> = ${n(Ft * h / 2500, 1)} kN/m · s ≤ ${n(2 * Ft, 1)} kN/m · s`));
+  S.push(step('Kantavan seinälohkon nimellispituus (3)', 'L<sub>nim</sub> = min(L; 2,25H)', `min(${n(lw, 0)}; ${n(2.25 * h, 0)})`, `L<sub>nim</sub> = ${n(Lnim, 0)} mm, z = ${n(Lnim / 2, 0)} mm`));
+  S.push(step('Teräsala', 'A<sub>s,req</sub> = T / f<sub>yk</sub> (onnettomuustilanne, γ<sub>s</sub> = 1,0)', `f<sub>yk</sub> = ${n(fyk, 0)} N/mm²`, `1 kN → ${n(1e3 / fyk, 2)} mm²`));
+  $('steps').innerHTML = S.join('');
+  document.querySelectorAll('#steps .step .no').forEach((e, i) => e.textContent = String(i + 1).padStart(2, '0'));
+  save();
+}
+BASE.forEach(k => $(k).addEventListener('change', calc));
+let st = null; try { st = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+load(st && st.H ? st : EX.W);
+})();
+</script>
+</body>
+</html>

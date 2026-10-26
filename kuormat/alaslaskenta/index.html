@@ -174,7 +174,7 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
         <label class="small" id="rakPageWrap" hidden>Sivu <input type="number" id="rakPage" min="1" step="1" value="1" style="width:60px"></label>
         <button class="btn ghost" id="rakAll">Koko sivu</button></div>
       <canvas id="rakCv" aria-label="RAK-piirustuksen esikatselu ja tunnistusalueen rajaus"></canvas>
-      <div class="legend"><span><span class="chip" style="background:#e0a800"></span>pilari</span><span><span class="chip" style="background:#e3824f"></span>seinä</span><span><span class="chip" style="background:#9b59d0"></span>palkki</span><span><span class="chip" style="background:#4a90d9"></span>laatta-alue</span><span>napauta objektia = poista / palauta · vedä = rajaa tunnistusalue</span></div>
+      <div class="legend"><span><span class="chip" style="background:#e0a800"></span>pilari</span><span><span class="chip" style="background:#e3824f"></span>seinä</span><span><span class="chip" style="background:#9b59d0"></span>palkki</span><span><span class="chip" style="background:#4a90d9"></span>laatta-alue</span><span><span class="chip" style="background:#17a2b8"></span>akseli</span><span>napauta objektia = poista / palauta · vedä = rajaa tunnistusalue</span></div>
     </div>
     <div class="card">
       <h2>Automaattinen tunnistus</h2>
@@ -195,6 +195,7 @@ table.res tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
       <label class="chk"><input type="checkbox" id="rakDash" checked> Katkoviivaparit palkkeina</label>
       <label class="chk"><input type="checkbox" id="rakSlabs" checked> Laatat ja kantosuunnat</label>
       <label class="chk"><input type="checkbox" id="rakHc" checked> Ontelolaatat yhtenä kenttänä (saumat <input type="number" id="rakHcW" value="1200" step="50" style="width:74px;padding:2px 6px"> mm välein eivät ole tukia)</label>
+      <label class="chk"><input type="checkbox" id="rakAx" checked> Moduuliverkko: tunnista akselit ja kohdista reunalinjat, pilarit ja laattakentät niihin</label>
       <label class="chk"><input type="checkbox" id="rakRepl" checked> Korvaa nykyiset piirretyt osat</label>
       <div class="flex" style="margin-top:8px"><button class="btn primary" id="rakGo" disabled>Tunnista</button><button class="btn" id="rakUse" disabled>Siirrä laskentaan →</button><button class="btn ghost" id="rakReset" hidden>Palauta poistetut</button></div>
       <p class="small" id="rakInfo" style="margin:8px 0 0">Valitse PDF-muotoinen RAK-mittapiirustus (taso- tai mittapiirustus, vektorimuotoinen).</p>
@@ -1087,13 +1088,39 @@ function detectRak(V,o){
     (kind==='beam'?out.beams:out.walls).push(l); }
   // seinässä olevat "pilarit" pois
   out.jH=[...JH]; out.jV=[...JV];
+  // --- moduuliverkko: akselit = pitkät katko-/pistekatkoviivat (myös paloista koottuna), jotka eivät ole palkin reunapareja
+  out.ax=null;
+  if(o.useAx){ let bx0=1e9,by0=1e9,bx1=-1e9,by1=-1e9; [...out.walls,...out.beams].forEach(l=>{ if(l.o==='h'){ bx0=Math.min(bx0,l.a); bx1=Math.max(bx1,l.b); by0=Math.min(by0,l.c); by1=Math.max(by1,l.c); } else { by0=Math.min(by0,l.a); by1=Math.max(by1,l.b); bx0=Math.min(bx0,l.c); bx1=Math.max(bx1,l.c); } });
+    const hasEnv=bx1>bx0;
+    const axes=(ori)=>{ const bk=new Map();
+      segs.forEach(s=>{ const dx=Math.abs(s.x2-s.x1),dy=Math.abs(s.y2-s.y1),L=Math.hypot(dx,dy); if(L<0.02) return;
+        let c,a,b; if(ori==='h'&&dy<=Math.max(0.005,L*0.012)){ c=(s.y1+s.y2)/2; a=Math.min(s.x1,s.x2); b=Math.max(s.x1,s.x2); } else if(ori==='v'&&dx<=Math.max(0.005,L*0.012)){ c=(s.x1+s.x2)/2; a=Math.min(s.y1,s.y2); b=Math.max(s.y1,s.y2); } else return;
+        const key=Math.round(c/0.03); let g=bk.get(key); if(!g){ g=[]; bk.set(key,g); } g.push({c,a,b,dash:s.dash,L}); });
+      const res=[];
+      bk.forEach(list=>{ list.sort((p,q)=>p.a-q.a); let cur=null; const runs=[];
+        list.forEach(l=>{ if(cur&&l.a<=cur.b+1.2){ cur.b=Math.max(cur.b,l.b); cur.n++; cur.dash=cur.dash||l.dash; cur.sum+=l.L; cur.cs+=l.c; } else { cur={a:l.a,b:l.b,n:1,dash:l.dash,sum:l.L,cs:l.c}; runs.push(cur); } });
+        runs.forEach(r=>{ const len=r.b-r.a; if(len<5) return; const dashed=r.dash||(r.n>=4&&r.sum<0.92*len); if(!dashed) return;
+          if(hasEnv){ const lo=ori==='h'?bx0:by0,hi=ori==='h'?bx1:by1; if(!(r.a<lo-0.6||r.b>hi+0.6)) return; }
+          res.push({c:r.cs/r.n,a:r.a,b:r.b}); }); });
+      // palkin reunaparit pois (kaksi rinnakkaista katkoviivaa lähekkäin)
+      const fil=res.filter(r=>!res.some(q=>q!==r&&Math.abs(q.c-r.c)>=o.tMin&&Math.abs(q.c-r.c)<=o.tMax&&Math.min(q.b,r.b)-Math.max(q.a,r.a)>0.6*(r.b-r.a)));
+      fil.sort((p,q)=>p.c-q.c); const out2=[]; fil.forEach(r=>{ const l=out2[out2.length-1]; if(l&&r.c-l.c<0.3){ if(r.b-r.a>l.b-l.a) out2[out2.length-1]=r; } else out2.push(r); });
+      return out2; };
+    const AH=axes('h'),AV=axes('v');
+    if(AH.length>=2&&AV.length>=2) out.ax={xs:AV.map(r=>r.c),ys:AH.map(r=>r.c),lv:AV,lh:AH}; }
+  const snapC=(v,arr,tol)=>{ let b=null,bd=tol; arr.forEach(a=>{ const d=Math.abs(a-v); if(d<bd){ bd=d; b=a; } }); return b===null?v:b; };
+  if(out.ax&&o.axSnap){ const xs=out.ax.xs,ys=out.ax.ys;
+    [...out.walls,...out.beams].forEach(l=>{ const A=l.o==='h'?ys:xs,B=l.o==='h'?xs:ys; l.c=snapC(l.c,A,Math.max(0.3,l.t/2+0.08)); l.a=snapC(l.a,B,0.45); l.b=snapC(l.b,B,0.45); });
+    out.cols.forEach(c=>{ c.x=snapC(c.x,xs,0.4); c.y=snapC(c.y,ys,0.4); }); }
   out.cols=out.cols.filter(c=>!out.walls.some(w=>w.o==='h'?Math.abs(c.y-w.c)<w.t/2+0.02&&c.x>w.a+0.05&&c.x<w.b-0.05:Math.abs(c.x-w.c)<w.t/2+0.02&&c.y>w.a+0.05&&c.y<w.b-0.05));
   // --- laatat tukilinjojen välisistä kentistä
   if(o.doSlabs){ const sup=[...out.walls,...out.beams];
     if(sup.length){ let X0=1e9,Y0=1e9,X1=-1e9,Y1=-1e9;
       sup.forEach(s=>{ if(s.o==='h'){ X0=Math.min(X0,s.a); X1=Math.max(X1,s.b); Y0=Math.min(Y0,s.c); Y1=Math.max(Y1,s.c); } else { Y0=Math.min(Y0,s.a); Y1=Math.max(Y1,s.b); X0=Math.min(X0,s.c); X1=Math.max(X1,s.c); } });
       const clu=a=>{ a.sort((p,q)=>p-q); const r=[]; a.forEach(v=>{ if(!r.length||v-r[r.length-1]>0.4) r.push(v); }); return r; };
-      const X=clu([X0,X1,...sup.filter(s=>s.o==='v').map(s=>s.c)]),Y=clu([Y0,Y1,...sup.filter(s=>s.o==='h').map(s=>s.c)]);
+      const cluP=(pri,a)=>{ const all=[...pri.map(v=>({v,p:1})),...a.map(v=>({v,p:0}))].sort((p,q)=>p.v-q.v),r=[]; all.forEach(e=>{ const l=r[r.length-1]; if(!l||e.v-l.v>0.4) r.push({...e}); else if(e.p&&!l.p){ l.v=e.v; l.p=1; } }); return r.map(e=>e.v); };
+      const axX=out.ax?out.ax.xs.filter(v=>v>=X0-0.5&&v<=X1+0.5):[],axY=out.ax?out.ax.ys.filter(v=>v>=Y0-0.5&&v<=Y1+0.5):[];
+      const X=out.ax?cluP(axX,[X0,X1,...sup.filter(s=>s.o==='v').map(s=>s.c)]):clu([X0,X1,...sup.filter(s=>s.o==='v').map(s=>s.c)]),Y=out.ax?cluP(axY,[Y0,Y1,...sup.filter(s=>s.o==='h').map(s=>s.c)]):clu([Y0,Y1,...sup.filter(s=>s.o==='h').map(s=>s.c)]);
       const cov=(ori,c,a,b)=>{ const iv=[]; sup.forEach(s=>{ if(s.o!==ori||Math.abs(s.c-c)>0.35) return; const lo=Math.max(a,s.a-0.4),hi=Math.min(b,s.b+0.4); if(hi>lo) iv.push([lo,hi]); });
         iv.sort((p,q)=>p[0]-q[0]); let e=a,cv=0; iv.forEach(([lo,hi])=>{ if(hi<=e) return; cv+=hi-Math.max(lo,e); e=hi; }); return cv/(b-a); };
       const jdir=(x0,y0,x1,y1)=>{ let sv=0,sh=0; const m=0.25;
@@ -1103,8 +1130,9 @@ function detectRak(V,o){
         return sv>1.8*sh&&sv>0?90:sh>1.8*sv&&sh>0?0:null; };
       const G=[]; for(let i=0;i<X.length-1;i++){ G[i]=[]; for(let j=0;j<Y.length-1;j++){ const x0=X[i],x1=X[i+1],y0=Y[j],y1=Y[j+1]; G[i][j]=null; if(x1-x0<0.6||y1-y0<0.6) continue;
         const Lf=cov('v',x0,y0,y1)>=0.5,Rt=cov('v',x1,y0,y1)>=0.5,Tp=cov('h',y0,x0,x1)>=0.5,Bt=cov('h',y1,x0,x1)>=0.5,sx=Lf&&Rt,sy=Tp&&Bt,n=Lf+Rt+Tp+Bt;
-        if(!(sx||sy||n>=3)) continue;
-        let dir=sx&&!sy?0:sy&&!sx?90:null; if(dir===null){ const jd=jdir(x0,y0,x1,y1); dir=jd!==null?jd:((x1-x0)<=(y1-y0)?0:90); }
+        const jd=jdir(x0,y0,x1,y1);
+        if(!(sx||sy||n>=3||jd!==null)) continue;
+        let dir=jd!==null?jd:sx&&!sy?0:sy&&!sx?90:((x1-x0)<=(y1-y0)?0:90);
         G[i][j]={x0,x1,y0,y1,dir}; } }
       // yhdistä vierekkäiset kentät, joiden välissä ei ole tukea
       const rows=[]; for(let j=0;j<Y.length-1;j++){ let curR=null; for(let i=0;i<X.length-1;i++){ const g=G[i][j]; if(!g){ curR=null; continue; }
@@ -1124,6 +1152,7 @@ function detectRak(V,o){
       const hc=F.map(f=>{ const po=f.ori==='v'?'v':'h',pe=f.ori==='v'?'h':'v';
         let c0=ext(po,f.c0,-1,1.4),c1=ext(po,f.c1,1,1.4),a=ext(pe,f.a,-1,0.8),b=ext(pe,f.b,1,0.8);
         c0=c0===null?f.c0:c0; c1=c1===null?f.c1:c1; a=a===null?f.a:a; b=b===null?f.b:b;
+        if(out.ax){ const A=f.ori==='v'?out.ax.xs:out.ax.ys,B=f.ori==='v'?out.ax.ys:out.ax.xs; c0=snapC(c0,A,0.7); c1=snapC(c1,A,0.7); a=snapC(a,B,0.7); b=snapC(b,B,0.7); }
         return f.ori==='v'?{x0:c0,x1:c1,y0:a,y1:b,dir:90,hc:1}:{x0:a,x1:b,y0:c0,y1:c1,dir:0,hc:1}; }).filter(r=>r.x1-r.x0>0.6&&r.y1-r.y0>0.6);
       hc.sort((p,q)=>(q.x1-q.x0)*(q.y1-q.y0)-(p.x1-p.x0)*(p.y1-p.y0));
       const ov=(p,q)=>Math.max(0,Math.min(p.x1,q.x1)-Math.max(p.x0,q.x0))*Math.max(0,Math.min(p.y1,q.y1)-Math.max(p.y0,q.y0));
@@ -1147,6 +1176,7 @@ function drawPrev(){ const r=pv.getBoundingClientRect(); if(r.width<10) return; 
   pvS=Math.min((r.width-20)/prev.w,(r.height-20)/prev.h); pvO=[(r.width-prev.w*pvS)/2,(r.height-prev.h*pvS)/2];
   pctx.drawImage(prev.img,pvO[0],pvO[1],prev.w*pvS,prev.h*pvS);
   if(rakRes){ const s=pvS/rakRes.k,X=x=>pvO[0]+x*s,Y=y=>pvO[1]+y*s;
+    if(rakRes.ax){ pctx.strokeStyle='#17a2b8'; pctx.lineWidth=1.2; pctx.setLineDash([10,3,2,3]); rakRes.ax.lv.forEach(l=>{ pctx.beginPath(); pctx.moveTo(X(l.c),Y(l.a)); pctx.lineTo(X(l.c),Y(l.b)); pctx.stroke(); }); rakRes.ax.lh.forEach(l=>{ pctx.beginPath(); pctx.moveTo(X(l.a),Y(l.c)); pctx.lineTo(X(l.b),Y(l.c)); pctx.stroke(); }); pctx.setLineDash([]); }
     const xmark=(x,y)=>{ pctx.strokeStyle='#d0342c'; pctx.lineWidth=2.4; pctx.beginPath(); pctx.moveTo(x-6,y-6); pctx.lineTo(x+6,y+6); pctx.moveTo(x+6,y-6); pctx.lineTo(x-6,y+6); pctx.stroke(); };
     rakRes.slabs.forEach(sl=>{ pctx.globalAlpha=sl.off?.07:.25; pctx.fillStyle=sl===rakHover?'#7fb6ef':'#4a90d9'; pctx.fillRect(X(sl.x0),Y(sl.y0),(sl.x1-sl.x0)*s,(sl.y1-sl.y0)*s); pctx.globalAlpha=1;
       const cx=X((sl.x0+sl.x1)/2),cy=Y((sl.y0+sl.y1)/2);
@@ -1165,8 +1195,8 @@ function rakHit(ev){ if(!rakRes) return null; const r=pv.getBoundingClientRect()
   let best=null,bd=9; rakRes.cols.forEach(c=>{ const d=Math.max(Math.abs(X(c.x)-px),Math.abs(Y(c.y)-py)); if(d<bd){ bd=d; best=c; } }); if(best) return best;
   bd=7; [...rakRes.walls,...rakRes.beams].forEach(l=>{ let d; if(l.o==='h'){ const x=Math.max(X(l.a),Math.min(X(l.b),px)); d=Math.hypot(x-px,Y(l.c)-py); } else { const y=Math.max(Y(l.a),Math.min(Y(l.b),py)); d=Math.hypot(X(l.c)-px,y-py); } if(d<bd){ bd=d; best=l; } }); if(best) return best;
   return rakRes.slabs.find(sl=>px>=X(sl.x0)&&px<=X(sl.x1)&&py>=Y(sl.y0)&&py<=Y(sl.y1))||null; }
-function rakCount(){ if(!rakRes) return; const n=a=>a.filter(x=>!x.off).length,jn=rakRes.joints||0,off=[rakRes.cols,rakRes.walls,rakRes.beams,rakRes.slabs].reduce((t,a)=>t+a.filter(x=>x.off).length,0);
-  $('rakInfo').innerHTML=(jn?`Ontelolaattojen saumaviivoja tunnistettu ${jn} (ei tukia). `:'')+`Mukana: <b>${n(rakRes.cols)}</b> pilaria, <b>${n(rakRes.walls)}</b> seinää, <b>${n(rakRes.beams)}</b> palkkia ja <b>${n(rakRes.slabs)}</b> laatta-aluetta${off?` · <b>${off}</b> poistettu (punainen rasti)`:''}. Napauta väärin tunnistettua objektia poistaaksesi sen – uusi napautus palauttaa. Vedä = rajaa alue uudelleen.`;
+function rakCount(){ if(!rakRes) return; const n=a=>a.filter(x=>!x.off).length,jn=rakRes.joints||0,axn=rakRes.ax?`Moduuliverkko: ${rakRes.ax.xs.length} × ${rakRes.ax.ys.length} akselia. `:'',off=[rakRes.cols,rakRes.walls,rakRes.beams,rakRes.slabs].reduce((t,a)=>t+a.filter(x=>x.off).length,0);
+  $('rakInfo').innerHTML=axn+(jn?`Ontelolaattojen saumaviivoja tunnistettu ${jn} (ei tukia). `:'')+`Mukana: <b>${n(rakRes.cols)}</b> pilaria, <b>${n(rakRes.walls)}</b> seinää, <b>${n(rakRes.beams)}</b> palkkia ja <b>${n(rakRes.slabs)}</b> laatta-aluetta${off?` · <b>${off}</b> poistettu (punainen rasti)`:''}. Napauta väärin tunnistettua objektia poistaaksesi sen – uusi napautus palauttaa. Vedä = rajaa alue uudelleen.`;
   $('rakUse').disabled=!(n(rakRes.cols)+n(rakRes.walls)+n(rakRes.beams)+n(rakRes.slabs)); $('rakReset').hidden=!off; }
 pv.addEventListener('pointerdown',ev=>{ if(!prev) return; pv.setPointerCapture(ev.pointerId); pvDown={x:ev.clientX,y:ev.clientY,p:pvPt(ev),moved:false}; });
 pv.addEventListener('pointermove',ev=>{
@@ -1187,7 +1217,7 @@ new ResizeObserver(()=>{ if(!$('tabRak').hidden) drawPrev(); }).observe(pv);
 $('rakGo').onclick=async()=>{ if(!lastPdf) return; const btn=$('rakGo'); btn.disabled=true; $('rakInfo').textContent='Tunnistetaan…';
   try{ const n=+$('rakPage').value||1,N=+$('rakScale').value||100; rakVec=rakVec&&rakVec.n===n?rakVec:{n,...(await pdfVectors(n))};
     const k=N*0.0254/72,o={k,crop,cMin:(+$('rakCmin').value||150)/1000,cMax:(+$('rakCmax').value||1200)/1000,tMin:(+$('rakTmin').value||60)/1000,tMax:(+$('rakTmax').value||500)/1000,wMinLen:0.8,
-      minLw:(+$('rakLw').value||0)/0.3528,hcJoints:$('rakHc').checked,hcW:(+$('rakHcW').value||1200)/1000,cFill:$('rakCfill').checked,dashBeams:$('rakDash').checked,doCols:$('rakCols').checked,doWalls:$('rakWalls').checked,doBeams:$('rakBeams').checked,doSlabs:$('rakSlabs').checked};
+      minLw:(+$('rakLw').value||0)/0.3528,hcJoints:$('rakHc').checked,useAx:$('rakAx').checked,axSnap:$('rakAx').checked,hcW:(+$('rakHcW').value||1200)/1000,cFill:$('rakCfill').checked,dashBeams:$('rakDash').checked,doCols:$('rakCols').checked,doWalls:$('rakWalls').checked,doBeams:$('rakBeams').checked,doSlabs:$('rakSlabs').checked};
     rakRes=detectRak(rakVec,o); rakRes.k=k; window.__rakRes=rakRes; drawPrev();
     rakCount();
   }catch(e){ console.error(e); $('rakInfo').textContent='Tunnistus epäonnistui: '+(e&&e.message||e); }
@@ -1199,7 +1229,7 @@ $('rakUse').onclick=async()=>{ if(!rakRes) return; const N=+$('rakScale').value|
   rakRes.beams.filter(x=>!x.off).forEach(l=>add('PA',{t:'beam',a:l.o==='h'?[q(l.a),q(l.c)]:[q(l.c),q(l.a)],b:l.o==='h'?[q(l.b),q(l.c)]:[q(l.c),q(l.b)]}));
   rakRes.cols.filter(x=>!x.off).forEach(c=>add('P',{t:'col',p:[q(c.x),q(c.y)]}));
   if($('rakRepl').checked) st.els=els; else { els.forEach(e=>{ e.id=nextId2(e.id.replace(/\d+$/,''),st.els); st.els.push(e); }); }
-  st.ax=null; $('pdfScale').value=N; st.fl.pdfScale=N; sel=null;
+  st.ax=rakRes.ax&&$('rakAx').checked?{xs:rakRes.ax.xs.map(q),ys:rakRes.ax.ys.map(q)}:null; $('pdfScale').value=N; st.fl.pdfScale=N; sel=null;
   try{ const r=await renderPdf(+$('rakPage').value||1); await setBg(r.src,r.ptpx,'pdf'); }catch(e){}
   setTab('draw'); update(true); renderProps(); fit(); $('hint').textContent='RAK-piirustuksesta tunnistettu rakenne siirretty. Tarkista pilarit, seinät, palkit ja laattojen kantosuunnat – korjaa tai poista virheelliset osat.'; };
 function nextId2(pre,arr){ let n=0; arr.forEach(e=>{ const m=e.id&&e.id.match(new RegExp('^'+pre+'(\\d+)$')); if(m) n=Math.max(n,+m[1]); }); return pre+(n+1); }

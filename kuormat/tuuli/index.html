@@ -192,10 +192,10 @@ function bindPersist(ids,fn){ ids.forEach(id=>{ const el=$('#'+id); if(!el) retu
    TUULIKUORMA
    ===================================================================== */
 const TC={'0':{z0:0.003,zmin:1},'I':{z0:0.01,zmin:1},'II':{z0:0.05,zmin:2},'III':{z0:0.3,zmin:5},'IV':{z0:1.0,zmin:10}};
-// suunniteltu käyttöikä → tuulikuorman korotus (SFS-EN 1991-1-4, Suomen kansallinen liite: käyttöikä 100 v → nopeuspaine × 1,1)
+// suunniteltu käyttöikä → tuulikuorman korotus (YM Rakenteiden suunnitteluperusteet 2016, kohta 2.8: käyttöikä yli 50 v → ilmastokuormien ominaisarvot +10 %)
 // toteutetaan todennäköisyyskertoimena c_prob = √1,1, jolloin q_b ja q_p kasvavat tasan 10 %
 function lifeWind(){ const is100=$('#w-life').value==='100', f=is100?1.1:1.0, c=Math.sqrt(f);
-  $('#w-lifenote').innerHTML=is100?'Käyttöikä 100 v → tuulikuormaa (nopeuspainetta) korotetaan 10 % (kansallinen liite): c<sub>prob</sub> = √1,1 = <b>'+fmt(c,4)+'</b>.':'Käyttöikä 50 v → c<sub>prob</sub> = 1,0.';
+  $('#w-lifenote').innerHTML=is100?'Käyttöikä 100 v → tuulikuormaa (nopeuspainetta) korotetaan 10 % (suunnitteluperusteet, kohta 2.8): c<sub>prob</sub> = √1,1 = <b>'+fmt(c,4)+'</b>.':'Käyttöikä 50 v → c<sub>prob</sub> = 1,0.';
   return {is100,c,f}; }
 function windBase(){ const cat=$('#w-cat').value, t=TC[cat]; const vb0=num('#w-vb0'), cdir=num('#w-cdir'), cs=num('#w-cseason'), co=num('#w-co')||1, rho=num('#w-rho')||1.25;
   const LW=lifeWind(), cprob=LW.c; const vb=cprob*cdir*cs*vb0; const kr=cat==='0'?0.18:0.19*Math.pow(t.z0/0.05,0.07);
@@ -217,7 +217,7 @@ function windCalc(){
   $('#w-kpis').innerHTML=[['v<sub>b</sub>',fmt(W.vb,2)+' m/s'],['k<sub>r</sub>',fmt(W.kr,4)],['v<sub>m</sub>(h)',fmt(Q.vm,2)+' m/s'],['I<sub>v</sub>(h)',fmt(Q.Iv,4)],['q<sub>p</sub>(h)',fmt(Q.q,3)+' kN/m²']]
    .map((k,i)=>`<div class="kpi ${i===4?'hl':''}"><div class="k">${k[0]}</div><div class="v">${k[1]}</div></div>`).join('');
   let st='';
-  if(W.LW.is100) st+=row('Suunniteltu käyttöikä 100 v','Suomen kansallinen liite (SFS-EN 1991-1-4): käyttöiän ollessa 100 v tuulikuormaa korotetaan 10 % → nopeuspaine × 1,10;<br>toteutettu todennäköisyyskertoimella c<sub>prob</sub> = √1,10 = <b>'+fmt(W.cprob,4)+'</b> (c<sub>prob</sub>² = 1,10)');
+  if(W.LW.is100) st+=row('Suunniteltu käyttöikä 100 v','YM:n ohje Rakenteiden suunnitteluperusteet 2016, kohta 2.8 (asetus 477/2014, 8 §): suunnitellun käyttöiän ollessa yli 50 v ilmastosta johtuvien kuormien ominaisarvoja korotetaan 10 % (yli 100 v: 20 %), ellei tarkempia selvityksiä esitetä → nopeuspaine × 1,10;<br>toteutettu todennäköisyyskertoimella c<sub>prob</sub> = √1,10 = <b>'+fmt(W.cprob,4)+'</b> (c<sub>prob</sub>² = 1,10)');
   st+=row('Tuulen nopeuden perusarvo',W.LW.is100?'v<sub>b</sub> = c<sub>prob</sub>·c<sub>dir</sub>·c<sub>season</sub>·v<sub>b,0</sub> = '+fmt(W.cprob,4)+'·'+fmt(W.cdir,2)+'·'+fmt(W.cs,2)+'·'+fmt(W.vb0,1)+' = <b>'+fmt(W.vb,2)+' m/s</b>':'v<sub>b</sub> = c<sub>dir</sub>·c<sub>season</sub>·v<sub>b,0</sub> = '+fmt(W.cdir,2)+'·'+fmt(W.cs,2)+'·'+fmt(W.vb0,1)+' = <b>'+fmt(W.vb,2)+' m/s</b>');
   st+=row('Maastoluokka '+W.cat,'z<sub>0</sub> = '+fmt(W.t.z0,3)+' m, z<sub>min</sub> = '+fmt(W.t.zmin,0)+' m');
   st+=row('Maastokerroin k<sub>r</sub>',W.cat==='0'?'maastoluokka 0 → kansallinen liite: <b>k<sub>r</sub> = 0,18</b>':'0,19·(z<sub>0</sub>/z<sub>0,II</sub>)<sup>0,07</sup> = 0,19·('+fmt(W.t.z0,3)+'/0,05)<sup>0,07</sup> = <b>'+fmt(W.kr,4)+'</b>');

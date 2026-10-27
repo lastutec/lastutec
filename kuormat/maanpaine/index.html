@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maanpaine – Lastutec</title>
+<meta name="description" content="Maanpaine tukiseinään SFS-EN 1997-1:n (kohta 9.5 ja liite C) ja RIL 207:n mukaan: lepo-, aktiivi- ja passiivipaine, maakerrokset, pohjavesi, pintakuorma ja tiivistyslisä. Piirtää painejakauman, kuormaresultantit ja niiden korkeudet pohjasta.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<script src="../../lt-pdf.js"></script>
+<style>
+:root{
+  --bg:#1b1c1f; --panel:#24262a; --panel2:#2b2d32; --ink:#e9e6e0; --muted:#aeaba4; --line:#3d4046; --line2:#33353a;
+  --accent:#E3824F; --accent-soft:#3e2c24; --input:#2c2723;
+  --ok:#82c79f; --warn:#e2c47f; --bad:#e8907f;
+  --c-soil:#c79a62; --c-q:#9fb0c2; --c-comp:#c9a0dc; --c-w:#5fa8e8;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:1300px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.lt{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:16px}
+header.lt .brand{display:flex;flex-direction:column;gap:2px}
+header.lt .back{font:600 13px Arial,Helvetica,sans-serif;color:var(--accent);text-decoration:none}
+header.lt .back:hover{text-decoration:underline}
+header.lt h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+header.lt .hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+header.lt .meta{font-size:12px;color:var(--muted)}
+.printbtn{font:600 13px Arial,Helvetica,sans-serif;color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+a{color:var(--accent)}
+h2{font-size:17px;font-weight:800;margin:0 0 10px}
+h3{font-size:14px;margin:12px 0 6px}
+p.lead{margin:0 0 14px;color:var(--muted);max-width:90ch}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-bottom:14px;min-width:0}
+.grid{display:grid;grid-template-columns:380px minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:minmax(0,1fr)}}
+.field{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;margin:6px 0}
+.field>label{font-size:13.5px}
+.field .u{font-size:12px;color:var(--muted);margin-left:4px;display:inline-block;min-width:38px}
+input[type=number],input[type=text],select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);border-radius:4px;background:var(--input);color:var(--ink);min-width:0}
+select{background:var(--bg)}
+input[type=number]{width:92px;font-variant-numeric:tabular-nums}
+.field select{max-width:210px}
+input[type=checkbox]{accent-color:var(--accent)}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+fieldset{border:1px solid var(--line);border-radius:6px;padding:6px 10px 8px;margin:10px 0}
+legend{font-size:12.5px;font-weight:600;color:var(--muted);padding:0 4px}
+.chk{display:flex;gap:8px;align-items:center;font-size:13.5px;cursor:pointer;margin:4px 0}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:2px 0 8px}
+.seg button{flex:1 1 auto;font:inherit;font-size:13.5px;border:0;border-right:1px solid var(--line);background:var(--panel2);color:var(--ink);padding:7px 10px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#111;font-weight:600}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:6px;padding:6px 10px;font:inherit;font-size:13.5px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.x{padding:2px 8px;color:var(--bad)}
+.small{font-size:12.5px;color:var(--muted)}
+.note{border-left:3px solid var(--warn);background:#2e2a21;padding:8px 12px;border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.note:empty{display:none}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line2);padding:5px 7px;text-align:right;white-space:nowrap;vertical-align:middle}
+th{font-weight:600;color:var(--muted);font-size:12px}
+td.l,th.l{text-align:left}
+table.inp input[type=number]{width:70px;padding:3px 5px;text-align:right}
+table.inp input[type=text]{width:120px;padding:3px 5px}
+table.inp select{max-width:150px;padding:3px 5px}
+tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+tr.sub td{color:var(--muted)}
+.sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px}
+.kpi{border:1px solid var(--line);border-radius:6px;padding:7px 10px;background:var(--panel2)}
+.kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kpi .v{font:600 17px/1.3 Arial,Helvetica,sans-serif;font-variant-numeric:tabular-nums}
+.kpi.hl{border-color:var(--accent);background:var(--accent-soft)}
+.figs{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,8fr);gap:10px}
+@media (max-width:700px){.figs{grid-template-columns:minmax(0,1fr)}}
+.figs svg{width:100%;height:auto;display:block;background:var(--bg);border:1px solid var(--line);border-radius:4px}
+.figs text{font-family:Arial,Helvetica,sans-serif}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.calc{font-size:13.5px}
+.calc .row{display:grid;grid-template-columns:minmax(150px,240px) minmax(0,1fr);gap:4px 14px;padding:3px 0;border-bottom:1px dashed var(--line2)}
+.calc .row .d{color:var(--muted)} .calc .row .f{overflow-wrap:anywhere}
+.calc h4{margin:14px 0 2px;font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+details.step{border:1px solid var(--line);border-radius:6px;margin:8px 0}
+details.step>summary{cursor:pointer;padding:7px 10px;font-weight:600}
+details.step>.calc{padding:0 12px 10px}
+ul.foot{font-size:12.5px;color:var(--muted);margin:6px 0 0;padding-left:18px}
+ul.foot li{margin-bottom:3px}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--panel:#fff;--panel2:#fff;--ink:#000;--muted:#444;--line:#bbb;--line2:#ddd;--accent:#c63a00;--accent-soft:#fde2d5;--input:#fff;--ok:#1d6b3a;--warn:#8a5a00;--bad:#b3261e;--c-soil:#b07a3c;--c-q:#6f8399;--c-comp:#9a63b5;--c-w:#2a7fc9;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back,.no-print{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+  .grid{grid-template-columns:1fr}
+  .card{break-inside:avoid}
+  details.step{display:block}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="lt">
+  <div class="brand"><a href="../" class="back">← Kuormalaskenta</a><h1>Maanpaine</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 8 · Laatinut: INS (YAMK) Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+<p class="lead">Maanpaine pystysuoraan tukiseinään SFS-EN 1997-1:n (kohta 9.5 ja liite C) ja RIL 207:n mukaan. Laskuri ottaa huomioon kerroksellisen maan, pohjaveden, tasaisen pintakuorman ja tiivistyksestä aiheutuvan lisäpaineen. Kuvaan piirretään painejakauma osakuormittain sekä kuormaresultantit ja niiden korkeudet seinän pohjasta.</p>
+
+<div class="grid">
+  <div>
+    <div class="card">
+      <h2>Lähtötiedot</h2>
+      <div class="small">Maanpaineen tila</div>
+      <div class="seg" id="m-state">
+        <button type="button" id="st-0" aria-pressed="true" data-v="0">Lepopaine K<sub>0</sub></button>
+        <button type="button" id="st-a" aria-pressed="false" data-v="a">Aktiivi K<sub>a</sub></button>
+        <button type="button" id="st-p" aria-pressed="false" data-v="p">Passiivi K<sub>p</sub></button>
+      </div>
+      <div class="small" id="m-statehint"></div>
+      <div class="field"><label>Seinän korkeus H (maanpinnasta pohjaan)</label><span><input type="number" id="m-H" step="0.1" min="0.1"><span class="u">m</span></span></div>
+      <div class="field"><label>Maanpinnan kaltevuus β</label><span><input type="number" id="m-beta" step="1"><span class="u">°</span></span></div>
+      <div class="field"><label>Seinäkitka δ / φ'</label><select id="m-dk">
+        <option value="0">0 (sileä, δ = 0)</option>
+        <option value="0.3333">1/3</option>
+        <option value="0.5">1/2</option>
+        <option value="0.6667">2/3 (elementti, ponttiseinä)</option>
+        <option value="1">1 (maata vasten valettu)</option>
+      </select></div>
+      <div class="small">EN 1997-1 9.5.1(6): δ ≤ k·φ'<sub>cv,d</sub>, k ≤ 2/3 elementeille ja k = 1 maata vasten valetulle betonille. Lepopaineessa δ = 0.</div>
+
+      <fieldset><legend>Pohjavesi (GWL)</legend>
+        <label class="chk"><input type="checkbox" id="m-gwon"> Pohjavesi seinän takana</label>
+        <div class="field"><label>Syvyys maanpinnasta z<sub>w</sub></label><span><input type="number" id="m-zw" step="0.1" min="0"><span class="u">m</span></span></div>
+        <div class="field"><label>Veden tilavuuspaino γ<sub>w</sub></label><span><input type="number" id="m-gw" step="0.01"><span class="u">kN/m³</span></span></div>
+      </fieldset>
+
+      <fieldset><legend>Lisäkuormat</legend>
+        <div class="field"><label>Tasainen pintakuorma q</label><span><input type="number" id="m-q" step="1" min="0"><span class="u">kPa</span></span></div>
+        <div class="small">Esim. työmaa- tai liikennekuorma, tyypillisesti 10–20 kPa. Pintakuorma on muuttuva kuorma.</div>
+      </fieldset>
+
+      <fieldset><legend>Tiivistyslisä (EN 1997-1 9.5.5)</legend>
+        <label class="chk"><input type="checkbox" id="m-con"> Käytössä</label>
+        <div class="field"><label>Määritystapa</label><select id="m-cmode">
+          <option value="ingold">Tiivistyskoneen viivakuorma (Ingold)</option>
+          <option value="own">Oma tiivistyslisä p</option>
+        </select></div>
+        <div class="field" id="m-Pwrap"><label>Tiivistimen viivakuorma P</label><span><input type="number" id="m-P" step="1" min="0"><span class="u">kN/m</span></span></div>
+        <div class="field" id="m-pwrap"><label>Oma tiivistyslisä p</label><span><input type="number" id="m-p" step="1" min="0"><span class="u">kPa</span></span></div>
+        <div class="small">Ingold: σ'<sub>h,m</sub> = √(2Pγ/π). P = jyrän tai tärylevyn staattinen paino + täryn keskipakovoima jaettuna leveydellä (laitteen tiedoista). Tiivistyslisä otetaan huomioon yläosassa syvyyteen h<sub>c</sub> asti, jossa staattinen maanpaine saavuttaa arvon σ'<sub>h,m</sub>.</div>
+      </fieldset>
+
+      <fieldset><legend>Mitoitusarvot (RIL 207, DA2*)</legend>
+        <div class="field"><label>Seuraamusluokka K<sub>FI</sub></label><select id="m-kfi">
+          <option value="0.9">CC1 – 0,9</option>
+          <option value="1.0">CC2 – 1,0</option>
+          <option value="1.1">CC3 – 1,1</option>
+        </select></div>
+        <div class="small">6.10a: 1,35·K<sub>FI</sub>·G<sub>k</sub> · 6.10b: 1,15·K<sub>FI</sub>·G<sub>k</sub> + 1,5·K<sub>FI</sub>·Q<sub>k</sub>. Maa-, vesi- ja tiivistyspaine ovat pysyviä kuormia ja pintakuorma muuttuva kuorma. Passiivipaine on kestävyys: R<sub>d</sub> = R<sub>k</sub> / γ<sub>R;e</sub>, γ<sub>R;e</sub> = 1,4.</div>
+      </fieldset>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <h2>Maakerrokset</h2>
+      <div class="tbl-wrap">
+        <table class="inp" id="m-layers">
+          <thead><tr><th class="l">Esiasetus</th><th class="l">Nimi</th><th>h<br><small>m</small></th><th>γ<br><small>kN/m³</small></th><th>γ'<br><small>kN/m³</small></th><th>φ'<br><small>°</small></th><th>c'<br><small>kPa</small></th><th>OCR</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px" class="no-print">
+        <button type="button" class="btn" id="m-add">+ Lisää kerros</button>
+        <span class="small">Kerrokset ylhäältä alas. Viimeinen kerros jatkuu tarvittaessa seinän pohjaan. γ' on tehokas (veden alainen) tilavuuspaino. Jos φ' = 0, kerros lasketaan suljettuna (kokonaisjännitys, c = c<sub>u</sub>).</span>
+      </div>
+      <div class="note" id="m-warn"></div>
+    </div>
+
+    <div class="card">
+      <h2>Tulokset</h2>
+      <div class="kpis" id="m-kpis"></div>
+      <div class="figs">
+        <svg id="m-sec" viewBox="0 0 360 560" role="img" aria-label="Poikkileikkaus"></svg>
+        <svg id="m-dia" viewBox="0 0 600 560" role="img" aria-label="Maanpainejakauma ja resultantit"></svg>
+      </div>
+      <div class="legend" id="m-legend"></div>
+
+      <h3>Kuormaresultantit (ominaisarvot ja mitoitusarvot)</h3>
+      <div class="tbl-wrap"><table id="m-res"></table></div>
+      <div class="small" id="m-resnote"></div>
+
+      <h3>Painejakauma</h3>
+      <div class="tbl-wrap"><table id="m-tab"></table></div>
+
+      <details class="step"><summary>Maanpainekertoimet ja laskennan välivaiheet</summary><div class="calc" id="m-calc"></div></details>
+
+      <ul class="foot">
+        <li>Aktiivi- ja passiivipainekertoimet lasketaan SFS-EN 1997-1:n liitteen C (C.2) numeerisella menettelyllä. Menettely ottaa huomioon seinäkitkan δ ja maanpinnan kaltevuuden β. Kun δ = 0 ja β = 0, tulos on sama kuin Rankinen kertoimilla K<sub>a</sub> = tan²(45° − φ'/2) ja K<sub>p</sub> = tan²(45° + φ'/2). Kertoimet antavat seinää vastaan kohtisuoran (vaakasuoran) komponentin. Pystykomponentti on e·tan δ.</li>
+        <li>Lepopaine (9.5.2): K<sub>0</sub> = (1 − sin φ')·√OCR, ja kaltevalla maanpinnalla K<sub>0;β</sub> = K<sub>0</sub>(1 + sin β).</li>
+        <li>Koheesio pienentää aktiivipainetta (−K<sub>c</sub>·c') ja kasvattaa passiivipainetta (+K<sub>c</sub>·c'). Negatiivinen aktiivipaine (vetohalkeama) asetetaan nollaksi. Lepopaineessa koheesiota ei oteta huomioon.</li>
+        <li>Pohjaveden alapuolella käytetään tehokasta tilavuuspainoa γ', ja vedenpaine u = γ<sub>w</sub>(z − z<sub>w</sub>) lisätään erikseen. Suljetuissa kerroksissa (φ' = 0) käytetään kokonaisjännitystä, eikä vedenpainetta lisätä erikseen.</li>
+        <li>Työkalu on suunnittelun apuväline. Kohteen geotekninen suunnittelija tarkistaa maaparametrit ja mitoitustilanteet. Lisäksi on tarkistettava muun muassa pistekuormat, epätasainen pohjavesi ja virtaus, seinän siirtymät sekä kokonaisvakavuus.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const KEY='lt-maanpaine-v1';
+const DEG=Math.PI/180;
+const f=(v,d=2)=>isFinite(v)?v.toLocaleString('fi-FI',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* Tyypilliset maaparametrit (ohjeellisia, tarkista pohjatutkimuksesta / RIL 207) */
+const PRESETS={
+  murske:{n:'Kalliomurske',g:20,gp:12,phi:38,c:0},
+  sora:{n:'Sora',g:20,gp:12,phi:36,c:0},
+  hiekka:{n:'Hiekka',g:18,gp:11,phi:32,c:0},
+  hhiekka:{n:'Hieno hiekka',g:17,gp:10,phi:30,c:0},
+  moreeni:{n:'Moreeni (tiivis)',g:21,gp:13,phi:36,c:0},
+  siltti:{n:'Siltti',g:18,gp:9,phi:28,c:0},
+  savi:{n:'Savi (avoin)',g:16,gp:6,phi:24,c:5},
+  savicu:{n:'Savi (suljettu, cu)',g:16,gp:6,phi:0,c:20}
+};
+
+const DEF={state:'0',H:4.0,beta:0,dk:'0',gwon:true,zw:2.0,gw:10,q:10,con:false,cmode:'ingold',P:20,p:15,kfi:'1.0',
+  layers:[{pre:'sora',n:'Sora (täyttö)',h:2.0,g:20,gp:12,phi:36,c:0,ocr:1},{pre:'moreeni',n:'Moreeni',h:2.0,g:21,gp:13,phi:36,c:0,ocr:1}]};
+let st;
+try{st=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){st=null;}
+if(!st||!Array.isArray(st.layers)||!st.layers.length) st=JSON.parse(JSON.stringify(DEF));
+for(const k in DEF) if(st[k]===undefined) st[k]=JSON.parse(JSON.stringify(DEF[k]));
+let saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}},250);}
+const num=(v,d=0)=>{const x=parseFloat(String(v).replace(',','.'));return isFinite(x)?x:d;};
+
+/* ---------- Lomake ---------- */
+const SIMPLE=[['m-H','H'],['m-beta','beta'],['m-zw','zw'],['m-gw','gw'],['m-q','q'],['m-P','P'],['m-p','p']];
+function bindForm(){
+  SIMPLE.forEach(([id,k])=>{const el=$(id);el.value=st[k];el.addEventListener('input',()=>{st[k]=num(el.value,st[k]);calc();});});
+  $('m-dk').value=st.dk; $('m-dk').addEventListener('change',()=>{st.dk=$('m-dk').value;calc();});
+  $('m-kfi').value=st.kfi; $('m-kfi').addEventListener('change',()=>{st.kfi=$('m-kfi').value;calc();});
+  $('m-cmode').value=st.cmode; $('m-cmode').addEventListener('change',()=>{st.cmode=$('m-cmode').value;calc();});
+  $('m-gwon').checked=st.gwon; $('m-gwon').addEventListener('change',()=>{st.gwon=$('m-gwon').checked;calc();});
+  $('m-con').checked=st.con; $('m-con').addEventListener('change',()=>{st.con=$('m-con').checked;calc();});
+  document.querySelectorAll('#m-state button').forEach(b=>b.addEventListener('click',()=>{st.state=b.dataset.v;setState();calc();}));
+  setState();
+  $('m-add').addEventListener('click',()=>{const last=st.layers[st.layers.length-1]||DEF.layers[0];st.layers.push(Object.assign({},last,{n:last.n+' 2'}));renderLayers();calc();});
+}
+function setState(){document.querySelectorAll('#m-state button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===st.state)));}
+
+function renderLayers(){
+  const tb=document.querySelector('#m-layers tbody');
+  const opts=k=>'<option value="">Oma</option>'+Object.keys(PRESETS).map(p=>`<option value="${p}"${p===k?' selected':''}>${PRESETS[p].n}</option>`).join('');
+  tb.innerHTML=st.layers.map((L,i)=>`<tr data-i="${i}">
+    <td class="l"><select data-k="pre" id="ml-pre-${i}">${opts(L.pre)}</select></td>
+    <td class="l"><input type="text" data-k="n" id="ml-n-${i}" value="${esc(L.n)}"></td>
+    <td><input type="number" step="0.1" min="0" data-k="h" id="ml-h-${i}" value="${L.h}"></td>
+    <td><input type="number" step="0.5" data-k="g" id="ml-g-${i}" value="${L.g}"></td>
+    <td><input type="number" step="0.5" data-k="gp" id="ml-gp-${i}" value="${L.gp}"></td>
+    <td><input type="number" step="1" min="0" max="50" data-k="phi" id="ml-phi-${i}" value="${L.phi}"></td>
+    <td><input type="number" step="1" min="0" data-k="c" id="ml-c-${i}" value="${L.c}"></td>
+    <td><input type="number" step="0.1" min="1" data-k="ocr" id="ml-ocr-${i}" value="${L.ocr}"></td>
+    <td>${st.layers.length>1?`<button type="button" class="btn x no-print" data-del="${i}" aria-label="Poista kerros">✕</button>`:''}</td></tr>`).join('');
+  tb.querySelectorAll('input,select').forEach(el=>{
+    const i=+el.closest('tr').dataset.i,k=el.dataset.k;
+    el.addEventListener(el.tagName==='SELECT'?'change':'input',()=>{
+      const L=st.layers[i];
+      if(k==='pre'){L.pre=el.value;if(PRESETS[el.value]){const P=PRESETS[el.value];Object.assign(L,{n:P.n,g:P.g,gp:P.gp,phi:P.phi,c:P.c});renderLayers();}}
+      else if(k==='n') L.n=el.value;
+      else {L[k]=num(el.value,L[k]); if(k!=='h'&&k!=='ocr'){L.pre='';el.closest('tr').querySelector('select').value='';}}
+      calc();
+    });
+  });
+  tb.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{st.layers.splice(+b.dataset.del,1);renderLayers();calc();}));
+}
+
+/* ---------- Maanpainekertoimet ---------- */
+/* SFS-EN 1997-1 liite C.2 (θ = 0, pystysuora seinä). Kaavat ovat passiivipaineelle;
+   aktiivipaineessa φ ja δ korvataan arvoilla −φ ja −δ. Palauttaa seinää vastaan kohtisuorat kertoimet. */
+function annexC(phiD,delD,betaD){
+  const phi=phiD*DEG,del=delD*DEG,b=betaD*DEG,sp=Math.sin(phi);
+  const a1=-Math.sin(b)/sp,a2=Math.sin(del)/sp;
+  if(Math.abs(a1)>1+1e-9||Math.abs(a2)>1+1e-9) return null;
+  const mt=0.5*(Math.acos(Math.max(-1,Math.min(1,a1)))-phi-b);
+  const mw=0.5*(Math.acos(Math.max(-1,Math.min(1,a2)))-phi-del);
+  const v=mt+b-mw;
+  const Kn=(1+sp*Math.sin(2*mw+phi))/(1-sp*Math.sin(2*mt+phi))*Math.exp(2*v*Math.tan(phi));
+  return {mt:mt/DEG,mw:mw/DEG,v:v/DEG,Kn,Kg:Kn*Math.cos(b)*Math.cos(b),Kq:Kn*Math.cos(b)*Math.cos(b),Kc:(Kn-1)/Math.tan(phi)};
+}
+function coeffs(L){
+  const dk=num(st.dk),beta=st.beta,phi=L.phi;
+  const out={undr:phi<=0.01,phi,del:dk*phi};
+  out.K0=(1-Math.sin(phi*DEG))*Math.sqrt(Math.max(1,L.ocr||1))*(1+Math.sin(beta*DEG));
+  if(out.undr){
+    out.a={Kg:1,Kq:1,Kc:2,Kn:1}; out.p={Kg:1,Kq:1,Kc:2,Kn:1}; out.KpR=1; out.ok=true; return out;
+  }
+  out.a=annexC(-phi,-out.del,beta); out.p=annexC(phi,out.del,beta);
+  out.KpR=Math.pow(Math.tan((45+phi/2)*DEG),2);
+  out.ok=!!(out.a&&out.p);
+  return out;
+}
+
+/* ---------- Laskenta ---------- */
+let R=null;
+function model(){
+  const H=Math.max(0.1,st.H), zw=st.gwon?Math.max(0,st.zw):Infinity, gw=st.gw, q=Math.max(0,st.q);
+  // kerrokset rajattuna korkeuteen H
+  const Ls=[];let top=0;
+  st.layers.forEach((L,i)=>{ if(top>=H-1e-9) return; let bot=top+Math.max(0,L.h); if(i===st.layers.length-1||bot>H) bot=Math.max(bot,H); bot=Math.min(bot,H); if(bot>top+1e-9){Ls.push({L,top,bot,K:coeffs(L),idx:i});} top=bot; });
+  if(top<H-1e-9&&Ls.length){Ls[Ls.length-1].bot=H;}
+  const extended=st.layers.reduce((s,L)=>s+Math.max(0,L.h),0);
+  // tehokas pystyjännitys
+  function sigv(z){let s=0;for(const S of Ls){if(z<=S.top)break;const a=S.top,b=Math.min(z,S.bot);
+      const dry=Math.max(0,Math.min(b,zw)-a), wet=Math.max(0,b-Math.max(a,zw));
+      s+=S.L.g*dry+S.L.gp*wet;}return s;}
+  const uAt=z=>z>zw?gw*(z-zw):0;
+  const state=st.state;
+  // tiivistys
+  const comp={on:st.con&&state!=='p'};
+  if(comp.on){
+    const g1=Ls.length?Ls[0].L.g:18;
+    comp.shm=st.cmode==='own'?Math.max(0,st.p):Math.sqrt(2*Math.max(0,st.P)*g1/Math.PI);
+    comp.g1=g1;
+  }
+  function base(z,S){ // osakomponentit ilman tiivistystä
+    const K=S.K,L=S.L,sv=sigv(z),u=uAt(z);
+    let soil,qp,w=u,Kuse;
+    if(state==='0'){Kuse=K.K0; soil=K.K0*sv; qp=K.K0*q;}
+    else if(K.undr){ // suljettu: kokonaisjännitys
+      const sT=sv+u; w=0; Kuse=1;
+      if(state==='a'){const e0=Math.max(0,sT-2*L.c),e1=Math.max(0,sT+q-2*L.c);soil=e0;qp=e1-e0;}
+      else {soil=sT+2*L.c;qp=q;}
+    } else if(state==='a'){Kuse=K.a.Kg;const b0=K.a.Kg*sv-K.a.Kc*L.c,b1=b0+K.a.Kq*q;soil=Math.max(0,b0);qp=Math.max(0,b1)-Math.max(0,b0);}
+    else {Kuse=K.p.Kg;soil=K.p.Kg*sv+K.p.Kc*L.c;qp=K.p.Kq*q;}
+    return {sv,u,K:Kuse,soil,qp,w};
+  }
+  // hc: syvyys, jossa staattinen paine (ml. q) saavuttaa σhm; zc: jossa Kp·σ'v = σhm
+  if(comp.on){
+    comp.hc=H;comp.zc=0;let zcSet=false;
+    const N=4000;
+    for(let i=0;i<=N;i++){const z=H*i/N;const S=Ls.find(S=>z>=S.top-1e-12&&z<=S.bot+1e-12)||Ls[Ls.length-1];const b=base(z,S);
+      if(!zcSet&&S.K.KpR*b.sv>=comp.shm){comp.zc=z;zcSet=true;}
+      if(b.soil+b.qp>=comp.shm){comp.hc=z;break;}}
+    if(!zcSet) comp.zc=comp.hc;
+  }
+  function at(z,S){
+    const b=base(z,S);let c=0;
+    if(comp.on&&z<=comp.hc+1e-9&&!S.K.undr){const env=Math.min(S.K.KpR*b.sv,comp.shm);c=Math.max(0,env-(b.soil+b.qp));}
+    b.comp=c;b.tot=b.soil+b.qp+c+b.w;return b;
+  }
+  // näytteistys segmenteittäin
+  const cuts=new Set([0,H]);Ls.forEach(S=>{cuts.add(S.top);cuts.add(S.bot);});
+  if(isFinite(zw)&&zw>0&&zw<H)cuts.add(zw);
+  if(comp.on){[comp.zc,comp.hc].forEach(z=>{if(z>0&&z<H)cuts.add(z);});}
+  const cz=[...cuts].sort((a,b)=>a-b);
+  const pts=[];
+  for(let i=0;i<cz.length-1;i++){const a=cz[i],b=cz[i+1];if(b-a<1e-9)continue;
+    const mid=(a+b)/2,S=Ls.find(S=>mid>=S.top&&mid<=S.bot);const n=Math.max(8,Math.ceil(400*(b-a)/H));
+    for(let j=0;j<=n;j++){const z=a+(b-a)*j/n;pts.push(Object.assign({z,S,seg:i},at(z,S)));}}
+  // integrointi
+  const comps=['soil','qp','comp','w'];const F={},M={};comps.concat('tot').forEach(k=>{F[k]=0;M[k]=0;});
+  for(let i=1;i<pts.length;i++){const p0=pts[i-1],p1=pts[i];const dz=p1.z-p0.z;if(dz<=0)continue;
+    comps.concat('tot').forEach(k=>{const a=p0[k],b=p1[k];F[k]+=(a+b)/2*dz;
+      // momentti pohjan suhteen: ∫ e (H−z) dz, lineaarinen e välillä
+      const h0=H-p0.z,h1=H-p1.z;M[k]+=dz*(a*(2*h0+h1)+b*(h0+2*h1))/6;});}
+  const res={};comps.concat('tot').forEach(k=>{res[k]={F:F[k],M:M[k],y:F[k]>1e-9?M[k]/F[k]:NaN};});
+  // avainsyvyydet taulukkoon
+  const keys=[];cz.forEach((z,i)=>{
+    const above=Ls.find(S=>z>S.top+1e-9&&z<=S.bot+1e-9),below=Ls.find(S=>z>=S.top-1e-9&&z<S.bot-1e-9);
+    if(above) keys.push(Object.assign({z,S:above,pos:'y'},at(z,above)));
+    if(below&&(!above||above!==below)) keys.push(Object.assign({z,S:below,pos:'a'},at(z,below)));
+  });
+  return {H,zw,q,Ls,pts,res,keys,comp,state,extended,gw};
+}
+
+/* ---------- Piirto ---------- */
+const COL={soil:'var(--c-soil)',qp:'var(--c-q)',comp:'var(--c-comp)',w:'var(--c-w)',tot:'var(--accent)'};
+const NAME={soil:'Maanpaine',qp:'Pintakuorma q',comp:'Tiivistyslisä',w:'Vedenpaine',tot:'Yhteensä'};
+const SHORT={soil:'E maa',qp:'E q',comp:'E tiiv',w:'E vesi',tot:'ΣE'};
+const LAYCOL=['#6e5e49','#5d6650','#6a5a5f','#55606a','#6d6650','#5e5348'];
+const T=(x,y,s,o='')=>`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" ${o}>${s}</text>`;
+
+function drawSection(m){
+  const W=360,Ht=560,top=70,bot=520,sc=(bot-top)/m.H,Y=z=>top+z*sc;
+  const wx0=78,wx1=104,sx1=350;
+  let s='';
+  // kerrokset
+  const tb=Math.tan(Math.max(-60,Math.min(60,st.beta))*DEG);
+  m.Ls.forEach((S,i)=>{const y0=Y(S.top),y1=Y(S.bot);
+    s+=`<rect x="${wx1}" y="${y0}" width="${sx1-wx1}" height="${y1-y0}" fill="${LAYCOL[S.idx%LAYCOL.length]}" />`;
+    if(i>0) s+=`<line x1="${wx1}" x2="${sx1}" y1="${y0}" y2="${y0}" stroke="#2a2a2a" stroke-width="1"/>`;
+    const L=S.L,hpx=y1-y0;
+    if(hpx>=16) s+=T(wx1+10,y0+16,esc(L.n),'font-size="13" font-weight="700" fill="#f1ede6"');
+    if(hpx>=34) s+=T(wx1+10,y0+32,`γ ${f(L.g,1)} / γ' ${f(L.gp,1)} · φ' ${f(L.phi,0)}°${L.c?` · c ${f(L.c,0)}`:''}`,'font-size="11.5" fill="#ddd6cb"');
+    if(hpx>=50) s+=T(wx1+10,y0+47,`h = ${f(S.bot-S.top,2)} m`,'font-size="11.5" fill="#ddd6cb"');
+  });
+  // kalteva maanpinta: kolmio pinnan yläpuolelle
+  if(Math.abs(st.beta)>0.1){const dy=tb*(sx1-wx1);const L0=m.Ls[0];
+    if(dy>0) s+=`<polygon points="${wx1},${top} ${sx1},${top-Math.min(dy,60)} ${sx1},${top}" fill="${LAYCOL[(L0?L0.idx:0)%LAYCOL.length]}"/>`;
+    s+=`<line x1="${wx1}" y1="${top}" x2="${sx1}" y2="${top-Math.max(-40,Math.min(dy,60))}" stroke="var(--ink)" stroke-width="1.6"/>`;
+    s+=T(sx1-6,top-Math.min(Math.max(dy,0),60)-6,`β = ${f(st.beta,0)}°`,'font-size="12" text-anchor="end" fill="var(--muted)"');
+  } else s+=`<line x1="${wx1}" y1="${top}" x2="${sx1}" y2="${top}" stroke="var(--ink)" stroke-width="1.6"/>`;
+  // pintakuorma
+  if(m.q>0){const yq=top-(st.beta>0?Math.min(tb*(sx1-wx1),60):0);
+    const y0=Math.min(top,yq)-34;
+    s+=`<line x1="${wx1+8}" x2="${sx1-6}" y1="${y0}" y2="${y0}" stroke="var(--c-q)" stroke-width="1.6"/>`;
+    for(let x=wx1+14;x<=sx1-6;x+=24){const yy=top-(st.beta>0?Math.min(tb*(x-wx1),60):0);s+=`<line x1="${x}" x2="${x}" y1="${y0}" y2="${yy-6}" stroke="var(--c-q)" stroke-width="1.4"/><polygon points="${x},${yy-1} ${x-3.5},${yy-8} ${x+3.5},${yy-8}" fill="var(--c-q)"/>`;}
+    s+=T(wx1+10,y0-7,`q = ${f(m.q,1)} kPa`,'font-size="12.5" fill="var(--c-q)" font-weight="700"');
+  }
+  // pohjavesi
+  if(isFinite(m.zw)&&m.zw<m.H){const yw=Y(m.zw);
+    s+=`<line x1="${wx1}" x2="${sx1}" y1="${yw}" y2="${yw}" stroke="var(--c-w)" stroke-width="1.6" stroke-dasharray="7 4"/>`;
+    s+=`<polygon points="${sx1-40},${yw-1} ${sx1-48},${yw-11} ${sx1-32},${yw-11}" fill="none" stroke="var(--c-w)" stroke-width="1.5"/>`;
+    s+=`<line x1="${sx1-46}" x2="${sx1-34}" y1="${yw+4}" y2="${yw+4}" stroke="var(--c-w)" stroke-width="1.2"/><line x1="${sx1-43}" x2="${sx1-37}" y1="${yw+8}" y2="${yw+8}" stroke="var(--c-w)" stroke-width="1.2"/>`;
+    s+=T(sx1-54,yw-3,`GWL −${f(m.zw,2)}`,'font-size="12" text-anchor="end" fill="var(--c-w)" font-weight="700"');
+  }
+  // seinä ja anturan viite
+  s+=`<rect x="${wx0}" y="${top-6}" width="${wx1-wx0}" height="${bot-top+6}" fill="#9a9893" stroke="#c9c6bf" stroke-width="1"/>`;
+  s+=`<rect x="${wx0-34}" y="${bot}" width="${wx1-wx0+80}" height="16" fill="#9a9893" stroke="#c9c6bf" stroke-width="1"/>`;
+  // mittaviiva H
+  const dx=28;
+  s+=`<line x1="${dx}" x2="${dx}" y1="${top}" y2="${bot}" stroke="var(--muted)" stroke-width="1"/>`;
+  [top,bot].forEach(y=>{s+=`<line x1="${dx-6}" x2="${dx+6}" y1="${y+6}" y2="${y-6}" stroke="var(--muted)" stroke-width="1.3"/><line x1="${dx}" x2="${wx0-2}" y1="${y}" y2="${y}" stroke="var(--muted)" stroke-width=".6" stroke-dasharray="2 3"/>`;});
+  s+=T(dx-6,(top+bot)/2,`H = ${f(m.H,2)} m`,`font-size="12.5" fill="var(--ink)" text-anchor="middle" transform="rotate(-90 ${dx-6} ${(top+bot)/2})"`);
+  $('m-sec').innerHTML=s;
+}
+
+function drawDiagram(m){
+  const top=70,bot=520,sc=(bot-top)/m.H,Y=z=>top+z*sc;
+  const ax=62,maxW=300;
+  const emax=Math.max(1e-6,...m.pts.map(p=>p.tot));
+  const X=e=>ax+e/emax*maxW;
+  let s='';
+  // syvyysakseli
+  const step=m.H<=2?0.25:m.H<=5?0.5:m.H<=10?1:2;
+  for(let z=0;z<=m.H+1e-9;z+=step){const y=Y(z);s+=`<line x1="${ax-5}" x2="${ax}" y1="${y}" y2="${y}" stroke="var(--muted)"/><line x1="${ax}" x2="${ax+maxW}" y1="${y}" y2="${y}" stroke="var(--line2)" stroke-width=".7"/>`+T(ax-8,y+4,f(z,step<0.5?2:1),'font-size="11.5" text-anchor="end" fill="var(--muted)"');}
+  s+=T(ax-8,top-14,'z [m]','font-size="11.5" text-anchor="end" fill="var(--muted)"');
+  // pinot: soil → qp → comp → w
+  const order=['soil','qp','comp','w'];
+  let acc=m.pts.map(()=>0);
+  order.forEach(k=>{const nx=m.pts.map((p,i)=>acc[i]+p[k]);
+    if(m.res[k].F>1e-6){let d='M';const fw=m.pts.map((p,i)=>X(nx[i]).toFixed(1)+','+Y(p.z).toFixed(1));const bw=m.pts.map((p,i)=>X(acc[i]).toFixed(1)+','+Y(p.z).toFixed(1)).reverse();
+      s+=`<polygon points="${fw.join(' ')} ${bw.join(' ')}" fill="${COL[k]}" fill-opacity=".55" stroke="${COL[k]}" stroke-width=".8"/>`;}
+    acc=nx;});
+  s+=`<polyline points="${m.pts.map(p=>X(p.tot).toFixed(1)+','+Y(p.z).toFixed(1)).join(' ')}" fill="none" stroke="var(--ink)" stroke-width="1.6"/>`;
+  // seinälinja ja pohja
+  s+=`<line x1="${ax}" x2="${ax}" y1="${top-8}" y2="${bot+8}" stroke="var(--ink)" stroke-width="2.4"/>`;
+  s+=`<line x1="${ax-14}" x2="${ax+maxW}" y1="${bot}" y2="${bot}" stroke="var(--ink)" stroke-width="1.2"/>`+T(ax+maxW,bot+16,'pohja (y = 0)','font-size="11.5" text-anchor="end" fill="var(--muted)"');
+  // paineiden arvot avainsyvyyksissä
+  const labs=[];m.keys.forEach(k=>{if(k.tot<1e-6&&k.z>0)return;labs.push({y:Y(k.z),x:X(k.tot),t:f(k.tot,1)});});
+  labs.sort((a,b)=>a.y-b.y);let last=-99;
+  labs.forEach(l=>{let y=Math.max(l.y+4,last+13);if(y>bot+4)y=bot+4;last=y;s+=T(l.x+5,y,l.t,'font-size="11" fill="var(--ink)" paint-order="stroke" stroke="var(--bg)" stroke-width="3"');});
+  s+=T(ax+maxW,top-14,'e [kPa]','font-size="11.5" text-anchor="end" fill="var(--muted)"');
+  // resultantit
+  const items=['soil','qp','comp','w','tot'].filter(k=>m.res[k].F>1e-4&&isFinite(m.res[k].y));
+  const lx=ax+maxW+22;
+  const yy=items.map(k=>({k,y:bot-m.res[k].y*sc}));
+  // tekstien sijoittelu ilman päällekkäisyyttä
+  const sorted=yy.slice().sort((a,b)=>a.y-b.y);let prev=top-30;
+  sorted.forEach(o=>{o.ly=Math.max(o.y,prev+34);prev=o.ly;});
+  const over=prev-(bot+10);if(over>0)sorted.forEach(o=>{o.ly-=over;});
+  sorted.forEach(o=>{const r=m.res[o.k],tot=o.k==='tot';const c=COL[o.k];const len=tot?110:80;
+    s+=`<line x1="${ax+len}" x2="${ax+9}" y1="${o.y}" y2="${o.y}" stroke="var(--bg)" stroke-width="${tot?6:5}"/>`;
+    s+=`<line x1="${ax+len}" x2="${ax+9}" y1="${o.y}" y2="${o.y}" stroke="${c}" stroke-width="${tot?3.2:2.4}"/><polygon points="${ax+1},${o.y} ${ax+12},${o.y-5.5} ${ax+12},${o.y+5.5}" fill="${c}"/>`;
+    s+=`<line x1="${ax+len}" x2="${lx-4}" y1="${o.y}" y2="${o.ly-4}" stroke="${c}" stroke-width=".8" stroke-dasharray="3 3"/>`;
+    s+=T(lx,o.ly-8,`${SHORT[o.k]} = ${f(r.F,1)} kN/m`,`font-size="12.5" font-weight="700" fill="${c}"`);
+    s+=T(lx,o.ly+8,`y = ${f(r.y,2)} m pohjasta`,'font-size="11.5" fill="var(--muted)"');
+  });
+  // mittaviiva kokonaisresultantin korkeudelle
+  if(m.res.tot.F>1e-4){const yt=bot-m.res.tot.y*sc,dx=ax+maxW+8;
+    s+=`<line x1="${dx}" x2="${dx}" y1="${yt}" y2="${bot}" stroke="var(--accent)" stroke-width="1"/>`;
+    [yt,bot].forEach(y=>{s+=`<line x1="${dx-5}" x2="${dx+5}" y1="${y+5}" y2="${y-5}" stroke="var(--accent)" stroke-width="1.3"/>`;});}
+  $('m-dia').innerHTML=s;
+  $('m-legend').innerHTML=['soil','qp','comp','w'].filter(k=>m.res[k].F>1e-6).map(k=>`<span><i class="sw" style="background:${COL[k]}"></i>${NAME[k]}</span>`).join('')+'<span><i class="sw" style="background:var(--accent)"></i>Resultantti ΣE</span>';
+}
+
+/* ---------- Taulukot ---------- */
+function tables(m){
+  const kfi=num(st.kfi,1),pas=m.state==='p';
+  const comps=['soil','comp','w','qp'];
+  const isQ=k=>k==='qp';
+  let h='<thead><tr><th class="l">Kuorma</th><th>Tyyppi</th><th>E<sub>k</sub><br><small>kN/m</small></th><th>y<br><small>m pohjasta</small></th><th>M<sub>k</sub> pohjassa<br><small>kNm/m</small></th>';
+  if(pas) h+='<th>R<sub>d</sub> = E<sub>k</sub>/1,4<br><small>kN/m</small></th>';
+  else h+='<th>6.10a<br><small>kN/m</small></th><th>6.10b<br><small>kN/m</small></th><th>M<sub>d</sub> (määr.)<br><small>kNm/m</small></th>';
+  h+='</tr></thead><tbody>';
+  let A=0,B=0,MA=0,MB=0;
+  comps.forEach(k=>{const r=m.res[k];if(r.F<1e-6)return;
+    const fa=isQ(k)?0:1.35*kfi,fb=isQ(k)?1.5*kfi:1.15*kfi;A+=fa*r.F;B+=fb*r.F;MA+=fa*r.M;MB+=fb*r.M;
+    h+=`<tr><td class="l"><i class="sw" style="background:${COL[k]}"></i>${NAME[k]}</td><td>${isQ(k)?'Q (muuttuva)':'G (pysyvä)'}</td><td>${f(r.F,2)}</td><td>${f(r.y,2)}</td><td>${f(r.M,2)}</td>`;
+    h+=pas?`<td>${f(r.F/1.4,2)}</td>`:`<td>${f(fa*r.F,2)}</td><td>${f(fb*r.F,2)}</td><td></td>`;h+='</tr>';});
+  const T0=m.res.tot,gov=MA>=MB?'a':'b';
+  h+=`<tr class="tot"><td class="l">Yhteensä ΣE</td><td></td><td>${f(T0.F,2)}</td><td>${f(T0.y,2)}</td><td>${f(T0.M,2)}</td>`;
+  h+=pas?`<td>${f(T0.F/1.4,2)}</td>`:`<td>${f(A,2)}</td><td>${f(B,2)}</td><td>${f(Math.max(MA,MB),2)} (6.10${gov})</td>`;h+='</tr>';
+  if(!pas){h+=`<tr class="sub"><td class="l">Mitoitusresultantin korkeus</td><td></td><td></td><td></td><td></td><td>y = ${f(A>0?MA/A:NaN,2)} m</td><td>y = ${f(B>0?MB/B:NaN,2)} m</td><td></td></tr>`;}
+  h+='</tbody>';
+  $('m-res').innerHTML=h;
+  const dk=num(st.dk),del=m.state==='0'?0:dk*(m.Ls[0]?m.Ls[0].L.phi:0);
+  const Ev=(m.res.soil.F+m.res.qp.F+m.res.comp.F)*Math.tan(del*DEG);
+  $('m-resnote').innerHTML=(m.state!=='0'&&dk>0?`Maanpaineen pystykomponentti seinäkitkasta (ylimmän kerroksen δ = ${f(del,1)}°): E<sub>v</sub> ≈ ${f(Ev,2)} kN/m ${m.state==='a'?'alaspäin':'ylöspäin'} seinää pitkin. `:'')+
+    `M<sub>k</sub> = E<sub>k</sub>·y on taivutusmomentti seinän pohjassa ulokkeena toimivalle seinälle. Mitoitusarvoissa on käytetty kertoimia K<sub>FI</sub> = ${f(kfi,1)}.`;
+
+  // KPI
+  $('m-kpis').innerHTML=[
+    ['Tila',{'0':'Lepopaine','a':'Aktiivipaine','p':'Passiivipaine'}[m.state]],
+    ['ΣE<sub>k</sub>',f(T0.F,1)+' kN/m',1],['Resultantin korkeus y',f(T0.y,2)+' m'],['M<sub>k</sub> pohjassa',f(T0.M,1)+' kNm/m'],
+    pas?['R<sub>d</sub> (γ<sub>R;e</sub> = 1,4)',f(T0.F/1.4,1)+' kN/m']:['ΣE<sub>d</sub> (määr.)',f(gov==='a'?A:B,1)+' kN/m · 6.10'+gov],
+    ['e<sub>max</sub>',f(Math.max(...m.pts.map(p=>p.tot)),1)+' kPa']
+  ].map(x=>`<div class="kpi${x[2]?' hl':''}"><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div>`).join('');
+
+  // painejakauma
+  let t='<thead><tr><th>z<br><small>m</small></th><th>y<br><small>m pohjasta</small></th><th class="l">Kerros</th><th>σ\'<sub>v</sub><br><small>kPa</small></th><th>K</th><th>e<sub>maa</sub><br><small>kPa</small></th><th>e<sub>q</sub><br><small>kPa</small></th>'+(m.comp.on?'<th>e<sub>tiiv</sub><br><small>kPa</small></th>':'')+'<th>u<br><small>kPa</small></th><th>e<sub>yht</sub><br><small>kPa</small></th></tr></thead><tbody>';
+  m.keys.forEach(k=>{t+=`<tr><td>${f(k.z,2)}</td><td>${f(m.H-k.z,2)}</td><td class="l">${esc(k.S.L.n)}${k.pos==='y'&&Math.abs(k.z-k.S.bot)<1e-6&&k.z<m.H-1e-6?' <span class="small">(alapinta)</span>':''}</td><td>${f(k.sv,1)}</td><td>${f(k.K,3)}</td><td>${f(k.soil,2)}</td><td>${f(k.qp,2)}</td>${m.comp.on?`<td>${f(k.comp,2)}</td>`:''}<td>${f(k.w,2)}</td><td><b>${f(k.tot,2)}</b></td></tr>`;});
+  $('m-tab').innerHTML=t+'</tbody>';
+}
+
+function calcSteps(m){
+  const row=(d,x)=>`<div class="row"><span class="d">${d}</span><span class="f">${x}</span></div>`;
+  let h='';
+  m.Ls.forEach(S=>{const K=S.K,L=S.L;
+    h+=`<h4>${esc(L.n)} (z = ${f(S.top,2)}…${f(S.bot,2)} m)</h4>`;
+    h+=row('Lepopaine',`K<sub>0</sub> = (1 − sin ${f(L.phi,1)}°)·√${f(L.ocr||1,2)}·(1 + sin ${f(st.beta,1)}°) = <b>${f(K.K0,3)}</b>`);
+    if(K.undr){h+=row('Suljettu tila (φ = 0)',`e<sub>a</sub> = σ<sub>v</sub> + q − 2c<sub>u</sub> ≥ 0 · e<sub>p</sub> = σ<sub>v</sub> + q + 2c<sub>u</sub> (c<sub>u</sub> = ${f(L.c,1)} kPa)`);return;}
+    if(!K.ok){h+=row('Virhe','Liitteen C menettely ei ole voimassa: edellyttää β ≤ φ\' ja δ ≤ φ\'.');return;}
+    const a=K.a,p=K.p;
+    h+=row('Seinäkitka',`δ = ${f(num(st.dk),3)}·φ' = ${f(K.del,2)}°`);
+    h+=row('Aktiivi (liite C, −φ, −δ)',`m<sub>t</sub> = ${f(a.mt,2)}°, m<sub>w</sub> = ${f(a.mw,2)}°, v = ${f(a.v,2)}° → K<sub>n</sub> = ${f(a.Kn,4)}`);
+    h+=row('',`K<sub>aγ</sub> = K<sub>n</sub>cos²β = <b>${f(a.Kg,3)}</b> · K<sub>aq</sub> = <b>${f(a.Kq,3)}</b> · K<sub>ac</sub> = (K<sub>n</sub> − 1)cot φ = <b>${f(a.Kc,3)}</b>`);
+    h+=row('Passiivi (liite C)',`m<sub>t</sub> = ${f(p.mt,2)}°, m<sub>w</sub> = ${f(p.mw,2)}°, v = ${f(p.v,2)}° → K<sub>n</sub> = ${f(p.Kn,4)}`);
+    h+=row('',`K<sub>pγ</sub> = <b>${f(p.Kg,3)}</b> · K<sub>pq</sub> = <b>${f(p.Kq,3)}</b> · K<sub>pc</sub> = <b>${f(p.Kc,3)}</b>`);
+    h+=row('Vertailu (Rankine, δ = β = 0)',`K<sub>a</sub> = tan²(45° − φ'/2) = ${f(Math.pow(Math.tan((45-L.phi/2)*DEG),2),3)} · K<sub>p</sub> = ${f(K.KpR,3)}`);
+  });
+  h+='<h4>Paineen laskenta</h4>';
+  const sname={'0':'e = K<sub>0</sub>(σ\'<sub>v</sub> + q) + u','a':'e = max(0; K<sub>aγ</sub>σ\'<sub>v</sub> + K<sub>aq</sub>q − K<sub>ac</sub>c\') + u','p':'e = K<sub>pγ</sub>σ\'<sub>v</sub> + K<sub>pq</sub>q + K<sub>pc</sub>c\' + u'}[m.state];
+  h+=row('Paine syvyydellä z',sname);
+  h+=row('Tehokas pystyjännitys','σ\'<sub>v</sub> = Σ γ·Δz (GWL:n yläpuolella) + Σ γ\'·Δz (alapuolella)');
+  if(isFinite(m.zw)) h+=row('Vedenpaine',`u = γ<sub>w</sub>(z − z<sub>w</sub>) = ${f(m.gw,2)}·(z − ${f(m.zw,2)})`);
+  if(m.comp.on){
+    h+=`<h4>Tiivistyslisä</h4>`;
+    if(st.cmode==='ingold') h+=row('Ingold',`σ'<sub>h,m</sub> = √(2·P·γ/π) = √(2·${f(st.P,1)}·${f(m.comp.g1,1)}/π) = <b>${f(m.comp.shm,2)} kPa</b>`);
+    else h+=row('Oma tiivistyslisä',`σ'<sub>h,m</sub> = p = <b>${f(m.comp.shm,2)} kPa</b>`);
+    h+=row('Kriittinen syvyys',`z<sub>c</sub> (K<sub>p</sub>σ'<sub>v</sub> = σ'<sub>h,m</sub>) = ${f(m.comp.zc,2)} m`);
+    h+=row('Vaikutussyvyys',`h<sub>c</sub> (staattinen paine = σ'<sub>h,m</sub>) = ${f(m.comp.hc,2)} m`);
+    h+=row('Verhokäyrä','e = max(e<sub>staattinen</sub>; min(K<sub>p</sub>σ\'<sub>v</sub>; σ\'<sub>h,m</sub>)), kun z ≤ h<sub>c</sub>');
+  }
+  h+='<h4>Resultantit</h4>';
+  h+=row('Voima ja korkeus','E = ∫e dz · y = ∫e·(H − z) dz / E (numeerinen integrointi, kerros- ja GWL-rajat tarkasti)');
+  $('m-calc').innerHTML=h;
+}
+
+function warnings(m){
+  const w=[];
+  m.Ls.forEach(S=>{if(!S.K.ok)w.push(`${esc(S.L.n)}: maanpinnan kaltevuus β = ${f(st.beta,0)}° tai seinäkitka ylittää φ' = ${f(S.L.phi,0)}°. Liitteen C menettely ei ole voimassa.`);});
+  if(m.extended>m.H+1e-6) w.push(`Kerrosten yhteispaksuus ${f(m.extended,2)} m ylittää seinän korkeuden. Pohjan alapuoliset kerrokset jätetään pois.`);
+  else if(m.extended<m.H-1e-6) w.push(`Kerrosten yhteispaksuus on ${f(m.extended,2)} m. Viimeinen kerros jatkuu seinän pohjaan (${f(m.H,2)} m).`);
+  if(st.con&&m.state==='p') w.push('Tiivistyslisää ei oteta huomioon passiivipaineessa.');
+  if(m.state==='0'&&num(st.dk)>0) w.push('Lepopaineessa seinäkitkaa ei oteta huomioon (δ = 0).');
+  if(m.state==='0'&&Math.abs(st.beta)>0) w.push('Kaltevalla maanpinnalla lepopaine K<sub>0;β</sub> vaikuttaa EN 1997-1:n mukaan maanpinnan suuntaisesti. Laskurissa se on otettu huomioon vaakasuorana.');
+  $('m-warn').innerHTML=w.join('<br>');
+  $('m-Pwrap').style.display=st.cmode==='ingold'?'':'none';
+  $('m-pwrap').style.display=st.cmode==='own'?'':'none';
+  $('m-statehint').innerHTML={'0':'Liikkumaton seinä, esim. kellarin seinä tai ylhäältä tuettu seinä (9.5.2).','a':'Seinä pääsee siirtymään maasta poispäin, esim. ulokemuuri (9.5.3).','p':'Seinä painuu maata vasten, esim. kaivannon puolen tuki (9.5.3). Passiivipaine on kestävyys.'}[st.state];
+}
+
+function calc(){
+  save();
+  try{R=model();}catch(e){console.error(e);return;}
+  warnings(R);
+  if(!R.Ls.length) return;
+  drawSection(R);drawDiagram(R);tables(R);calcSteps(R);
+}
+
+bindForm();renderLayers();calc();
+})();
+</script>
+</body>
+</html>

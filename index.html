@@ -37,6 +37,8 @@
       width: 100%;
       height: auto;
     }
+    /* Hillitty logo: pienempi ja himmeämpi, ettei vie huomiota työkaluilta */
+    .stage > .logo { width: 62%; opacity: .8; margin-top: 1rem; }
     .bar {
       width: 100%;
       height: auto;
@@ -96,6 +98,7 @@
     .topics li.live:hover { background: #3b2e27; }
     .topics li.live a:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 2px; }
     .logo .word { fill: var(--fg); }
+    .stage > .logo .word { fill: #a9a59e; }
     .logo .accent { fill: var(--accent); }
     .disclaimer {
       box-sizing: border-box;
@@ -124,7 +127,7 @@
     @media (min-width: 900px) {
       body { place-items: start center; }
       .stage { width: min(88vw, 1160px); padding-top: 4vh; }
-      .stage > .logo { width: 74%; }
+      .stage > .logo { width: 40%; }
       .bar { width: 92%; margin-top: -4.5%; }
       .topics { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 2rem 0 1.8rem; }
       .topics li { display: flex; align-items: center; min-height: 92px; padding: 1rem 1.15rem; transition: background .15s, transform .15s; }

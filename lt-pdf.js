@@ -15,7 +15,7 @@
 (function () {
   'use strict';
   var PREFIX = 'LTPDF1:', END = ':END', HASH = '#ltpdf=';
-  var SKIP_LS = { 'lt-auth': 1, 'lt-paluu': 1 };
+  var SKIP_LS = { 'lt-auth': 1, 'lt-paluu': 1, 'lt-projekti': 1 };
   var PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/';
 
   // ---- localStorage-avainten seuranta ----
@@ -107,7 +107,56 @@
   window.addEventListener('beforeprint', function () {
     if (locked()) return;
     if (stale || !current) { var st = collect(); current = encodeSync(st); render(current, st); }
+    printTitle();
   });
+  window.addEventListener('afterprint', function () { if (savedTitle !== null) { document.title = savedTitle; savedTitle = null; } });
+
+  // ---- Projektin tiedot (projekti, suunnittelija) tulosteeseen ----
+  // Arvot ovat yhteiset kaikille työkaluille (localStorage 'lt-projekti') ja
+  // tallentuvat myös PDF:n laskentatietoihin. Tulosteesta poistetaan sivuston nimi.
+  var PROJ = 'lt-projekti', savedTitle = null;
+  function projGet() { try { return JSON.parse(localStorage.getItem(PROJ) || '{}') || {}; } catch (e) { return {}; } }
+  function projSave() {
+    var p = document.getElementById('lt-proj-p'), d = document.getElementById('lt-proj-s');
+    if (!p || !d) return;
+    try { localStorage.setItem(PROJ, JSON.stringify({ p: p.value, s: d.value })); } catch (e) {}
+    projMark();
+  }
+  function projMark() {
+    var box = document.getElementById('lt-proj'); if (!box) return;
+    var p = document.getElementById('lt-proj-p').value.trim(), d = document.getElementById('lt-proj-s').value.trim();
+    box.classList.toggle('lt-proj-empty', !p && !d);
+    box.classList.toggle('lt-proj-nop', !p);
+    box.classList.toggle('lt-proj-nos', !d);
+    document.documentElement.classList.toggle('lt-has-designer', !!d);
+    var dt = box.querySelector('.lt-proj-date'); if (dt) dt.textContent = new Date().toLocaleDateString('fi-FI');
+  }
+  function addProject() {
+    if (document.getElementById('lt-proj')) return;
+    var hr = document.querySelector('.hdr-r'), anchor = hr ? (hr.closest('header') || hr.parentNode) : null;
+    var box = document.createElement('div');
+    box.id = 'lt-proj';
+    box.innerHTML =
+      '<label class="lt-proj-f lt-proj-fp"><span>Projekti</span><input type="text" id="lt-proj-p" autocomplete="off" placeholder="Projektin nimi"></label>' +
+      '<label class="lt-proj-f lt-proj-fs"><span>Suunnittelija</span><input type="text" id="lt-proj-s" autocomplete="name" placeholder="Suunnittelijan nimi"></label>' +
+      '<span class="lt-proj-f lt-proj-fd"><span>Päiväys</span><b class="lt-proj-date"></b></span>';
+    if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(box, anchor.nextSibling);
+    else document.body.insertBefore(box, document.body.firstChild);
+    var v = projGet();
+    document.getElementById('lt-proj-p').value = v.p || '';
+    document.getElementById('lt-proj-s').value = v.s || '';
+    box.addEventListener('input', projSave);
+    box.addEventListener('change', projSave);
+    projMark();
+  }
+  function cleanTitle(t) { return String(t || '').replace(/\s*[–—-]\s*Lastutec\s*$/i, '').replace(/^\s*Lastutec\s*[–—-]\s*/i, '').trim(); }
+  function printTitle() {
+    if (savedTitle === null) savedTitle = document.title;
+    var p = document.getElementById('lt-proj-p'), name = p ? p.value.trim() : '';
+    var t = cleanTitle(savedTitle);
+    document.title = name ? name + ' – ' + t : t;
+    projMark();
+  }
 
   // ---- Tilan palautus ----
   var PENDING = 'lt-pdf-pending';
@@ -212,7 +261,7 @@
       var code = findCode(s);
       return code || readWithPdfjs(buf);
     }).then(function (code) {
-      if (!code) throw new Error('PDF:stä ei löytynyt Lastutecin laskentatietoja. Tuoda voi vain PDF:n, joka on tulostettu Tulosta PDF -napilla tämän päivityksen jälkeen.');
+      if (!code) throw new Error('PDF:stä ei löytynyt laskentatietoja. Tuoda voi vain PDF:n, joka on tulostettu Tulosta PDF -napilla tämän päivityksen jälkeen.');
       return decode(code);
     }).then(applyState).catch(function (e) { toast(e && e.message ? e.message : 'PDF:n tuonti epäonnistui.', true); });
   }
@@ -234,7 +283,20 @@
       '#lt-pdf-toast{display:none;position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:9999;max-width:min(560px,calc(100vw - 32px));background:#2e3035;color:#e9e6e0;border:1px solid #82c79f;border-radius:8px;padding:10px 14px;font:600 14px Arial,Helvetica,sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.4)}' +
       '#lt-pdf-toast.bad{border-color:#e8907f}' +
       '.lt-pdf-import{margin-left:0}' +
+      '#lt-proj{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:flex-end;margin:8px 0 12px;font:13px/1.3 Arial,Helvetica,sans-serif}' +
+      '#lt-proj .lt-proj-f{display:flex;flex-direction:column;gap:3px;flex:1 1 200px;min-width:0;max-width:340px}' +
+      '#lt-proj .lt-proj-f>span{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted,#888)}' +
+      '#lt-proj input{width:100%;box-sizing:border-box;font:inherit;font-size:14px;padding:6px 8px;border-radius:6px;border:1px solid var(--line,#555);background:var(--input,transparent);color:var(--ink,inherit)}' +
+      '#lt-proj .lt-proj-fd{display:none}' +
       '@media print{#lt-pdf-toast,.lt-pdf-import{display:none!important}' +
+      '#lt-proj{display:flex!important;gap:4px 24px;align-items:baseline;margin:4px 0 10px;padding:6px 0;border-top:1px solid #bbb;border-bottom:1px solid #bbb;color:#000!important}' +
+      '#lt-proj .lt-proj-f{flex:0 1 auto;max-width:none;flex-direction:row;gap:6px;align-items:baseline}' +
+      '#lt-proj .lt-proj-f>span{color:#444!important}' +
+      '#lt-proj input{border:0!important;padding:0!important;background:none!important;color:#000!important;font-weight:700;font-size:13px;width:auto;field-sizing:content;min-width:2ch}' +
+      '#lt-proj input::placeholder{color:transparent}' +
+      '#lt-proj .lt-proj-fd{display:flex}' +
+      '#lt-proj.lt-proj-nop .lt-proj-fp,#lt-proj.lt-proj-nos .lt-proj-fs{display:none!important}' +
+      'html.lt-has-designer .hdr-r .meta{display:none!important}' +
       '#lt-pdf-data{display:block!important;break-inside:avoid;margin-top:14px;border-top:1px solid #bbb;padding-top:6px;color:#666!important;font:8px/1.3 Arial,Helvetica,sans-serif}' +
       '#lt-pdf-data p{margin:0 0 3px}#lt-pdf-data a{color:#c63a00}' +
       '#lt-pdf-data .lt-pdf-c{font:5px/1.25 "Courier New",monospace;word-break:break-all;overflow-wrap:anywhere;color:#888!important}}';
@@ -257,6 +319,7 @@
   function init() {
     if (locked()) return;
     css();
+    addProject();
     addButton();
     document.addEventListener('input', dirty, true);
     document.addEventListener('change', dirty, true);

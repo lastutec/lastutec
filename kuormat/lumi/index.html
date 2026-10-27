@@ -123,7 +123,6 @@ details.step>.calc{padding:0 12px 10px}
         <div class="chips" id="s-skchips"></div>
         <div class="small" id="s-place">Valitse paikkakunta kartalta tai anna s<sub>k</sub> suoraan.</div>
         <div class="field"><label>Suunniteltu käyttöikä</label><select id="s-life"><option value="50" selected>50 v</option><option value="100">100 v</option></select></div>
-        <div class="field" id="s-Vrow"><label>Lumikuorman variaatiokerroin V</label><span><input type="number" id="s-V" step="0.05" value="0.3"><span class="u"></span></span></div>
         <div class="small" id="s-lifenote"></div>
         <div class="field"><label>Maastotyyppi</label><select id="s-terr"><option value="t">Tuulinen (C<sub>e</sub> = 0,8)</option><option value="n" selected>Normaali (Ce = 1,0)</option><option value="s">Suojainen (Ce = 1,2)</option></select></div>
         <div class="field"><label>Katon lyhyempi sivu L<sub>1</sub></label><span><input type="number" id="s-L1" step="any" value="12"><span class="u">m</span></span></div>
@@ -178,16 +177,13 @@ function bindPersist(ids,fn){ ids.forEach(id=>{ const el=$('#'+id); if(!el) retu
    LUMIKUORMA
    ===================================================================== */
 [2.0,2.5,2.75,3.0,3.5].forEach(v=>{ const b=document.createElement('button'); b.textContent=fmt(v,v%0.5?2:1)+' kN/m²'; b.type='button'; b.onclick=()=>{ $('#s-sk').value=v; $('#s-sk').dispatchEvent(new Event('input')); }; $('#s-skchips').appendChild(b); });
-// suunniteltu käyttöikä → s_k:n muunto toistumisajalle (SFS-EN 1991-1-3 liite D, kaava D.1)
-function lifeSnow(){ const life=$('#s-life').value, V=Math.max(0,num('#s-V')), is100=life==='100';
-  $('#s-Vrow').style.display=is100?'':'none';
-  if(!is100){ $('#s-lifenote').innerHTML='Toistumisaika 50 v (p = 0,02) → s<sub>k</sub> sellaisenaan.'; return {is100,c:1,V,row:''}; }
-  const p=0.01, ll=Math.log(-Math.log(1-p)), a=Math.sqrt(6)/Math.PI;
-  const c=(1-V*a*(ll+0.57722))/(1+2.5923*V);
-  $('#s-lifenote').innerHTML='Käyttöikä 100 v → toistumisaika 100 v (p = 0,01), korotuskerroin <b>'+fmt(c,3)+'</b> (liite D).';
-  const r=row('Suunniteltu käyttöikä 100 v','toistumisaika 100 v, p = 0,01 (sama ylittymistodennäköisyys käyttöiän aikana kuin 50 v / p = 0,02);<br>'+
-    'liite D (D.1): s<sub>n</sub>/s<sub>k</sub> = [1 − V·√6/π·(ln(−ln(1−p)) + 0,57722)]/(1 + 2,5923·V) = [1 − '+fmt(V,2)+'·0,7797·(('+fmt(ll,4)+') + 0,57722)]/(1 + 2,5923·'+fmt(V,2)+') = <b>'+fmt(c,3)+'</b>');
-  return {is100,c,V,p,row:r}; }
+// suunniteltu käyttöikä → s_k:n korotus (SFS-EN 1991-1-3, Suomen kansallinen liite: käyttöikä 100 v → s_k × 1,1)
+function lifeSnow(){ const is100=$('#s-life').value==='100';
+  if(!is100){ $('#s-lifenote').innerHTML='Käyttöikä 50 v → s<sub>k</sub> sellaisenaan.'; return {is100,c:1,row:''}; }
+  const c=1.1;
+  $('#s-lifenote').innerHTML='Käyttöikä 100 v → maan lumikuormaa korotetaan 10 %: kerroin <b>1,10</b> (kansallinen liite).';
+  const r=row('Suunniteltu käyttöikä 100 v','Suomen kansallinen liite (SFS-EN 1991-1-3): käyttöiän ollessa 100 v maan lumikuorman ominaisarvoa korotetaan 10 % → kerroin <b>1,10</b>');
+  return {is100,c,row:r}; }
 function mu1(a,guard){ let m; if(a<=30) m=0.8; else if(a<60) m=0.8*(60-a)/30; else m=0; if(guard) m=Math.max(m,0.8); return m; }
 function mu1txt(a,guard){ if(a<=30) return 'α = '+fmt(a,1)+'° ≤ 30° → μ<sub>1</sub> = 0,8'; if(a<60) return '30° &lt; α = '+fmt(a,1)+'° &lt; 60° → μ<sub>1</sub> = 0,8·(60 − '+fmt(a,1)+')/30 = '+fmt(0.8*(60-a)/30,3)+(guard&&0.8*(60-a)/30<0.8?' → lumiesteet: μ<sub>1</sub> = 0,8':'');
   return 'α = '+fmt(a,1)+'° ≥ 60° → μ<sub>1</sub> = 0'+(guard?' → lumiesteet: μ<sub>1</sub> = 0,8':''); }
@@ -268,7 +264,7 @@ function svgMulti(sV,sR,valley){
   else { for(let i=1;i<4;i++){ const x=xs[i]; blocks+=`<path d="M${x-55},${yb-80} L${x},${yb-80-sV/sm*50} L${x+55},${yb-80} Z" fill="var(--snow)" opacity=".85" stroke="var(--snow-ink)" stroke-width=".8"/>`; } blocks+=`<text x="${xs[2]}" y="${yb-80-sV/sm*50-6}" text-anchor="middle">${fmt(sV,2)} kN/m²</text>`; }
   return `<svg class="diag" viewBox="0 0 ${W} ${H}" role="img" aria-label="Lumikuorma sahakatolla">${blocks}<path d="${p}" fill="none" stroke="var(--ink)" stroke-width="2"/><line x1="40" y1="${yb}" x2="480" y2="${yb}" stroke="var(--muted)" stroke-dasharray="4 3"/></svg>`;
 }
-bindPersist(['s-sk','s-life','s-V','s-terr','s-L1','s-L2','s-Ct','s-gam','s-type','s-a1','s-a2','s-guard'],snowCalc);
+bindPersist(['s-sk','s-life','s-terr','s-L1','s-L2','s-Ct','s-gam','s-type','s-a1','s-a2','s-guard'],snowCalc);
 // paikkakuntakartta
 const lk=window.LumiKartta&&LumiKartta.mount($('#s-map'),{onPick:p=>{ $('#s-sk').value=p.sk; store['s-sk']=String(p.sk); store['s-place']=p.alias||p.name; persist();
   $('#s-place').innerHTML='Paikkakunta: <b>'+esc(p.label)+'</b> → s<sub>k</sub> = '+fmt(p.sk,2)+' kN/m² (kansallisen liitteen kuva 1). Arvoa voi muokata.'; snowCalc(); }});

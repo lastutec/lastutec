@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<script>/* Lastutec: salasanalukitus */(function(){var H='d001e1a9f4b1d38133e70455a3fa6f0389944f7f128850ab571462866285f676',ok=false;try{ok=sessionStorage.getItem('lt-auth')===H||localStorage.getItem('lt-auth')===H;}catch(e){}if(!ok){document.documentElement.style.visibility='hidden';try{sessionStorage.setItem('lt-paluu',location.href);}catch(e){}location.replace('../../');}})();</script>
+<script src="../../lt-pdf.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hattulistan valinta – Lastutec</title>
+<meta name="description" content="KOOLARI-hattulistojen (HTL) valinta kuorman mukaan: seinäorret tuulikuormalle, alakatto-orret katon painolle ja kattokoolaus lumikuormalle. Taipuma (L/200–L/600) ja taivutuskestävyys, yksi- ja kaksiaukkoinen.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111'/%3E%3Ctext x='50' y='72' font-family='Arial,Helvetica,sans-serif' font-size='64' font-weight='900' text-anchor='middle' fill='%23E3824F'%3EL%3C/text%3E%3C/svg%3E">
+<style>
+:root{--bg:#1b1c1f;--paper:#24262a;--ink:#e9e6e0;--muted:#aeaba4;--line:#3d4046;--accent:#E3824F;--body:Arial,Helvetica,sans-serif;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:18px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.back{font:600 13px var(--body);color:var(--accent);text-decoration:none}
+.back:hover{text-decoration:underline}
+header h1{font-weight:800;font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:-.01em}
+.meta{font-size:12px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-left:auto}
+.printbtn{font:600 13px var(--body);color:#111;background:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;cursor:pointer}
+@page{size:A4;margin:12mm}
+@media print{
+  :root{--bg:#fff;--paper:#fff;--ink:#000;--muted:#444;--line:#bbb;--accent:#c63a00;color-scheme:light}
+  html,body{background:#fff!important;color:#000}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printbtn,.back{display:none!important}
+  .wrap{max-width:none;padding:0!important}
+}
+#htl-valinta{
+  --htl-accent:#E3824F; --htl-accent-soft:#3e2c24; --htl-text:#e9e6e0; --htl-muted:#aeaba4;
+  --htl-bg:transparent; --htl-panel:#24262a;  --htl-line:#3d4046; --htl-ok:#82c79f; --htl-ok-soft:#1f2e25;
+  --htl-bad:#e8907f; --htl-bad-soft:#36231f; --htl-warn:#e2c47f; --htl-field:#2c2723; --htl-card:#2e3035;
+  font-family:Arial,Helvetica,sans-serif; color:var(--htl-text);
+  background:var(--htl-bg); max-width:none; margin:0; padding:0; line-height:1.45; font-size:15px;
+}
+#htl-valinta *{box-sizing:border-box}
+#htl-valinta h2{font-size:1.6rem;margin:0 0 4px}
+#htl-valinta h3{font-size:1.1rem;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+#htl-valinta h3 .n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--htl-accent);color:#111;font-size:.9rem}
+#htl-valinta .lead{color:var(--htl-muted);margin:0 0 20px}
+#htl-valinta .panel{background:var(--htl-panel);border:1px solid var(--htl-line);border-radius:10px;padding:18px;margin-bottom:16px}
+#htl-valinta .uses{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+#htl-valinta .use{border:2px solid var(--htl-line);border-radius:6px;background:var(--htl-card);padding:12px 14px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+#htl-valinta .use b{display:block;font-size:1rem}
+#htl-valinta .use span{font-size:.85rem;color:var(--htl-muted)}
+#htl-valinta .use.on{border-color:var(--htl-accent);background:var(--htl-accent-soft)}
+#htl-valinta .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 16px}
+#htl-valinta label.f{display:flex;flex-direction:column;gap:4px;font-size:.88rem;color:var(--htl-muted)}
+#htl-valinta input[type=text],#htl-valinta select{font:inherit;color:var(--htl-text);padding:8px 10px;border:1px solid var(--htl-line);border-radius:4px;background:var(--htl-field);width:100%}
+#htl-valinta input:focus,#htl-valinta select:focus{outline:2px solid var(--htl-accent);outline-offset:1px}
+#htl-valinta .unit{display:flex;align-items:center;gap:6px}
+#htl-valinta .unit span{color:var(--htl-muted);font-size:.85rem;white-space:nowrap}
+#htl-valinta .chk{display:flex;gap:8px;align-items:center;font-size:.9rem;cursor:pointer}
+#htl-valinta .seg{display:inline-flex;border:1px solid var(--htl-line);border-radius:7px;overflow:hidden;margin-bottom:12px}
+#htl-valinta .seg button{font:inherit;border:0;background:var(--htl-card);padding:7px 14px;cursor:pointer;color:var(--htl-text)}
+#htl-valinta .seg button.on{background:var(--htl-accent);color:#111}
+#htl-valinta .hint{font-size:.82rem;color:var(--htl-muted);margin-top:10px}
+#htl-valinta .calc{margin-top:12px;padding:10px 12px;background:var(--htl-card);border:1px dashed var(--htl-line);border-radius:8px;font-size:.9rem}
+#htl-valinta .layers{display:grid;gap:6px}
+#htl-valinta .layer{display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:center;background:var(--htl-card);border:1px solid var(--htl-line);border-radius:7px;padding:6px 10px}
+#htl-valinta .sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+#htl-valinta .kpi{background:var(--htl-card);border:1px solid var(--htl-line);border-radius:8px;padding:10px 12px}
+#htl-valinta .kpi small{display:block;color:var(--htl-muted);font-size:.78rem}
+#htl-valinta .kpi b{font-size:1.15rem}
+#htl-valinta .recs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px}
+#htl-valinta .rec{border:2px solid var(--htl-ok);background:var(--htl-ok-soft);border-radius:10px;padding:14px}
+#htl-valinta .rec.alt{border-color:var(--htl-accent);background:var(--htl-accent-soft)}
+#htl-valinta .rec.none{border-color:var(--htl-bad);background:var(--htl-bad-soft)}
+#htl-valinta .rec small{color:var(--htl-muted);text-transform:uppercase;letter-spacing:.04em;font-size:.72rem}
+#htl-valinta .rec .big{font-size:1.35rem;font-weight:700;margin:2px 0 6px}
+#htl-valinta .rec ul{margin:0;padding-left:18px;font-size:.88rem}
+#htl-valinta .tbl{overflow-x:auto;border:1px solid var(--htl-line);border-radius:8px;background:var(--htl-card)}
+#htl-valinta table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:760px}
+#htl-valinta th,#htl-valinta td{padding:7px 9px;border-bottom:1px solid var(--htl-line);text-align:right;white-space:nowrap}
+#htl-valinta th:first-child,#htl-valinta td:first-child,#htl-valinta th:nth-child(3),#htl-valinta td:nth-child(3){text-align:left}
+#htl-valinta th{background:var(--htl-panel);font-weight:600;position:sticky;top:0}
+#htl-valinta tr.fail td{color:#7d7a74}
+#htl-valinta .bar{display:inline-block;width:70px;height:8px;border-radius:4px;background:var(--htl-line);vertical-align:middle;margin-left:6px;overflow:hidden}
+#htl-valinta .bar i{display:block;height:100%}
+#htl-valinta .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:.78rem;font-weight:600}
+#htl-valinta .tag.ok{background:var(--htl-ok-soft);color:var(--htl-ok)}
+#htl-valinta .tag.no{background:var(--htl-bad-soft);color:var(--htl-bad)}
+#htl-valinta .chart{background:var(--htl-card);border:1px solid var(--htl-line);border-radius:8px;padding:8px;margin-bottom:14px}
+#htl-valinta .chart svg{width:100%;height:auto;display:block}
+#htl-valinta .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.82rem;padding:4px 8px}
+#htl-valinta .legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px}
+#htl-valinta .notes{font-size:.8rem;color:var(--htl-muted)}
+#htl-valinta .notes li{margin-bottom:4px}
+#htl-valinta .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 10px}
+@media (max-width:560px){#htl-valinta{padding:10px}#htl-valinta .panel{padding:14px}}
+@media print{
+  #htl-valinta{--htl-accent:#c63a00;--htl-accent-soft:#fde2d5;--htl-text:#000;--htl-muted:#444;--htl-panel:#fff;--htl-line:#bbb;--htl-ok:#1d6b3a;--htl-ok-soft:#e6f2ea;--htl-bad:#b3261e;--htl-bad-soft:#fbe9e7;--htl-field:#fff;--htl-card:#fff}
+  #htl-valinta .uses .use:not(.on),#htl-valinta .seg button:not(.on){display:none}
+  #htl-valinta .panel,#htl-valinta .rec,#htl-valinta tr{break-inside:avoid}
+  #htl-valinta th{position:static}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="brand"><a href="../" class="back">← Teräsrakenteet</a><h1>Hattulistan valinta</h1></div>
+  <div class="hdr-r"><span class="meta">Työkalu 6 · Laatinut: INS (YAMK) Atte Lastuvirta</span><button type="button" class="printbtn" onclick="window.print()">Tulosta PDF</button></div>
+</header>
+
+<div id="htl-valinta">
+  <p class="lead">Valitse käyttökohde, määritä kuorma ja rakenteen mitat – työkalu laskee, mitkä KOOLARI-hattulistat (HTL) riittävät ja ehdottaa kevyimmän ratkaisun.</p>
+
+  <div class="panel">
+    <h3><span class="n">1</span>Käyttökohde</h3>
+    <div class="uses" id="htl-uses">
+      <button class="use on" data-use="wall"><b>Seinäorsi / julkisivukoolaus</b><span>Mitoittava kuorma: tuulikuorma</span></button>
+      <button class="use" data-use="ceiling"><b>Alakatto-orsi</b><span>Mitoittava kuorma: alakaton paino</span></button>
+      <button class="use" data-use="roof"><b>Kattokoolaus / katto-orsi</b><span>Mitoittava kuorma: lumi + katteen paino</span></button>
+      <button class="use" data-use="custom"><b>Oma kuorma</b><span>Syötä pinta­kuorma itse</span></button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3><span class="n">2</span>Kuorma</h3>
+
+    <!-- SEINÄ / TUULI -->
+    <div data-panel="wall">
+      <div class="seg" id="htl-wmode"><button class="on" data-m="calc">Laske tuulen nopeuspaine</button><button data-m="direct">Syötä qp itse</button></div>
+      <div class="grid">
+        <label class="f wcalc">Maastoluokka
+          <select id="w-terr">
+            <option value="0">0 – meri, rannikko avomerelle</option>
+            <option value="1">I – järvet, avoin tasainen maasto</option>
+            <option value="2" selected>II – maaseutu, matala kasvillisuus</option>
+            <option value="3">III – esikaupunki, metsä, taajama</option>
+            <option value="4">IV – kaupunki, korkea rakennuskanta</option>
+          </select></label>
+        <label class="f wcalc">Rakennuksen korkeus z
+          <div class="unit"><input type="text" inputmode="decimal" id="w-z" value="10"><span>m</span></div></label>
+        <label class="f wdir" style="display:none">Puuskanopeuspaine qp(z)
+          <div class="unit"><input type="text" inputmode="decimal" id="w-qp" value="0,65"><span>kN/m²</span></div></label>
+        <label class="f">Julkisivun alue (ulkoinen painekerroin)
+          <select id="w-zone">
+            <option value="-1.2" selected>A – nurkka-/reuna-alue, imu (cpe −1,2)</option>
+            <option value="-0.8">B – keskialue, imu (cpe −0,8)</option>
+            <option value="0.8">D – tuulen puoli, paine (cpe +0,8)</option>
+            <option value="-0.5">E – suojan puoli, imu (cpe −0,5)</option>
+            <option value="own">Oma nettokerroin</option>
+          </select></label>
+        <label class="f" id="w-ownwrap" style="display:none">Nettopainekerroin |c|
+          <input type="text" inputmode="decimal" id="w-own" value="1,4"></label>
+        <label class="f" id="w-cpiwrap">Sisäinen painekerroin
+          <select id="w-cpi">
+            <option value="std" selected>cpi +0,2 / −0,3 (oletus)</option>
+            <option value="0">cpi = 0 (tiivis rakenne)</option>
+          </select></label>
+      </div>
+      <div class="calc" id="w-out"></div>
+      <div class="hint">Tuulen perusnopeus Suomessa v<sub>b</sub> = 21 m/s (EN 1991-1-4 + kansallinen liite). Mitoita reuna-alueet (A) erikseen – niillä tarvitaan usein tiheämpi orsijako.</div>
+    </div>
+
+    <!-- ALAKATTO -->
+    <div data-panel="ceiling" style="display:none">
+      <div class="layers" id="c-layers"></div>
+      <div class="grid" style="margin-top:12px">
+        <label class="f">Muu lisäkuorma (valaisimet, kanavat ym.)
+          <div class="unit"><input type="text" inputmode="decimal" id="c-extra" value="10"><span>kg/m²</span></div></label>
+      </div>
+      <div class="calc" id="c-out"></div>
+      <div class="hint">Merkitse kerrokset, jotka orret kantavat. Painot ovat tyypillisiä arvoja – tarkista valmistajan tiedoista.</div>
+    </div>
+
+    <!-- KATTO / LUMI -->
+    <div data-panel="roof" style="display:none">
+      <div class="grid">
+        <label class="f">Maassa olevan lumikuorman ominaisarvo s<sub>k</sub>
+          <div class="unit"><input type="text" inputmode="decimal" id="r-sk" value="2,5"><span>kN/m²</span></div></label>
+        <label class="f">Lumikuorman muotokerroin μ
+          <input type="text" inputmode="decimal" id="r-mu" value="0,8"></label>
+        <label class="f">Katon kaltevuus α
+          <div class="unit"><input type="text" inputmode="decimal" id="r-a" value="14"><span>°</span></div></label>
+        <label class="f">Katteen ja koolauksen paino g (katon pinnalla)
+          <div class="unit"><input type="text" inputmode="decimal" id="r-g" value="0,15"><span>kN/m²</span></div></label>
+      </div>
+      <div class="calc" id="r-out"></div>
+      <div class="hint">s<sub>k</sub> Suomessa tyypillisesti 2,0–3,5 kN/m² (rannikko 2,0–2,5, Itä- ja Pohjois-Suomi 2,75–3,5). μ = 0,8 kun α ≤ 30°. Kinostumat ja kattovarusteiden kuormat mitoitetaan erikseen.</div>
+    </div>
+
+    <!-- OMA -->
+    <div data-panel="custom" style="display:none">
+      <div class="grid">
+        <label class="f">Pysyvä kuorma g<sub>k</sub> (kohtisuoraan orteen)
+          <div class="unit"><input type="text" inputmode="decimal" id="u-g" value="0,20"><span>kN/m²</span></div></label>
+        <label class="f">Muuttuva kuorma q<sub>k</sub> (kohtisuoraan orteen)
+          <div class="unit"><input type="text" inputmode="decimal" id="u-q" value="0,50"><span>kN/m²</span></div></label>
+      </div>
+      <div class="calc" id="u-out"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3><span class="n">3</span>Rakenne ja vaatimukset</h3>
+    <div class="grid">
+      <label class="f">Orsijako (orsien k-väli = kuormaleveys)
+        <div class="unit"><input type="text" inputmode="decimal" id="g-spacing" value="600"><span>mm</span></div></label>
+      <label class="f">Kannatinväli (orren jänneväli)
+        <div class="unit"><input type="text" inputmode="decimal" id="g-span" value="1200"><span>mm</span></div></label>
+      <label class="f">Tuennat
+        <select id="g-spans">
+          <option value="1">Yksiaukkoinen (2 tukea)</option>
+          <option value="2" selected>Kaksiaukkoinen / jatkuva yli tuen</option>
+        </select></label>
+      <label class="f">Sallittu taipuma
+        <select id="g-defl">
+          <option value="200">L/200</option>
+          <option value="300">L/300</option>
+          <option value="400">L/400</option>
+          <option value="600">L/600</option>
+        </select></label>
+      <label class="f">Teräslaatu
+        <select id="g-mat">
+          <option value="all">Molemmat</option>
+          <option value="DX51D" selected>DX51D+Z (vakiotoimitus)</option>
+          <option value="S350GD">S350GD+Z</option>
+        </select></label>
+      <div style="display:flex;flex-direction:column;gap:8px;justify-content:flex-end">
+        <label class="chk"><input type="checkbox" id="g-perf"> Tuulettuva ruode (Ø20 k50 rei'itys)</label>
+        <label class="chk"><input type="checkbox" id="g-onlyok" checked> Näytä vain riittävät</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="htl-results">
+    <h3><span class="n">4</span>Tulokset</h3>
+    <div class="sum" id="r-sum"></div>
+    <div class="recs" id="r-recs"></div>
+    <div class="chart"><div class="legend" id="r-legend"></div><svg id="r-svg" viewBox="0 0 720 320" role="img" aria-label="Sallittu kuorma jännevälin funktiona"></svg></div>
+    <div class="toolbar"><b>Kaikki vaihtoehdot</b></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Profiili</th><th>t (mm)</th><th>Teräs</th><th>Paino kg/m</th><th>Sall. qk taipuma</th><th>Sall. qk lujuus</th><th>Käyttöaste</th><th>Max kannatinväli</th><th>Tila</th></tr></thead>
+      <tbody id="r-body"></tbody></table></div>
+    <ul class="notes" style="margin-top:14px">
+      <li>Laskenta perustuu Lundell-Profile KOOLARI-suunnitteluohjeen (10/2018) poikkileikkausarvoihin (I<sub>y</sub>, W<sub>y</sub>). Kuorma kohtisuoraan laippoja vastaan, tasainen staattinen kuorma.</li>
+      <li>Käyttörajatila: taipuma q<sub>k</sub>·L⁴/(k·E·I) ≤ L/n, k = 76,8 (yksiaukkoinen) tai 185 (kaksiaukkoinen, L = yhden aukon pituus). E = 210 000 MPa.</li>
+      <li>Murtorajatila (yksinkertaistettu): M<sub>Ed</sub> = q<sub>d</sub>·L²/8 ≤ W<sub>y</sub>·f<sub>y</sub>, γ<sub>M0</sub> = 1,0. f<sub>y</sub> = 140 MPa (DX51D+Z) ja 350 MPa (S350GD+Z). Kuormakertoimet: tuuli 1,5; pysyvä 1,35 tai 1,15 + 1,5·muuttuva (K<sub>FI</sub> = 1,0, CC2).</li>
+      <li>Tuulettuvan ruoteen rei'itys pienentää kapasiteettia ohjeen mukaisesti: HTL 21/40 −15 %, HTL 25/70…35/40 −10 %, HTL 50/50 −5 %. Xelent lasketaan aina rei'itettynä (−10 %).</li>
+      <li>Ehtona on, että orret kiinnitetään asianmukaisesti ja levyt kiinnitetään orsiin itseporautuvilla ruuveilla enintään 300 mm välein. Kiinnikkeiden, tukireaktioiden ja ruuvien läpivetokestävyys (tuulen imu) tarkistetaan erikseen.</li>
+      <li>Työkalu on esisuunnittelun apuväline. Lopullisen mitoituksen tekee ja varmentaa kohteen rakennesuunnittelija.</li>
+    </ul>
+  </div>
+</div>
+</div>
+<script>
+(function(){
+const root=document.getElementById('htl-valinta');
+const $=id=>document.getElementById(id);
+const num=id=>{const v=parseFloat(String($(id).value).replace(',','.').replace(/\s/g,''));return isFinite(v)?v:0;};
+const f=(v,d=2)=>isFinite(v)?v.toLocaleString('fi-FI',{minimumFractionDigits:d,maximumFractionDigits:d}):'–';
+
+/* ---- Profiilitiedot: [t mm, Iy cm4, Wy cm3, paino kg/m] (KOOLARI suunnitteluohje 10/2018, vakiotuotteet s.3) ---- */
+const E=210000, FY={DX51D:140,S350GD:350}, MATNAME={DX51D:'DX51D+Z',S350GD:'S350GD+Z'};
+const PROFILES=[
+ {id:'HTL 16/70',perf:null,items:[[0.7,0.436,0.468,0.78],[1.0,0.605,0.662,1.10],[1.2,0.709,0.784,1.32]]},
+ {id:'HTL 21/40',perf:0.15,items:[[0.7,0.629,0.532,0.67],[1.0,0.881,0.751,0.94],[1.2,1.037,0.890,1.12],[1.5,1.255,1.086,1.39]]},
+ {id:'HTL 25/70',perf:0.10,items:[[0.7,1.165,0.804,0.88],[1.0,1.6414,1.145,1.25],[1.2,1.9412,1.365,1.49]]},
+ {id:'HTL 30/40',perf:0.10,items:[[0.7,1.395,0.951,0.77],[1.0,1.972,1.358,1.09],[1.2,2.337,1.620,1.30],[1.5,2.857,2.002,1.60]]},
+ {id:'HTL 30/60',perf:0.10,items:[[0.7,1.643,0.994,0.88],[1.0,2.325,1.419,1.25],[1.2,2.757,1.693,1.49],[1.5,3.374,2.093,1.85]]},
+ {id:'HTL 35/40',perf:0.10,items:[[0.7,1.976,1.151,0.82],[1.0,2.802,1.646,1.17],[1.2,3.328,1.967,1.39]]},
+ {id:'HTL 50/50',perf:0.05,items:[[1.0,6.939,2.685,1.49],[1.2,8.280,3.218,1.78],[1.5,10.225,3.995,2.20],[2.0,13.293,5.246,2.90]]},
+ {id:'Xelent 25/70',perf:0.10,always:true,mats:['DX51D'],items:[[0.7,1.165,0.804,0.88]]}
+];
+/* Huom. HTL 25/70 Iy on ohjeen taulukossa 10-kertainen (painovirhe); käyrästöt vastaavat arvoja 1,165…2,365 cm4. */
+
+const CEIL_LAYERS=[
+ ['Kipsilevy 13 mm',9,true],['Kipsilevy 15 mm (palolevy)',12,false],['Toinen kipsilevykerros 13 mm',9,false],
+ ['Akustolevy (mineraalivilla)',4,false],['Puupaneeli / puukuitulevy',10,false],
+ ['Lämmöneriste orsien päällä (mineraalivilla ~100 mm)',3,false],['Höyrynsulku + koolaus',1,true]
+];
+const lay=$('c-layers');
+CEIL_LAYERS.forEach((l,i)=>{lay.insertAdjacentHTML('beforeend',`<div class="layer"><label class="chk"><input type="checkbox" id="cl${i}" ${l[2]?'checked':''}> ${l[0]}</label><div class="unit"><input type="text" inputmode="decimal" id="cw${i}" value="${l[1]}"><span>kg/m²</span></div></div>`);});
+
+let use='wall', wmode='calc';
+const DEF_DEFL={wall:'200',ceiling:'300',roof:'200',custom:'200'};
+root.querySelectorAll('#htl-uses .use').forEach(b=>b.onclick=()=>{
+  use=b.dataset.use; root.querySelectorAll('#htl-uses .use').forEach(x=>x.classList.toggle('on',x===b));
+  root.querySelectorAll('[data-panel]').forEach(p=>p.style.display=p.dataset.panel===use?'':'none');
+  $('g-defl').value=DEF_DEFL[use];
+  if(use==='ceiling'){$('g-spacing').value='400';$('g-span').value='1200';}
+  else if(use==='roof'){$('g-spacing').value='900';$('g-span').value='1200';}
+  else if(use==='wall'){$('g-spacing').value='600';$('g-span').value='1200';}
+  calc();
+});
+root.querySelectorAll('#htl-wmode button').forEach(b=>b.onclick=()=>{
+  wmode=b.dataset.m; root.querySelectorAll('#htl-wmode button').forEach(x=>x.classList.toggle('on',x===b));
+  root.querySelectorAll('.wcalc').forEach(e=>e.style.display=wmode==='calc'?'':'none');
+  root.querySelectorAll('.wdir').forEach(e=>e.style.display=wmode==='direct'?'':'none'); calc();
+});
+root.addEventListener('input',calc); root.addEventListener('change',calc);
+
+const TERR={0:{z0:0.003,zmin:1},1:{z0:0.01,zmin:1},2:{z0:0.05,zmin:2},3:{z0:0.3,zmin:5},4:{z0:1.0,zmin:10}};
+function qpCalc(cat,z){const t=TERR[cat],zz=Math.max(z,t.zmin),kr=0.19*Math.pow(t.z0/0.05,0.07),ln=Math.log(zz/t.z0),vm=kr*ln*21,Iv=1/ln;return (1+7*Iv)*0.5*1.25*vm*vm/1000;}
+
+/* palauttaa {gk, qk, area (kN/m²), gamma, desc} kohtisuorat pintakuormat */
+function loads(){
+  if(use==='wall'){
+    const qp=wmode==='calc'?qpCalc(+$('w-terr').value,num('w-z')):num('w-qp');
+    const zone=$('w-zone').value; let c;
+    $('w-ownwrap').style.display=zone==='own'?'':'none'; $('w-cpiwrap').style.display=zone==='own'?'none':'';
+    if(zone==='own') c=Math.abs(num('w-own'));
+    else{const cpe=+zone; c=$('w-cpi').value==='0'?Math.abs(cpe):(cpe<0?-cpe+0.2:cpe+0.3);}
+    const w=qp*c;
+    $('w-out').innerHTML=`q<sub>p</sub> = <b>${f(qp)} kN/m²</b> · nettopainekerroin ${f(c)} → tuulikuorma w<sub>k</sub> = <b>${f(w)} kN/m²</b>`;
+    return {area:w, qd:1.5*w, desc:'Tuulikuorma'};
+  }
+  if(use==='ceiling'){
+    let kg=num('c-extra'); CEIL_LAYERS.forEach((l,i)=>{if($('cl'+i).checked)kg+=num('cw'+i);});
+    const g=kg*9.81/1000;
+    $('c-out').innerHTML=`Alakaton paino yhteensä <b>${f(kg,1)} kg/m²</b> → g<sub>k</sub> = <b>${f(g)} kN/m²</b>`;
+    return {area:g, qd:1.35*g, desc:'Alakaton paino'};
+  }
+  if(use==='roof'){
+    const a=num('r-a')*Math.PI/180, s=num('r-mu')*num('r-sk'), g=num('r-g');
+    const sp=s*Math.cos(a)*Math.cos(a), gp=g*Math.cos(a);
+    $('r-out').innerHTML=`Lumikuorma katolla s = μ·s<sub>k</sub> = <b>${f(s)} kN/m²</b> (vaakaprojektiolle). Kohtisuoraan orsia: lumi ${f(sp)} + kate ${f(gp)} = <b>${f(sp+gp)} kN/m²</b>`;
+    return {area:sp+gp, qd:Math.max(1.35*gp,1.15*gp+1.5*sp), desc:'Lumi + kate'};
+  }
+  const g=num('u-g'), q=num('u-q');
+  $('u-out').innerHTML=`Yhteensä <b>${f(g+q)} kN/m²</b>, mitoitusarvo ${f(Math.max(1.35*g,1.15*g+1.5*q))} kN/m²`;
+  return {area:g+q, qd:Math.max(1.35*g,1.15*g+1.5*q), desc:'Oma kuorma'};
+}
+
+function evaluate(p,it,mat,ctx){
+  const [t,Iy,Wy,kg]=it, I=Iy*1e4, W=Wy*1e3, fy=FY[mat];
+  const r=(p.always||ctx.perf)?(p.perf||0):0;
+  const k=ctx.spans===1?76.8:185, n=ctx.n, g=ctx.gamma;
+  const cap=L=>{ // L mm → sallittu qk kN/m
+    const qD=k*E*I/(n*L*L*L)*(1-r), qS=8*W*fy/(L*L)/g*(1-r); return {qD,qS,q:Math.min(qD,qS)};
+  };
+  const c=cap(ctx.L);
+  const util=ctx.qk/c.q;
+  const lD=Math.cbrt(k*E*I*(1-r)/(n*ctx.qk)), lS=Math.sqrt(8*W*fy*(1-r)/(g*ctx.qk));
+  return {name:p.id,t,mat,kg,qD:c.qD,qS:c.qS,util,lmax:Math.min(lD,lS),gov:c.qD<=c.qS?'taipuma':'lujuus',ok:util<=1,cap,r};
+}
+
+const COLORS=['#82c79f','#E3824F','#8fb3e8','#d9a5e3'];
+function calc(){
+  const L=loads();
+  const spacing=num('g-spacing')/1000, span=num('g-span'), spans=+$('g-spans').value, n=+$('g-defl').value;
+  const qk=L.area*spacing, qd=L.qd*spacing, gamma=qk>0?qd/qk:1.5;
+  const matSel=$('g-mat').value, perf=$('g-perf').checked;
+  $('r-sum').innerHTML=[
+    [L.desc+' (pinta)',f(L.area)+' kN/m²'],['Viivakuorma q<sub>k</sub> (KRT)',f(qk)+' kN/m'],
+    ['Mitoituskuorma q<sub>d</sub> (MRT)',f(qd)+' kN/m'],['Kannatinväli / taipuma',f(span/1000,2)+' m / L/'+n]
+  ].map(x=>`<div class="kpi"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
+  if(!(qk>0&&span>0)){$('r-recs').innerHTML='<div class="rec none">Syötä kuorma, orsijako ja kannatinväli.</div>';$('r-body').innerHTML='';$('r-svg').innerHTML='';return;}
+  const ctx={L:span,spans,n,gamma,qk,perf}; const rows=[];
+  PROFILES.forEach(p=>{
+    if(perf&&!p.perf) return;
+    (p.mats||['DX51D','S350GD']).forEach(m=>{ if(matSel!=='all'&&m!==matSel) return; p.items.forEach(it=>rows.push(evaluate(p,it,m,ctx))); });
+  });
+  rows.sort((a,b)=>(b.ok-a.ok)||(a.ok?(a.kg-b.kg)||(a.util-b.util):a.util-b.util));
+  const okRows=rows.filter(r=>r.ok);
+  const bestDX=okRows.find(r=>r.mat==='DX51D'), bestS=okRows.find(r=>r.mat==='S350GD');
+  const card=(r,title,cls)=>`<div class="rec ${cls}"><small>${title}</small><div class="big">${r.name} × ${f(r.t,1)} mm</div><ul>
+    <li>${MATNAME[r.mat]}, ${f(r.kg)} kg/m</li><li>Käyttöaste ${f(r.util*100,0)} % (määräävä: ${r.gov})</li>
+    <li>Suurin kannatinväli tällä kuormalla ${f(r.lmax,0)} mm</li>${r.r?`<li>Rei'ityksen vähennys −${f(r.r*100,0)} %</li>`:''}</ul></div>`;
+  let rh='';
+  if(!okRows.length){
+    const best=rows.slice().sort((a,b)=>b.lmax-a.lmax)[0];
+    rh=`<div class="rec none"><small>Ei riittävää vakioprofiilia</small><div class="big">Pienennä kannatinväliä tai orsijakoa</div><ul><li>Järeimmällä vaihtoehdolla (${best?best.name+' × '+f(best.t,1)+' mm, '+MATNAME[best.mat]:'–'}) suurin kannatinväli on ${best?f(best.lmax,0):'–'} mm.</li>${matSel==='DX51D'?'<li>Kokeile myös teräslaatua S350GD+Z.</li>':''}</ul></div>`;
+  }else{
+    if(bestDX) rh+=card(bestDX,'Suositus – vakiomateriaali','');
+    if(bestS&&(!bestDX||bestS.kg<bestDX.kg)) rh+=card(bestS,bestDX?'Kevyempi vaihtoehto – S350GD+Z':'Suositus',bestDX?'alt':'');
+  }
+  $('r-recs').innerHTML=rh;
+  const show=$('g-onlyok').checked?okRows:rows;
+  $('r-body').innerHTML=show.length?show.map(r=>{
+    const u=Math.min(r.util,1.5), col=r.util<=0.85?'var(--htl-ok)':r.util<=1?'var(--htl-warn)':'var(--htl-bad)';
+    return `<tr class="${r.ok?'':'fail'}"><td><b>${r.name}</b>${r.r?' <span title="rei\'itetty">◦</span>':''}</td><td>${f(r.t,1)}</td><td>${MATNAME[r.mat]}</td><td>${f(r.kg)}</td>
+    <td>${f(r.qD)} kN/m</td><td>${f(r.qS)} kN/m</td><td>${f(r.util*100,0)} %<span class="bar"><i style="width:${u/1.5*100}%;background:${col}"></i></span></td>
+    <td>${f(r.lmax,0)} mm</td><td><span class="tag ${r.ok?'ok':'no'}">${r.ok?'Riittää':'Ei riitä'}</span></td></tr>`;}).join('')
+    :'<tr><td colspan="9" style="text-align:center">Ei riittäviä vaihtoehtoja näillä lähtötiedoilla.</td></tr>';
+  drawChart(rows,okRows,ctx);
+}
+
+function drawChart(rows,okRows,ctx){
+  const svg=$('r-svg'), W=720,H=320,m={l:52,r:16,t:14,b:40};
+  let pick=[]; const add=r=>{if(r&&!pick.includes(r)&&pick.length<4)pick.push(r);};
+  okRows.slice(0,3).forEach(add); rows.slice().sort((a,b)=>b.lmax-a.lmax).slice(0,1).forEach(add);
+  const xMax=Math.max(1500,Math.ceil(ctx.L*1.8/300)*300), xMin=300;
+  const yMax=Math.max(ctx.qk*3,0.5); const nice=Math.pow(10,Math.floor(Math.log10(yMax))); const yTop=Math.ceil(yMax/nice*2)/2*nice;
+  const X=v=>m.l+(v-xMin)/(xMax-xMin)*(W-m.l-m.r), Y=v=>H-m.b-Math.min(v,yTop)/yTop*(H-m.t-m.b);
+  let s='';
+  for(let i=0;i<=5;i++){const v=yTop*i/5;s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--htl-line)"/><text x="${m.l-6}" y="${Y(v)+4}" font-size="11" text-anchor="end" fill="var(--htl-muted)">${f(v,v<1?2:1)}</text>`;}
+  for(let x=xMin;x<=xMax;x+=300){s+=`<line x1="${X(x)}" x2="${X(x)}" y1="${m.t}" y2="${H-m.b}" stroke="var(--htl-line)" stroke-opacity=".5"/><text x="${X(x)}" y="${H-m.b+16}" font-size="11" text-anchor="middle" fill="var(--htl-muted)">${x}</text>`;}
+  s+=`<text x="${(W+m.l)/2}" y="${H-6}" font-size="12" text-anchor="middle" fill="var(--htl-muted)">Kannatinväli L (mm)</text><text x="14" y="${(H)/2}" font-size="12" text-anchor="middle" fill="var(--htl-muted)" transform="rotate(-90 14 ${H/2})">Sallittu q (kN/m)</text>`;
+  pick.forEach((r,i)=>{let d='';for(let x=xMin;x<=xMax;x+=10){const q=r.cap(x).q;d+=(d?'L':'M')+X(x).toFixed(1)+','+Y(q).toFixed(1);}
+    s+=`<path d="${d}" fill="none" stroke="${COLORS[i]}" stroke-width="2.4"/>`;});
+  s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(ctx.qk)}" y2="${Y(ctx.qk)}" stroke="var(--htl-bad)" stroke-dasharray="5 4"/>`;
+  s+=`<circle cx="${X(ctx.L)}" cy="${Y(ctx.qk)}" r="6" fill="var(--htl-bad)" stroke="var(--htl-panel)" stroke-width="2"/><text x="${X(ctx.L)+9}" y="${Y(ctx.qk)-9}" font-size="12" fill="var(--htl-bad)">Kohde</text>`;
+  svg.innerHTML=s;
+  $('r-legend').innerHTML=pick.map((r,i)=>`<span><i style="background:${COLORS[i]}"></i>${r.name} × ${f(r.t,1)} (${MATNAME[r.mat]})</span>`).join('')+`<span><i style="background:var(--htl-bad)"></i>Kohteen kuorma q<sub>k</sub></span>`;
+}
+calc();
+})();
+</script>
+</body>
+</html>
